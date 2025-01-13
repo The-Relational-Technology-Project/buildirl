@@ -27,7 +27,7 @@ import { db } from "~/server/db";
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
     db,
-    ...opts,
+    ...opts
   };
 };
 
@@ -45,11 +45,10 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       ...shape,
       data: {
         ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
-      },
+        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null
+      }
     };
-  },
+  }
 });
 
 /**

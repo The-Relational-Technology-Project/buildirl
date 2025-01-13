@@ -11,8 +11,8 @@ export const env = createEnv({
     POSTGRES_URL_NON_POOLING: z.string().url(),
     SUPABASE_ANON_KEY: z.string().min(1),
     NODE_ENV: z
-        .enum(["development", "test", "production"])
-        .default("development")
+      .enum(["development", "test", "production"])
+      .default("development")
   },
 
   /**
@@ -46,5 +46,5 @@ export const env = createEnv({
    * Makes it so that empty strings are treated as undefined. `SOME_VAR: z.string()` and
    * `SOME_VAR=''` will throw an error.
    */
-  emptyStringAsUndefined: true,
+  emptyStringAsUndefined: true
 });
