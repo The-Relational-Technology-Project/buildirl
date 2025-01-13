@@ -46,15 +46,16 @@ model Club {
 }
 
 model MembershipTier {
-  id                Int              @id @default(autoincrement())
-  name              String
-  description       String
-  costPerMonthInUSD Decimal
-  club              Club             @relation(fields: [clubId], references: [id])
-  clubId            Int
-  memberships       UserMembership[]
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id                      Int              @id @default(autoincrement())
+  name                    String
+  benefitDescription      String
+  contributionDescription String
+  costPerMonthInUSD       Decimal
+  club                    Club             @relation(fields: [clubId], references: [id])
+  clubId                  Int
+  memberships             UserMembership[]
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
 }
 
 model UserMembership {
