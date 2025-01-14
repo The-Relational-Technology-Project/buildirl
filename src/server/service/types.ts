@@ -1,6 +1,8 @@
 import {z} from "zod";
 import {Id, Maybe} from "~/utils/types";
 
+export type MainService = MainQueries & MainMutations;
+
 export type MainQueries = {
     // top-level
     user(): Promise<User>;
