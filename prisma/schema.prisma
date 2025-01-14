@@ -21,50 +21,54 @@ enum MembershipStatus {
 }
 
 model User {
-  id          Int              @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   firstName   String
   lastName    String
   description String
-  memberships UserMembership[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  memberships Membership[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  Club        Club[]
 }
 
 model Club {
-  id                  Int              @id @default(autoincrement())
-  publicId            String           @unique
-  name                String
-  tagLine             String
-  description         String
-  websiteUrl          String?
-  eventCalendarUrl    String?
-  instagramHandle     String?
-  onboardingQuestions Json
-  membershipTiers     MembershipTier[]
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
+  id                   Int              @id @default(autoincrement())
+  publicId             String           @unique
+  name                 String
+  tagLine              String
+  description          String
+  owner                User             @relation(fields: [ownerUserId], references: [id])
+  ownerUserId          Int
+  websiteUrl           String?
+  eventCalendarUrl     String?
+  instagramHandle      String?
+  applicationQuestions Json
+  membershipTiers      MembershipTier[]
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 }
 
 model MembershipTier {
-  id                      Int              @id @default(autoincrement())
+  id                      Int          @id @default(autoincrement())
   name                    String
   benefitDescription      String
   contributionDescription String
   costPerMonthInUSD       Decimal
-  club                    Club             @relation(fields: [clubId], references: [id])
+  club                    Club         @relation(fields: [clubId], references: [id])
   clubId                  Int
-  memberships             UserMembership[]
-  createdAt               DateTime         @default(now())
-  updatedAt               DateTime         @updatedAt
+  memberships             Membership[]
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
 }
 
-model UserMembership {
-  id               BigInt           @id @default(autoincrement())
-  userId           Int
-  user             User             @relation(fields: [userId], references: [id])
-  membershipTierId Int
-  membershipTier   MembershipTier   @relation(fields: [membershipTierId], references: [id])
-  status           MembershipStatus
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+model Membership {
+  id                   BigInt           @id @default(autoincrement())
+  userId               Int
+  user                 User             @relation(fields: [userId], references: [id])
+  membershipTierId     Int
+  membershipTier       MembershipTier   @relation(fields: [membershipTierId], references: [id])
+  applicationResponses Json
+  status               MembershipStatus
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 }
