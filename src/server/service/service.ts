@@ -1,7 +1,8 @@
-import {type PrismaClient} from "@prisma/client";
+import {Prisma, type PrismaClient} from "@prisma/client";
 import {rootLogger} from "~/logger";
 import {
     ApplicationQuestionsSchema,
+    ApplicationResponsesSchema,
     ApproveMembershipApplicationInput,
     Club,
     ClubStatistics,
@@ -12,7 +13,7 @@ import {
     DeclineMembershipApplicationInput,
     InstagramHandleSchema,
     MainService,
-    Membership, MembershipTier,
+    Membership, MembershipStatus, MembershipTier,
     MutationResult,
     SubmitMembershipApplicationInput,
     UpdateClubInput,
@@ -21,10 +22,12 @@ import {
     UpsertApplicationQuestionsForClubInput,
     URLSchema,
     User
-} from "~/server/service/types/api";
+} from "~/server/service/types";
 import {parseJsonValue, parseNullableString} from "~/utils/zod";
 import {stringify} from "~/utils";
-import {ClubResult, MembershipTierResult} from "~/server/service/types/db";
+import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
+import ClubGetPayload = Prisma.ClubGetPayload;
+import MembershipGetPayload = Prisma.MembershipGetPayload;
 
 const logger = rootLogger.child({module: "mainService"});
 
@@ -62,6 +65,24 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     };
 
+    const MEMBERSHIP_SELECT = {
+        id: true,
+        user: {select: USER_SELECT},
+        membershipTier: {
+            select: {
+                ...MEMBERSHIP_TIER_SELECT,
+                // we want to include this in
+                // Membership metadata
+                club: {
+                    select: CLUB_SELECT
+                }
+            }
+        },
+        status: true,
+        applicationResponses: true,
+        createdAt: true
+    };
+
     function user(id: number): Promise<User> {
         try {
             const user = prisma.user.findUniqueOrThrow({
@@ -82,7 +103,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    function asMembershipTier(r: MembershipTierResult): MembershipTier {
+    function asMembershipTier(r: MembershipTierGetPayload<{ select: typeof MEMBERSHIP_TIER_SELECT }>): MembershipTier {
         return {
             id: r.id,
             name: r.name,
@@ -93,7 +114,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    function asClub(r: ClubResult): Club {
+    function asClub(r: ClubGetPayload<{ select: typeof CLUB_SELECT }>): Club {
         return {
             id: r.id,
             publicId: r.publicId,
@@ -130,8 +151,37 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
+    function asMembership(r: MembershipGetPayload<{ select: typeof MEMBERSHIP_SELECT }>): Membership {
+        return {
+            id: r.id,
+            user: r.user,
+            club: asClub(r.membershipTier.club),
+            membershipTier: asMembershipTier(r.membershipTier),
+            status: r.status,
+            applicationResponses: parseJsonValue(r.applicationResponses, ApplicationResponsesSchema),
+            joinedAt: r.createdAt
+        }
+    }
+
     async function userMemberships(userId: number): Promise<Membership[]> {
-        throw new Error("Not implemented");
+        try {
+            const results = await prisma.membership.findMany({
+                select: MEMBERSHIP_SELECT,
+                where: {
+                    userId: userId
+                }
+            });
+            const memberships = results.map(r => asMembership(r));
+            logger.info(
+                `queried memberships for user with userId ${userId} with result ${stringify(memberships)}`
+            );
+            return memberships;
+        } catch (e) {
+            logger.error(
+                `failed to query memberships for user with userId ${userId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function club(publicId: string): Promise<Club> {
@@ -156,13 +206,52 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     async function membershipsForClub(clubId: number): Promise<Membership[]> {
-        throw new Error("Not implemented");
+        try {
+            const results = await prisma.membership.findMany({
+                select: MEMBERSHIP_SELECT,
+                where: {
+                    membershipTier: {
+                        clubId: clubId
+                    }
+                }
+            })
+            const memberships = results.map(r => asMembership(r));
+            logger.info(
+                `queried memberships for club with clubId ${clubId} with result ${stringify(memberships)}`
+            );
+            return memberships;
+        } catch (e) {
+            logger.error(
+                `failed to query memberships for club with clubId ${clubId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function membershipApplicationsForClub(
         clubId: number
     ): Promise<Membership[]> {
-        throw new Error("Not implemented");
+        try {
+            const results = await prisma.membership.findMany({
+                select: MEMBERSHIP_SELECT,
+                where: {
+                    membershipTier: {
+                        clubId: clubId
+                    },
+                    status: 'PENDING'
+                }
+            });
+            const memberships = results.map(r => asMembership(r));
+            logger.info(
+                `queried pending memberships for club with clubId ${clubId} with result ${stringify(memberships)}`
+            );
+            return memberships;
+        } catch (e) {
+            logger.error(
+                `failed to query pending memberships for club with clubId ${clubId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function clubStatistics(clubId: number): Promise<ClubStatistics> {
