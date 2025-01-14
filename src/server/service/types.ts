@@ -5,9 +5,9 @@ export type MainService = MainQueries & MainMutations;
 
 export type MainQueries = {
     // top-level
-    user(): Promise<User>;
-    userOwnedClubs(): Promise<Club[]>;
-    userMemberships(): Promise<Membership[]>;
+    user(id: number): Promise<User>;
+    userOwnedClubs(userId: number): Promise<Club[]>;
+    userMemberships(userId: number): Promise<Membership[]>;
     club(publicId: string): Promise<Club>;
     membershipsForClub(clubId: number): Promise<Membership[]>;
     membershipApplicationsForClub(clubId: number): Promise<Membership[]>;
