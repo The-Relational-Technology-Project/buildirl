@@ -9,5 +9,5 @@ export const mainRouter = createTRPCRouter({
       return {
         greeting: `Hello ${input.text}`
       };
-    }),
+    })
 });

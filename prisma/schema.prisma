@@ -39,8 +39,8 @@ model Club {
   description          String
   owner                User             @relation(fields: [ownerUserId], references: [id])
   ownerUserId          Int
-  websiteUrl           String?
-  eventCalendarUrl     String?
+  websiteURL           String?
+  eventCalendarURL     String?
   instagramHandle      String?
   applicationQuestions Json
   membershipTiers      MembershipTier[]

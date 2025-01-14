@@ -1,29 +1,34 @@
-import { type PrismaClient } from "@prisma/client";
+import {type PrismaClient} from "@prisma/client";
 import {rootLogger} from "~/logger";
 import {
+    ApplicationQuestionsSchema,
     ApproveMembershipApplicationInput,
     Club,
     ClubStatistics,
     CreateClubInput,
     CreateMembershipTierInput,
-    CreateUserInput, DeactivateMembershipInput, DeclineMembershipApplicationInput,
+    CreateUserInput,
+    DeactivateMembershipInput,
+    DeclineMembershipApplicationInput,
+    InstagramHandleSchema,
     MainService,
-    Membership,
+    Membership, MembershipTier,
     MutationResult,
     SubmitMembershipApplicationInput,
     UpdateClubInput,
     UpdateMembershipTierInput,
     UpdateUserInput,
     UpsertApplicationQuestionsForClubInput,
+    URLSchema,
     User
-} from "~/server/service/types";
+} from "~/server/service/types/api";
+import {parseJsonValue, parseNullableString} from "~/utils/zod";
 import {stringify} from "~/utils";
+import {ClubResult, MembershipTierResult} from "~/server/service/types/db";
 
-const logger = rootLogger.child({ module: "mainService" });
+const logger = rootLogger.child({module: "mainService"});
 
-export function createMainService(
-  prisma: PrismaClient
-): MainService {
+export function createMainService(prisma: PrismaClient): MainService {
     const USER_SELECT = {
         id: true,
         firstName: true,
@@ -31,7 +36,33 @@ export function createMainService(
         description: true
     };
 
-    async function user(id: number): Promise<User> {
+    const MEMBERSHIP_TIER_SELECT = {
+        id: true,
+        name: true,
+        benefitDescription: true,
+        contributionDescription: true,
+        costPerMonthInUSD: true
+    };
+
+    const CLUB_SELECT = {
+        id: true,
+        publicId: true,
+        name: true,
+        tagLine: true,
+        description: true,
+        owner: {
+            select: USER_SELECT
+        },
+        websiteURL: true,
+        instagramHandle: true,
+        eventCalendarURL: true,
+        applicationQuestions: true,
+        membershipTiers: {
+            select: MEMBERSHIP_TIER_SELECT
+        }
+    };
+
+    function user(id: number): Promise<User> {
         try {
             const user = prisma.user.findUniqueOrThrow({
                 select: USER_SELECT,
@@ -51,29 +82,92 @@ export function createMainService(
         }
     }
 
+    function asMembershipTier(r: MembershipTierResult): MembershipTier {
+        return {
+            id: r.id,
+            name: r.name,
+            benefitDescription: r.benefitDescription,
+            contributionDescription: r.contributionDescription,
+            // possible loss of precision here, but it doesn't matter for us
+            costPerMonthInUSD: r.costPerMonthInUSD.toNumber()
+        }
+    }
+
+    function asClub(r: ClubResult): Club {
+        return {
+            id: r.id,
+            publicId: r.publicId,
+            name: r.name,
+            tagLine: r.tagLine,
+            description: r.description,
+            owner: r.owner,
+            websiteURL: parseNullableString(r.websiteURL, URLSchema),
+            instagramHandle: parseNullableString(r.instagramHandle, InstagramHandleSchema),
+            eventCalendarURL: parseNullableString(r.eventCalendarURL, URLSchema),
+            applicationQuestions: parseJsonValue(r.applicationQuestions, ApplicationQuestionsSchema),
+            membershipTiers: r.membershipTiers.map(t => asMembershipTier(t))
+        }
+    }
+
     async function userOwnedClubs(userId: number): Promise<Club[]> {
-        throw new Error("Not implemented");
+        try {
+            const results = await prisma.club.findMany({
+                select: CLUB_SELECT,
+                where: {
+                    ownerUserId: userId
+                }
+            });
+            const clubs = results.map((r) => asClub(r));
+            logger.info(
+                `queried owned clubs for user with userId ${userId} with result ${stringify(clubs)}`
+            );
+            return clubs;
+        } catch (e) {
+            logger.error(
+                `failed to query owned clubs for user with userId ${userId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function userMemberships(userId: number): Promise<Membership[]> {
         throw new Error("Not implemented");
-    };
+    }
 
     async function club(publicId: string): Promise<Club> {
-        throw new Error("Not implemented");
-    };
+        try {
+            const result = await prisma.club.findUniqueOrThrow({
+                select: CLUB_SELECT,
+                where: {
+                    publicId: publicId
+                }
+            });
+            const club = asClub(result);
+            logger.info(
+                `queried club with publicId ${publicId} with result ${stringify(club)}`
+            );
+            return club;
+        } catch (e) {
+            logger.error(
+                `failed to query club with publicId ${publicId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
+    }
 
     async function membershipsForClub(clubId: number): Promise<Membership[]> {
         throw new Error("Not implemented");
-    };
+    }
 
-    async function membershipApplicationsForClub(clubId: number): Promise<Membership[]> {
+    async function membershipApplicationsForClub(
+        clubId: number
+    ): Promise<Membership[]> {
         throw new Error("Not implemented");
-    };
+    }
 
     async function clubStatistics(clubId: number): Promise<ClubStatistics> {
         throw new Error("Not implemented");
-    };
+    }
 
     async function createUser(input: CreateUserInput): Promise<MutationResult> {
         throw new Error("Not implemented");
@@ -81,43 +175,57 @@ export function createMainService(
 
     async function updateUser(input: UpdateUserInput): Promise<MutationResult> {
         throw new Error("Not implemented");
-    };
+    }
 
     async function createClub(input: CreateClubInput): Promise<MutationResult> {
         throw new Error("Not implemented");
-    };
+    }
 
     async function updateClub(input: UpdateClubInput): Promise<MutationResult> {
         throw new Error("Not implemented");
-    };
+    }
 
-    async function upsertApplicationQuestionsForClub(input: UpsertApplicationQuestionsForClubInput): Promise<MutationResult> {
+    async function upsertApplicationQuestionsForClub(
+        input: UpsertApplicationQuestionsForClubInput
+    ): Promise<MutationResult> {
         throw new Error("Not implemented");
-    };
+    }
 
-    async function createMembershipTier(input: CreateMembershipTierInput): Promise<MutationResult> {
+    async function createMembershipTier(
+        input: CreateMembershipTierInput
+    ): Promise<MutationResult> {
         throw new Error("Not implemented");
-    };
+    }
 
-    async function updateMembershipTier(input: UpdateMembershipTierInput): Promise<MutationResult> {
+    async function updateMembershipTier(
+        input: UpdateMembershipTierInput
+    ): Promise<MutationResult> {
         throw new Error("Not implemented");
-    };
+    }
 
-    async function submitMembershipApplication(input: SubmitMembershipApplicationInput): Promise<MutationResult> {
+    async function submitMembershipApplication(
+        input: SubmitMembershipApplicationInput
+    ): Promise<MutationResult> {
         throw new Error("Not implemented");
-    };
+    }
 
-    async function approveMembershipApplication(input: ApproveMembershipApplicationInput): Promise<MutationResult> {
+    async function approveMembershipApplication(
+        input: ApproveMembershipApplicationInput
+    ): Promise<MutationResult> {
         throw new Error("Not implemented");
-    };
+    }
 
-    async function declineMembershipApplication(input: DeclineMembershipApplicationInput): Promise<MutationResult> {
+    async function declineMembershipApplication(
+        input: DeclineMembershipApplicationInput
+    ): Promise<MutationResult> {
         throw new Error("Not implemented");
-    };
+    }
 
-    async function deactivateMembership(input: DeactivateMembershipInput): Promise<MutationResult> {
+    async function deactivateMembership(
+        input: DeactivateMembershipInput
+    ): Promise<MutationResult> {
         throw new Error("Not implemented");
-    };
+    }
 
     return {
         user,
@@ -138,5 +246,5 @@ export function createMainService(
         approveMembershipApplication,
         declineMembershipApplication,
         deactivateMembership
-    }
+    };
 }
