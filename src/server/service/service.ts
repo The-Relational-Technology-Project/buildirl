@@ -13,7 +13,8 @@ import {
     DeclineMembershipApplicationInput,
     InstagramHandleSchema,
     MainService,
-    Membership, MembershipStatus, MembershipTier,
+    Membership,
+    MembershipTier,
     MutationResult,
     SubmitMembershipApplicationInput,
     UpdateClubInput,
@@ -212,7 +213,8 @@ export function createMainService(prisma: PrismaClient): MainService {
                 where: {
                     membershipTier: {
                         clubId: clubId
-                    }
+                    },
+                    status: 'ACTIVE'
                 }
             })
             const memberships = results.map(r => asMembership(r));
@@ -255,7 +257,37 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     async function clubStatistics(clubId: number): Promise<ClubStatistics> {
-        throw new Error("Not implemented");
+        try {
+            const memberCount = await prisma.membership.count({
+                where: {
+                    membershipTier: {
+                        clubId: clubId
+                    },
+                    status: 'ACTIVE'
+                }
+            });
+            const pendingMembershipApplications = await prisma.membership.count({
+                where: {
+                    membershipTier: {
+                        clubId: clubId
+                    },
+                    status: 'PENDING'
+                }
+            });
+            const statistics = {
+                memberCount,
+                pendingMembershipApplications
+            };
+            logger.info(
+                `queried club statistics for club with clubId ${clubId} with result ${stringify(statistics)}`
+            );
+            return statistics;
+        } catch (e) {
+            logger.error(
+                `failed to query club statistics for club with clubId ${clubId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function createUser(input: CreateUserInput): Promise<MutationResult> {
