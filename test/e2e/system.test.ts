@@ -12,8 +12,7 @@ import {createMainService} from "~/server/service/service";
 function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {
   execSync(
     `export POSTGRES_PRISMA_URL=${databaseUrl} POSTGRES_URL=${pooledDatabaseUrl}; 
-    yarn prisma migrate dev; 
-    yarn prisma db seed;`,
+    yarn prisma migrate dev`,
     { stdio: "inherit" }
   );
 }
