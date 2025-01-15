@@ -142,8 +142,7 @@ export type URL = z.infer<typeof URLSchema>;
 
 export const InstagramHandleSchema = z
     .string()
-    .regex(INSTAGRAM_HANDLE_REGEX)
-    .url("Not a valid Instagram handle");
+    .regex(INSTAGRAM_HANDLE_REGEX, "Not a valid Instagram handle");
 export type InstagramHandle = z.infer<typeof InstagramHandleSchema>;
 
 export const ClubNameSchema = z.string().min(3);
