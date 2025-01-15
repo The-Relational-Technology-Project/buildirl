@@ -1,4 +1,4 @@
-import {Prisma, type PrismaClient} from "@prisma/client";
+import {MembershipStatus, Prisma, type PrismaClient} from "@prisma/client";
 import {rootLogger} from "~/logger";
 import {
     ApplicationQuestionsSchema,
@@ -380,44 +380,184 @@ export function createMainService(prisma: PrismaClient): MainService {
         clubId: number,
         input: UpdateClubApplicationQuestionsInput
     ): Promise<MutationResult> {
-        throw new Error("Not implemented");
+        try {
+            await prisma.club.update({
+                data: input,
+                where: {
+                    id: clubId
+                }
+            });
+            logger.info(
+                `updated club application questions for club with clubId ${clubId} from input ${stringify(input)}`
+            );
+            return NO_ID_MUTATION_RESULT;
+        } catch (e) {
+            logger.error(
+                `failed to update club application questions for club with clubId ${clubId} from input ${stringify(input)} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function createMembershipTier(
         input: CreateMembershipTierInput
     ): Promise<MutationResult> {
-        throw new Error("Not implemented");
+        try {
+            const { id } = await prisma.membershipTier.create({
+                data: input,
+                select: {
+                    id: true
+                }
+            });
+            logger.info(
+                `created membership tier from input ${stringify(input)} with membershipTierId ${id}`
+            );
+            return { createdEntityId: id };
+        } catch (e) {
+            logger.error(
+                `failed to create membership tier from input ${stringify(input)} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function updateMembershipTier(
         id: number,
         input: UpdateMembershipTierInput
     ): Promise<MutationResult> {
-        throw new Error("Not implemented");
+        try {
+            await prisma.membershipTier.update({
+                data: input,
+                where: {
+                    id: id
+                }
+            });
+            logger.info(
+                `updated membership tier with membershipTierId ${id} from input ${stringify(input)}`
+            );
+            return NO_ID_MUTATION_RESULT;
+        } catch (e) {
+            logger.error(
+                `failed to update membership tier with membershipTierId ${id} from input ${stringify(input)} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function submitMembershipApplication(
-        input: SubmitMembershipApplicationInput
+        input: SubmitMembershipApplicationInput,
+        userId: number
     ): Promise<MutationResult> {
-        throw new Error("Not implemented");
+        try {
+            const { id } = await prisma.membership.create({
+                data: {
+                    id: input.clubId,
+                    userId: userId,
+                    membershipTierId: input.membershipTierId,
+                    applicationResponses: input.applicationResponses,
+                    status: 'PENDING'
+                },
+                select: {
+                    id: true
+                }
+            });
+            logger.info(
+                `created pending membership from input ${stringify(input)} with membershipId ${id}`
+            );
+            return { createdEntityId: id };
+        } catch (e) {
+            logger.error(
+                `failed to create pending membership from input ${stringify(input)} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
+    }
+
+    async function membershipStatus(membershipId: number): Promise<MembershipStatus> {
+        try {
+            const membership = await prisma.membership.findUniqueOrThrow({
+                where: { id: membershipId }
+            });
+            logger.info(
+                `queried membership status for membership with membershipId ${membershipId} with result ${stringify(membership.status)}`
+            );
+            return membership.status;
+        } catch (e) {
+            logger.error(
+                `failed to query membership status for membership with membershipId ${membershipId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
+    }
+
+    async function checkMembershipStatus(membershipId: number, expectedStatus: MembershipStatus): Promise<void> {
+        const status = await membershipStatus(membershipId);
+        if (status !== expectedStatus) {
+            throw new Error(`Membership with membershipId ${membershipId} was expected to be ${expectedStatus} but was ${status}`);
+        }    
     }
 
     async function approveMembershipApplication(
         input: ApproveMembershipApplicationInput
     ): Promise<MutationResult> {
-        throw new Error("Not implemented");
+        try {
+            await checkMembershipStatus(input.membershipId, 'PENDING');
+            await prisma.membership.update({
+                data: { status: 'ACTIVE' },
+                where: { id: input.membershipId }
+            });
+            logger.info(
+                `approved membership with membershipId ${input.membershipId}`
+            );
+            return NO_ID_MUTATION_RESULT;
+        } catch (e) {
+            logger.error(
+                `failed to approve membership with membershipId ${input.membershipId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function declineMembershipApplication(
         input: DeclineMembershipApplicationInput
     ): Promise<MutationResult> {
-        throw new Error("Not implemented");
+        try {
+            await checkMembershipStatus(input.membershipId, 'PENDING');
+            await prisma.membership.update({
+                data: { status: 'DECLINED' },
+                where: { id: input.membershipId }
+            });     
+            logger.info(
+                `declined membership with membershipId ${input.membershipId}`
+            );
+            return NO_ID_MUTATION_RESULT;
+        } catch (e) {
+            logger.error(
+                `failed to decline membership with membershipId ${input.membershipId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function deactivateMembership(
         input: DeactivateMembershipInput
     ): Promise<MutationResult> {
-        throw new Error("Not implemented");
+        try {
+            await checkMembershipStatus(input.membershipId, 'ACTIVE');
+            await prisma.membership.update({
+                data: { status: 'INACTIVE' },
+                where: { id: input.membershipId }
+            });     
+            logger.info(
+                `deactivated membership with membershipId ${input.membershipId}`
+            );
+            return NO_ID_MUTATION_RESULT;
+        } catch (e) {
+            logger.error(
+                `failed to deactivate membership with membershipId ${input.membershipId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     return {

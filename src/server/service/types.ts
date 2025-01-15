@@ -167,7 +167,6 @@ export const UpdateClubInputSchema = z.object({
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;
 
 export const UpdateClubApplicationQuestionsInputSchema = z.object({
-    clubId: z.number(),
     applicationQuestions: ApplicationQuestionsSchema
 });
 export type UpdateClubApplicationQuestionsInput = z.infer<
