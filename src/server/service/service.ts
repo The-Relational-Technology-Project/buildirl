@@ -94,12 +94,12 @@ export function createMainService(prisma: PrismaClient): MainService {
                 }
             });
             logger.info(
-                `queried user with userId ${id} with result ${stringify(user)}`
+                `queried user with id ${id} with result ${stringify(user)}`
             );
             return user;
         } catch (e) {
             logger.error(
-                `failed to query user with userId ${id} with exception ${stringify(e)}`
+                `failed to query user with id ${id} with exception ${stringify(e)}`
             );
             throw e;
         }
@@ -186,7 +186,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function club(publicId: string): Promise<Club> {
+    async function clubByPublicId(publicId: string): Promise<Club> {
         try {
             const result = await prisma.club.findUniqueOrThrow({
                 select: CLUB_SELECT,
@@ -202,6 +202,25 @@ export function createMainService(prisma: PrismaClient): MainService {
         } catch (e) {
             logger.error(
                 `failed to query club with publicId ${publicId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
+    }
+
+    async function club(id: number): Promise<Club> {
+        try {
+            const result = await prisma.club.findUniqueOrThrow({
+                select: CLUB_SELECT,
+                where: { id }
+            });
+            const club = asClub(result);
+            logger.info(
+                `queried club with id ${id} with result ${stringify(club)}`
+            );
+            return club;
+        } catch (e) {
+            logger.error(
+                `failed to query club with id ${id} with exception ${stringify(e)}`
             );
             throw e;
         }
@@ -320,12 +339,12 @@ export function createMainService(prisma: PrismaClient): MainService {
                 }
             });
             logger.info(
-                `updated user with userId ${id} from input ${stringify(input)}`
+                `updated user with id ${id} from input ${stringify(input)}`
             );
             return NO_ID_MUTATION_RESULT;
         } catch (e) {
             logger.error(
-                `failed to update user with userId ${id} from input ${stringify(input)} with exception ${stringify(e)}`
+                `failed to update user with id ${id} from input ${stringify(input)} with exception ${stringify(e)}`
             );
             throw e;
         }
@@ -365,12 +384,12 @@ export function createMainService(prisma: PrismaClient): MainService {
                 }
             });
             logger.info(
-                `updated club with clubId ${id} from input ${stringify(input)}`
+                `updated club with id ${id} from input ${stringify(input)}`
             );
             return NO_ID_MUTATION_RESULT;
         } catch (e) {
             logger.error(
-                `failed to update club with clubId ${id} from input ${stringify(input)} with exception ${stringify(e)}`
+                `failed to update club with id ${id} from input ${stringify(input)} with exception ${stringify(e)}`
             );
             throw e;
         }
@@ -433,12 +452,12 @@ export function createMainService(prisma: PrismaClient): MainService {
                 }
             });
             logger.info(
-                `updated membership tier with membershipTierId ${id} from input ${stringify(input)}`
+                `updated membership tier with id ${id} from input ${stringify(input)}`
             );
             return NO_ID_MUTATION_RESULT;
         } catch (e) {
             logger.error(
-                `failed to update membership tier with membershipTierId ${id} from input ${stringify(input)} with exception ${stringify(e)}`
+                `failed to update membership tier with id ${id} from input ${stringify(input)} with exception ${stringify(e)}`
             );
             throw e;
         }
@@ -479,12 +498,12 @@ export function createMainService(prisma: PrismaClient): MainService {
                 where: { id: membershipId }
             });
             logger.info(
-                `queried membership status for membership with membershipId ${membershipId} with result ${stringify(membership.status)}`
+                `queried membership status for membership with id ${membershipId} with result ${stringify(membership.status)}`
             );
             return membership.status;
         } catch (e) {
             logger.error(
-                `failed to query membership status for membership with membershipId ${membershipId} with exception ${stringify(e)}`
+                `failed to query membership status for membership with id ${membershipId} with exception ${stringify(e)}`
             );
             throw e;
         }
@@ -493,7 +512,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     async function checkMembershipStatus(membershipId: number, expectedStatus: MembershipStatus): Promise<void> {
         const status = await membershipStatus(membershipId);
         if (status !== expectedStatus) {
-            throw new Error(`Membership with membershipId ${membershipId} was expected to be ${expectedStatus} but was ${status}`);
+            throw new Error(`Membership with id ${membershipId} was expected to be ${expectedStatus} but was ${status}`);
         }    
     }
 
@@ -507,12 +526,12 @@ export function createMainService(prisma: PrismaClient): MainService {
                 where: { id: input.membershipId }
             });
             logger.info(
-                `approved membership with membershipId ${input.membershipId}`
+                `approved membership with id ${input.membershipId}`
             );
             return NO_ID_MUTATION_RESULT;
         } catch (e) {
             logger.error(
-                `failed to approve membership with membershipId ${input.membershipId} with exception ${stringify(e)}`
+                `failed to approve membership with id ${input.membershipId} with exception ${stringify(e)}`
             );
             throw e;
         }
@@ -528,12 +547,12 @@ export function createMainService(prisma: PrismaClient): MainService {
                 where: { id: input.membershipId }
             });     
             logger.info(
-                `declined membership with membershipId ${input.membershipId}`
+                `declined membership with id ${input.membershipId}`
             );
             return NO_ID_MUTATION_RESULT;
         } catch (e) {
             logger.error(
-                `failed to decline membership with membershipId ${input.membershipId} with exception ${stringify(e)}`
+                `failed to decline membership with id ${input.membershipId} with exception ${stringify(e)}`
             );
             throw e;
         }
@@ -549,12 +568,12 @@ export function createMainService(prisma: PrismaClient): MainService {
                 where: { id: input.membershipId }
             });     
             logger.info(
-                `deactivated membership with membershipId ${input.membershipId}`
+                `deactivated membership with id ${input.membershipId}`
             );
             return NO_ID_MUTATION_RESULT;
         } catch (e) {
             logger.error(
-                `failed to deactivate membership with membershipId ${input.membershipId} with exception ${stringify(e)}`
+                `failed to deactivate membership with id ${input.membershipId} with exception ${stringify(e)}`
             );
             throw e;
         }
@@ -564,6 +583,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         user,
         userOwnedClubs,
         userMemberships,
+        clubByPublicId,
         club,
         membershipsForClub,
         membershipApplicationsForClub,

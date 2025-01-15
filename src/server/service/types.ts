@@ -8,10 +8,12 @@ export type MainQueries = {
     user(id: number): Promise<User>;
     userOwnedClubs(userId: number): Promise<Club[]>;
     userMemberships(userId: number): Promise<Membership[]>;
-    club(publicId: string): Promise<Club>;
+    clubByPublicId(publicId: string): Promise<Club>;
     membershipsForClub(clubId: number): Promise<Membership[]>;
     membershipApplicationsForClub(clubId: number): Promise<Membership[]>;
     clubStatistics(clubId: number): Promise<ClubStatistics>;
+    // entities
+    club(id: number): Promise<Club>;
 };
 
 export type User = {
@@ -149,9 +151,9 @@ export const CreateClubInputSchema = z.object({
     publicId: ClubPublicIdSchema,
     tagLine: z.string(),
     description: z.string(),
-    websiteURL: URLSchema.optional(),
-    instagramHandle: InstagramHandleSchema.optional(),
-    eventCalendarURL: URLSchema.optional()
+    websiteURL: URLSchema.nullable(),
+    instagramHandle: InstagramHandleSchema.nullable(),
+    eventCalendarURL: URLSchema.nullable()
 });
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
 
@@ -160,9 +162,9 @@ export const UpdateClubInputSchema = z.object({
     publicId: ClubPublicIdSchema,
     tagLine: z.string(),
     description: z.string(),
-    websiteURL: URLSchema.optional(),
-    instagramHandle: InstagramHandleSchema.optional(),
-    eventCalendarURL: URLSchema.optional()
+    websiteURL: URLSchema.nullable(),
+    instagramHandle: InstagramHandleSchema.nullable(),
+    eventCalendarURL: URLSchema.nullable()
 });
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;
 

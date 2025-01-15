@@ -28,10 +28,10 @@ export default class CreateUserCommand
       this.authUserId
     );
     this.userId = idAsNumber(result.createdEntityId);
-    m.createUser({
-      id: this.userId,
-      ...this.input
-    });
+    m.createUser(
+      this.userId,
+      this.input
+    );
     await verifiers.verifyUser(this.userId, r, m);
   }
 

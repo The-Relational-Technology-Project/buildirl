@@ -11,8 +11,18 @@ function createVerifiers() {
     expect(user).toEqual(m.getUser(userId));
   }
 
+  async function verifyClub(
+      clubId: number,
+      r: MainService,
+      m: SystemState
+  ) {
+    const club = await r.club(clubId);
+    expect(club).toEqual(m.getClub(clubId));
+  }
+
   return {
-    verifyUser
+    verifyUser,
+    verifyClub
   };
 }
 

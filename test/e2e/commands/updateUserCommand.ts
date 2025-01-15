@@ -29,7 +29,7 @@ export default class UpdateUserCommand
             this.userId,
             this.input
         );
-        m.updateUser(this.userId, this.input.description);
+        m.updateUser(this.userId, this.input);
         await verifiers.verifyUser(this.userId, r, m);
     }
 
