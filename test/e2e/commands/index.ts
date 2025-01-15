@@ -1,8 +1,15 @@
-import {option, record, string, uuid, webUrl} from "fast-check";
+import {option, record, string, stringMatching, uuid, webUrl} from "fast-check";
 import CreateUserCommand from "./createUserCommand";
 import {
+    CLUB_PUBLIC_ID_REGEX,
     ClubNameSchema,
-    ClubPublicIdSchema, FirstNameSchema, InstagramHandleSchema, LastNameSchema
+    ClubPublicIdSchema,
+    FIRST_NAME_REGEX,
+    FirstNameSchema,
+    INSTAGRAM_HANDLE_REGEX,
+    InstagramHandleSchema,
+    LAST_NAME_REGEX,
+    LastNameSchema
 } from "~/server/service/types";
 import UpdateUserCommand from "./updateUserCommand";
 import itemSelector from "../utils/itemSelector";
@@ -21,8 +28,8 @@ export const allCommands = () => {
 
 function createUserCommands() {
     return record({
-        firstName: string().filter((s) => isZodType(s, FirstNameSchema)),
-        lastName: string().filter((s) => isZodType(s, LastNameSchema)),
+        firstName: stringMatching(FIRST_NAME_REGEX).filter((s) => isZodType(s, FirstNameSchema)),
+        lastName: stringMatching(LAST_NAME_REGEX).filter((s) => isZodType(s, LastNameSchema)),
         description: string(),
         authUserId: uuid()
     }).map(
@@ -56,11 +63,11 @@ function updateUserCommands() {
 function createClubCommands() {
     return record({
         name: string(),
-        publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
+        publicId: stringMatching(CLUB_PUBLIC_ID_REGEX).filter((s) => isZodType(s, ClubPublicIdSchema)),
         tagLine: string(),
         description: string(),
         websiteURL: option(webUrl(), {freq: 4}),
-        instagramHandle: option(string().filter(s => isZodType(s, InstagramHandleSchema)), {freq: 4}),
+        instagramHandle: option(stringMatching(INSTAGRAM_HANDLE_REGEX).filter(s => isZodType(s, InstagramHandleSchema)), {freq: 4}),
         eventCalendarURL: option(webUrl(), {freq: 4}),
         userIdSelector: itemSelector<number>()
     }).map(
@@ -80,11 +87,11 @@ function updateClubCommands() {
     return record({
         clubIdSelector: itemSelector<number>(),
         name: string().filter((s) => isZodType(s, ClubNameSchema)),
-        publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
+        publicId: stringMatching(CLUB_PUBLIC_ID_REGEX).filter((s) => isZodType(s, ClubPublicIdSchema)),
         tagLine: string(),
         description: string(),
         websiteURL: option(webUrl(), {freq: 4}),
-        instagramHandle: option(string().filter(s => isZodType(s, InstagramHandleSchema)), {freq: 4}),
+        instagramHandle: option(stringMatching(INSTAGRAM_HANDLE_REGEX).filter(s => isZodType(s, InstagramHandleSchema)), {freq: 4}),
         eventCalendarURL: option(webUrl(), {freq: 4}),
     }).map(
         (i) => new UpdateClubCommand({
