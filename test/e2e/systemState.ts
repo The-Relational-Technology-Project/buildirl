@@ -2,7 +2,7 @@ import {
   type User,
 } from "~/server/service/types";
 export class SystemState {
-  private users: Map<number, User>;
+  private readonly users: Map<number, User>;
 
   constructor() {
     this.users = new Map();
@@ -16,10 +16,26 @@ export class SystemState {
     return user;
   }
 
+  public hasUsers(): boolean {
+    return this.users.size > 0;
+  }
+
+  public getUserIds() : number[] {
+    return Array.from(this.users.keys());
+  }
+
   public createUser(user: User) {
     if (!!this.users.get(user.id)) {
       throw new Error(`user with id ${user.id} already exists`)
     }
     this.users.set(user.id, user);
+  }
+
+  public updateUser(id: number, description: string) {
+    const user = this.getUser(id);
+    this.users.set(id, {
+      ...user,
+      description: description
+    })
   }
 }
