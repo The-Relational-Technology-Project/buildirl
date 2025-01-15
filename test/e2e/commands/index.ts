@@ -1,8 +1,8 @@
-import {option, record, string, uuid} from "fast-check";
+import {option, record, string, uuid, webUrl} from "fast-check";
 import CreateUserCommand from "./createUserCommand";
 import {
     ClubNameSchema,
-    ClubPublicIdSchema, FirstNameSchema, InstagramHandleSchema, LastNameSchema, URLSchema
+    ClubPublicIdSchema, FirstNameSchema, InstagramHandleSchema, LastNameSchema
 } from "~/server/service/types";
 import UpdateUserCommand from "./updateUserCommand";
 import itemSelector from "../utils/itemSelector";
@@ -59,9 +59,9 @@ function createClubCommands() {
         publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
         tagLine: string(),
         description: string(),
-        websiteURL: option(string().filter((s) => isZodType(s, URLSchema)), {freq: 4}),
+        websiteURL: option(webUrl(), {freq: 4}),
         instagramHandle: option(string().filter(s => isZodType(s, InstagramHandleSchema)), {freq: 4}),
-        eventCalendarURL: option(string().filter(s => isZodType(s, URLSchema)), {freq: 4}),
+        eventCalendarURL: option(webUrl(), {freq: 4}),
         userIdSelector: itemSelector<number>()
     }).map(
         (i) => new CreateClubCommand({
@@ -83,9 +83,9 @@ function updateClubCommands() {
         publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
         tagLine: string(),
         description: string(),
-        websiteURL: option(string().filter((s) => isZodType(s, URLSchema)), {freq: 4}),
+        websiteURL: option(webUrl(), {freq: 4}),
         instagramHandle: option(string().filter(s => isZodType(s, InstagramHandleSchema)), {freq: 4}),
-        eventCalendarURL: option(string().filter(s => isZodType(s, URLSchema)), {freq: 4}),
+        eventCalendarURL: option(webUrl(), {freq: 4}),
     }).map(
         (i) => new UpdateClubCommand({
             name: i.name,
