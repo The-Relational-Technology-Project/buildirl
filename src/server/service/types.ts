@@ -71,21 +71,24 @@ export type ClubStatistics = {
 
 // TODO define
 export type MainMutations = {
-    createUser(input: CreateUserInput): Promise<MutationResult>;
-    updateUser(input: UpdateUserInput): Promise<MutationResult>;
-    createClub(input: CreateClubInput): Promise<MutationResult>;
-    updateClub(input: UpdateClubInput): Promise<MutationResult>;
-    upsertApplicationQuestionsForClub(
-        input: UpsertApplicationQuestionsForClubInput
+    createUser(input: CreateUserInput, authUserId: string): Promise<MutationResult>;
+    updateUser(id: number, input: UpdateUserInput): Promise<MutationResult>;
+    createClub(input: CreateClubInput, userId: number): Promise<MutationResult>;
+    updateClub(id: number, input: UpdateClubInput): Promise<MutationResult>;
+    updateClubApplicationQuestions(
+        clubId: number,
+        input: UpdateClubApplicationQuestionsInput
     ): Promise<MutationResult>;
     createMembershipTier(
         input: CreateMembershipTierInput
     ): Promise<MutationResult>;
     updateMembershipTier(
+        id: number,
         input: UpdateMembershipTierInput
     ): Promise<MutationResult>;
     submitMembershipApplication(
-        input: SubmitMembershipApplicationInput
+        input: SubmitMembershipApplicationInput,
+        userId: number
     ): Promise<MutationResult>;
     approveMembershipApplication(
         input: ApproveMembershipApplicationInput
@@ -115,7 +118,6 @@ export const LastNameSchema = z
     .regex(LAST_NAME_REGEX, "Invalid characters");
 
 export const CreateUserInputSchema = z.object({
-    authUserId: z.string(),
     firstName: FirstNameSchema,
     lastName: LastNameSchema,
     description: z.string()
@@ -154,7 +156,6 @@ export const CreateClubInputSchema = z.object({
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
 
 export const UpdateClubInputSchema = z.object({
-    id: z.number(),
     name: z.string(),
     publicId: ClubPublicIdSchema,
     tagLine: z.string(),
@@ -165,12 +166,12 @@ export const UpdateClubInputSchema = z.object({
 });
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;
 
-export const UpsertApplicationQuestionsForClubInputSchema = z.object({
+export const UpdateClubApplicationQuestionsInputSchema = z.object({
     clubId: z.number(),
     applicationQuestions: ApplicationQuestionsSchema
 });
-export type UpsertApplicationQuestionsForClubInput = z.infer<
-    typeof UpsertApplicationQuestionsForClubInputSchema
+export type UpdateClubApplicationQuestionsInput = z.infer<
+    typeof UpdateClubApplicationQuestionsInputSchema
 >;
 
 export const CreateMembershipTierInputSchema = z.object({

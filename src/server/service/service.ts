@@ -16,11 +16,12 @@ import {
     Membership,
     MembershipTier,
     MutationResult,
+    NO_ID_MUTATION_RESULT,
     SubmitMembershipApplicationInput,
+    UpdateClubApplicationQuestionsInput,
     UpdateClubInput,
     UpdateMembershipTierInput,
     UpdateUserInput,
-    UpsertApplicationQuestionsForClubInput,
     URLSchema,
     User
 } from "~/server/service/types";
@@ -291,23 +292,56 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     async function createUser(input: CreateUserInput): Promise<MutationResult> {
+        try {
+            const { id } = await prisma.user.create({
+                data: input,
+                select: {
+                    id: true
+                }
+            });
+            logger.info(
+                `created user from input ${stringify(input)} with userId ${id}`
+            );
+            return { createdEntityId: id };
+        } catch (e) {
+            logger.error(
+                `failed to create user from input ${stringify(input)} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
+    }
+
+    async function updateUser(id: number, input: UpdateUserInput): Promise<MutationResult> {
+        try {
+            await prisma.user.update({
+                data: input,
+                where: {
+                    id: id
+                }
+            });
+            logger.info(
+                `updated user with userId ${id} from input ${stringify(input)}`
+            );
+            return NO_ID_MUTATION_RESULT;
+        } catch (e) {
+            logger.error(
+                `failed to update user with userId ${id} from input ${stringify(input)} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
+    }
+
+    async function createClub(input: CreateClubInput, userId: number): Promise<MutationResult> {
         throw new Error("Not implemented");
     }
 
-    async function updateUser(input: UpdateUserInput): Promise<MutationResult> {
+    async function updateClub(id: number, input: UpdateClubInput): Promise<MutationResult> {
         throw new Error("Not implemented");
     }
 
-    async function createClub(input: CreateClubInput): Promise<MutationResult> {
-        throw new Error("Not implemented");
-    }
-
-    async function updateClub(input: UpdateClubInput): Promise<MutationResult> {
-        throw new Error("Not implemented");
-    }
-
-    async function upsertApplicationQuestionsForClub(
-        input: UpsertApplicationQuestionsForClubInput
+    async function updateClubApplicationQuestions(
+        clubId: number,
+        input: UpdateClubApplicationQuestionsInput
     ): Promise<MutationResult> {
         throw new Error("Not implemented");
     }
@@ -319,6 +353,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     async function updateMembershipTier(
+        id: number,
         input: UpdateMembershipTierInput
     ): Promise<MutationResult> {
         throw new Error("Not implemented");
@@ -360,7 +395,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         updateUser,
         createClub,
         updateClub,
-        upsertApplicationQuestionsForClub,
+        updateClubApplicationQuestions,
         createMembershipTier,
         updateMembershipTier,
         submitMembershipApplication,
