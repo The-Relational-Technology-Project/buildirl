@@ -332,11 +332,48 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     async function createClub(input: CreateClubInput, userId: number): Promise<MutationResult> {
-        throw new Error("Not implemented");
+        try {
+            const { id } = await prisma.club.create({
+                data: {
+                    ...input,
+                    ownerUserId: userId,
+                    // default empty
+                    applicationQuestions: {}
+                },
+                select: {
+                    id: true
+                }
+            });
+            logger.info(
+                `created club from input ${stringify(input)} with clubId ${id}`
+            );
+            return { createdEntityId: id };
+        } catch (e) {
+            logger.error(
+                `failed to create club from input ${stringify(input)} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function updateClub(id: number, input: UpdateClubInput): Promise<MutationResult> {
-        throw new Error("Not implemented");
+        try {
+            await prisma.club.update({
+                data: input,
+                where: {
+                    id: id
+                }
+            });
+            logger.info(
+                `updated club with clubId ${id} from input ${stringify(input)}`
+            );
+            return NO_ID_MUTATION_RESULT;
+        } catch (e) {
+            logger.error(
+                `failed to update club with clubId ${id} from input ${stringify(input)} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
     }
 
     async function updateClubApplicationQuestions(
