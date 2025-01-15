@@ -105,7 +105,7 @@ export class SystemState {
         }
         this.clubs.set(clubId,
             {
-                id: userId,
+                id: clubId,
                 ...input,
                 ownerUserId: userId,
                 // empty to start
