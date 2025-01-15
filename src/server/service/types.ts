@@ -33,7 +33,7 @@ export type Club = {
     websiteURL: Maybe<URL>;
     instagramHandle: Maybe<InstagramHandle>;
     eventCalendarURL: Maybe<URL>;
-    applicationQuestions: Maybe<ApplicationQuestions>;
+    applicationQuestions: ApplicationQuestions;
     membershipTiers: MembershipTier[];
 };
 
@@ -103,9 +103,9 @@ export type MainMutations = {
     ): Promise<MutationResult>;
 };
 
-export const FIRST_NAME_REGEX = /^[a-zA-Z]+$/;
-export const LAST_NAME_REGEX = /^[a-zA-Z-']+$/;
-export const CLUB_PUBLIC_ID_REGEX = /^[a-zA-Z0-9_-]+$/;
+const FIRST_NAME_REGEX = /^[a-zA-Z]+$/;
+const LAST_NAME_REGEX = /^[a-zA-Z-']+$/;
+const CLUB_PUBLIC_ID_REGEX = /^[a-zA-Z0-9_-]+$/;
 
 export const FirstNameSchema = z
     .string()
@@ -133,7 +133,6 @@ export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
 
 export const ClubPublicIdSchema = z
     .string()
-    .min(1, "Required")
     .min(3, "Length must be >= 3")
     .regex(CLUB_PUBLIC_ID_REGEX, "Invalid characters");
 
@@ -146,8 +145,10 @@ export const InstagramHandleSchema = z
     .url("Not a valid Instagram handle");
 export type InstagramHandle = z.infer<typeof InstagramHandleSchema>;
 
+export const ClubNameSchema = z.string().min(3);
+
 export const CreateClubInputSchema = z.object({
-    name: z.string(),
+    name: ClubNameSchema,
     publicId: ClubPublicIdSchema,
     tagLine: z.string(),
     description: z.string(),
@@ -158,7 +159,7 @@ export const CreateClubInputSchema = z.object({
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
 
 export const UpdateClubInputSchema = z.object({
-    name: z.string(),
+    name: ClubNameSchema,
     publicId: ClubPublicIdSchema,
     tagLine: z.string(),
     description: z.string(),

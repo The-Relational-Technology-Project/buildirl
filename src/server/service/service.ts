@@ -25,7 +25,7 @@ import {
     URLSchema,
     User
 } from "~/server/service/types";
-import {parseJsonValue, parseNullableString} from "~/utils/zod";
+import {parseAsZodType, parseNullableAsZodType} from "~/utils/zod";
 import {stringify} from "~/utils";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import ClubGetPayload = Prisma.ClubGetPayload;
@@ -124,10 +124,10 @@ export function createMainService(prisma: PrismaClient): MainService {
             tagLine: r.tagLine,
             description: r.description,
             owner: r.owner,
-            websiteURL: parseNullableString(r.websiteURL, URLSchema),
-            instagramHandle: parseNullableString(r.instagramHandle, InstagramHandleSchema),
-            eventCalendarURL: parseNullableString(r.eventCalendarURL, URLSchema),
-            applicationQuestions: parseJsonValue(r.applicationQuestions, ApplicationQuestionsSchema),
+            websiteURL: parseNullableAsZodType(r.websiteURL, URLSchema),
+            instagramHandle: parseNullableAsZodType(r.instagramHandle, InstagramHandleSchema),
+            eventCalendarURL: parseNullableAsZodType(r.eventCalendarURL, URLSchema),
+            applicationQuestions: parseAsZodType(r.applicationQuestions, ApplicationQuestionsSchema),
             membershipTiers: r.membershipTiers.map(t => asMembershipTier(t))
         }
     }
@@ -160,7 +160,7 @@ export function createMainService(prisma: PrismaClient): MainService {
             club: asClub(r.membershipTier.club),
             membershipTier: asMembershipTier(r.membershipTier),
             status: r.status,
-            applicationResponses: parseJsonValue(r.applicationResponses, ApplicationResponsesSchema),
+            applicationResponses: parseAsZodType(r.applicationResponses, ApplicationResponsesSchema),
             joinedAt: r.createdAt
         }
     }

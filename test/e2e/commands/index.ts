@@ -1,23 +1,28 @@
-import {record, string, uuid} from "fast-check";
+import {option, record, string, uuid} from "fast-check";
 import CreateUserCommand from "./createUserCommand";
 import {
-    FIRST_NAME_REGEX,
-    LAST_NAME_REGEX,
+    ClubNameSchema,
+    ClubPublicIdSchema, FirstNameSchema, InstagramHandleSchema, LastNameSchema, URLSchema
 } from "~/server/service/types";
 import UpdateUserCommand from "./updateUserCommand";
 import itemSelector from "../utils/itemSelector";
+import CreateClubCommand from "./createClubCommand";
+import {isZodType} from "~/utils/zod";
+import UpdateClubCommand from "./updateClubCommand";
 
 export const allCommands = () => {
     return [
         createUserCommands(),
-        updateUserCommands()
+        updateUserCommands(),
+        createClubCommands(),
+        updateClubCommands()
     ];
 };
 
 function createUserCommands() {
     return record({
-        firstName: string({minLength: 2}).filter((s) => FIRST_NAME_REGEX.test(s)),
-        lastName: string({minLength: 2}).filter((s) => LAST_NAME_REGEX.test(s)),
+        firstName: string().filter((s) => isZodType(s, FirstNameSchema)),
+        lastName: string().filter((s) => isZodType(s, LastNameSchema)),
         description: string(),
         authUserId: uuid()
     }).map(
@@ -45,5 +50,51 @@ function updateUserCommands() {
                 },
                 i.userIdSelector
             )
+    );
+}
+
+function createClubCommands() {
+    return record({
+        name: string(),
+        publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
+        tagLine: string(),
+        description: string(),
+        websiteURL: option(string().filter((s) => isZodType(s, URLSchema)), {freq: 4}),
+        instagramHandle: option(string().filter(s => isZodType(s, InstagramHandleSchema)), {freq: 4}),
+        eventCalendarURL: option(string().filter(s => isZodType(s, URLSchema)), {freq: 4}),
+        userIdSelector: itemSelector<number>()
+    }).map(
+        (i) => new CreateClubCommand({
+            name: i.name,
+            publicId: i.publicId,
+            tagLine: i.tagLine,
+            description: i.description,
+            websiteURL: i.websiteURL,
+            instagramHandle: i.instagramHandle,
+            eventCalendarURL: i.eventCalendarURL
+        }, i.userIdSelector)
+    );
+}
+
+function updateClubCommands() {
+    return record({
+        clubIdSelector: itemSelector<number>(),
+        name: string().filter((s) => isZodType(s, ClubNameSchema)),
+        publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
+        tagLine: string(),
+        description: string(),
+        websiteURL: option(string().filter((s) => isZodType(s, URLSchema)), {freq: 4}),
+        instagramHandle: option(string().filter(s => isZodType(s, InstagramHandleSchema)), {freq: 4}),
+        eventCalendarURL: option(string().filter(s => isZodType(s, URLSchema)), {freq: 4}),
+    }).map(
+        (i) => new UpdateClubCommand({
+            name: i.name,
+            publicId: i.publicId,
+            tagLine: i.tagLine,
+            description: i.description,
+            websiteURL: i.websiteURL,
+            instagramHandle: i.instagramHandle,
+            eventCalendarURL: i.eventCalendarURL
+        }, i.clubIdSelector)
     );
 }

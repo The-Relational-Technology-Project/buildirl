@@ -1,6 +1,6 @@
 import {
     ApplicationQuestions, Club,
-    CreateClubInput, CreateUserInput, InstagramHandle, MembershipTier, UpdateUserInput, URL,
+    CreateClubInput, CreateUserInput, InstagramHandle, MembershipTier, UpdateClubInput, UpdateUserInput, URL,
     type User,
 } from "~/server/service/types";
 import {Maybe} from "~/utils/types";
@@ -17,7 +17,7 @@ type ClubState = {
     websiteURL: Maybe<URL>;
     instagramHandle: Maybe<InstagramHandle>;
     eventCalendarURL: Maybe<URL>;
-    applicationQuestions: Maybe<ApplicationQuestions>;
+    applicationQuestions: ApplicationQuestions;
     membershipTierIds: number[];
 };
 
@@ -25,7 +25,7 @@ export class SystemState {
     private readonly users: Map<number, User>;
     private readonly clubs: Map<number, ClubState>;
     private readonly membershipTiers: Map<number, MembershipTier>;
-    
+
     constructor() {
         this.users = new Map();
         this.clubs = new Map();
@@ -66,12 +66,16 @@ export class SystemState {
         })
     }
 
-    public getClub(id: number): Club {
+    public getClubState(id: number): ClubState {
         const clubState = this.clubs.get(id);
         if (!clubState) {
             throw new Error(`club with id ${id} was expected`);
         }
+        return clubState;
+    }
 
+    public getClub(id: number): Club {
+        const clubState = this.getClubState(id);
         return {
             id: clubState.id,
             publicId: clubState.publicId,
@@ -85,6 +89,14 @@ export class SystemState {
             applicationQuestions: clubState.applicationQuestions,
             membershipTiers: clubState.membershipTierIds.map(id => this.getMembershipTier(id)),
         };
+    }
+
+    public hasClubs(): boolean {
+        return this.clubs.size > 0;
+    }
+
+    public getClubIds(): number[] {
+        return Array.from(this.clubs.keys());
     }
 
     public createClub(userId: number, clubId: number, input: CreateClubInput) {
@@ -101,6 +113,14 @@ export class SystemState {
                 membershipTierIds: []
             }
         );
+    }
+
+    public updateClub(id: number, input: UpdateClubInput) {
+        const clubState = this.getClubState(id);
+        this.clubs.set(id, {
+            ...clubState,
+            ...input
+        });
     }
 
     public getMembershipTier(id: number): MembershipTier {

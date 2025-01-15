@@ -1,41 +1,40 @@
-import { z } from "zod";
-import { Prisma } from ".prisma/client";
-import JsonValue = Prisma.JsonValue;
+import {z} from "zod";
 import {Maybe} from "~/utils/types";
 
 export function parseAsZodType<T, Schema extends z.ZodType<T>>(
-  o: Object,
-  schema: Schema
+    o: Maybe<Object>,
+    schema: Schema
 ): z.infer<Schema> {
-  try {
-    return schema.parse(o);
-  } catch (e) {
-    throw new Error(
-      `Failed to parse ${o} as type ${schema} with exception ${e}`
-    );
-  }
+    if (null === o) {
+        throw new Error(`expected non-null of type ${schema}`)
+    }
+    try {
+        return schema.parse(o);
+    } catch (e) {
+        throw new Error(
+            `Failed to parse ${o} as type ${schema} with exception ${e}`
+        );
+    }
 }
 
-export function parseJsonValue<T, Schema extends z.ZodType<T>>(
-  json: JsonValue,
-  schema: Schema
-): z.infer<Schema> {
-  return parseAsZodType(json as Object, schema);
-}
-
-export function parseString<T, Schema extends z.ZodType<T>>(
-  s: string,
-  schema: Schema
-): z.infer<Schema> {
-  return parseAsZodType(s as Object, schema);
-}
-
-export function parseNullableString<T, Schema extends z.ZodType<T>>(
-    s: Maybe<string>,
+export function parseNullableAsZodType<T, Schema extends z.ZodType<T>>(
+    s: Maybe<Object>,
     schema: Schema
 ): Maybe<z.infer<Schema>> {
     if (null === s) {
         return s;
     }
-    return parseString(s, schema);
+    return parseAsZodType(s, schema);
+}
+
+export function isZodType<T, Schema extends z.ZodType<T>>(
+    o: Object,
+    schema: Schema
+): boolean {
+    try {
+        schema.parse(o);
+        return true;
+    } catch (e) {
+        return false;
+    }
 }
