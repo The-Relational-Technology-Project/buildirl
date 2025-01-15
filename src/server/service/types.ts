@@ -103,10 +103,10 @@ export type MainMutations = {
     ): Promise<MutationResult>;
 };
 
-export const FIRST_NAME_REGEX = /^[a-zA-Z]+$/;
-export const LAST_NAME_REGEX = /^[a-zA-Z-']+$/;
-export const CLUB_PUBLIC_ID_REGEX = /^[a-zA-Z0-9_-]+$/;
-export const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._]{0,29}$/;
+const FIRST_NAME_REGEX = /^[a-zA-Z]+$/;
+const LAST_NAME_REGEX = /^[a-zA-Z-']+$/;
+const CLUB_PUBLIC_ID_REGEX = /^[a-zA-Z0-9_-]+$/;
+const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._]{0,29}$/;
 
 export const FirstNameSchema = z
     .string()
