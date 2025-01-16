@@ -118,6 +118,10 @@ function updateClubApplicationQuestionsCommands() {
     );
 }
 
+function toHundredthPrecision(i: number) {
+    return Number(i.toFixed(2));
+}
+
 function createMembershipTierCommands() {
     return record({
         clubIdSelector: itemSelector<number>(),
@@ -125,6 +129,8 @@ function createMembershipTierCommands() {
         benefitDescription: string(),
         contributionDescription: string(),
         costPerMonthInUSD: double({min: 0})
+            // round to 2 decimals for now
+            .map(n => toHundredthPrecision(2))
     }).map(
         (i) => new CreateMembershipTierCommand(
             {
