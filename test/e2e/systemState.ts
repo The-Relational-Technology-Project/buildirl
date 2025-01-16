@@ -126,6 +126,11 @@ export class SystemState {
         .map(club => this.clubStateToClub(club));
     }
 
+    public isClubPublicIdUsed(clubPublicId: string): boolean {
+        return Array.from(this.clubs.values())
+            .some(club => club.publicId === clubPublicId);
+    }
+
     public createClub(userId: number, clubId: number, input: CreateClubInput) {
         if (!!this.clubs.get(clubId)) {
             throw new Error(`club with id ${clubId} already exists`)

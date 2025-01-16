@@ -19,7 +19,7 @@ export default class UpdateClubCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasClubs();
+    return m.hasClubs() && m.isClubPublicIdUsed(this.input.publicId);
   }
 
   async run(m: SystemState, r: MainService): Promise<void> {

@@ -20,7 +20,7 @@ export default class CreateClubCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasUsers();
+    return m.hasUsers() && m.isClubPublicIdUsed(this.input.publicId);
   }
 
   async run(m: SystemState, r: MainService): Promise<void> {
