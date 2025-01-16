@@ -215,7 +215,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         try {
             const result = await prisma.club.findUniqueOrThrow({
                 select: CLUB_SELECT,
-                where: { id }
+                where: {id}
             });
             const club = asClub(result);
             logger.info(
@@ -230,7 +230,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function getMembershipsForClub(clubId: number): Promise<Membership[]> {
+    async function getActiveMembershipsForClub(clubId: number): Promise<Membership[]> {
         try {
             const results = await prisma.membership.findMany({
                 select: MEMBERSHIP_SELECT,
@@ -317,7 +317,7 @@ export function createMainService(prisma: PrismaClient): MainService {
 
     async function createUser(input: CreateUserInput): Promise<MutationResult> {
         try {
-            const { id } = await prisma.user.create({
+            const {id} = await prisma.user.create({
                 data: input,
                 select: {
                     id: true
@@ -326,7 +326,7 @@ export function createMainService(prisma: PrismaClient): MainService {
             logger.info(
                 `created user from input ${stringify(input)} with userId ${id}`
             );
-            return { createdEntityId: id };
+            return {createdEntityId: id};
         } catch (e) {
             logger.error(
                 `failed to create user from input ${stringify(input)} with exception ${stringify(e)}`
@@ -357,7 +357,7 @@ export function createMainService(prisma: PrismaClient): MainService {
 
     async function createClub(input: CreateClubInput, userId: number): Promise<MutationResult> {
         try {
-            const { id } = await prisma.club.create({
+            const {id} = await prisma.club.create({
                 data: {
                     ...input,
                     ownerUserId: userId,
@@ -371,7 +371,7 @@ export function createMainService(prisma: PrismaClient): MainService {
             logger.info(
                 `created club from input ${stringify(input)} with clubId ${id}`
             );
-            return { createdEntityId: id };
+            return {createdEntityId: id};
         } catch (e) {
             logger.error(
                 `failed to create club from input ${stringify(input)} with exception ${stringify(e)}`
@@ -428,7 +428,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         input: CreateMembershipTierInput
     ): Promise<MutationResult> {
         try {
-            const { id } = await prisma.membershipTier.create({
+            const {id} = await prisma.membershipTier.create({
                 data: {
                     clubId: clubId,
                     ...input
@@ -440,7 +440,7 @@ export function createMainService(prisma: PrismaClient): MainService {
             logger.info(
                 `created membership tier from input ${stringify(input)} with membershipTierId ${id}`
             );
-            return { createdEntityId: id };
+            return {createdEntityId: id};
         } catch (e) {
             logger.error(
                 `failed to create membership tier from input ${stringify(input)} with exception ${stringify(e)}`
@@ -475,8 +475,8 @@ export function createMainService(prisma: PrismaClient): MainService {
     async function getOwnerUserId(clubId: number): Promise<number> {
         try {
             const club = await prisma.club.findUniqueOrThrow({
-                where: { id: clubId },
-                select: { ownerUserId: true }
+                where: {id: clubId},
+                select: {ownerUserId: true}
             });
             logger.info(
                 `queried owner userId for club with clubId ${clubId} with result ${club.ownerUserId}`
@@ -493,8 +493,8 @@ export function createMainService(prisma: PrismaClient): MainService {
     async function getClubIdFromMembershipTierId(membershipTierId: number): Promise<number> {
         try {
             const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
-                where: { id: membershipTierId },
-                select: { clubId: true }
+                where: {id: membershipTierId},
+                select: {clubId: true}
             });
             logger.info(
                 `queried clubId for membership tier with membershipTierId ${membershipTierId} with result ${membershipTier.clubId}`
@@ -508,19 +508,31 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
+    async function checkUserIsNotClubOwner(userId: number, clubId: number) {
+        const ownerUserId = await getOwnerUserId(clubId);
+        if (ownerUserId === userId) {
+            throw new Error(`Cannot submit membership application for club owner with userId ${userId} of clubId ${clubId}`);
+        }
+    }
+
+    async function checkUserDoesNotHaveMembershipForClub(userId: number, clubId: number) {
+        const memberships = await getUserMemberships(userId);
+        const membershipsForClub = memberships.filter(m => m.club.id === clubId);
+        if (membershipsForClub.length > 0) {
+            throw new Error(`User with userId ${userId} already has a membership for club with clubId ${clubId}, ${membershipsForClub[0]!}`);
+        }
+    }
+
     async function submitMembershipApplication(
         membershipTierId: number,
         input: SubmitMembershipApplicationInput,
         userId: number
     ): Promise<MutationResult> {
         const clubId = await getClubIdFromMembershipTierId(membershipTierId);
-        const ownerUserId = await getOwnerUserId(clubId);
-        if (ownerUserId === userId) {
-            throw new Error(`Cannot submit membership application for club owner with userId ${userId} of clubId ${clubId}`);
-        }
-    
+        await checkUserIsNotClubOwner(userId, clubId);
+        await checkUserDoesNotHaveMembershipForClub(userId, clubId);
         try {
-            const { id } = await prisma.membership.create({
+            const {id} = await prisma.membership.create({
                 data: {
                     userId: userId,
                     membershipTierId: membershipTierId,
@@ -534,7 +546,7 @@ export function createMainService(prisma: PrismaClient): MainService {
             logger.info(
                 `created pending membership from input ${stringify(input)} with membershipId ${id}`
             );
-            return { createdEntityId: id };
+            return {createdEntityId: id};
         } catch (e) {
             logger.error(
                 `failed to create pending membership from input ${stringify(input)} with exception ${stringify(e)}`
@@ -546,7 +558,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     async function membershipStatus(membershipId: number): Promise<MembershipStatus> {
         try {
             const membership = await prisma.membership.findUniqueOrThrow({
-                where: { id: membershipId }
+                where: {id: membershipId}
             });
             logger.info(
                 `queried membership status for membership with id ${membershipId} with result ${stringify(membership.status)}`
@@ -564,7 +576,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         const status = await membershipStatus(membershipId);
         if (status !== expectedStatus) {
             throw new Error(`Membership with id ${membershipId} was expected to be ${expectedStatus} but was ${status}`);
-        }    
+        }
     }
 
     async function approveMembershipApplication(
@@ -573,8 +585,8 @@ export function createMainService(prisma: PrismaClient): MainService {
         try {
             await checkMembershipStatus(membershipId, 'PENDING');
             await prisma.membership.update({
-                data: { status: 'ACTIVE' },
-                where: { id: membershipId}
+                data: {status: 'ACTIVE'},
+                where: {id: membershipId}
             });
             logger.info(
                 `approved membership with id ${membershipId}`
@@ -594,9 +606,9 @@ export function createMainService(prisma: PrismaClient): MainService {
         try {
             await checkMembershipStatus(membershipId, 'PENDING');
             await prisma.membership.update({
-                data: { status: 'DECLINED' },
-                where: { id: membershipId }
-            });     
+                data: {status: 'DECLINED'},
+                where: {id: membershipId}
+            });
             logger.info(
                 `declined membership with id ${membershipId}`
             );
@@ -615,9 +627,9 @@ export function createMainService(prisma: PrismaClient): MainService {
         try {
             await checkMembershipStatus(membershipId, 'ACTIVE');
             await prisma.membership.update({
-                data: { status: 'INACTIVE' },
-                where: { id: membershipId }
-            });     
+                data: {status: 'INACTIVE'},
+                where: {id: membershipId}
+            });
             logger.info(
                 `deactivated membership with id ${membershipId}`
             );
@@ -636,7 +648,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         getUserMemberships,
         getClubByPublicId,
         getClub,
-        getMembershipsForClub,
+        getActiveMembershipsForClub,
         getMembershipApplicationsForClub,
         getClubStatistics,
         createUser,

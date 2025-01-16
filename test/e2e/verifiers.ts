@@ -38,7 +38,7 @@ function createVerifiers() {
     async function verifyClubMemberships(clubId: number,
                                          r: MainService,
                                          m: SystemState) {
-        const memberships = await r.getMembershipsForClub(clubId);
+        const memberships = await r.getActiveMembershipsForClub(clubId);
         expect(orderByBigIntId(memberships.map(m => {
             // filter out joinedAt
             return {
@@ -49,7 +49,7 @@ function createVerifiers() {
                 status: m.status,
                 applicationResponses: m.applicationResponses
             }
-        }))).toEqual(orderByBigIntId(m.getMembershipsForClub(clubId)));
+        }))).toEqual(orderByBigIntId(m.getActiveMembershipsForClub(clubId)));
         await verifyClubStatistics(clubId, r, m);
     }
 

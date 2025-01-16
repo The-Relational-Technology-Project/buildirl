@@ -7,9 +7,10 @@ export type MainQueries = {
     // top-level
     getUser(id: number): Promise<User>;
     getUserOwnedClubs(userId: number): Promise<Club[]>;
+    // all memberships, regardless of status
     getUserMemberships(userId: number): Promise<Membership[]>;
     getClubByPublicId(publicId: string): Promise<Club>;
-    getMembershipsForClub(clubId: number): Promise<Membership[]>;
+    getActiveMembershipsForClub(clubId: number): Promise<Membership[]>;
     getMembershipApplicationsForClub(clubId: number): Promise<Membership[]>;
     getClubStatistics(clubId: number): Promise<ClubStatistics>;
     // entities

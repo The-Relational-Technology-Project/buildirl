@@ -234,7 +234,7 @@ export class SystemState {
         return club.id;
     }
 
-    public userDoesNotHaveMembershipInClub(userId: number, clubId: number): boolean {
+    public userIsNotOwnerAndDoesNotHaveMembershipInClub(userId: number, clubId: number): boolean {
         return !Array.from(this.memberships.values()).some(m => m.userId === userId && m.clubId === clubId)
             // nor are they owner
             && this.getClubState(clubId).ownerUserId !== userId;
@@ -251,7 +251,7 @@ export class SystemState {
         };
     }
 
-    public getMembershipsForClub(clubId: number): Omit<Membership, 'joinedAt'>[] {
+    public getActiveMembershipsForClub(clubId: number): Omit<Membership, 'joinedAt'>[] {
         return Array.from(this.memberships.values())
             .filter(m => m.clubId === clubId)
             .filter(m => m.status === 'ACTIVE')
