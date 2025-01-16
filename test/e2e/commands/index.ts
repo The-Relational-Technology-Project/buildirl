@@ -1,4 +1,4 @@
-import {constant, option, record, string, uuid, webUrl} from "fast-check";
+import {constant, double, option, record, string, uuid, webUrl} from "fast-check";
 import CreateUserCommand from "./createUserCommand";
 import {
     ClubNameSchema,
@@ -13,6 +13,7 @@ import CreateClubCommand from "./createClubCommand";
 import {isZodType} from "~/utils/zod";
 import UpdateClubCommand from "./updateClubCommand";
 import UpdateClubApplicationQuestionsCommand from "./updateClubApplicationQuestionsCommand";
+import CreateMembershipTierCommand from "./createMembershipTierCommand";
 
 export const allCommands = () => {
     return [
@@ -20,7 +21,8 @@ export const allCommands = () => {
         updateUserCommands(),
         createClubCommands(),
         updateClubCommands(),
-        updateClubApplicationQuestionsCommands()
+        updateClubApplicationQuestionsCommands(),
+        createMembershipTierCommands()
     ];
 };
 
@@ -112,6 +114,25 @@ function updateClubApplicationQuestionsCommands() {
     }).map(
         (i) => new UpdateClubApplicationQuestionsCommand(
             {applicationQuestions: i.applicationQuestions},
+            i.clubIdSelector)
+    );
+}
+
+function createMembershipTierCommands() {
+    return record({
+        clubIdSelector: itemSelector<number>(),
+        name: string(),
+        benefitDescription: string(),
+        contributionDescription: string(),
+        costPerMonthInUSD: double({min: 0})
+    }).map(
+        (i) => new CreateMembershipTierCommand(
+            {
+                name: i.name,
+                benefitDescription: i.benefitDescription,
+                contributionDescription: i.contributionDescription,
+                costPerMonthInUSD: i.costPerMonthInUSD
+            },
             i.clubIdSelector)
     );
 }

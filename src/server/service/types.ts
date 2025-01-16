@@ -82,6 +82,7 @@ export type MainMutations = {
         input: UpdateClubApplicationQuestionsInput
     ): Promise<MutationResult>;
     createMembershipTier(
+        clubId: number,
         input: CreateMembershipTierInput
     ): Promise<MutationResult>;
     updateMembershipTier(
@@ -177,7 +178,6 @@ export type UpdateClubApplicationQuestionsInput = z.infer<
 >;
 
 export const CreateMembershipTierInputSchema = z.object({
-    clubId: z.number(),
     name: z.string(),
     benefitDescription: z.string(),
     contributionDescription: z.string(),

@@ -1,9 +1,9 @@
 import {
     ApplicationQuestions, Club,
-    CreateClubInput, CreateUserInput, 
-    InstagramHandle, MembershipTier, UpdateClubInput, 
+    CreateClubInput, CreateUserInput,
+    InstagramHandle, MembershipTier, UpdateClubInput,
     UpdateUserInput, URL, UpdateClubApplicationQuestionsInput,
-    type User,
+    type User, CreateMembershipTierInput, UpdateMembershipTierInput,
 } from "~/server/service/types";
 import {Maybe} from "~/utils/types";
 
@@ -139,6 +139,30 @@ export class SystemState {
         const clubState = this.getClubState(id);
         this.clubs.set(id, {
             ...clubState,
+            ...input
+        });
+    }
+
+    public createMembershipTier(membershipTierId: number, clubId: number, input: CreateMembershipTierInput) {
+        if (!!this.membershipTiers.get(membershipTierId)) {
+            throw new Error(`membership tier with id ${membershipTierId} already exists`)
+        }
+        this.membershipTiers.set(membershipTierId, {
+            id: membershipTierId,
+            name: input.name,
+            benefitDescription: input.benefitDescription,
+            contributionDescription: input.contributionDescription,
+            costPerMonthInUSD: input.costPerMonthInUSD
+        });
+        // link the membership tier to the club
+        const clubState = this.getClubState(clubId);
+        clubState.membershipTierIds.push(membershipTierId);
+    }
+
+    public updateMembershipTier(id: number, input: UpdateMembershipTierInput) {
+        const membershipTier = this.getMembershipTier(id);
+        this.membershipTiers.set(id, {
+            ...membershipTier,
             ...input
         });
     }

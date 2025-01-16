@@ -420,11 +420,15 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     async function createMembershipTier(
+        clubId: number,
         input: CreateMembershipTierInput
     ): Promise<MutationResult> {
         try {
             const { id } = await prisma.membershipTier.create({
-                data: input,
+                data: {
+                    clubId: clubId,
+                    ...input
+                },
                 select: {
                     id: true
                 }
