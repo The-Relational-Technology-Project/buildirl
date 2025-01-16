@@ -5,15 +5,15 @@ export type MainService = MainQueries & MainMutations;
 
 export type MainQueries = {
     // top-level
-    user(id: number): Promise<User>;
-    userOwnedClubs(userId: number): Promise<Club[]>;
-    userMemberships(userId: number): Promise<Membership[]>;
-    clubByPublicId(publicId: string): Promise<Club>;
-    membershipsForClub(clubId: number): Promise<Membership[]>;
-    membershipApplicationsForClub(clubId: number): Promise<Membership[]>;
-    clubStatistics(clubId: number): Promise<ClubStatistics>;
+    getUser(id: number): Promise<User>;
+    getUserOwnedClubs(userId: number): Promise<Club[]>;
+    getUserMemberships(userId: number): Promise<Membership[]>;
+    getClubByPublicId(publicId: string): Promise<Club>;
+    getMembershipsForClub(clubId: number): Promise<Membership[]>;
+    getMembershipApplicationsForClub(clubId: number): Promise<Membership[]>;
+    getClubStatistics(clubId: number): Promise<ClubStatistics>;
     // entities
-    club(id: number): Promise<Club>;
+    getClub(id: number): Promise<Club>;
 };
 
 export type User = {

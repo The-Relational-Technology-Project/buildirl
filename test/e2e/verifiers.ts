@@ -8,7 +8,7 @@ function createVerifiers() {
     r: MainService,
     m: SystemState
   ) {
-    const user = await r.user(userId);
+    const user = await r.getUser(userId);
     expect(user).toEqual(m.getUser(userId));
   }
 
@@ -19,10 +19,10 @@ function createVerifiers() {
   ) {
     const expected = m.getClub(clubId);
     // main entity query
-    const club = await r.club(clubId);
+    const club = await r.getClub(clubId);
     expect(club).toEqual(expected);
     // also verify query by public id
-    const clubByPublicId = await r.clubByPublicId(expected.publicId);
+    const clubByPublicId = await r.getClubByPublicId(expected.publicId);
     expect(clubByPublicId).toEqual(expected);
   }
 
@@ -31,7 +31,7 @@ function createVerifiers() {
     r: MainService,
     m: SystemState
   ) {
-    const userOwnedClubs = await r.userOwnedClubs(userId);
+    const userOwnedClubs = await r.getUserOwnedClubs(userId);
     expect(orderById(userOwnedClubs)).toEqual(orderById(m.getUserOwnedClubs(userId)));
   }
 

@@ -85,7 +85,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         createdAt: true
     };
 
-    function user(id: number): Promise<User> {
+    function getUser(id: number): Promise<User> {
         try {
             const user = prisma.user.findUniqueOrThrow({
                 select: USER_SELECT,
@@ -132,7 +132,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function userOwnedClubs(userId: number): Promise<Club[]> {
+    async function getUserOwnedClubs(userId: number): Promise<Club[]> {
         try {
             const results = await prisma.club.findMany({
                 select: CLUB_SELECT,
@@ -165,7 +165,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function userMemberships(userId: number): Promise<Membership[]> {
+    async function getUserMemberships(userId: number): Promise<Membership[]> {
         try {
             const results = await prisma.membership.findMany({
                 select: MEMBERSHIP_SELECT,
@@ -186,7 +186,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function clubByPublicId(publicId: string): Promise<Club> {
+    async function getClubByPublicId(publicId: string): Promise<Club> {
         try {
             const result = await prisma.club.findUniqueOrThrow({
                 select: CLUB_SELECT,
@@ -207,7 +207,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function club(id: number): Promise<Club> {
+    async function getClub(id: number): Promise<Club> {
         try {
             const result = await prisma.club.findUniqueOrThrow({
                 select: CLUB_SELECT,
@@ -226,7 +226,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function membershipsForClub(clubId: number): Promise<Membership[]> {
+    async function getMembershipsForClub(clubId: number): Promise<Membership[]> {
         try {
             const results = await prisma.membership.findMany({
                 select: MEMBERSHIP_SELECT,
@@ -250,7 +250,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function membershipApplicationsForClub(
+    async function getMembershipApplicationsForClub(
         clubId: number
     ): Promise<Membership[]> {
         try {
@@ -276,7 +276,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function clubStatistics(clubId: number): Promise<ClubStatistics> {
+    async function getClubStatistics(clubId: number): Promise<ClubStatistics> {
         try {
             const memberCount = await prisma.membership.count({
                 where: {
@@ -604,14 +604,14 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     return {
-        user,
-        userOwnedClubs,
-        userMemberships,
-        clubByPublicId,
-        club,
-        membershipsForClub,
-        membershipApplicationsForClub,
-        clubStatistics,
+        getUser,
+        getUserOwnedClubs,
+        getUserMemberships,
+        getClubByPublicId,
+        getClub,
+        getMembershipsForClub,
+        getMembershipApplicationsForClub,
+        getClubStatistics,
         createUser,
         updateUser,
         createClub,
