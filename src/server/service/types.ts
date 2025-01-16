@@ -192,7 +192,6 @@ export const UpdateMembershipTierInputSchema = z.object({
     name: z.string(),
     benefitDescription: z.string(),
     contributionDescription: z.string(),
-    costPerMonthInUSD: z.number()
 });
 export type UpdateMembershipTierInput = z.infer<
     typeof UpdateMembershipTierInputSchema
