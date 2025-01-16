@@ -295,7 +295,8 @@ export function createMainService(prisma: PrismaClient): MainService {
                 }
             });
             const statistics = {
-                memberCount,
+                // plus the owner
+                memberCount: memberCount + 1,
                 pendingMembershipApplications
             };
             logger.info(
@@ -463,10 +464,33 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
+    async function getOwnerUserId(clubId: number): Promise<number> {
+        try {
+            const club = await prisma.club.findUniqueOrThrow({
+                where: { id: clubId },
+                select: { ownerUserId: true }
+            });
+            logger.info(
+                `queried owner userId for club with clubId ${clubId} with result ${club.ownerUserId}`
+            );
+            return club.ownerUserId;
+        } catch (e) {
+            logger.error(
+                `failed to query owner userId for club with clubId ${clubId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
+    }
+
     async function submitMembershipApplication(
         input: SubmitMembershipApplicationInput,
         userId: number
     ): Promise<MutationResult> {
+        const ownerUserId = await getOwnerUserId(input.clubId);
+        if (ownerUserId === userId) {
+            throw new Error(`Cannot submit membership application for club owner with userId ${userId} of clubId ${input.clubId}`);
+        }
+        
         try {
             const { id } = await prisma.membership.create({
                 data: {
