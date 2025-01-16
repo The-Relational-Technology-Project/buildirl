@@ -188,7 +188,6 @@ export type CreateMembershipTierInput = z.infer<
 >;
 
 export const UpdateMembershipTierInputSchema = z.object({
-    id: z.number(),
     name: z.string(),
     benefitDescription: z.string(),
     contributionDescription: z.string(),

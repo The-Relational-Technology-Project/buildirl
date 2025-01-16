@@ -81,6 +81,21 @@ export class SystemState {
         return this.clubStateToClub(clubState);
     }
 
+    private getClubStateBy(filter: (clubState: ClubState) => boolean): ClubState {
+        const clubStates = Array.from(this.clubs.values()).filter(filter);
+        if (clubStates.length !== 1) {
+            throw new Error(`expected 1 club state, got ${clubStates.length}: ${clubStates}`);
+        }
+        return clubStates[0]!;
+    }
+
+    private orderedByCost(membershipTiers: MembershipTier[]): MembershipTier[] {
+        return membershipTiers
+            // if equal cost, sort by id
+            .sort((a, b) => a.id - b.id)
+            .sort((a, b) => a.costPerMonthInUSD - b.costPerMonthInUSD);
+    }
+
     public clubStateToClub(clubState: ClubState): Club {
         return {
             id: clubState.id,
@@ -93,7 +108,7 @@ export class SystemState {
             instagramHandle: clubState.instagramHandle,
             eventCalendarURL: clubState.eventCalendarURL,
             applicationQuestions: clubState.applicationQuestions,
-            membershipTiers: clubState.membershipTierIds.map(id => this.getMembershipTier(id)),
+            membershipTiers: this.orderedByCost(clubState.membershipTierIds.map(id => this.getMembershipTier(id))),
         };
     }
 
@@ -173,5 +188,21 @@ export class SystemState {
             throw new Error(`membership tier with id ${id} was expected`);
         }
         return membershipTier;
+    }
+
+    public hasMembershipTiers(): boolean {
+        return this.membershipTiers.size > 0;
+    }
+
+    public getMembershipTierIds(): number[] {
+        return Array.from(this.membershipTiers.keys());
+    }
+
+    public getClubIdForMembershipTier(membershipTierId: number): number {
+        const club = this.getClubStateBy(c => c.membershipTierIds.includes(membershipTierId));
+        if (!club) {
+            throw new Error(`club with membership tier id ${membershipTierId} was expected`);
+        }
+        return club.id;
     }
 }

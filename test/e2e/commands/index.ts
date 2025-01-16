@@ -14,6 +14,7 @@ import {isZodType} from "~/utils/zod";
 import UpdateClubCommand from "./updateClubCommand";
 import UpdateClubApplicationQuestionsCommand from "./updateClubApplicationQuestionsCommand";
 import CreateMembershipTierCommand from "./createMembershipTierCommand";
+import UpdateMembershipTierCommand from "./updateMembershipTierCommand";
 
 export const allCommands = () => {
     return [
@@ -22,7 +23,8 @@ export const allCommands = () => {
         createClubCommands(),
         updateClubCommands(),
         updateClubApplicationQuestionsCommands(),
-        createMembershipTierCommands()
+        createMembershipTierCommands(),
+        updateMembershipTierCommands()
     ];
 };
 
@@ -140,5 +142,21 @@ function createMembershipTierCommands() {
                 costPerMonthInUSD: i.costPerMonthInUSD
             },
             i.clubIdSelector)
+    );
+}
+
+function updateMembershipTierCommands() {
+    return record({
+        membershipTierIdSelector: itemSelector<number>(),
+        name: string(),
+        benefitDescription: string(),
+        contributionDescription: string()
+    }).map(
+        (i) => new UpdateMembershipTierCommand({
+            name: i.name, 
+            benefitDescription: i.benefitDescription, 
+            contributionDescription: i.contributionDescription
+        }, 
+            i.membershipTierIdSelector)
     );
 }

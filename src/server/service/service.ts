@@ -116,6 +116,13 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
+    function orderedByCost(membershipTiers: MembershipTier[]): MembershipTier[] {
+        return membershipTiers
+            // if equal cost, sort by id
+            .sort((a, b) => a.id - b.id)
+            .sort((a, b) => a.costPerMonthInUSD - b.costPerMonthInUSD);
+    }
+
     function asClub(r: ClubGetPayload<{ select: typeof CLUB_SELECT }>): Club {
         return {
             id: r.id,
@@ -128,7 +135,7 @@ export function createMainService(prisma: PrismaClient): MainService {
             instagramHandle: parseNullableAsZodType(r.instagramHandle, InstagramHandleSchema),
             eventCalendarURL: parseNullableAsZodType(r.eventCalendarURL, URLSchema),
             applicationQuestions: parseAsZodType(r.applicationQuestions, ApplicationQuestionsSchema),
-            membershipTiers: r.membershipTiers.map(t => asMembershipTier(t))
+            membershipTiers: orderedByCost(r.membershipTiers.map(t => asMembershipTier(t)))
         }
     }
 
