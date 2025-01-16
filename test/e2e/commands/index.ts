@@ -1,4 +1,4 @@
-import {option, record, string, uuid, webUrl} from "fast-check";
+import {constant, option, record, string, uuid, webUrl} from "fast-check";
 import CreateUserCommand from "./createUserCommand";
 import {
     ClubNameSchema,
@@ -12,13 +12,15 @@ import itemSelector from "../utils/itemSelector";
 import CreateClubCommand from "./createClubCommand";
 import {isZodType} from "~/utils/zod";
 import UpdateClubCommand from "./updateClubCommand";
+import UpdateClubApplicationQuestionsCommand from "./updateClubApplicationQuestionsCommand";
 
 export const allCommands = () => {
     return [
         createUserCommands(),
         updateUserCommands(),
         createClubCommands(),
-        updateClubCommands()
+        updateClubCommands(),
+        updateClubApplicationQuestionsCommands()
     ];
 };
 
@@ -99,5 +101,17 @@ function updateClubCommands() {
             instagramHandle: i.instagramHandle,
             eventCalendarURL: i.eventCalendarURL
         }, i.clubIdSelector)
+    );
+}
+
+function updateClubApplicationQuestionsCommands() {
+    return record({
+        clubIdSelector: itemSelector<number>(),
+        // TODO
+        applicationQuestions: constant({})
+    }).map(
+        (i) => new UpdateClubApplicationQuestionsCommand(
+            {applicationQuestions: i.applicationQuestions},
+            i.clubIdSelector)
     );
 }

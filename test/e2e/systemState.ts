@@ -1,6 +1,8 @@
 import {
     ApplicationQuestions, Club,
-    CreateClubInput, CreateUserInput, InstagramHandle, MembershipTier, UpdateClubInput, UpdateUserInput, URL,
+    CreateClubInput, CreateUserInput, 
+    InstagramHandle, MembershipTier, UpdateClubInput, 
+    UpdateUserInput, URL, UpdateClubApplicationQuestionsInput,
     type User,
 } from "~/server/service/types";
 import {Maybe} from "~/utils/types";
@@ -126,6 +128,14 @@ export class SystemState {
     }
 
     public updateClub(id: number, input: UpdateClubInput) {
+        const clubState = this.getClubState(id);
+        this.clubs.set(id, {
+            ...clubState,
+            ...input
+        });
+    }
+
+    public updateClubApplicationQuestions(id: number, input: UpdateClubApplicationQuestionsInput) {
         const clubState = this.getClubState(id);
         this.clubs.set(id, {
             ...clubState,
