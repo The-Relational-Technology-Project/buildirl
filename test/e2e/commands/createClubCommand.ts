@@ -32,6 +32,7 @@ export default class CreateClubCommand
     this.clubId = idAsNumber(result.createdEntityId);
     m.createClub(this.userId, this.clubId, this.input);
     await verifiers.verifyClub(this.clubId, r, m);
+    await verifiers.verifyUserOwnedClub(this.userId, r, m);
   }
 
   toString() {

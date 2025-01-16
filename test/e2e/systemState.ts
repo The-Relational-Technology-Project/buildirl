@@ -76,6 +76,10 @@ export class SystemState {
 
     public getClub(id: number): Club {
         const clubState = this.getClubState(id);
+        return this.clubStateToClub(clubState);
+    }
+
+    public clubStateToClub(clubState: ClubState): Club {
         return {
             id: clubState.id,
             publicId: clubState.publicId,
@@ -97,6 +101,12 @@ export class SystemState {
 
     public getClubIds(): number[] {
         return Array.from(this.clubs.keys());
+    }
+
+    public getUserOwnedClubs(userId: number): Club[] {
+        return Array.from(this.clubs.values())
+        .filter(club => club.ownerUserId === userId)
+        .map(club => this.clubStateToClub(club));
     }
 
     public createClub(userId: number, clubId: number, input: CreateClubInput) {

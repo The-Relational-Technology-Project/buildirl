@@ -1,5 +1,6 @@
 import { type MainService } from "~/server/service/types";
 import { type SystemState } from "./systemState";
+import {orderById} from "./utils";
 
 function createVerifiers() {
   async function verifyUser(
@@ -25,9 +26,19 @@ function createVerifiers() {
     expect(clubByPublicId).toEqual(expected);
   }
 
+  async function verifyUserOwnedClub(
+    userId: number,
+    r: MainService,
+    m: SystemState
+  ) {
+    const userOwnedClubs = await r.userOwnedClubs(userId);
+    expect(orderById(userOwnedClubs)).toEqual(orderById(m.getUserOwnedClubs(userId)));
+  }
+
   return {
     verifyUser,
-    verifyClub
+    verifyClub,
+    verifyUserOwnedClub
   };
 }
 
