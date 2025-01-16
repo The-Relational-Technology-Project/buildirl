@@ -3,14 +3,11 @@ import {rootLogger} from "~/logger";
 import {
     ApplicationQuestionsSchema,
     ApplicationResponsesSchema,
-    ApproveMembershipApplicationInput,
     Club,
     ClubStatistics,
     CreateClubInput,
     CreateMembershipTierInput,
     CreateUserInput,
-    DeactivateMembershipInput,
-    DeclineMembershipApplicationInput,
     InstagramHandleSchema,
     MainService,
     Membership,
@@ -493,21 +490,40 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
+    async function getClubIdFromMembershipTierId(membershipTierId: number): Promise<number> {
+        try {
+            const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
+                where: { id: membershipTierId },
+                select: { clubId: true }
+            });
+            logger.info(
+                `queried clubId for membership tier with membershipTierId ${membershipTierId} with result ${membershipTier.clubId}`
+            );
+            return membershipTier.clubId;
+        } catch (e) {
+            logger.error(
+                `failed to query clubId for membership tier with membershipTierId ${membershipTierId} with exception ${stringify(e)}`
+            );
+            throw e;
+        }
+    }
+
     async function submitMembershipApplication(
+        membershipTierId: number,
         input: SubmitMembershipApplicationInput,
         userId: number
     ): Promise<MutationResult> {
-        const ownerUserId = await getOwnerUserId(input.clubId);
+        const clubId = await getClubIdFromMembershipTierId(membershipTierId);
+        const ownerUserId = await getOwnerUserId(clubId);
         if (ownerUserId === userId) {
-            throw new Error(`Cannot submit membership application for club owner with userId ${userId} of clubId ${input.clubId}`);
+            throw new Error(`Cannot submit membership application for club owner with userId ${userId} of clubId ${clubId}`);
         }
-        
+    
         try {
             const { id } = await prisma.membership.create({
                 data: {
-                    id: input.clubId,
                     userId: userId,
-                    membershipTierId: input.membershipTierId,
+                    membershipTierId: membershipTierId,
                     applicationResponses: input.applicationResponses,
                     status: 'PENDING'
                 },
@@ -552,63 +568,63 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     async function approveMembershipApplication(
-        input: ApproveMembershipApplicationInput
+        membershipId: number
     ): Promise<MutationResult> {
         try {
-            await checkMembershipStatus(input.membershipId, 'PENDING');
+            await checkMembershipStatus(membershipId, 'PENDING');
             await prisma.membership.update({
                 data: { status: 'ACTIVE' },
-                where: { id: input.membershipId }
+                where: { id: membershipId}
             });
             logger.info(
-                `approved membership with id ${input.membershipId}`
+                `approved membership with id ${membershipId}`
             );
             return NO_ID_MUTATION_RESULT;
         } catch (e) {
             logger.error(
-                `failed to approve membership with id ${input.membershipId} with exception ${stringify(e)}`
+                `failed to approve membership with id ${membershipId} with exception ${stringify(e)}`
             );
             throw e;
         }
     }
 
     async function declineMembershipApplication(
-        input: DeclineMembershipApplicationInput
+        membershipId: number
     ): Promise<MutationResult> {
         try {
-            await checkMembershipStatus(input.membershipId, 'PENDING');
+            await checkMembershipStatus(membershipId, 'PENDING');
             await prisma.membership.update({
                 data: { status: 'DECLINED' },
-                where: { id: input.membershipId }
+                where: { id: membershipId }
             });     
             logger.info(
-                `declined membership with id ${input.membershipId}`
+                `declined membership with id ${membershipId}`
             );
             return NO_ID_MUTATION_RESULT;
         } catch (e) {
             logger.error(
-                `failed to decline membership with id ${input.membershipId} with exception ${stringify(e)}`
+                `failed to decline membership with id ${membershipId} with exception ${stringify(e)}`
             );
             throw e;
         }
     }
 
     async function deactivateMembership(
-        input: DeactivateMembershipInput
+        membershipId: number
     ): Promise<MutationResult> {
         try {
-            await checkMembershipStatus(input.membershipId, 'ACTIVE');
+            await checkMembershipStatus(membershipId, 'ACTIVE');
             await prisma.membership.update({
                 data: { status: 'INACTIVE' },
-                where: { id: input.membershipId }
+                where: { id: membershipId }
             });     
             logger.info(
-                `deactivated membership with id ${input.membershipId}`
+                `deactivated membership with id ${membershipId}`
             );
             return NO_ID_MUTATION_RESULT;
         } catch (e) {
             logger.error(
-                `failed to deactivate membership with id ${input.membershipId} with exception ${stringify(e)}`
+                `failed to deactivate membership with id ${membershipId} with exception ${stringify(e)}`
             );
             throw e;
         }

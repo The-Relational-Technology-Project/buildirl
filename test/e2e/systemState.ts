@@ -1,13 +1,24 @@
 import {
-    ApplicationQuestions, Club,
-    CreateClubInput, CreateUserInput,
-    InstagramHandle, MembershipTier, UpdateClubInput,
-    UpdateUserInput, URL, UpdateClubApplicationQuestionsInput,
-    type User, CreateMembershipTierInput, UpdateMembershipTierInput,
+    ApplicationQuestions,
+    Club,
+    CreateClubInput,
+    CreateUserInput,
+    InstagramHandle,
+    MembershipTier,
+    UpdateClubInput,
+    UpdateUserInput,
+    URL,
+    UpdateClubApplicationQuestionsInput,
+    type User,
+    CreateMembershipTierInput,
+    UpdateMembershipTierInput,
+    SubmitMembershipApplicationInput,
+    MembershipStatus,
+    ApplicationResponses, Membership, ClubStatistics,
 } from "~/server/service/types";
 import {Maybe} from "~/utils/types";
 
-// this differs from Club in mostly that nested entities
+// this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
 type ClubState = {
     id: number;
@@ -23,15 +34,26 @@ type ClubState = {
     membershipTierIds: number[];
 };
 
+type MembershipState = {
+    id: bigint;
+    userId: number;
+    clubId: number;
+    membershipTierId: number;
+    status: MembershipStatus;
+    applicationResponses: ApplicationResponses;
+}
+
 export class SystemState {
     private readonly users: Map<number, User>;
     private readonly clubs: Map<number, ClubState>;
     private readonly membershipTiers: Map<number, MembershipTier>;
+    private readonly memberships: Map<bigint, MembershipState>;
 
     constructor() {
         this.users = new Map();
         this.clubs = new Map();
         this.membershipTiers = new Map();
+        this.memberships = new Map();
     }
 
     public getUser(id: number): User {
@@ -55,8 +77,9 @@ export class SystemState {
             throw new Error(`user with id ${id} already exists`)
         }
         this.users.set(id, {
-            id: id,
-            ...input}
+                id: id,
+                ...input
+            }
         );
     }
 
@@ -122,12 +145,12 @@ export class SystemState {
 
     public getUserOwnedClubs(userId: number): Club[] {
         return Array.from(this.clubs.values())
-        .filter(club => club.ownerUserId === userId)
-        .map(club => this.clubStateToClub(club));
+            .filter(club => club.ownerUserId === userId)
+            .map(club => this.clubStateToClub(club));
     }
 
-    public isClubPublicIdUsed(clubPublicId: string): boolean {
-        return Array.from(this.clubs.values())
+    public isNotClubPublicIdUsed(clubPublicId: string): boolean {
+        return !Array.from(this.clubs.values())
             .some(club => club.publicId === clubPublicId);
     }
 
@@ -209,5 +232,65 @@ export class SystemState {
             throw new Error(`club with membership tier id ${membershipTierId} was expected`);
         }
         return club.id;
+    }
+
+    public userDoesNotHaveMembershipInClub(userId: number, clubId: number): boolean {
+        return !Array.from(this.memberships.values()).some(m => m.userId === userId && m.clubId === clubId)
+            // nor are they owner
+            && this.getClubState(clubId).ownerUserId !== userId;
+    }
+
+    public membershipStateToMembership(membershipState: MembershipState): Omit<Membership, 'joinedAt'> {
+        return {
+            id: membershipState.id,
+            user: this.getUser(membershipState.userId),
+            club: this.getClub(membershipState.clubId),
+            membershipTier: this.getMembershipTier(membershipState.membershipTierId),
+            status: membershipState.status,
+            applicationResponses: membershipState.applicationResponses
+        };
+    }
+
+    public getMembershipsForClub(clubId: number): Omit<Membership, 'joinedAt'>[] {
+        return Array.from(this.memberships.values())
+            .filter(m => m.clubId === clubId)
+            .filter(m => m.status === 'ACTIVE')
+            .map(m => this.membershipStateToMembership(m));
+    }
+
+    private membershipCountWithStatus(clubId: number, status: MembershipStatus): number {
+        return Array.from(this.memberships.values())
+            .filter(m => m.clubId === clubId)
+            .filter(m => m.status === status)
+            .length;
+    }
+
+    public getClubStatistics(clubId: number): ClubStatistics {
+        return {
+            // plus one for owner
+            memberCount: this.membershipCountWithStatus(clubId, 'ACTIVE') + 1,
+            pendingMembershipApplications: this.membershipCountWithStatus(clubId, 'PENDING'),
+        };
+    }
+
+    public getUserMemberships(userId: number): Omit<Membership, 'joinedAt'>[] {
+        return Array.from(this.memberships.values())
+            .filter(m => m.userId === userId)
+            .map(m => this.membershipStateToMembership(m));
+    }
+
+    public submitMembershipApplication(membershipId: bigint,
+                                       membershipTierId: number,
+                                       input: SubmitMembershipApplicationInput,
+                                       userId: number) {
+        const clubId = this.getClubIdForMembershipTier(membershipTierId);
+        this.memberships.set(membershipId, {
+            id: membershipId,
+            userId: userId,
+            clubId: clubId,
+            membershipTierId: membershipTierId,
+            status: 'PENDING',
+            applicationResponses: input.applicationResponses
+        });
     }
 }

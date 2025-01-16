@@ -15,6 +15,7 @@ import UpdateClubCommand from "./updateClubCommand";
 import UpdateClubApplicationQuestionsCommand from "./updateClubApplicationQuestionsCommand";
 import CreateMembershipTierCommand from "./createMembershipTierCommand";
 import UpdateMembershipTierCommand from "./updateMembershipTierCommand";
+import SubmitMembershipApplicationCommand from "./submitMembershipApplicationCommand";
 
 export const allCommands = () => {
     return [
@@ -24,7 +25,8 @@ export const allCommands = () => {
         updateClubCommands(),
         updateClubApplicationQuestionsCommands(),
         createMembershipTierCommands(),
-        updateMembershipTierCommands()
+        updateMembershipTierCommands(),
+        submitMembershipApplicationCommands()
     ];
 };
 
@@ -153,10 +155,21 @@ function updateMembershipTierCommands() {
         contributionDescription: string()
     }).map(
         (i) => new UpdateMembershipTierCommand({
-            name: i.name, 
-            benefitDescription: i.benefitDescription, 
-            contributionDescription: i.contributionDescription
-        }, 
+                name: i.name,
+                benefitDescription: i.benefitDescription,
+                contributionDescription: i.contributionDescription
+            },
             i.membershipTierIdSelector)
+    );
+}
+
+function submitMembershipApplicationCommands() {
+    return record({
+        membershipTierIdSelector: itemSelector<number>(),
+        userIdSelector: itemSelector<number>(),
+        // TODO
+        applicationResponses: constant({})
+    }).map(
+        (i) => new SubmitMembershipApplicationCommand({applicationResponses: i.applicationResponses}, i.membershipTierIdSelector, i.userIdSelector)
     );
 }

@@ -90,17 +90,18 @@ export type MainMutations = {
         input: UpdateMembershipTierInput
     ): Promise<MutationResult>;
     submitMembershipApplication(
+        membershipTierId: number,
         input: SubmitMembershipApplicationInput,
         userId: number
     ): Promise<MutationResult>;
     approveMembershipApplication(
-        input: ApproveMembershipApplicationInput
+        membershipId: number
     ): Promise<MutationResult>;
     declineMembershipApplication(
-        input: DeclineMembershipApplicationInput
+        membershipId: number
     ): Promise<MutationResult>;
     deactivateMembership(
-        input: DeactivateMembershipInput
+        membershipId: number
     ): Promise<MutationResult>;
 };
 
@@ -197,33 +198,10 @@ export type UpdateMembershipTierInput = z.infer<
 >;
 
 export const SubmitMembershipApplicationInputSchema = z.object({
-    clubId: z.number(),
-    membershipTierId: z.number(),
     applicationResponses: ApplicationResponsesSchema
 });
 export type SubmitMembershipApplicationInput = z.infer<
     typeof SubmitMembershipApplicationInputSchema
->;
-
-export const ApproveMembershipApplicationInputSchema = z.object({
-    membershipId: z.number()
-});
-export type ApproveMembershipApplicationInput = z.infer<
-    typeof ApproveMembershipApplicationInputSchema
->;
-
-export const DeclineMembershipApplicationInputSchema = z.object({
-    membershipId: z.number()
-});
-export type DeclineMembershipApplicationInput = z.infer<
-    typeof DeclineMembershipApplicationInputSchema
->;
-
-export const DeactivateMembershipInputSchema = z.object({
-    membershipId: z.number()
-});
-export type DeactivateMembershipInput = z.infer<
-    typeof DeactivateMembershipInputSchema
 >;
 
 export type MutationResult = {
