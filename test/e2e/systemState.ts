@@ -258,6 +258,13 @@ export class SystemState {
             .map(m => this.membershipStateToMembership(m));
     }
 
+    public getMembershipApplicationsForClub(clubId: number): Omit<Membership, 'joinedAt'>[] {
+        return Array.from(this.memberships.values())
+            .filter(m => m.clubId === clubId)
+            .filter(m => m.status === 'PENDING')
+            .map(m => this.membershipStateToMembership(m));
+    }
+
     private membershipCountWithStatus(clubId: number, status: MembershipStatus): number {
         return Array.from(this.memberships.values())
             .filter(m => m.clubId === clubId)

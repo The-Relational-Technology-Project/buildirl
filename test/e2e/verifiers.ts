@@ -38,6 +38,14 @@ function createVerifiers() {
     async function verifyClubMemberships(clubId: number,
                                          r: MainService,
                                          m: SystemState) {
+        await verifyActiveMembershipsForClub(clubId, r, m);
+        await verifyMembershipApplicationsForClub(clubId, r, m);
+        await verifyClubStatistics(clubId, r, m);
+    }
+
+    async function verifyActiveMembershipsForClub(clubId: number,
+                                                  r: MainService,
+                                                  m: SystemState) {
         const memberships = await r.getActiveMembershipsForClub(clubId);
         expect(orderByBigIntId(memberships.map(m => {
             // filter out joinedAt
@@ -50,7 +58,23 @@ function createVerifiers() {
                 applicationResponses: m.applicationResponses
             }
         }))).toEqual(orderByBigIntId(m.getActiveMembershipsForClub(clubId)));
-        await verifyClubStatistics(clubId, r, m);
+    }
+
+    async function verifyMembershipApplicationsForClub(clubId: number,
+                                                       r: MainService,
+                                                       m: SystemState) {
+        const memberships = await r.getMembershipApplicationsForClub(clubId);
+        expect(orderByBigIntId(memberships.map(m => {
+            // filter out joinedAt
+            return {
+                id: m.id,
+                user: m.user,
+                club: m.club,
+                membershipTier: m.membershipTier,
+                status: m.status,
+                applicationResponses: m.applicationResponses
+            }
+        }))).toEqual(orderByBigIntId(m.getMembershipApplicationsForClub(clubId)));
     }
 
     async function verifyClubStatistics(clubId: number,
