@@ -4,8 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { ChakraProvider } from "@chakra-ui/react";
-import { system } from "~/styles/theme";
+import {Provider} from "~/components/ui/provider";
 
 export const metadata: Metadata = {
   title: "Build IRL",
@@ -20,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={GeistSans.className}>
         <TRPCReactProvider>
-          <ChakraProvider value={system}>{children}</ChakraProvider>
+          <Provider>{children}</Provider>
         </TRPCReactProvider>
       </body>
     </html>
