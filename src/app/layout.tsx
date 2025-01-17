@@ -1,9 +1,12 @@
-import "~/styles/globals.css";
+import "@mantine/core/styles.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import React from "react";
+import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import { theme } from "~/styles/theme";
 
 export const metadata: Metadata = {
   title: "Build IRL",
@@ -16,8 +19,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <ColorSchemeScript />
+      </head>
       <body className={GeistSans.className}>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <MantineProvider theme={theme}>{children}</MantineProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );
