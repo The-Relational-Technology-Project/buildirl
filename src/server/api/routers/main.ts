@@ -2,10 +2,14 @@ import { z } from "zod";
 
 import { createTRPCRouter, securedProcedure } from "~/server/api/trpc";
 import {
-    CreateClubInputSchema, CreateMembershipTierInputSchema,
-    CreateUserInputSchema, SubmitMembershipApplicationInputSchema, UpdateClubApplicationQuestionsInputSchema,
-    UpdateClubInputSchema, UpdateMembershipTierInputSchema,
-    UpdateUserInputSchema
+  CreateClubInputSchema,
+  CreateMembershipTierInputSchema,
+  CreateUserInputSchema,
+  SubmitMembershipApplicationInputSchema,
+  UpdateClubApplicationQuestionsInputSchema,
+  UpdateClubInputSchema,
+  UpdateMembershipTierInputSchema,
+  UpdateUserInputSchema
 } from "~/server/service/types";
 
 export const mainRouter = createTRPCRouter({
@@ -22,13 +26,13 @@ export const mainRouter = createTRPCRouter({
   }),
 
   clubByPublicId: securedProcedure
-    .input(z.object({publicId: z.string()}))
+    .input(z.object({ publicId: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.service.getClubByPublicId(input.publicId);
     }),
 
   activeMembershipsForClub: securedProcedure
-    .input(z.object({clubId: z.number()}))
+    .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
       return ctx.service.getActiveMembershipsForClub(input.clubId);
     }),
@@ -39,17 +43,13 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.getMembershipApplicationsForClub(input);
     }),
 
-  clubStatistics: securedProcedure
-    .input(z.number())
-    .query(({ ctx, input }) => {
-      return ctx.service.getClubStatistics(input);
-    }),
+  clubStatistics: securedProcedure.input(z.number()).query(({ ctx, input }) => {
+    return ctx.service.getClubStatistics(input);
+  }),
 
-  club: securedProcedure
-    .input(z.number())
-    .query(({ ctx, input }) => {
-      return ctx.service.getClub(input);
-    }),
+  club: securedProcedure.input(z.number()).query(({ ctx, input }) => {
+    return ctx.service.getClub(input);
+  }),
 
   createUser: securedProcedure
     .input(CreateUserInputSchema)
@@ -76,13 +76,23 @@ export const mainRouter = createTRPCRouter({
     }),
 
   updateClubApplicationQuestions: securedProcedure
-    .input(z.object({ clubId: z.number(), input: UpdateClubApplicationQuestionsInputSchema }))
+    .input(
+      z.object({
+        clubId: z.number(),
+        input: UpdateClubApplicationQuestionsInputSchema
+      })
+    )
     .mutation(({ ctx, input }) => {
-      return ctx.service.updateClubApplicationQuestions(input.clubId, input.input);
+      return ctx.service.updateClubApplicationQuestions(
+        input.clubId,
+        input.input
+      );
     }),
 
   createMembershipTier: securedProcedure
-    .input(z.object({ clubId: z.number(), input: CreateMembershipTierInputSchema }))
+    .input(
+      z.object({ clubId: z.number(), input: CreateMembershipTierInputSchema })
+    )
     .mutation(({ ctx, input }) => {
       return ctx.service.createMembershipTier(input.clubId, input.input);
     }),
@@ -94,9 +104,18 @@ export const mainRouter = createTRPCRouter({
     }),
 
   submitMembershipApplication: securedProcedure
-    .input(z.object({ membershipTierId: z.number(), input: SubmitMembershipApplicationInputSchema }))
+    .input(
+      z.object({
+        membershipTierId: z.number(),
+        input: SubmitMembershipApplicationInputSchema
+      })
+    )
     .mutation(({ ctx, input }) => {
-      return ctx.service.submitMembershipApplication(input.membershipTierId, input.input, ctx.user.userId);
+      return ctx.service.submitMembershipApplication(
+        input.membershipTierId,
+        input.input,
+        ctx.user.userId
+      );
     }),
 
   approveMembershipApplication: securedProcedure
