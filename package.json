@@ -21,6 +21,8 @@
     "format-check": "yarn prettier --check ."
   },
   "dependencies": {
+    "@chakra-ui/react": "^3.3.3",
+    "@emotion/react": "^11.14.0",
     "@prisma/client": "^5.14.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.15",
