@@ -1,10 +1,8 @@
-import "~/styles/globals.css";
-
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import {Provider} from "~/components/ui/provider";
+import { Provider } from "~/components/ui/provider";
 
 export const metadata: Metadata = {
   title: "Build IRL",
