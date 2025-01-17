@@ -1,10 +1,13 @@
-import {MainService, UpdateClubApplicationQuestionsInput} from "~/server/service/types";
-import {SystemState} from "../systemState";
-import {Command} from "fast-check";
-import {Maybe} from "~/utils/types";
-import {ItemSelector} from "../utils/itemSelector";
-import {verifiers} from "../verifiers";
-import {stringify} from "~/utils";
+import {
+  MainService,
+  UpdateClubApplicationQuestionsInput
+} from "~/server/service/types";
+import { SystemState } from "../systemState";
+import { Command } from "fast-check";
+import { Maybe } from "~/utils/types";
+import { ItemSelector } from "../utils/itemSelector";
+import { verifiers } from "../verifiers";
+import { stringify } from "~/utils";
 
 export default class UpdateClubApplicationQuestionsCommand
   implements Command<SystemState, MainService>
@@ -13,9 +16,12 @@ export default class UpdateClubApplicationQuestionsCommand
   private readonly clubIdSelector: ItemSelector<number>;
   private clubId: Maybe<number> = null;
 
-  constructor(input: UpdateClubApplicationQuestionsInput, clubIdSelector: ItemSelector<number>) {
+  constructor(
+    input: UpdateClubApplicationQuestionsInput,
+    clubIdSelector: ItemSelector<number>
+  ) {
     this.input = input;
-    this.clubIdSelector = clubIdSelector
+    this.clubIdSelector = clubIdSelector;
   }
 
   check(m: Readonly<SystemState>): boolean {

@@ -6,8 +6,8 @@ import { type StartedTestContainer } from "testcontainers";
 import { SystemState } from "./systemState";
 import { allCommands } from "./commands";
 import { rootLogger } from "~/logger";
-import {MainService} from "~/server/service/types";
-import {createMainService} from "~/server/service/service";
+import { MainService } from "~/server/service/types";
+import { createMainService } from "~/server/service/service";
 
 function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {
   execSync(

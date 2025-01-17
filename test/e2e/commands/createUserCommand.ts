@@ -4,7 +4,7 @@ import { type CreateUserInput } from "~/server/service/types";
 import { idAsNumber, type Maybe } from "~/utils/types";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
-import {MainService} from "~/server/service/types";
+import { MainService } from "~/server/service/types";
 
 export default class CreateUserCommand
   implements Command<SystemState, MainService>
@@ -23,15 +23,9 @@ export default class CreateUserCommand
   }
 
   async run(m: SystemState, r: MainService): Promise<void> {
-    const result = await r.createUser(
-      this.input,
-      this.authUserId
-    );
+    const result = await r.createUser(this.input, this.authUserId);
     this.userId = idAsNumber(result.createdEntityId);
-    m.createUser(
-      this.userId,
-      this.input
-    );
+    m.createUser(this.userId, this.input);
     await verifiers.verifyUser(this.userId, r, m);
   }
 

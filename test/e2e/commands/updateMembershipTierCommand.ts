@@ -1,10 +1,10 @@
-import {UpdateMembershipTierInput, MainService} from "~/server/service/types";
-import {SystemState} from "../systemState";
-import {Command} from "fast-check";
-import {Maybe} from "~/utils/types";
-import {ItemSelector} from "../utils/itemSelector";
-import {verifiers} from "../verifiers";
-import {stringify} from "~/utils";
+import { UpdateMembershipTierInput, MainService } from "~/server/service/types";
+import { SystemState } from "../systemState";
+import { Command } from "fast-check";
+import { Maybe } from "~/utils/types";
+import { ItemSelector } from "../utils/itemSelector";
+import { verifiers } from "../verifiers";
+import { stringify } from "~/utils";
 
 export default class UpdateMembershipTierCommand
   implements Command<SystemState, MainService>
@@ -13,9 +13,12 @@ export default class UpdateMembershipTierCommand
   private readonly membershipTierIdSelector: ItemSelector<number>;
   private membershipTierId: Maybe<number> = null;
 
-  constructor(input: UpdateMembershipTierInput, membershipTierIdSelector: ItemSelector<number>) {
+  constructor(
+    input: UpdateMembershipTierInput,
+    membershipTierIdSelector: ItemSelector<number>
+  ) {
     this.input = input;
-    this.membershipTierIdSelector = membershipTierIdSelector
+    this.membershipTierIdSelector = membershipTierIdSelector;
   }
 
   check(m: Readonly<SystemState>): boolean {
@@ -23,7 +26,9 @@ export default class UpdateMembershipTierCommand
   }
 
   async run(m: SystemState, r: MainService): Promise<void> {
-    this.membershipTierId = this.membershipTierIdSelector.select(m.getMembershipTierIds());
+    this.membershipTierId = this.membershipTierIdSelector.select(
+      m.getMembershipTierIds()
+    );
     await r.updateMembershipTier(this.membershipTierId, this.input);
     m.updateMembershipTier(this.membershipTierId, this.input);
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);

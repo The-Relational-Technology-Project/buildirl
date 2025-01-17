@@ -1,10 +1,10 @@
-import {CreateMembershipTierInput, MainService} from "~/server/service/types";
-import {SystemState} from "../systemState";
-import {Command} from "fast-check";
-import {idAsNumber, Maybe} from "~/utils/types";
-import {ItemSelector} from "../utils/itemSelector";
-import {verifiers} from "../verifiers";
-import {stringify} from "~/utils";
+import { CreateMembershipTierInput, MainService } from "~/server/service/types";
+import { SystemState } from "../systemState";
+import { Command } from "fast-check";
+import { idAsNumber, Maybe } from "~/utils/types";
+import { ItemSelector } from "../utils/itemSelector";
+import { verifiers } from "../verifiers";
+import { stringify } from "~/utils";
 
 export default class CreateMembershipTierCommand
   implements Command<SystemState, MainService>
@@ -14,9 +14,12 @@ export default class CreateMembershipTierCommand
   private clubId: Maybe<number> = null;
   private membershipTierId: Maybe<number> = null;
 
-  constructor(input: CreateMembershipTierInput, clubIdSelector: ItemSelector<number>) {
+  constructor(
+    input: CreateMembershipTierInput,
+    clubIdSelector: ItemSelector<number>
+  ) {
     this.input = input;
-    this.clubIdSelector = clubIdSelector
+    this.clubIdSelector = clubIdSelector;
   }
 
   check(m: Readonly<SystemState>): boolean {
