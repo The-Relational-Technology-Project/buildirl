@@ -96,13 +96,13 @@ export type MainMutations = {
         userId: number
     ): Promise<MutationResult>;
     approveMembershipApplication(
-        membershipId: number
+        membershipId: bigint
     ): Promise<MutationResult>;
     declineMembershipApplication(
-        membershipId: number
+        membershipId: bigint
     ): Promise<MutationResult>;
     deactivateMembership(
-        membershipId: number
+        membershipId: bigint
     ): Promise<MutationResult>;
 };
 

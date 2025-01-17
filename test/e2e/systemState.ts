@@ -300,4 +300,58 @@ export class SystemState {
             applicationResponses: input.applicationResponses
         });
     }
+
+    public getActiveMembershipIds(): bigint[] {
+        return Array.from(this.memberships.values())
+            .filter(m => m.status === 'ACTIVE')
+            .map(m => m.id);
+    }
+
+    public getPendingMembershipIds(): bigint[] {
+        return Array.from(this.memberships.values())
+            .filter(m => m.status === 'PENDING')
+            .map(m => m.id);
+    }
+
+    public getMembershipState(membershipId: bigint): MembershipState {
+        const membershipState = this.memberships.get(membershipId);
+        if (!membershipState) {
+            throw new Error(`membership with id ${membershipId} was expected`);
+        }
+        return membershipState;
+    }
+
+    public getClubIdForMembership(membershipId: bigint): number {
+        const membershipState = this.getMembershipState(membershipId);
+        return membershipState.clubId;
+    }
+
+    public getUserIdForMembership(membershipId: bigint): number {
+        const membershipState = this.getMembershipState(membershipId);
+        return membershipState.userId;
+    }
+
+    public approveMembershipApplication(membershipId: bigint) {
+        const membershipState = this.getMembershipState(membershipId);
+        this.memberships.set(membershipId, {
+            ...membershipState,
+            status: 'ACTIVE'
+        });
+    }
+
+    public declineMembershipApplication(membershipId: bigint) {
+        const membershipState = this.getMembershipState(membershipId);
+        this.memberships.set(membershipId, {
+            ...membershipState,
+            status: 'DECLINED'
+        });
+    }
+
+    public deactivateMembership(membershipId: bigint) {
+        const membershipState = this.getMembershipState(membershipId);
+        this.memberships.set(membershipId, {
+            ...membershipState,
+            status: 'INACTIVE'
+        });
+    }
 }

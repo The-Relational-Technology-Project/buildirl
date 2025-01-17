@@ -555,7 +555,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function membershipStatus(membershipId: number): Promise<MembershipStatus> {
+    async function membershipStatus(membershipId: bigint): Promise<MembershipStatus> {
         try {
             const membership = await prisma.membership.findUniqueOrThrow({
                 where: {id: membershipId}
@@ -572,7 +572,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
     }
 
-    async function checkMembershipStatus(membershipId: number, expectedStatus: MembershipStatus): Promise<void> {
+    async function checkMembershipStatus(membershipId: bigint, expectedStatus: MembershipStatus): Promise<void> {
         const status = await membershipStatus(membershipId);
         if (status !== expectedStatus) {
             throw new Error(`Membership with id ${membershipId} was expected to be ${expectedStatus} but was ${status}`);
@@ -580,7 +580,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     async function approveMembershipApplication(
-        membershipId: number
+        membershipId: bigint
     ): Promise<MutationResult> {
         try {
             await checkMembershipStatus(membershipId, 'PENDING');
@@ -601,7 +601,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     async function declineMembershipApplication(
-        membershipId: number
+        membershipId: bigint
     ): Promise<MutationResult> {
         try {
             await checkMembershipStatus(membershipId, 'PENDING');
@@ -622,7 +622,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     async function deactivateMembership(
-        membershipId: number
+        membershipId: bigint
     ): Promise<MutationResult> {
         try {
             await checkMembershipStatus(membershipId, 'ACTIVE');

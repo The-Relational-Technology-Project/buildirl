@@ -16,6 +16,9 @@ import UpdateClubApplicationQuestionsCommand from "./updateClubApplicationQuesti
 import CreateMembershipTierCommand from "./createMembershipTierCommand";
 import UpdateMembershipTierCommand from "./updateMembershipTierCommand";
 import SubmitMembershipApplicationCommand from "./submitMembershipApplicationCommand";
+import ApproveMembershipApplicationCommand from "./approveMembershipApplicationCommand";
+import DeclineMembershipApplicationCommand from "./declineMembershipApplicationCommand";
+import DeactivateMembershipCommand from "./deactivateMembershipCommand";
 
 export const allCommands = () => {
     return [
@@ -171,5 +174,29 @@ function submitMembershipApplicationCommands() {
         applicationResponses: constant({})
     }).map(
         (i) => new SubmitMembershipApplicationCommand({applicationResponses: i.applicationResponses}, i.membershipTierIdSelector, i.userIdSelector)
+    );
+}
+
+function approveMembershipApplicationCommands() {
+    return record({
+        membershipIdSelector: itemSelector<bigint>()
+    }).map(
+        (i) => new ApproveMembershipApplicationCommand(i.membershipIdSelector)
+    );
+}
+
+function declineMembershipApplicationCommands() {
+    return record({
+        membershipIdSelector: itemSelector<bigint>()
+    }).map(
+        (i) => new DeclineMembershipApplicationCommand(i.membershipIdSelector)
+    );
+}
+
+function deactivateMembershipCommands() {
+    return record({
+        membershipIdSelector: itemSelector<bigint>()
+    }).map(
+        (i) => new DeactivateMembershipCommand(i.membershipIdSelector)
     );
 }
