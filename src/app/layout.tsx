@@ -11,6 +11,7 @@ import {
   MantineProvider
 } from "@mantine/core";
 import { theme } from "~/client/theme";
+import { HydrateClient } from "~/trpc/server";
 
 export const metadata: Metadata = {
   title: "Build IRL",
@@ -28,7 +29,9 @@ export default function RootLayout({
       </head>
       <body className={GeistSans.className}>
         <TRPCReactProvider>
-          <MantineProvider theme={theme}>{children}</MantineProvider>
+          <MantineProvider theme={theme}>
+            <HydrateClient>{children}</HydrateClient>
+          </MantineProvider>
         </TRPCReactProvider>
       </body>
     </html>
