@@ -6,15 +6,20 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import {initTRPC, TRPCError} from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 
 import superjson from "superjson";
-import {ZodError} from "zod";
+import { ZodError } from "zod";
 
-import {prisma} from "~/server/prisma";
-import {Maybe} from "~/utils/types";
-import {createComponentClient} from "~/utils/supabase/auth/client";
-import {createMainService} from "~/server/service/service";
+import { prisma } from "~/server/prisma";
+import { Maybe } from "~/utils/types";
+import {
+  createComponentClient,
+  createMiddlewareClient
+} from "~/utils/supabase/auth/client";
+import { createMainService } from "~/server/service/service";
+import { logger } from "~/client/logger";
+import { NextRequest } from "next/server";
 
 /**
  * 1. CONTEXT
@@ -28,43 +33,45 @@ import {createMainService} from "~/server/service/service";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: { headers: Headers }) => {
-    const user = await authUser();
-    return {
-        service: createMainService(prisma),
-        user: user,
-        ...opts
-    };
+export const createTRPCContext = async (req: NextRequest) => {
+  const user = await authUser(req);
+  return {
+    service: createMainService(prisma),
+    user: user,
+    headers: req.headers
+  };
 };
 
 type UserContext = {
-    authUserId: string;
-    userId: Maybe<number>;
+  authUserId: string;
+  userId: Maybe<number>;
 };
 
-async function authUser(): Promise<Maybe<UserContext>> {
-    const supabase = createComponentClient();
-    const {
-        data: {user}
-    } = await supabase.auth.getUser();
-    if (!user) {
-        return null;
-    }
-    const userId = await userIdByAuthUserId(user.id);
-    return {authUserId: user.id, userId: userId};
+async function authUser(req: NextRequest): Promise<Maybe<UserContext>> {
+  const supabase = createMiddlewareClient(req, null);
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    logger.info("no auth user found, returning null");
+    return null;
+  }
+  const userId = await userIdByAuthUserId(user.id);
+  return { authUserId: user.id, userId: userId };
 }
 
 function userIdByAuthUserId(authUserId: string): Promise<Maybe<number>> {
-    return prisma.user
-        .findUnique({
-            select: {
-                id: true
-            },
-            where: {
-                authUserId: authUserId
-            }
-        })
-        .then((r) => r?.id ?? null);
+  return prisma.user
+    .findUnique({
+      select: {
+        id: true
+      },
+      where: {
+        authUserId: authUserId
+      }
+    })
+    .then((r) => r?.id ?? null);
 }
 
 /**
@@ -75,16 +82,16 @@ function userIdByAuthUserId(authUserId: string): Promise<Maybe<number>> {
  * errors on the backend.
  */
 const t = initTRPC.context<typeof createTRPCContext>().create({
-    transformer: superjson,
-    errorFormatter({shape, error}) {
-        return {
-            ...shape,
-            data: {
-                ...shape.data,
-                zodError: error.cause instanceof ZodError ? error.cause.flatten() : null
-            }
-        };
-    }
+  transformer: superjson,
+  errorFormatter({ shape, error }) {
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null
+      }
+    };
+  }
 });
 
 /**
@@ -114,21 +121,21 @@ export const createTRPCRouter = t.router;
  * You can remove this if you don't like it, but it can help catch unwanted waterfalls by simulating
  * network latency that would occur in production but not in local development.
  */
-const timingMiddleware = t.middleware(async ({next, path}) => {
-    const start = Date.now();
+const timingMiddleware = t.middleware(async ({ next, path }) => {
+  const start = Date.now();
 
-    if (t._config.isDev) {
-        // artificial delay in dev
-        const waitMs = Math.floor(Math.random() * 400) + 100;
-        await new Promise((resolve) => setTimeout(resolve, waitMs));
-    }
+  if (t._config.isDev) {
+    // artificial delay in dev
+    const waitMs = Math.floor(Math.random() * 400) + 100;
+    await new Promise((resolve) => setTimeout(resolve, waitMs));
+  }
 
-    const result = await next();
+  const result = await next();
 
-    const end = Date.now();
-    console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+  const end = Date.now();
+  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
 
-    return result;
+  return result;
 });
 
 /**
@@ -136,23 +143,24 @@ const timingMiddleware = t.middleware(async ({next, path}) => {
  *
  * Middleware that ensures that all requests are in context of an authorized user session
  */
-const withAuthorization = t.middleware(({ctx, next}) => {
-    if (!ctx.user) {
-        throw new TRPCError({code: "UNAUTHORIZED"});
+const withAuthorization = t.middleware(({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      // infers that `user` and `userId` is non-nullable to downstream resolvers
+      user: { ...ctx.user, userId: ctx.user.userId! }
     }
-    return next({
-        ctx: {
-            ...ctx,
-            // infers that `user` and `userId` is non-nullable to downstream resolvers
-            user: {...ctx.user, userId: ctx.user.userId!}
-        }
-    });
+  });
 });
-
 
 /**
  * This is the base piece you use to build new queries and mutations on your tRPC API. It does not
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
-export const securedProcedure = t.procedure.use(timingMiddleware).use(withAuthorization);
+export const securedProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(withAuthorization);
