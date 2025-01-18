@@ -20,6 +20,7 @@ import {
 import { createMainService } from "~/server/service/service";
 import { logger } from "~/client/logger";
 import { NextRequest } from "next/server";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * 1. CONTEXT
@@ -33,12 +34,15 @@ import { NextRequest } from "next/server";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (req: NextRequest) => {
-  const user = await authUser(req);
+export const createTRPCContext = async (opts: {
+  headers: Headers;
+  supabase: SupabaseClient;
+}) => {
+  const user = await authUser(opts.supabase);
   return {
     service: createMainService(prisma),
     user: user,
-    headers: req.headers
+    headers: opts.headers
   };
 };
 
@@ -47,8 +51,7 @@ type UserContext = {
   userId: Maybe<number>;
 };
 
-async function authUser(req: NextRequest): Promise<Maybe<UserContext>> {
-  const supabase = createMiddlewareClient(req, null);
+async function authUser(supabase: SupabaseClient): Promise<Maybe<UserContext>> {
   const {
     data: { user }
   } = await supabase.auth.getUser();

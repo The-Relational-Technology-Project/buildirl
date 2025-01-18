@@ -4,13 +4,17 @@ import { type NextRequest } from "next/server";
 import { env } from "~/env";
 import { appRouter } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
+import { createMiddlewareClient } from "~/utils/supabase/auth/client";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
  * handling a HTTP request (e.g. when you make requests from Client Components).
  */
 const createContext = async (req: NextRequest) => {
-  return createTRPCContext(req);
+  return createTRPCContext({
+    headers: req.headers,
+    supabase: createMiddlewareClient(req, null)
+  });
 };
 
 const handler = (req: NextRequest) =>
