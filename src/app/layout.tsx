@@ -6,16 +6,12 @@ import { type Metadata } from "next";
 import { TRPCReactProvider } from "~/trpc/react";
 import React from "react";
 import {
-  AppShell,
-  AppShellHeader,
-  AppShellMain,
   ColorSchemeScript,
   mantineHtmlProps,
   MantineProvider
 } from "@mantine/core";
 import { theme } from "~/client/theme";
 import { HydrateClient } from "~/trpc/server";
-import { HEADER_BAR_HEIGHT, HeaderBar } from "~/client/components/HeaderBar";
 
 export const metadata: Metadata = {
   title: "Build IRL",
@@ -34,14 +30,7 @@ export default function RootLayout({
       <body className={GeistSans.className}>
         <TRPCReactProvider>
           <MantineProvider theme={theme}>
-            <HydrateClient>
-              <AppShell header={{ height: HEADER_BAR_HEIGHT }}>
-                <AppShellHeader>
-                  <HeaderBar />
-                </AppShellHeader>
-                <AppShellMain h={"100%"}>{children}</AppShellMain>
-              </AppShell>
-            </HydrateClient>
+            <HydrateClient>{children}</HydrateClient>
           </MantineProvider>
         </TRPCReactProvider>
       </body>
