@@ -5,8 +5,12 @@ import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import React from "react";
-import { ColorSchemeScript, MantineProvider } from "@mantine/core";
-import { theme } from "~/styles/theme";
+import {
+  ColorSchemeScript,
+  mantineHtmlProps,
+  MantineProvider
+} from "@mantine/core";
+import { theme } from "~/client/theme";
 
 export const metadata: Metadata = {
   title: "Build IRL",
@@ -18,9 +22,9 @@ export default function RootLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" {...mantineHtmlProps}>
       <head>
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme={"auto"} />
       </head>
       <body className={GeistSans.className}>
         <TRPCReactProvider>
