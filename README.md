@@ -24,6 +24,10 @@ First time users can use the commands in the [justfile](justfile) in order to ru
 1. `just setup` for first time set-up of local database and dependencies
 2. `just db-start` and `just start` to begin local instance. See output for the localport (defaults to localhost:3000)
 
+### Local authentication
+Authentication requires OTP sent to your email. When running locally, you will not receive an email. Instead you can retrieve 
+the messages with Inbucket which is accessible at localhost:54324.
+
 ## Testing
 
 We follow [TDD](https://martinfowler.com/bliki/TestDrivenDevelopment.html) to ensure confidence in our development and
