@@ -3,7 +3,6 @@ import {
   Divider,
   Group,
   Paper,
-  PaperProps,
   Stack,
   TextInput,
   Image,
@@ -15,6 +14,8 @@ import { z } from "zod";
 import { useState } from "react";
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { logger } from "~/client/logger";
+import { safeValidateSchema } from "~/utils/zod";
 
 const EmailSchema = z
   .string()
@@ -22,17 +23,6 @@ const EmailSchema = z
   .email("Invalid email address");
 
 const OtpSchema = z.string().regex(/^\d{6}$/, "Code must be 6 digits");
-
-const validateSchema = <T extends z.ZodType>(
-  schema: T,
-  value: unknown
-): string | null => {
-  const result = schema.safeParse(value);
-  if (!result.success) {
-    return result.error.errors[0]?.message ?? "Invalid input";
-  }
-  return null;
-};
 
 type EmailFormProps = {
   toggle: () => void;
@@ -47,7 +37,7 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
     },
 
     validate: {
-      email: (val) => validateSchema(EmailSchema, val)
+      email: (val) => safeValidateSchema(EmailSchema, val)
     }
   });
 
@@ -61,8 +51,8 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
 
       setEmail(values.email);
       toggle();
-    } catch (error: any) {
-      console.error("Failed to send OTP:", error.message);
+    } catch (e) {
+      logger.error("Failed to send OTP:");
     }
   };
 
@@ -101,7 +91,7 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
     },
 
     validate: {
-      code: (val) => validateSchema(OtpSchema, val)
+      code: (val) => safeValidateSchema(OtpSchema, val)
     }
   });
 
@@ -114,8 +104,8 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
       });
 
       if (error) throw error;
-    } catch (error: any) {
-      console.error("Failed to verify OTP:", error.message);
+    } catch (e) {
+      logger.error(`Failed to verify OTP with exception ${e}`);
     }
   };
 
@@ -152,13 +142,13 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
   );
 }
 
-export function AuthenticationForm(props: PaperProps) {
+export function AuthenticationForm() {
   const [type, toggle] = useToggle(["login", "otp"]);
   const [email, setEmail] = useState("");
   const supabase = createComponentClient();
 
   return (
-    <Paper radius="md" p="xl" withBorder {...props} w={300}>
+    <Paper radius="md" p="xl" withBorder w={300}>
       <Group justify="center">
         <Image src={"/logo.svg"} h={40} />
       </Group>
@@ -169,9 +159,13 @@ export function AuthenticationForm(props: PaperProps) {
         my="lg"
       />
 
-      {type === "login" && <EmailForm toggle={toggle} setEmail={setEmail} supabase={supabase} />}
+      {type === "login" && (
+        <EmailForm toggle={toggle} setEmail={setEmail} supabase={supabase} />
+      )}
 
-      {type === "otp" && <OtpForm toggle={toggle} email={email} supabase={supabase} />}
+      {type === "otp" && (
+        <OtpForm toggle={toggle} email={email} supabase={supabase} />
+      )}
     </Paper>
   );
 }
