@@ -1,6 +1,6 @@
 "use client";
 
-import { Flex, Group, Text, ThemeIcon } from "@mantine/core";
+import { Flex, Group, Text, ThemeIcon, Image } from "@mantine/core";
 
 export const HEADER_BAR_HEIGHT = 50;
 export const PAGE_WIDTH = 800;
@@ -50,9 +50,24 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
   );
 }
 
+function LogoIcon() {
+  return (
+    <Image
+      src={"/logo-icon.svg"}
+      w={15}
+      h={20}
+      style={{
+        position: "fixed",
+        left: 20
+      }}
+    />
+  );
+}
+
 export function HeaderBar() {
   return (
     <Flex h={HEADER_BAR_HEIGHT} align={"center"} justify={"center"}>
+      <LogoIcon />
       <Group justify="flex-start" w={PAGE_WIDTH}>
         <NavigationLink Icon={IconHome} label={"Clubs"} navigateTo={"/"} />
         <NavigationLink
