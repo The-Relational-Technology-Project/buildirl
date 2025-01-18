@@ -123,7 +123,6 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
           }
           error={form.errors.code && "Invalid code"}
           radius="md"
-          maxLength={6}
         />
         <Button type="submit" radius="xl" mt="sm">
           {"Login"}
