@@ -31,6 +31,8 @@ model User {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   Club        Club[]
+
+  @@map("user")
 }
 
 model Club {
@@ -48,6 +50,8 @@ model Club {
   membershipTiers      MembershipTier[]
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
+
+  @@map("club")
 }
 
 model MembershipTier {
@@ -61,6 +65,8 @@ model MembershipTier {
   memberships             Membership[]
   createdAt               DateTime     @default(now())
   updatedAt               DateTime     @updatedAt
+
+  @@map("membership_tier")
 }
 
 model Membership {
@@ -75,4 +81,5 @@ model Membership {
   updatedAt            DateTime         @updatedAt
 
   @@unique([userId, membershipTierId])
+  @@map("membership")
 }
