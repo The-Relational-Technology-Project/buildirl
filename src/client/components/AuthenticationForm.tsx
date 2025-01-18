@@ -12,13 +12,16 @@ import {
 import { useForm } from "@mantine/form";
 import { useToggle } from "@mantine/hooks";
 import { z } from "zod";
+import { useState } from "react";
+import { createComponentClient } from "~/utils/supabase/auth/client";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 const EmailSchema = z
   .string()
   .min(1, "Required")
   .email("Invalid email address");
 
-const OtpSchema = z.string().regex(/^\d{6}$/, "Code must be6 digits");
+const OtpSchema = z.string().regex(/^\d{6}$/, "Code must be 6 digits");
 
 const validateSchema = <T extends z.ZodType>(
   schema: T,
@@ -33,9 +36,11 @@ const validateSchema = <T extends z.ZodType>(
 
 type EmailFormProps = {
   toggle: () => void;
+  setEmail: (email: string) => void;
+  supabase: SupabaseClient;
 };
 
-function EmailForm({ toggle }: EmailFormProps) {
+function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
   const form = useForm({
     initialValues: {
       email: ""
@@ -46,12 +51,23 @@ function EmailForm({ toggle }: EmailFormProps) {
     }
   });
 
+  const handleSubmit = async (values: { email: string }) => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: values.email
+      });
+
+      if (error) throw error;
+
+      setEmail(values.email);
+      toggle();
+    } catch (error: any) {
+      console.error("Failed to send OTP:", error.message);
+    }
+  };
+
   return (
-    <form
-      onSubmit={form.onSubmit(() => {
-        toggle();
-      })}
-    >
+    <form onSubmit={form.onSubmit(handleSubmit)}>
       <Stack>
         <TextInput
           required
@@ -74,9 +90,11 @@ function EmailForm({ toggle }: EmailFormProps) {
 
 type OtpProps = {
   toggle: () => void;
+  email: string;
+  supabase: SupabaseClient;
 };
 
-function OtpForm({ toggle }: EmailFormProps) {
+function OtpForm({ toggle, email, supabase }: OtpProps) {
   const form = useForm({
     initialValues: {
       code: ""
@@ -87,15 +105,25 @@ function OtpForm({ toggle }: EmailFormProps) {
     }
   });
 
+  const handleSubmit = async (values: { code: string }) => {
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: values.code,
+        type: "magiclink"
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error("Failed to verify OTP:", error.message);
+    }
+  };
+
   return (
-    <form
-      onSubmit={form.onSubmit(() => {
-        toggle();
-      })}
-    >
+    <form onSubmit={form.onSubmit(handleSubmit)}>
       <Stack>
         <TextInput
-          type={"number"}
+          type="number"
           required
           label="Enter code"
           placeholder="6-digit code from email"
@@ -105,6 +133,7 @@ function OtpForm({ toggle }: EmailFormProps) {
           }
           error={form.errors.code && "Invalid code"}
           radius="md"
+          maxLength={6}
         />
         <Button type="submit" radius="xl" mt="sm">
           {"Login"}
@@ -125,6 +154,9 @@ function OtpForm({ toggle }: EmailFormProps) {
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, toggle] = useToggle(["login", "otp"]);
+  const [email, setEmail] = useState("");
+  const supabase = createComponentClient();
+
   return (
     <Paper radius="md" p="xl" withBorder {...props} w={300}>
       <Group justify="center">
@@ -137,9 +169,9 @@ export function AuthenticationForm(props: PaperProps) {
         my="lg"
       />
 
-      {type === "login" && <EmailForm toggle={toggle} />}
+      {type === "login" && <EmailForm toggle={toggle} setEmail={setEmail} supabase={supabase} />}
 
-      {type === "otp" && <OtpForm toggle={toggle} />}
+      {type === "otp" && <OtpForm toggle={toggle} email={email} supabase={supabase} />}
     </Paper>
   );
 }
