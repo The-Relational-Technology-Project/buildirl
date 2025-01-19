@@ -37,6 +37,7 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
             variant={"white"}
             c={currentPath === navigateTo ? "black" : "dimmed"}
             style={{
+              backgroundColor: "transparent",
               "&:hover": { color: "black" }
             }}
           >
@@ -119,7 +120,14 @@ function ProfileMenu() {
 
 export function HeaderBar() {
   return (
-    <Flex h={HEADER_BAR_HEIGHT} align={"center"} justify={"center"}>
+    <Flex
+      h={HEADER_BAR_HEIGHT}
+      align={"center"}
+      justify={"center"}
+      style={{
+        backgroundColor: "#dde2fa"
+      }}
+    >
       <LogoIcon />
       <Group justify="flex-start" w={{ base: undefined, md: PAGE_WIDTH }}>
         <NavigationLink Icon={IconHome} label={"Clubs"} navigateTo={"/"} />

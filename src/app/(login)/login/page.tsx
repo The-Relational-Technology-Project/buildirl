@@ -23,7 +23,7 @@ export default function Login() {
   }, [supabase.auth, router]);
 
   return (
-    <Center h="80vh">
+    <Center h="100vh" pb={200}>
       <AuthenticationForm />
     </Center>
   );

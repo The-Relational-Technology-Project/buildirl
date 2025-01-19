@@ -86,7 +86,7 @@ function UserForm(props: StackProps) {
 
 export default function Onboarding() {
   return (
-    <Center h={"80vh"}>
+    <Center h={"100vh"} pb={200}>
       <Paper radius="md" p="xl" withBorder w={300}>
         <Text size={"lg"} fw={500}>
           Welcome
