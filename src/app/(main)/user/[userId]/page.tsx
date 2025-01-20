@@ -32,19 +32,15 @@ export default function User() {
         <Stack w={600}>
           <Group align={"flex-start"} gap={"lg"}>
             <Avatar size={100} radius={90} />
-            <Title order={3} fw={500} c={"gray.8"} pt={10}>
+            <Title order={3} fw={500} pt={10}>
               {r.data!.firstName} {r.data!.lastName}
             </Title>
           </Group>
-          {r.data!.description !== "" && (
+          {r.data!.description === "" && (
             <>
-              <Divider my={"md"} color={"gray.5"} />
-              <Title order={4} c={"gray.8"}>
-                Bio
-              </Title>
-              <Text c={"gray.8"} size={"sm"}>
-                {r.data!.description}
-              </Text>
+              <Divider my={"md"} />
+              <Title order={4}>Bio</Title>
+              <Text size={"sm"}>{r.data!.description}</Text>
             </>
           )}
         </Stack>

@@ -19,6 +19,7 @@ import {
   ClubStatistics
 } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
+import { OmitRecursively } from "~/utils/omit";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -45,8 +46,15 @@ type MembershipState = {
   applicationResponses: ApplicationResponses;
 };
 
+type UserState = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  description: string;
+};
+
 export class SystemState {
-  private readonly users: Map<number, User>;
+  private readonly users: Map<number, UserState>;
   private readonly clubs: Map<number, ClubState>;
   private readonly membershipTiers: Map<number, MembershipTier>;
   private readonly memberships: Map<bigint, MembershipState>;
@@ -58,7 +66,7 @@ export class SystemState {
     this.memberships = new Map();
   }
 
-  public getUser(id: number): User {
+  public getUser(id: number): Omit<User, "createdAt"> {
     const user = this.users.get(id);
     if (!user) {
       throw new Error(`user with id ${id} was expected`);
@@ -100,7 +108,7 @@ export class SystemState {
     return clubState;
   }
 
-  public getClub(id: number): Club {
+  public getClub(id: number): OmitRecursively<Club, "createdAt"> {
     const clubState = this.getClubState(id);
     return this.clubStateToClub(clubState);
   }
@@ -124,7 +132,9 @@ export class SystemState {
     );
   }
 
-  public clubStateToClub(clubState: ClubState): Club {
+  public clubStateToClub(
+    clubState: ClubState
+  ): OmitRecursively<Club, "createdAt"> {
     return {
       id: clubState.id,
       publicId: clubState.publicId,
@@ -150,7 +160,9 @@ export class SystemState {
     return Array.from(this.clubs.keys());
   }
 
-  public getUserOwnedClubs(userId: number): Club[] {
+  public getUserOwnedClubs(
+    userId: number
+  ): OmitRecursively<Club, "createdAt">[] {
     return Array.from(this.clubs.values())
       .filter((club) => club.ownerUserId === userId)
       .map((club) => this.clubStateToClub(club));
@@ -268,7 +280,7 @@ export class SystemState {
 
   public membershipStateToMembership(
     membershipState: MembershipState
-  ): Omit<Membership, "joinedAt"> {
+  ): OmitRecursively<Membership, "createdAt"> {
     return {
       id: membershipState.id,
       user: this.getUser(membershipState.userId),
@@ -281,7 +293,7 @@ export class SystemState {
 
   public getActiveMembershipsForClub(
     clubId: number
-  ): Omit<Membership, "joinedAt">[] {
+  ): OmitRecursively<Membership, "createdAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.clubId === clubId)
       .filter((m) => m.status === "ACTIVE")
@@ -290,7 +302,7 @@ export class SystemState {
 
   public getMembershipApplicationsForClub(
     clubId: number
-  ): Omit<Membership, "joinedAt">[] {
+  ): OmitRecursively<Membership, "createdAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.clubId === clubId)
       .filter((m) => m.status === "PENDING")
@@ -317,7 +329,9 @@ export class SystemState {
     };
   }
 
-  public getUserMemberships(userId: number): Omit<Membership, "joinedAt">[] {
+  public getUserMemberships(
+    userId: number
+  ): OmitRecursively<Membership, "createdAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.userId === userId)
       .map((m) => this.membershipStateToMembership(m));

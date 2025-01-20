@@ -22,6 +22,7 @@ export type User = {
   firstName: string;
   lastName: string;
   description: string;
+  createdAt: Date;
 };
 
 export type Club = {
@@ -52,7 +53,7 @@ export type Membership = {
   membershipTier: MembershipTier;
   status: MembershipStatus;
   applicationResponses: ApplicationResponses;
-  joinedAt: Date;
+  createdAt: Date;
 };
 
 export type MembershipTier = {

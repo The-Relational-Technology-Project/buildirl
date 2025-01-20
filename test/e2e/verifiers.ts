@@ -1,21 +1,56 @@
-import { type MainService } from "~/server/service/types";
+import {
+  type Club,
+  type MainService,
+  type Membership,
+  type User
+} from "~/server/service/types";
 import { type SystemState } from "./systemState";
 import { orderByBigIntId, orderByNumberId } from "./utils";
+import { OmitRecursively } from "~/utils/omit";
 
 function createVerifiers() {
+  function userWithoutCreatedAt(
+    user: User
+  ): OmitRecursively<User, "createdAt"> {
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      description: user.description
+    };
+  }
+
   async function verifyUser(userId: number, r: MainService, m: SystemState) {
     const user = await r.getUser(userId);
-    expect(user).toEqual(m.getUser(userId));
+    expect(userWithoutCreatedAt(user)).toEqual(m.getUser(userId));
+  }
+
+  function clubWithoutCreatedAt(
+    club: Club
+  ): OmitRecursively<Club, "createdAt"> {
+    return {
+      id: club.id,
+      publicId: club.publicId,
+      name: club.name,
+      tagLine: club.tagLine,
+      description: club.description,
+      owner: userWithoutCreatedAt(club.owner),
+      websiteURL: club.websiteURL,
+      instagramHandle: club.instagramHandle,
+      eventCalendarURL: club.eventCalendarURL,
+      applicationQuestions: club.applicationQuestions,
+      membershipTiers: club.membershipTiers
+    };
   }
 
   async function verifyClub(clubId: number, r: MainService, m: SystemState) {
     const expected = m.getClub(clubId);
     // main entity query
     const club = await r.getClub(clubId);
-    expect(club).toEqual(expected);
+    expect(clubWithoutCreatedAt(club)).toEqual(expected);
     // also verify query by public id
     const clubByPublicId = await r.getClubByPublicId(expected.publicId);
-    expect(clubByPublicId).toEqual(expected);
+    expect(clubWithoutCreatedAt(clubByPublicId)).toEqual(expected);
   }
 
   async function verifyUserOwnedClub(
@@ -24,9 +59,9 @@ function createVerifiers() {
     m: SystemState
   ) {
     const userOwnedClubs = await r.getUserOwnedClubs(userId);
-    expect(orderByNumberId(userOwnedClubs)).toEqual(
-      orderByNumberId(m.getUserOwnedClubs(userId))
-    );
+    expect(
+      orderByNumberId(userOwnedClubs.map((c) => clubWithoutCreatedAt(c)))
+    ).toEqual(orderByNumberId(m.getUserOwnedClubs(userId)));
   }
 
   async function verifyClubMemberships(
@@ -39,6 +74,20 @@ function createVerifiers() {
     await verifyClubStatistics(clubId, r, m);
   }
 
+  function membershipWithoutCreatedAt(
+    membership: Membership
+  ): OmitRecursively<Membership, "createdAt"> {
+    // filter out createdAt
+    return {
+      id: membership.id,
+      user: userWithoutCreatedAt(membership.user),
+      club: clubWithoutCreatedAt(membership.club),
+      membershipTier: membership.membershipTier,
+      status: membership.status,
+      applicationResponses: membership.applicationResponses
+    };
+  }
+
   async function verifyActiveMembershipsForClub(
     clubId: number,
     r: MainService,
@@ -46,19 +95,7 @@ function createVerifiers() {
   ) {
     const memberships = await r.getActiveMembershipsForClub(clubId);
     expect(
-      orderByBigIntId(
-        memberships.map((m) => {
-          // filter out joinedAt
-          return {
-            id: m.id,
-            user: m.user,
-            club: m.club,
-            membershipTier: m.membershipTier,
-            status: m.status,
-            applicationResponses: m.applicationResponses
-          };
-        })
-      )
+      orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
     ).toEqual(orderByBigIntId(m.getActiveMembershipsForClub(clubId)));
   }
 
@@ -69,19 +106,7 @@ function createVerifiers() {
   ) {
     const memberships = await r.getMembershipApplicationsForClub(clubId);
     expect(
-      orderByBigIntId(
-        memberships.map((m) => {
-          // filter out joinedAt
-          return {
-            id: m.id,
-            user: m.user,
-            club: m.club,
-            membershipTier: m.membershipTier,
-            status: m.status,
-            applicationResponses: m.applicationResponses
-          };
-        })
-      )
+      orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
     ).toEqual(orderByBigIntId(m.getMembershipApplicationsForClub(clubId)));
   }
 
@@ -101,19 +126,7 @@ function createVerifiers() {
   ) {
     const memberships = await r.getUserMemberships(userId);
     expect(
-      orderByBigIntId(
-        memberships.map((m) => {
-          // filter out joinedAt
-          return {
-            id: m.id,
-            user: m.user,
-            club: m.club,
-            membershipTier: m.membershipTier,
-            status: m.status,
-            applicationResponses: m.applicationResponses
-          };
-        })
-      )
+      orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
     ).toEqual(orderByBigIntId(m.getUserMemberships(userId)));
   }
 
