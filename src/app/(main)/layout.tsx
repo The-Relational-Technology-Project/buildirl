@@ -1,18 +1,36 @@
 import "@mantine/core/styles.css";
 
 import React from "react";
-import { AppShell, AppShellHeader, AppShellMain } from "@mantine/core";
-import { HEADER_BAR_HEIGHT, HeaderBar } from "~/client/components/HeaderBar";
+import {
+  AppShell,
+  AppShellHeader,
+  AppShellMain,
+  Box,
+  Center
+} from "@mantine/core";
+import {
+  HEADER_BAR_HEIGHT,
+  HeaderBar,
+  PAGE_WIDTH
+} from "~/client/components/HeaderBar";
+import { api } from "~/trpc/server";
 
 export default function MainLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
+  // Prefetching of user-authenticated data goes here
+  void api.main.user.prefetch();
+
   return (
     <AppShell header={{ height: HEADER_BAR_HEIGHT }}>
       <AppShellHeader>
         <HeaderBar />
       </AppShellHeader>
-      <AppShellMain h={"100%"}>{children}</AppShellMain>
+      <AppShellMain h={"100%"}>
+        <Center>
+          <Box w={{ base: "80vw", md: PAGE_WIDTH }}>{children}</Box>
+        </Center>
+      </AppShellMain>
     </AppShell>
   );
 }
