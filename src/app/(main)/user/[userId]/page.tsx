@@ -7,13 +7,15 @@ import {
   Avatar,
   Center,
   Group,
-  Divider
+  Divider,
+  ThemeIcon
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isLoaded } from "~/client/utils";
+import { isLoaded, toDisplayMonth } from "~/client/utils";
 import { useParams } from "next/navigation";
 import React from "react";
+import { IconCalendarWeek } from "@tabler/icons-react";
 
 export default function User() {
   const params = useParams<{ userId: string }>();
@@ -32,15 +34,34 @@ export default function User() {
         <Stack w={600}>
           <Group align={"flex-start"} gap={"lg"}>
             <Avatar size={100} radius={90} />
-            <Title order={3} fw={500} pt={10}>
-              {r.data!.firstName} {r.data!.lastName}
-            </Title>
+            <Stack gap={6}>
+              <Title order={3} fw={500} pt={10}>
+                {r.data!.firstName} {r.data!.lastName}
+              </Title>
+              <Group gap={6}>
+                <ThemeIcon
+                  size={"xs"}
+                  variant={"white"}
+                  c={"dimmed"}
+                  style={{
+                    backgroundColor: "transparent"
+                  }}
+                >
+                  <IconCalendarWeek />
+                </ThemeIcon>
+                <Text c={"dimmed"} size={"sm"}>
+                  Joined {toDisplayMonth(r.data!.createdAt)}
+                </Text>
+              </Group>
+            </Stack>
           </Group>
-          {r.data!.description === "" && (
+          {r.data!.description !== "" && (
             <>
               <Divider my={"md"} />
               <Title order={4}>Bio</Title>
-              <Text size={"sm"}>{r.data!.description}</Text>
+              <Text size={"sm"} c={"dimmed"}>
+                {r.data!.description}
+              </Text>
             </>
           )}
         </Stack>

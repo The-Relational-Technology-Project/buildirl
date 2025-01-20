@@ -19,10 +19,9 @@ export function isAllLoaded(
   return isAllLoaded;
 }
 
-export function toDisplayString(dateTime: Date): string {
+export function toDisplayMonth(dateTime: Date): string {
   return dateTime.toLocaleDateString("en-us", {
     year: "numeric",
-    month: "numeric",
-    day: "numeric"
+    month: "long"
   });
 }
