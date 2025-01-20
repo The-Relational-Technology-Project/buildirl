@@ -34,7 +34,7 @@ export default function User() {
         <Stack w={600}>
           <Group align={"flex-start"} gap={"lg"}>
             <Avatar size={100} radius={90} />
-            <Stack gap={6}>
+            <Stack gap={4}>
               <Title order={3} fw={500} pt={10}>
                 {r.data!.firstName} {r.data!.lastName}
               </Title>

@@ -37,7 +37,7 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
     },
 
     validate: {
-      email: (val) => safeValidateSchema(EmailSchema, val)
+      email: (v) => safeValidateSchema(EmailSchema, v)
     }
   });
 
@@ -91,7 +91,7 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
     },
 
     validate: {
-      code: (val) => safeValidateSchema(OtpSchema, val)
+      code: (v) => safeValidateSchema(OtpSchema, v)
     }
   });
 

@@ -30,8 +30,8 @@ function UserForm(props: StackProps) {
     },
 
     validate: {
-      firstName: (val) => safeValidateSchema(FirstNameSchema, val),
-      lastName: (val) => safeValidateSchema(LastNameSchema, val)
+      firstName: (v) => safeValidateSchema(FirstNameSchema, v),
+      lastName: (v) => safeValidateSchema(LastNameSchema, v)
     }
   });
 
