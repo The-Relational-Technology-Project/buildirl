@@ -33,7 +33,7 @@ export default function EditableUserAvatar({
 
   useEffect(() => {
     const fetchUserProfileImageUrl = async () => {
-      const url = await storageClient.userProfileImageUrl(user.id);
+      const url = await storageClient.userProfileImageUrl();
       setUserProfileImageUrl(url);
     };
     void fetchUserProfileImageUrl();

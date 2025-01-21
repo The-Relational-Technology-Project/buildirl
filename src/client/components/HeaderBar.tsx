@@ -16,13 +16,14 @@ export const PAGE_WIDTH = 800;
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IconBrandSafari, IconHome, TablerIcon } from "@tabler/icons-react";
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { storageClient } from "~/client/utils/storageClient";
+import { Maybe } from "~/utils/types";
 
 type NavigationLinkProps = {
   label: string;
@@ -81,6 +82,18 @@ function LogoIcon() {
 
 function ProfileMenu() {
   const router = useRouter();
+
+  const [userProfileImageUrl, setUserProfileImageUrl] =
+    useState<Maybe<string>>(null);
+
+  useEffect(() => {
+    const fetchUserProfileImageUrl = async () => {
+      const url = await storageClient.userProfileImageUrl();
+      setUserProfileImageUrl(url);
+    };
+    void fetchUserProfileImageUrl();
+  }, []);
+
   const r = api.main.user.useQuery();
 
   QueryError.check({
@@ -95,7 +108,7 @@ function ProfileMenu() {
         <Menu position="bottom-end" shadow="md">
           <Menu.Target>
             <Avatar
-              src={storageClient.userProfileImageUrl(r.data!.id)}
+              src={userProfileImageUrl ?? undefined}
               size="md"
               style={{
                 cursor: "pointer",
