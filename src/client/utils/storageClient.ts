@@ -4,7 +4,7 @@ import { logger } from "~/client/logger";
 
 export type StorageClient = {
   uploadUserProfileImage(userId: number, image: File): Promise<void>;
-  userProfileImageUrl(): Promise<Maybe<string>>;
+  userProfileImageUrl(userId: number): Maybe<string>;
 };
 
 /**
@@ -29,7 +29,7 @@ export default function createStorageClient(): StorageClient {
   ): Promise<void> {
     const { error } = await supabaseClient.storage
       .from("images")
-      .upload(await userProfileImageRelativeUrl(), profileImage, {
+      .upload(userProfileImageRelativeUrl(userId), profileImage, {
         upsert: true
       });
     logger.info(`uploaded profile image for user with id ${userId}`);
@@ -40,16 +40,15 @@ export default function createStorageClient(): StorageClient {
     }
   }
 
-  async function userProfileImageRelativeUrl() {
-    const userId = await authUserId();
+  function userProfileImageRelativeUrl(userId: number) {
     return `${userId}/profile`;
   }
 
   // TODO selectively skip cache using local storage to persist skipCache state
-  async function userProfileImageUrl() {
+  function userProfileImageUrl(userId: number) {
     const { data } = supabaseClient.storage
       .from("images")
-      .getPublicUrl(await userProfileImageRelativeUrl());
+      .getPublicUrl(userProfileImageRelativeUrl(userId));
     // add a time stamp to the url to bypass Next.js image cache
     // which can prevent image from updating on change
     // https://stackoverflow.com/questions/71450588/nextjs-image-cache-invalidation

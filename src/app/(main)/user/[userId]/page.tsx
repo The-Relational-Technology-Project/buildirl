@@ -14,25 +14,15 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded, toDisplayMonth } from "~/client/utils";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { IconCalendarWeek } from "@tabler/icons-react";
-import { storageClient } from "~/client/utils/storageClient";
-import { Maybe } from "~/utils/types";
+import createStorageClient, {
+  storageClient
+} from "~/client/utils/storageClient";
 
 export default function User() {
   const params = useParams<{ userId: string }>();
   const userId = parseInt(params.userId);
-
-  const [userProfileImageUrl, setUserProfileImageUrl] =
-    useState<Maybe<string>>(null);
-
-  useEffect(() => {
-    const fetchUserProfileImageUrl = async () => {
-      const url = await storageClient.userProfileImageUrl();
-      setUserProfileImageUrl(url);
-    };
-    void fetchUserProfileImageUrl();
-  }, []);
 
   const r = api.main.userById.useQuery({ userId: userId });
 
@@ -49,7 +39,7 @@ export default function User() {
             <Avatar
               size={100}
               radius={90}
-              src={userProfileImageUrl ?? undefined}
+              src={storageClient.userProfileImageUrl(r.data!.id)}
             />
             <Stack gap={4}>
               <Title order={3} fw={500} pt={10}>
