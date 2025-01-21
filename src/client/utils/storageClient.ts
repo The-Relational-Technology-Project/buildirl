@@ -14,15 +14,6 @@ export type StorageClient = {
 export default function createStorageClient(): StorageClient {
   const supabaseClient = createComponentClient();
 
-  async function authUserId() {
-    const authUser = await supabaseClient.auth.getUser();
-    const id = authUser.data.user?.id;
-    if (undefined === id) {
-      throw new Error("expected an authorized user");
-    }
-    return id;
-  }
-
   async function uploadUserProfileImage(
     userId: number,
     profileImage: File
