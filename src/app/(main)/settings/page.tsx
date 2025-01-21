@@ -61,7 +61,7 @@ function UserForm({ user }: UserFormProps) {
             form.setFieldValue("description", event.currentTarget.value)
           }
           placeholder={
-            "Share a little about how you will add to the community."
+            "Share a little about who you are and how you will add to the community!"
           }
           autosize
           minRows={3}
