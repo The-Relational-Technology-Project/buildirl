@@ -3,9 +3,20 @@
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { Stack, Title, Text, Tabs, Textarea, Button } from "@mantine/core";
+import {
+  Stack,
+  Title,
+  Text,
+  Tabs,
+  Textarea,
+  Button,
+  Group,
+  Flex
+} from "@mantine/core";
 import { User } from "~/server/service/types";
 import { useForm } from "@mantine/form";
+import React from "react";
+import EditableUserAvatar from "~/client/components/EditableUserAvatar";
 
 type UserFormProps = {
   user: User;
@@ -78,7 +89,10 @@ function AccountPanel() {
         <Text size={"md"} c={"dimmed"}>
           Choose how you are displayed to other members.
         </Text>
-        <UserForm user={r.data!} />
+        <Flex justify={"flex-start"} direction={"row"} gap={"xl"}>
+          <UserForm user={r.data!} />
+          <EditableUserAvatar user={r.data!} ml={10} mt={10} />
+        </Flex>
       </Stack>
     )
   );

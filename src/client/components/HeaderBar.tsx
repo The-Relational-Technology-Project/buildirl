@@ -22,6 +22,7 @@ import { createComponentClient } from "~/utils/supabase/auth/client";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
+import { storageClient } from "~/client/utils/storageClient";
 
 type NavigationLinkProps = {
   label: string;
@@ -94,6 +95,7 @@ function ProfileMenu() {
         <Menu position="bottom-end" shadow="md">
           <Menu.Target>
             <Avatar
+              src={storageClient.userProfileImageUrl(r.data!.id)}
               size="md"
               style={{
                 cursor: "pointer",

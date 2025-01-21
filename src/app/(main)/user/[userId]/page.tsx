@@ -16,6 +16,9 @@ import { isLoaded, toDisplayMonth } from "~/client/utils";
 import { useParams } from "next/navigation";
 import React from "react";
 import { IconCalendarWeek } from "@tabler/icons-react";
+import createStorageClient, {
+  storageClient
+} from "~/client/utils/storageClient";
 
 export default function User() {
   const params = useParams<{ userId: string }>();
@@ -33,7 +36,11 @@ export default function User() {
       <Center pt={40}>
         <Stack w={600}>
           <Group align={"flex-start"} gap={"lg"}>
-            <Avatar size={100} radius={90} />
+            <Avatar
+              size={100}
+              radius={90}
+              src={storageClient.userProfileImageUrl(r.data!.id)}
+            />
             <Stack gap={4}>
               <Title order={3} fw={500} pt={10}>
                 {r.data!.firstName} {r.data!.lastName}
