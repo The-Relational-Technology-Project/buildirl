@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { type Maybe } from "~/utils/types";
+import { useRouter } from "next/navigation";
 import { User } from "~/server/service/types";
 import createStorageClient from "~/client/utils/storageClient";
 import {
@@ -9,6 +10,7 @@ import {
   Input,
   Stack,
   StackProps,
+  Text,
   Title
 } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
@@ -24,6 +26,7 @@ export default function EditableUserAvatar({
   user,
   ...props
 }: EditableUserAvatarProps & StackProps) {
+  const router = useRouter();
   const storageClient = createStorageClient();
   const [userProfileImageUrl, setUserProfileImageUrl] =
     useState<Maybe<string>>(null);
@@ -52,9 +55,7 @@ export default function EditableUserAvatar({
       throw new Error("User profile image file cannot be greater than 5MB");
     }
     await storageClient.uploadUserProfileImage(user.id, file);
-    // force a full refresh of the page so all image references
-    // can pick up new upload
-    window.location.reload();
+    router.refresh();
   };
 
   return (
