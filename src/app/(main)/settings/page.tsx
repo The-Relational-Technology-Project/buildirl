@@ -99,7 +99,10 @@ function AccountPanel() {
         </Text>
         <Flex justify={"flex-start"} direction={"row"} gap={"xl"}>
           <UserForm user={r.data!} />
-          <EditableUserAvatar user={r.data!} ml={10} mt={10} />
+          <Stack gap={"xs"}>
+            <Title order={6}>Profile Picture</Title>
+            <EditableUserAvatar user={r.data!} ml={10} mt={10} />
+          </Stack>
         </Flex>
       </Stack>
     )

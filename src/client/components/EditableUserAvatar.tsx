@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { type Maybe } from "~/utils/types";
 import { User } from "~/server/service/types";
 import createStorageClient from "~/client/utils/storageClient";
@@ -21,20 +21,9 @@ type EditableUserAvatarProps = {
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export default function EditableUserAvatar({
-  user,
-  ...props
+  user
 }: EditableUserAvatarProps & StackProps) {
   const storageClient = createStorageClient();
-  const [userProfileImageUrl, setUserProfileImageUrl] =
-    useState<Maybe<string>>(null);
-
-  useEffect(() => {
-    const fetchUserProfileImageUrl = async () => {
-      const url = await storageClient.userProfileImageUrl(user.id);
-      setUserProfileImageUrl(url);
-    };
-    void fetchUserProfileImageUrl();
-  }, []);
 
   const handleUserProfileImageChange = async (file: Maybe<File>) => {
     if (!file) {
@@ -55,29 +44,26 @@ export default function EditableUserAvatar({
   };
 
   return (
-    <Stack gap={"xs"} {...props}>
-      <Title order={6}>Profile Picture</Title>
-      <Box style={{ position: "relative" }}>
-        <Avatar size={100} src={userProfileImageUrl ?? undefined} />
-        <FileInput
-          accept="image/*"
-          id={"profile-picture-input"}
-          display={"none"}
-          onChange={handleUserProfileImageChange}
-        />
-        <ActionIcon
-          component="label"
-          htmlFor="profile-picture-input"
-          variant="filled"
-          radius="xl"
-          size="sm"
-          color="black"
-          aria-label="Upload Profile Picture"
-          style={{ position: "absolute", right: 6, bottom: 0 }}
-        >
-          <IconArrowUp />
-        </ActionIcon>
-      </Box>
-    </Stack>
+    <Box w={100} h={100} style={{ position: "relative" }}>
+      <Avatar size={100} src={storageClient.userProfileImageUrl(user.id)} />
+      <FileInput
+        accept="image/*"
+        id={"profile-picture-input"}
+        display={"none"}
+        onChange={handleUserProfileImageChange}
+      />
+      <ActionIcon
+        component="label"
+        htmlFor="profile-picture-input"
+        variant="filled"
+        radius="xl"
+        size="sm"
+        color="black"
+        aria-label="Upload Profile Picture"
+        style={{ position: "absolute", right: 6, bottom: 0 }}
+      >
+        <IconArrowUp />
+      </ActionIcon>
+    </Box>
   );
 }

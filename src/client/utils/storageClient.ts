@@ -1,10 +1,9 @@
 import { createComponentClient } from "~/utils/supabase/auth/client";
-import { type Maybe } from "~/utils/types";
 import { logger } from "~/client/logger";
 
 export type StorageClient = {
   uploadUserProfileImage(userId: number, image: File): Promise<void>;
-  userProfileImageUrl(userId: number): Maybe<string>;
+  userProfileImageUrl(userId: number): string;
 };
 
 /**
