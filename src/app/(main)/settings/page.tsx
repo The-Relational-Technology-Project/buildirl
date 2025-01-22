@@ -10,13 +10,13 @@ import {
   Tabs,
   Textarea,
   Button,
-  Group,
   Flex
 } from "@mantine/core";
-import { User } from "~/server/service/types";
+import { LongTextSchema, User } from "~/server/service/types";
 import { useForm } from "@mantine/form";
 import React from "react";
 import EditableUserAvatar from "~/client/components/EditableUserAvatar";
+import { safeValidateSchema } from "~/utils/zod";
 
 type UserFormProps = {
   user: User;
@@ -36,8 +36,10 @@ function UserForm({ user }: UserFormProps) {
       description: user.description
     },
 
+    validateInputOnChange: true,
+
     validate: {
-      description: () => null
+      description: (v) => safeValidateSchema(LongTextSchema, v)
     }
   });
 
@@ -63,10 +65,16 @@ function UserForm({ user }: UserFormProps) {
           placeholder={
             "Share a little about who you are and how you will add to the community!"
           }
+          error={form.errors.description}
           autosize
           minRows={3}
         />
-        <Button type="submit" w={100} mt={"sm"} disabled={updateUser.isPending}>
+        <Button
+          type="submit"
+          w={100}
+          mt={"sm"}
+          disabled={!form.isValid() || updateUser.isPending}
+        >
           Save
         </Button>
       </Stack>

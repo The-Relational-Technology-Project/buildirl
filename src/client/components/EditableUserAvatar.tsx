@@ -6,7 +6,7 @@ import {
   ActionIcon,
   Avatar,
   Box,
-  Input,
+  FileInput,
   Stack,
   StackProps,
   Title
@@ -36,10 +36,7 @@ export default function EditableUserAvatar({
     void fetchUserProfileImageUrl();
   }, []);
 
-  const handleUserProfileImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
+  const handleUserProfileImageChange = async (file: Maybe<File>) => {
     if (!file) {
       return;
     }
@@ -62,8 +59,7 @@ export default function EditableUserAvatar({
       <Title order={6}>Profile Picture</Title>
       <Box style={{ position: "relative" }}>
         <Avatar size={100} src={userProfileImageUrl ?? undefined} />
-        <Input
-          type={"file"}
+        <FileInput
           accept="image/*"
           id={"profile-picture-input"}
           display={"none"}

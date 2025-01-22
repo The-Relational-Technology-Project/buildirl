@@ -121,21 +121,25 @@ export const LastNameSchema = z
   .min(2, "Length must be >= 2")
   .regex(LAST_NAME_REGEX, "Invalid characters");
 
+export const LongTextSchema = z
+  .string()
+  .max(1000, "Cannot be more than 1000 characters");
+
 export const CreateUserInputSchema = z.object({
   firstName: FirstNameSchema,
   lastName: LastNameSchema,
-  description: z.string()
+  description: LongTextSchema
 });
 export type CreateUserInput = z.infer<typeof CreateUserInputSchema>;
 
 export const UpdateUserInputSchema = z.object({
-  description: z.string()
+  description: LongTextSchema
 });
 export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
 
 export const ClubPublicIdSchema = z
   .string()
-  .min(3, "Length must be >= 3")
+  .min(3, "Length must be >= 3 characters")
   .regex(CLUB_PUBLIC_ID_REGEX, "Invalid characters");
 
 export const URLSchema = z.string().url("Not a valid url");
@@ -146,13 +150,19 @@ export const InstagramHandleSchema = z
   .regex(INSTAGRAM_HANDLE_REGEX, "Not a valid Instagram handle");
 export type InstagramHandle = z.infer<typeof InstagramHandleSchema>;
 
-export const ClubNameSchema = z.string().min(3);
+export const ClubNameSchema = z
+  .string()
+  .min(3, "Length must be >= 3 characters");
+
+export const ClubTagLineSchema = z
+  .string()
+  .max(80, "Length must be <= 80 characters");
 
 export const CreateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
-  tagLine: z.string(),
-  description: z.string(),
+  tagLine: ClubTagLineSchema,
+  description: LongTextSchema,
   websiteURL: URLSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarURL: URLSchema.nullable()
@@ -162,8 +172,8 @@ export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
 export const UpdateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
-  tagLine: z.string(),
-  description: z.string(),
+  tagLine: ClubTagLineSchema,
+  description: LongTextSchema,
   websiteURL: URLSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarURL: URLSchema.nullable()
@@ -179,8 +189,8 @@ export type UpdateClubApplicationQuestionsInput = z.infer<
 
 export const CreateMembershipTierInputSchema = z.object({
   name: z.string(),
-  benefitDescription: z.string(),
-  contributionDescription: z.string(),
+  benefitDescription: LongTextSchema,
+  contributionDescription: LongTextSchema,
   costPerMonthInUSD: z.number()
 });
 export type CreateMembershipTierInput = z.infer<
@@ -189,8 +199,8 @@ export type CreateMembershipTierInput = z.infer<
 
 export const UpdateMembershipTierInputSchema = z.object({
   name: z.string(),
-  benefitDescription: z.string(),
-  contributionDescription: z.string()
+  benefitDescription: LongTextSchema,
+  contributionDescription: LongTextSchema
 });
 export type UpdateMembershipTierInput = z.infer<
   typeof UpdateMembershipTierInputSchema
