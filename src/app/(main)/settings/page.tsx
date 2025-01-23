@@ -22,12 +22,12 @@ type UserFormProps = {
   user: User;
 };
 
-function UserForm({ user }: UserFormProps) {
+function UpdateUserForm({ user }: UserFormProps) {
   const utils = api.useUtils();
   const updateUser = api.main.updateUser.useMutation({
     onSuccess: async () => {
       await utils.main.user.invalidate();
-      await utils.main.userById.invalidate({ userId: user.id });
+      await utils.main.userById.invalidate({ id: user.id });
     }
   });
 
@@ -46,7 +46,7 @@ function UserForm({ user }: UserFormProps) {
   return (
     <form
       onSubmit={form.onSubmit(async ({ description }) => {
-        await updateUser.mutate({ id: user.id, input: { description } });
+        await updateUser.mutateAsync({ id: user.id, input: { description } });
       })}
     >
       <Stack w={{ base: undefined, md: 400 }}>
@@ -98,7 +98,7 @@ function AccountPanel() {
           Choose how you are displayed to other members.
         </Text>
         <Flex justify={"flex-start"} direction={"row"} gap={"xl"}>
-          <UserForm user={r.data!} />
+          <UpdateUserForm user={r.data!} />
           <Stack gap={"xs"}>
             <Title order={6}>Profile Picture</Title>
             <EditableUserAvatar user={r.data!} ml={10} mt={10} />

@@ -14,37 +14,40 @@ import {
   ClubNameSchema,
   ClubPublicIdSchema,
   ClubTagLineSchema,
-  InstagramHandle,
   InstagramHandleSchema,
   LongTextSchema,
   URLSchema,
-  URL
+  Club
 } from "~/server/service/types";
 import { useForm } from "@mantine/form";
 import React from "react";
 import { safeValidateSchema } from "~/utils/zod";
-import { useRouter } from "next/navigation";
-import { Maybe } from "~/utils/types";
+import { useParams, useRouter } from "next/navigation";
+import { QueryError } from "~/client/utils/QueryError";
 
-function CreateClubForm() {
+type UpdateClubFormProps = {
+  club: Club;
+};
+
+function UpdateClubForm({ club }: UpdateClubFormProps) {
   const router = useRouter();
   const utils = api.useUtils();
   const createUser = api.main.createClub.useMutation({
     onSuccess: async () => {
+      await utils.main.club.invalidate({ id: club.id });
       await utils.main.userOwnedClubs.invalidate();
-      router.push("/create-club/membership-tiers");
     }
   });
 
   const form = useForm({
     initialValues: {
-      publicId: "",
-      name: "",
-      tagLine: "",
-      description: "",
-      websiteURL: null as Maybe<URL>,
-      instagramHandle: null as Maybe<InstagramHandle>,
-      eventCalendarURL: null as Maybe<URL>
+      publicId: club.publicId,
+      name: club.name,
+      tagLine: club.tagLine,
+      description: club.description,
+      websiteURL: club.websiteURL,
+      instagramHandle: club.instagramHandle,
+      eventCalendarURL: club.eventCalendarURL
     },
 
     validateInputOnChange: true,
@@ -73,7 +76,7 @@ function CreateClubForm() {
           instagramHandle,
           eventCalendarURL
         }) => {
-          await createUser.mutate({
+          await createUser.mutateAsync({
             publicId: publicId,
             name: name,
             tagLine: tagLine,
@@ -172,10 +175,20 @@ function CreateClubForm() {
   );
 }
 
-export default function CreateClub() {
+export default function UpdateClub() {
+  const params = useParams<{ clubId: string }>();
+  const userId = parseInt(params.clubId);
+
+  const r = api.main.club.useQuery({ id: userId });
+
+  QueryError.check({
+    result: r,
+    fieldName: "club"
+  });
+
   return (
     <Stack pt={"xl"} w={"100%"} align={"center"}>
-      <CreateClubForm />
+      <UpdateClubForm club={r.data!} />
     </Stack>
   );
 }

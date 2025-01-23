@@ -24,11 +24,11 @@ export default function User() {
   const params = useParams<{ userId: string }>();
   const userId = parseInt(params.userId);
 
-  const r = api.main.userById.useQuery({ userId: userId });
+  const r = api.main.userById.useQuery({ id: userId });
 
   QueryError.check({
     result: r,
-    fieldName: "user"
+    fieldName: "userById"
   });
 
   return (

@@ -7,7 +7,8 @@ import {
   Stack,
   StackProps,
   Text,
-  TextInput
+  TextInput,
+  Title
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
@@ -15,7 +16,7 @@ import { FirstNameSchema, LastNameSchema } from "~/server/service/types";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 
-function UserForm(props: StackProps) {
+function CreateUserForm(props: StackProps) {
   const router = useRouter();
   const createUser = api.main.createUser.useMutation({
     onSuccess: () => {
@@ -35,20 +36,17 @@ function UserForm(props: StackProps) {
     }
   });
 
-  const handleSubmit = async (values: {
-    firstName: string;
-    lastName: string;
-  }) => {
-    await createUser.mutateAsync({
-      firstName: values.firstName,
-      lastName: values.lastName,
-      // default empty
-      description: ""
-    });
-  };
-
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <form
+      onSubmit={form.onSubmit(async (v) => {
+        await createUser.mutateAsync({
+          firstName: v.firstName,
+          lastName: v.lastName,
+          // default empty
+          description: ""
+        });
+      })}
+    >
       <Stack {...props}>
         <TextInput
           required
@@ -88,13 +86,11 @@ export default function Onboarding() {
   return (
     <Center h={"100vh"} pb={200}>
       <Paper radius="md" p="xl" withBorder w={300}>
-        <Text size={"lg"} fw={500}>
-          Welcome
-        </Text>
+        <Title order={4}>Welcome</Title>
         <Text size={"md"} fw={300} mt={"xs"}>
           Tell us more about yourself.
         </Text>
-        <UserForm mt="md" />
+        <CreateUserForm mt="md" />
       </Paper>
     </Center>
   );

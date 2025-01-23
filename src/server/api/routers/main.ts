@@ -50,15 +50,15 @@ export const mainRouter = createTRPCRouter({
     }),
 
   userById: securedProcedure
-    .input(z.object({ userId: z.number() }))
+    .input(z.object({ id: z.number() }))
     .query(({ ctx, input }) => {
-      return ctx.service.getUser(input.userId);
+      return ctx.service.getUser(input.id);
     }),
 
   club: securedProcedure
-    .input(z.object({ clubId: z.number() }))
+    .input(z.object({ id: z.number() }))
     .query(({ ctx, input }) => {
-      return ctx.service.getClub(input.clubId);
+      return ctx.service.getClub(input.id);
     }),
 
   createUser: securedProcedure
