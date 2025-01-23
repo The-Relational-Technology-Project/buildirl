@@ -1,36 +1,31 @@
-"use client";
-
-import { api } from "~/trpc/react";
 import {
-  Stack,
-  Textarea,
-  Button,
-  TextInput,
-  Text,
-  Group,
-  Title
-} from "@mantine/core";
-import {
+  Club,
   ClubNameSchema,
   ClubPublicIdSchema,
   ClubTagLineSchema,
   InstagramHandleSchema,
   LongTextSchema,
-  URLSchema,
-  Club
+  URLSchema
 } from "~/server/service/types";
+import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
-import React from "react";
 import { safeValidateSchema } from "~/utils/zod";
-import { useParams, useRouter } from "next/navigation";
-import { QueryError } from "~/client/utils/QueryError";
+import {
+  Button,
+  Group,
+  Stack,
+  Text,
+  Textarea,
+  TextInput,
+  Title
+} from "@mantine/core";
+import React from "react";
 
 type UpdateClubFormProps = {
   club: Club;
 };
 
 function UpdateClubForm({ club }: UpdateClubFormProps) {
-  const router = useRouter();
   const utils = api.useUtils();
   const createUser = api.main.createClub.useMutation({
     onSuccess: async () => {
@@ -156,9 +151,9 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
             placeholder="club-tag"
             value={form.values.publicId}
             onChange={(event) =>
-              form.setFieldValue("clubPublicId", event.currentTarget.value)
+              form.setFieldValue("publicId", event.currentTarget.value)
             }
-            error={form.errors.clubPublicId}
+            error={form.errors.publicId}
           />
         </Group>
         <Button
@@ -172,23 +167,5 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
         </Button>
       </Stack>
     </form>
-  );
-}
-
-export default function UpdateClub() {
-  const params = useParams<{ clubId: string }>();
-  const userId = parseInt(params.clubId);
-
-  const r = api.main.club.useQuery({ id: userId });
-
-  QueryError.check({
-    result: r,
-    fieldName: "club"
-  });
-
-  return (
-    <Stack pt={"xl"} w={"100%"} align={"center"}>
-      <UpdateClubForm club={r.data!} />
-    </Stack>
   );
 }
