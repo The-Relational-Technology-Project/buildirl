@@ -7,7 +7,6 @@ import {
   Button,
   TextInput,
   Text,
-  Avatar,
   Group,
   Title
 } from "@mantine/core";

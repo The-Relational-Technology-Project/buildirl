@@ -142,14 +142,7 @@ function ProfileMenu() {
 
 export function HeaderBar() {
   return (
-    <Flex
-      h={HEADER_BAR_HEIGHT}
-      align={"center"}
-      justify={"center"}
-      style={{
-        backgroundColor: "#dde2fa"
-      }}
-    >
+    <Flex h={HEADER_BAR_HEIGHT} align={"center"} justify={"center"}>
       <LogoIcon />
       <Group justify="flex-start" w={{ base: undefined, md: PAGE_WIDTH }}>
         <NavigationLink Icon={IconHome} label={"Clubs"} navigateTo={"/"} />
