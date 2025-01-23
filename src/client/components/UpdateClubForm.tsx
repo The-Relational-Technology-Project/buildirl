@@ -83,7 +83,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
         }
       )}
     >
-      <Stack w={{ base: undefined, md: 400 }}>
+      <Stack>
         <Title>Create club</Title>
         <TextInput
           required

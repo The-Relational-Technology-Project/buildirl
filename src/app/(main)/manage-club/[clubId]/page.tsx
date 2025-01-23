@@ -9,7 +9,6 @@ import {
   Title,
   Image,
   Button,
-  Flex,
   Text,
   ThemeIcon
 } from "@mantine/core";

@@ -7,6 +7,13 @@ export const theme = createTheme({
         color: "black",
         variant: "filled"
       }
+    },
+    Paper: {
+      defaultProps: {
+        style: {
+          borderColor: "black"
+        }
+      }
     }
   }
 });
