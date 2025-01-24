@@ -157,7 +157,7 @@ export function HeaderBar() {
         <NavigationLink
           Icon={IconBrandSafari}
           label={"Discover"}
-          navigateTo={"/discover"}
+          navigateTo={"https://buildirl.com/clubs"}
         />
       </Group>
       <ProfileMenu />
