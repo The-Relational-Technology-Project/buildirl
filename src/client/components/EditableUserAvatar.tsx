@@ -1,31 +1,22 @@
 import React from "react";
 import { type Maybe } from "~/utils/types";
-import { User } from "~/server/service/types";
 import createStorageClient from "~/client/utils/storageClient";
-import {
-  ActionIcon,
-  Avatar,
-  Box,
-  FileInput,
-  Stack,
-  StackProps,
-  Title
-} from "@mantine/core";
+import { ActionIcon, Avatar, Box, FileInput } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
 
 type EditableUserAvatarProps = {
-  user: User;
+  userId: number;
 };
 
 // 5 megabytes
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export default function EditableUserAvatar({
-  user
-}: EditableUserAvatarProps & StackProps) {
+  userId
+}: EditableUserAvatarProps) {
   const storageClient = createStorageClient();
 
-  const handleUserProfileImageChange = async (file: Maybe<File>) => {
+  const handleFileUpload = async (file: Maybe<File>) => {
     if (!file) {
       return;
     }
@@ -37,7 +28,7 @@ export default function EditableUserAvatar({
     if (file.size > MAX_FILE_SIZE) {
       throw new Error("User profile image file cannot be greater than 5MB");
     }
-    await storageClient.uploadUserProfileImage(user.id, file);
+    await storageClient.uploadUserProfileImage(userId, file);
     // force a full refresh of the page so all image references
     // can pick up new upload
     window.location.reload();
@@ -45,12 +36,12 @@ export default function EditableUserAvatar({
 
   return (
     <Box w={100} h={100} style={{ position: "relative" }}>
-      <Avatar size={100} src={storageClient.userProfileImageUrl(user.id)} />
+      <Avatar size={100} src={storageClient.userProfileImageUrl(userId)} />
       <FileInput
         accept="image/*"
         id={"profile-picture-input"}
         display={"none"}
-        onChange={handleUserProfileImageChange}
+        onChange={handleFileUpload}
       />
       <ActionIcon
         component="label"

@@ -28,12 +28,15 @@ import { notifications } from "@mantine/notifications";
 import { IconAlertTriangle, IconCheck } from "@tabler/icons-react";
 import { logger, notifyError } from "~/client/logger";
 import { useDisclosure } from "@mantine/hooks";
+import EditableClubImage from "~/client/components/EditableClubImage";
+import createStorageClient from "~/client/utils/storageClient";
 
 type OverviewPanelProps = {
   club: Club;
 };
 
 export function OverviewPanel({ club }: OverviewPanelProps) {
+  const storage = createStorageClient();
   const [opened, { open, close }] = useDisclosure(false);
 
   return (
@@ -44,6 +47,7 @@ export function OverviewPanel({ club }: OverviewPanelProps) {
             radius="md"
             w={300}
             h={300}
+            src={storage.clubProfileImageUrl(club.id)}
             fallbackSrc={"/image-fallback.png"}
           />
           <Stack justify={"space-between"} style={{ flex: 1 }}>
@@ -84,7 +88,7 @@ export function OverviewPanel({ club }: OverviewPanelProps) {
         </Group>
       </Paper>
 
-      <Modal opened={opened} onClose={close}>
+      <Modal opened={opened} onClose={close} withCloseButton={false}>
         <UpdateClubForm club={club} />
       </Modal>
     </>
@@ -115,7 +119,7 @@ type UpdateClubFormProps = {
 
 function UpdateClubForm({ club }: UpdateClubFormProps) {
   const utils = api.useUtils();
-  const createUser = api.main.createClub.useMutation({
+  const updateClub = api.main.updateClub.useMutation({
     onSuccess: async () => {
       await utils.main.club.invalidate({ id: club.id });
       await utils.main.userOwnedClubs.invalidate();
@@ -159,103 +163,118 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           instagramHandle,
           eventCalendarURL
         }) => {
-          await createUser.mutateAsync({
-            publicId: publicId,
-            name: name,
-            tagLine: tagLine,
-            description: description,
-            websiteURL: websiteURL === "" ? null : websiteURL,
-            instagramHandle: instagramHandle === "" ? null : instagramHandle,
-            eventCalendarURL: eventCalendarURL === "" ? null : eventCalendarURL
+          await updateClub.mutateAsync({
+            id: club.id,
+            input: {
+              publicId: publicId,
+              name: name,
+              tagLine: tagLine,
+              description: description,
+              websiteURL: websiteURL === "" ? null : websiteURL,
+              instagramHandle: instagramHandle === "" ? null : instagramHandle,
+              eventCalendarURL:
+                eventCalendarURL === "" ? null : eventCalendarURL
+            }
           });
         }
       )}
     >
-      <Stack p={"md"} gap={8}>
-        <TextInput
-          required
-          placeholder="Club name"
-          value={form.values.name}
-          onChange={(event) =>
-            form.setFieldValue("name", event.currentTarget.value)
-          }
-          error={form.errors.name}
+      <Stack p={"md"} gap={16}>
+        <EditableClubImage
+          clubId={club.id}
+          style={{
+            alignSelf: "center",
+            // necessary to not override
+            // existing style
+            position: "relative"
+          }}
         />
-        <TextInput
-          required
-          placeholder="Tag line"
-          value={form.values.tagLine}
-          onChange={(event) =>
-            form.setFieldValue("tagLine", event.currentTarget.value)
-          }
-          error={form.errors.tagLine}
-        />
-        <Textarea
-          required
-          placeholder="About your club"
-          value={form.values.description}
-          onChange={(event) =>
-            form.setFieldValue("description", event.currentTarget.value)
-          }
-          error={form.errors.description}
-          autosize
-          minRows={3}
-        />
-        <Title order={6} mt={6}>
-          Links
-        </Title>
-        <TextInput
-          placeholder="Website link"
-          value={form.values.websiteURL ?? ""}
-          onChange={(event) =>
-            form.setFieldValue("websiteURL", event.currentTarget.value)
-          }
-          error={form.errors.websiteURL}
-        />
-        <Group gap={4}>
-          <Text c={"dimmed"} size={"sm"}>
-            instagram.com/
-          </Text>
+        <Stack gap={8} mt={4}>
           <TextInput
-            placeholder="tag"
+            required
+            placeholder="Club name"
+            value={form.values.name}
+            onChange={(event) =>
+              form.setFieldValue("name", event.currentTarget.value)
+            }
+            error={form.errors.name}
+          />
+          <TextInput
+            required
+            placeholder="Tag line"
+            value={form.values.tagLine}
+            onChange={(event) =>
+              form.setFieldValue("tagLine", event.currentTarget.value)
+            }
+            error={form.errors.tagLine}
+          />
+          <Textarea
+            required
+            placeholder="About your club"
+            value={form.values.description}
+            onChange={(event) =>
+              form.setFieldValue("description", event.currentTarget.value)
+            }
+            error={form.errors.description}
+            rows={3}
+          />
+        </Stack>
+
+        <Stack gap={8}>
+          <Title order={6} mt={6}>
+            Links
+          </Title>
+          <TextInput
+            placeholder="Website link"
+            value={form.values.websiteURL ?? ""}
+            onChange={(event) =>
+              form.setFieldValue("websiteURL", event.currentTarget.value)
+            }
+            error={form.errors.websiteURL}
+          />
+          <TextInput
+            placeholder="Instagram tag"
             value={form.values.instagramHandle ?? ""}
             onChange={(event) =>
               form.setFieldValue("instagramHandle", event.currentTarget.value)
             }
             error={form.errors.instagramHandle}
           />
-        </Group>
-        <TextInput
-          placeholder="Event calendar link (e.g., Luma)"
-          value={form.values.eventCalendarURL ?? ""}
-          onChange={(event) =>
-            form.setFieldValue("eventCalendarURL", event.currentTarget.value)
-          }
-          error={form.errors.eventCalendarURL}
-        />
-        <Title order={6} mt={6}>
-          Share link
-        </Title>
-        <Group gap={4}>
-          <Text c={"dimmed"} size={"sm"}>
-            buildirl.com/share/
-          </Text>
           <TextInput
-            required
-            placeholder="club-tag"
-            value={form.values.publicId}
+            placeholder="Event calendar link (e.g., Luma)"
+            value={form.values.eventCalendarURL ?? ""}
             onChange={(event) =>
-              form.setFieldValue("publicId", event.currentTarget.value)
+              form.setFieldValue("eventCalendarURL", event.currentTarget.value)
             }
-            error={form.errors.publicId}
+            error={form.errors.eventCalendarURL}
           />
-        </Group>
+        </Stack>
+
+        <Stack gap={8}>
+          <Title order={6} mt={6}>
+            Share link
+          </Title>
+          <Group gap={4}>
+            <Text c={"dimmed"} size={"sm"}>
+              buildirl.com/share/
+            </Text>
+            <TextInput
+              required
+              placeholder="club-tag"
+              value={form.values.publicId}
+              onChange={(event) =>
+                form.setFieldValue("publicId", event.currentTarget.value)
+              }
+              error={form.errors.publicId}
+            />
+          </Group>
+        </Stack>
         <Button
           type="submit"
           w={100}
-          mt={"sm"}
+          mt={"md"}
           style={{ alignSelf: "center" }}
-          disabled={!form.isValid() || createUser.isPending}
+          disabled={!form.isValid() || updateClub.isPending}
         >
           Save
         </Button>

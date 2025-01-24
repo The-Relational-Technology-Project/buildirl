@@ -1,17 +1,7 @@
 "use client";
 
 import { api } from "~/trpc/react";
-import {
-  Group,
-  Paper,
-  Stack,
-  Tabs,
-  Title,
-  Image,
-  Button,
-  Text,
-  ThemeIcon
-} from "@mantine/core";
+import { Stack, Tabs, Title } from "@mantine/core";
 import React from "react";
 import { useParams } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
