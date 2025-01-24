@@ -42,6 +42,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   const MEMBERSHIP_TIER_SELECT = {
     id: true,
     name: true,
+    status: true,
     benefitDescription: true,
     contributionDescription: true,
     costPerMonthInUSD: true
@@ -85,13 +86,12 @@ export function createMainService(prisma: PrismaClient): MainService {
 
   async function getUser(id: number): Promise<User> {
     try {
-      const result = await prisma.user.findUniqueOrThrow({
+      const user = await prisma.user.findUniqueOrThrow({
         select: USER_SELECT,
         where: {
           id: id
         }
       });
-      const user = result;
       logger.info(`queried user with id ${id} with result ${stringify(user)}`);
       return user;
     } catch (e) {
@@ -108,6 +108,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     return {
       id: r.id,
       name: r.name,
+      status: r.status,
       benefitDescription: r.benefitDescription,
       contributionDescription: r.contributionDescription,
       // possible loss of precision here, but it doesn't matter for us
@@ -459,6 +460,8 @@ export function createMainService(prisma: PrismaClient): MainService {
       const { id } = await prisma.membershipTier.create({
         data: {
           clubId: clubId,
+          // default
+          status: "PUBLISHED",
           ...input
         },
         select: {
@@ -466,7 +469,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         }
       });
       logger.info(
-        `created membership tier from input ${stringify(input)} with membershipTierId ${id}`
+        `created membership tier from input ${stringify(input)} with id ${id}`
       );
       return { createdEntityId: id };
     } catch (e) {
@@ -541,6 +544,72 @@ export function createMainService(prisma: PrismaClient): MainService {
     } catch (e) {
       logger.error(
         `failed to delete membership tier with id ${id} with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
+  async function isPublished(membershipTierId: number) {
+    try {
+      const r = await prisma.membershipTier.findUniqueOrThrow({
+        select: {
+          status: true
+        },
+        where: {
+          id: membershipTierId
+        }
+      });
+      logger.info(
+        `queried status ${r.status} for membership tier with id ${membershipTierId}`
+      );
+      return r.status === "PUBLISHED";
+    } catch (e) {
+      logger.error(
+        `failed to query status for membership tier with id ${membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
+  async function publishMembershipTier(id: number): Promise<MutationResult> {
+    if (await isPublished(id)) {
+      throw new Error("Cannot publish an already published membership tier.");
+    }
+    try {
+      await prisma.membershipTier.update({
+        data: { status: "PUBLISHED" },
+        where: {
+          id: id
+        }
+      });
+      logger.info(`published membership tier with id ${id}`);
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        `failed to publish membership tier with id ${id} with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
+  async function unpublishMembershipTier(id: number): Promise<MutationResult> {
+    if (!(await isPublished(id))) {
+      throw new Error(
+        "Cannot unpublish an already unpublished membership tier."
+      );
+    }
+    try {
+      await prisma.membershipTier.update({
+        data: { status: "UNPUBLISHED" },
+        where: {
+          id: id
+        }
+      });
+      logger.info(`unpublished membership tier with id ${id}`);
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        `failed to unpublish membership tier with id ${id} with exception ${stringify(e)}`
       );
       throw e;
     }
@@ -743,6 +812,8 @@ export function createMainService(prisma: PrismaClient): MainService {
     createMembershipTier,
     updateMembershipTier,
     deleteMembershipTier,
+    publishMembershipTier,
+    unpublishMembershipTier,
     submitMembershipApplication,
     approveMembershipApplication,
     declineMembershipApplication,

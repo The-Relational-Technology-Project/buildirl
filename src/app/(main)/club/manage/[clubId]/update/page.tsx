@@ -34,7 +34,7 @@ type UpdateClubFormProps = {
   club: Club;
 };
 
-export function UpdateClubForm({ club }: UpdateClubFormProps) {
+function UpdateClubForm({ club }: UpdateClubFormProps) {
   const utils = api.useUtils();
   const router = useRouter();
 
@@ -109,7 +109,7 @@ export function UpdateClubForm({ club }: UpdateClubFormProps) {
             position: "relative"
           }}
         />
-        
+
         <Divider />
 
         <Stack gap={8} mt={4}>
@@ -219,7 +219,11 @@ export default function UpdateClubPage() {
   return (
     isLoaded(r) && (
       <Stack pt={"xl"}>
-        <ActionIcon onClick={() => router.back()} variant="transparent" color="white">
+        <ActionIcon
+          onClick={() => router.back()}
+          variant="transparent"
+          color="white"
+        >
           <IconArrowLeft color="black" />
         </ActionIcon>
 

@@ -30,6 +30,8 @@ import ApproveMembershipApplicationCommand from "./approveMembershipApplicationC
 import DeclineMembershipApplicationCommand from "./declineMembershipApplicationCommand";
 import DeactivateMembershipCommand from "./deactivateMembershipCommand";
 import DeleteMembershipTierCommand from "./deleteMembershipTierCommand";
+import PublishMembershipTierCommand from "./publishMembershipTierCommand";
+import UnpublishMembershipTierCommand from "./unpublishMembershipTierCommand";
 
 export const allCommands = () => {
   return [
@@ -41,6 +43,8 @@ export const allCommands = () => {
     createMembershipTierCommands(),
     updateMembershipTierCommands(),
     deleteMembershipTierCommands(),
+    publishMembershipTierCommands(),
+    unpublishMembershipTierCommands(),
     submitMembershipApplicationCommands(),
     approveMembershipApplicationCommands(),
     declineMembershipApplicationCommands(),
@@ -211,6 +215,18 @@ function deleteMembershipTierCommands() {
   return record({
     membershipTierIdSelector: itemSelector<number>()
   }).map((i) => new DeleteMembershipTierCommand(i.membershipTierIdSelector));
+}
+
+function publishMembershipTierCommands() {
+  return record({
+    membershipTierIdSelector: itemSelector<number>()
+  }).map((i) => new PublishMembershipTierCommand(i.membershipTierIdSelector));
+}
+
+function unpublishMembershipTierCommands() {
+  return record({
+    membershipTierIdSelector: itemSelector<number>()
+  }).map((i) => new UnpublishMembershipTierCommand(i.membershipTierIdSelector));
 }
 
 function submitMembershipApplicationCommands() {

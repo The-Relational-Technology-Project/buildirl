@@ -220,6 +220,7 @@ export class SystemState {
     this.membershipTiers.set(membershipTierId, {
       id: membershipTierId,
       name: input.name,
+      status: "PUBLISHED",
       benefitDescription: input.benefitDescription,
       contributionDescription: input.contributionDescription,
       costPerMonthInUSD: input.costPerMonthInUSD
@@ -240,6 +241,22 @@ export class SystemState {
   public deleteMembershipTier(id: number) {
     this.deleteMembershipTierFromClub(id);
     this.membershipTiers.delete(id);
+  }
+
+  public publishMembershipTier(id: number) {
+    const membershipTier = this.getMembershipTier(id);
+    this.membershipTiers.set(id, {
+      ...membershipTier,
+      status: "PUBLISHED"
+    });
+  }
+
+  public unpublishMembershipTier(id: number) {
+    const membershipTier = this.getMembershipTier(id);
+    this.membershipTiers.set(id, {
+      ...membershipTier,
+      status: "UNPUBLISHED"
+    });
   }
 
   private deleteMembershipTierFromClub(membershipTierId: number) {
@@ -279,6 +296,26 @@ export class SystemState {
     return Array.from(this.membershipTiers.keys()).filter(
       (id) => !nonEmptyMembershipTierIds.has(id)
     );
+  }
+
+  public hasPublishedMembershipTier(): boolean {
+    return this.getPublishedMembershipTiersIds().length > 0;
+  }
+
+  public getPublishedMembershipTiersIds(): number[] {
+    return Array.from(this.membershipTiers.values())
+      .filter((t) => t.status === "PUBLISHED")
+      .map((t) => t.id);
+  }
+
+  public hasUnpublishedMembershipTier(): boolean {
+    return this.getUnpublishedMembershipTiersIds().length > 0;
+  }
+
+  public getUnpublishedMembershipTiersIds(): number[] {
+    return Array.from(this.membershipTiers.values())
+      .filter((t) => t.status === "UNPUBLISHED")
+      .map((t) => t.id);
   }
 
   private getNonEmptyMembershipTierIds(): Set<number> {
