@@ -1,25 +1,11 @@
-import {
-  Club,
-  ClubNameSchema,
-  ClubPublicIdSchema,
-  ClubTagLineSchema,
-  InstagramHandleSchema,
-  LongTextSchema,
-  URLSchema
-} from "~/server/service/types";
-import { api } from "~/trpc/react";
-import { useForm } from "@mantine/form";
-import { safeValidateSchema } from "~/utils/zod";
+import { Club } from "~/server/service/types";
 import {
   Button,
   Group,
   Image,
-  Modal,
   Paper,
   Stack,
   Text,
-  Textarea,
-  TextInput,
   ThemeIcon,
   Title
 } from "@mantine/core";
@@ -27,9 +13,8 @@ import React from "react";
 import { notifications } from "@mantine/notifications";
 import { IconAlertTriangle, IconCheck } from "@tabler/icons-react";
 import { logger, notifyError } from "~/client/logger";
-import { useDisclosure } from "@mantine/hooks";
-import EditableClubImage from "~/client/components/EditableClubImage";
 import createStorageClient from "~/client/utils/storageClient";
+import { useRouter } from "next/navigation";
 
 type OverviewPanelProps = {
   club: Club;
@@ -37,7 +22,7 @@ type OverviewPanelProps = {
 
 export function OverviewPanel({ club }: OverviewPanelProps) {
   const storage = createStorageClient();
-  const [opened, { open, close }] = useDisclosure(false);
+  const router = useRouter();
 
   return (
     <>
@@ -72,7 +57,10 @@ export function OverviewPanel({ club }: OverviewPanelProps) {
               )}
             </Stack>
             <Group grow>
-              <Button mt={"sm"} onClick={open}>
+              <Button
+                mt={"sm"}
+                onClick={() => router.push(`${club.id}/update`)}
+              >
                 Edit Club Page
               </Button>
               <Button
@@ -87,10 +75,6 @@ export function OverviewPanel({ club }: OverviewPanelProps) {
           </Stack>
         </Group>
       </Paper>
-
-      <Modal opened={opened} onClose={close} withCloseButton={false}>
-        <UpdateClubForm club={club} />
-      </Modal>
     </>
   );
 }
@@ -111,174 +95,4 @@ async function copyToClipboard(clubPublicId: string): Promise<void> {
     logger.error("error while copying to clipboard: " + e);
     notifyError();
   }
-}
-
-type UpdateClubFormProps = {
-  club: Club;
-};
-
-function UpdateClubForm({ club }: UpdateClubFormProps) {
-  const utils = api.useUtils();
-  const updateClub = api.main.updateClub.useMutation({
-    onSuccess: async () => {
-      await utils.main.club.invalidate({ id: club.id });
-      await utils.main.userOwnedClubs.invalidate();
-    }
-  });
-
-  const form = useForm({
-    initialValues: {
-      publicId: club.publicId,
-      name: club.name,
-      tagLine: club.tagLine,
-      description: club.description,
-      websiteURL: club.websiteURL,
-      instagramHandle: club.instagramHandle,
-      eventCalendarURL: club.eventCalendarURL
-    },
-
-    validateInputOnChange: true,
-
-    validate: {
-      description: (v) => safeValidateSchema(LongTextSchema, v),
-      publicId: (v) => safeValidateSchema(ClubPublicIdSchema, v),
-      name: (v) => safeValidateSchema(ClubNameSchema, v),
-      tagLine: (v) => safeValidateSchema(ClubTagLineSchema, v),
-      websiteURL: (v) => safeValidateSchema(URLSchema.nullable(), v),
-      instagramHandle: (v) =>
-        safeValidateSchema(InstagramHandleSchema.nullable(), v),
-      eventCalendarURL: (v) => safeValidateSchema(URLSchema.nullable(), v)
-    }
-  });
-
-  return (
-    <form
-      onSubmit={form.onSubmit(
-        async ({
-          publicId,
-          name,
-          tagLine,
-          description,
-          websiteURL,
-          instagramHandle,
-          eventCalendarURL
-        }) => {
-          await updateClub.mutateAsync({
-            id: club.id,
-            input: {
-              publicId: publicId,
-              name: name,
-              tagLine: tagLine,
-              description: description,
-              websiteURL: websiteURL === "" ? null : websiteURL,
-              instagramHandle: instagramHandle === "" ? null : instagramHandle,
-              eventCalendarURL:
-                eventCalendarURL === "" ? null : eventCalendarURL
-            }
-          });
-        }
-      )}
-    >
-      <Stack p={"md"} gap={16}>
-        <EditableClubImage
-          clubId={club.id}
-          style={{
-            alignSelf: "center",
-            // necessary to not override
-            // existing style
-            position: "relative"
-          }}
-        />
-        <Stack gap={8} mt={4}>
-          <TextInput
-            required
-            placeholder="Club name"
-            value={form.values.name}
-            onChange={(event) =>
-              form.setFieldValue("name", event.currentTarget.value)
-            }
-            error={form.errors.name}
-          />
-          <TextInput
-            required
-            placeholder="Tag line"
-            value={form.values.tagLine}
-            onChange={(event) =>
-              form.setFieldValue("tagLine", event.currentTarget.value)
-            }
-            error={form.errors.tagLine}
-          />
-          <Textarea
-            required
-            placeholder="About your club"
-            value={form.values.description}
-            onChange={(event) =>
-              form.setFieldValue("description", event.currentTarget.value)
-            }
-            error={form.errors.description}
-            rows={3}
-          />
-        </Stack>
-
-        <Stack gap={8}>
-          <Title order={6} mt={6}>
-            Links
-          </Title>
-          <TextInput
-            placeholder="Website link"
-            value={form.values.websiteURL ?? ""}
-            onChange={(event) =>
-              form.setFieldValue("websiteURL", event.currentTarget.value)
-            }
-            error={form.errors.websiteURL}
-          />
-          <TextInput
-            placeholder="Instagram tag"
-            value={form.values.instagramHandle ?? ""}
-            onChange={(event) =>
-              form.setFieldValue("instagramHandle", event.currentTarget.value)
-            }
-            error={form.errors.instagramHandle}
-          />
-          <TextInput
-            placeholder="Event calendar link (e.g., Luma)"
-            value={form.values.eventCalendarURL ?? ""}
-            onChange={(event) =>
-              form.setFieldValue("eventCalendarURL", event.currentTarget.value)
-            }
-            error={form.errors.eventCalendarURL}
-          />
-        </Stack>
-
-        <Stack gap={8}>
-          <Title order={6} mt={6}>
-            Share link
-          </Title>
-          <Group gap={4}>
-            <Text c={"dimmed"} size={"sm"}>
-              buildirl.com/share/
-            </Text>
-            <TextInput
-              required
-              placeholder="club-tag"
-              value={form.values.publicId}
-              onChange={(event) =>
-                form.setFieldValue("publicId", event.currentTarget.value)
-              }
-              error={form.errors.publicId}
-            />
-          </Group>
-        </Stack>
-        <Button
-          type="submit"
-          w={100}
-          mt={"md"}
-          style={{ alignSelf: "center" }}
-          disabled={!form.isValid() || updateClub.isPending}
-        >
-          Save
-        </Button>
-      </Stack>
-    </form>
-  );
 }
