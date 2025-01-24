@@ -1,4 +1,5 @@
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 import "src/client/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
@@ -13,6 +14,7 @@ import {
 } from "@mantine/core";
 import { theme } from "~/client/theme";
 import { HydrateClient } from "~/trpc/server";
+import { Notifications } from "@mantine/notifications";
 
 export const metadata: Metadata = {
   title: "Build IRL",
@@ -32,6 +34,7 @@ export default function RootLayout({
         <TRPCReactProvider>
           <MantineProvider theme={theme}>
             <HydrateClient>{children}</HydrateClient>
+            <Notifications position={"bottom-center"} />
           </MantineProvider>
         </TRPCReactProvider>
       </body>

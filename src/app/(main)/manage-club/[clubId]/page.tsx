@@ -17,11 +17,31 @@ import { useParams } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { Club } from "~/server/service/types";
-import { IconAlertTriangle } from "@tabler/icons-react";
+import { IconAlertTriangle, IconCheck } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
+import { logger, notifyError } from "~/client/logger";
 
 type OverviewPanelProps = {
   club: Club;
 };
+
+async function copyToClipboard(clubPublicId: string): Promise<void> {
+  const url = window.location.origin + "/share/" + clubPublicId;
+
+  try {
+    await navigator.clipboard.writeText(url);
+    notifications.show({
+      title: "Link copied",
+      message: "Share link has been copied to clipboard",
+      color: "green",
+      icon: <IconCheck size="1.1rem" />,
+      autoClose: 3000
+    });
+  } catch (e) {
+    logger.error("error while copying to clipboard: " + e);
+    notifyError();
+  }
+}
 
 function OverviewPanel({ club }: OverviewPanelProps) {
   return (
@@ -58,7 +78,12 @@ function OverviewPanel({ club }: OverviewPanelProps) {
             <Button mt={"sm"} onClick={() => {}}>
               Edit Club Page
             </Button>
-            <Button mt={"sm"} onClick={() => {}}>
+            <Button
+              mt={"sm"}
+              onClick={async () => {
+                await copyToClipboard(club.publicId);
+              }}
+            >
               Share
             </Button>
           </Group>
