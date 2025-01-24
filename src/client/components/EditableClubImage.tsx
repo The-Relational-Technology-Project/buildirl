@@ -42,7 +42,7 @@ export default function EditableClubImage({
         w={"100%"}
         h={"100%"}
         src={storageClient.clubProfileImageUrl(clubId)}
-        fallbackSrc={"/image-fallback.png"}
+        fallbackSrc={"/club-image-fallback.png"}
       />
       <FileInput
         accept="image/*"

@@ -33,7 +33,7 @@ export function OverviewPanel({ club }: OverviewPanelProps) {
             w={300}
             h={300}
             src={storage.clubProfileImageUrl(club.id)}
-            fallbackSrc={"/image-fallback.png"}
+            fallbackSrc={"/club-image-fallback.png"}
           />
           <Stack justify={"space-between"} style={{ flex: 1 }}>
             <Stack gap={6}>
