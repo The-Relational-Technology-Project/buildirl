@@ -16,11 +16,11 @@ import { logger, notifyError } from "~/client/logger";
 import createStorageClient from "~/client/utils/storageClient";
 import { useRouter } from "next/navigation";
 
-type OverviewPanelProps = {
+type ClubOverviewPanelProps = {
   club: Club;
 };
 
-export function OverviewPanel({ club }: OverviewPanelProps) {
+export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
   const storage = createStorageClient();
   const router = useRouter();
 

@@ -15,6 +15,7 @@ import { safeValidateSchema } from "~/utils/zod";
 import {
   ActionIcon,
   Button,
+  Divider,
   Group,
   Stack,
   Text,
@@ -108,6 +109,9 @@ export function UpdateClubForm({ club }: UpdateClubFormProps) {
             position: "relative"
           }}
         />
+        
+        <Divider />
+
         <Stack gap={8} mt={4}>
           <TextInput
             required
@@ -216,7 +220,7 @@ export default function UpdateClubPage() {
     isLoaded(r) && (
       <Stack pt={"xl"}>
         <ActionIcon onClick={() => router.back()} variant="transparent" color="white">
-          <IconArrowLeft color="black"/>
+          <IconArrowLeft color="black" />
         </ActionIcon>
 
         <Stack px={200}>

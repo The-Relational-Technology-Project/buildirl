@@ -6,7 +6,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { OverviewPanel } from "~/client/components/OverviewPanel";
+import { ClubOverviewPanel } from "~/client/components/OverviewPanel";
 
 export default function ManageClub() {
   const params = useParams<{ clubId: string }>();
@@ -26,14 +26,14 @@ export default function ManageClub() {
 
         <Tabs color={"gray"} radius={"xs"} defaultValue={"overview"}>
           <Tabs.List>
-            <Tabs.Tab value={"overview"}>Overview</Tabs.Tab>
-            <Tabs.Tab value={"intake"}>Intake</Tabs.Tab>
-            <Tabs.Tab value={"memberships"}>Memberships</Tabs.Tab>
+            <Tabs.Tab value={"overview"}>Club Overview</Tabs.Tab>
+            <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>
             <Tabs.Tab value={"people"}>People</Tabs.Tab>
+            <Tabs.Tab value={"intake"}>Intake</Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value={"overview"}>
-            <OverviewPanel club={r.data!} />
+            <ClubOverviewPanel club={r.data!} />
           </Tabs.Panel>
           <Tabs.Panel value={"intake"}>
             <></>
