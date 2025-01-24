@@ -94,6 +94,7 @@ export type MainMutations = {
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult>;
+  deleteMembershipTier(id: number): Promise<MutationResult>;
   submitMembershipApplication(
     membershipTierId: number,
     input: SubmitMembershipApplicationInput,
@@ -187,11 +188,18 @@ export type UpdateClubApplicationQuestionsInput = z.infer<
   typeof UpdateClubApplicationQuestionsInputSchema
 >;
 
+// restrict to reasonable monetary range ($0 to $9999.99) with 2 decimal places
+const MonetaryValueSchema = z.number()
+  .min(0, "Cannot be negative value")
+  .max(9999.99, "Cannot be greater than $9999.99")
+  // 2 decimal places
+  .transform(val => Number(val.toFixed(2)));
+
 export const CreateMembershipTierInputSchema = z.object({
   name: z.string(),
   benefitDescription: LongTextSchema,
   contributionDescription: LongTextSchema,
-  costPerMonthInUSD: z.number()
+  costPerMonthInUSD: MonetaryValueSchema
 });
 export type CreateMembershipTierInput = z.infer<
   typeof CreateMembershipTierInputSchema
@@ -200,7 +208,8 @@ export type CreateMembershipTierInput = z.infer<
 export const UpdateMembershipTierInputSchema = z.object({
   name: z.string(),
   benefitDescription: LongTextSchema,
-  contributionDescription: LongTextSchema
+  contributionDescription: LongTextSchema,
+  costPerMonthInUSD: MonetaryValueSchema
 });
 export type UpdateMembershipTierInput = z.infer<
   typeof UpdateMembershipTierInputSchema

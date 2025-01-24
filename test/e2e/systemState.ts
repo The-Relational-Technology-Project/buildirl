@@ -237,6 +237,23 @@ export class SystemState {
     });
   }
 
+  public deleteMembershipTier(id: number) {
+    this.deleteMembershipTierFromClub(id);
+    this.membershipTiers.delete(id);
+  }
+
+  private deleteMembershipTierFromClub(membershipTierId: number) {
+    const clubId = this.getClubIdForMembershipTier(membershipTierId);
+    const club = this.getClubState(clubId);
+    this.clubs.set(clubId, {
+      ...club,
+      // remove membership tier id
+      membershipTierIds: club.membershipTierIds.filter(
+        (id) => id !== membershipTierId
+      )
+    });
+  }
+
   public getMembershipTier(id: number): MembershipTier {
     const membershipTier = this.membershipTiers.get(id);
     if (!membershipTier) {
@@ -251,6 +268,23 @@ export class SystemState {
 
   public getMembershipTierIds(): number[] {
     return Array.from(this.membershipTiers.keys());
+  }
+
+  public hasEmptyMembershipTier(): boolean {
+    return this.getEmptyMembershipTiersIds().length > 0;
+  }
+
+  public getEmptyMembershipTiersIds(): number[] {
+    const nonEmptyMembershipTierIds = this.getNonEmptyMembershipTierIds();
+    return Array.from(this.membershipTiers.keys()).filter(
+      (id) => !nonEmptyMembershipTierIds.has(id)
+    );
+  }
+
+  private getNonEmptyMembershipTierIds(): Set<number> {
+    return new Set(
+      Array.from(this.memberships.values()).map((m) => m.membershipTierId)
+    );
   }
 
   public getClubIdForMembershipTier(membershipTierId: number): number {

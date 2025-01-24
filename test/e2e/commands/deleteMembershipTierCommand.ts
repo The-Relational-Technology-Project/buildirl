@@ -1,4 +1,4 @@
-import { UpdateMembershipTierInput, MainService } from "~/server/service/types";
+import { MainService } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { Maybe } from "~/utils/types";
@@ -6,18 +6,13 @@ import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
 
-export default class UpdateMembershipTierCommand
+export default class DeleteMembershipTierCommand
   implements Command<SystemState, MainService>
 {
-  private readonly input: UpdateMembershipTierInput;
   private readonly membershipTierIdSelector: ItemSelector<number>;
   private membershipTierId: Maybe<number> = null;
 
-  constructor(
-    input: UpdateMembershipTierInput,
-    membershipTierIdSelector: ItemSelector<number>
-  ) {
-    this.input = input;
+  constructor(membershipTierIdSelector: ItemSelector<number>) {
     this.membershipTierIdSelector = membershipTierIdSelector;
   }
 
@@ -29,17 +24,17 @@ export default class UpdateMembershipTierCommand
     this.membershipTierId = this.membershipTierIdSelector.select(
       m.getEmptyMembershipTiersIds()
     );
-    await r.updateMembershipTier(this.membershipTierId, this.input);
-    m.updateMembershipTier(this.membershipTierId, this.input);
+    await r.deleteMembershipTier(this.membershipTierId);
+    // must get this value before deleting
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
+    m.deleteMembershipTier(this.membershipTierId);
     // membership tier is attached to club
     await verifiers.verifyClub(clubId, r, m);
   }
 
   toString() {
     return stringify({
-      UpdateMembershipTierCommand: {
-        input: this.input,
+      DeleteMembershipTierCommand: {
         membershipTierId: this.membershipTierId
       }
     });

@@ -113,6 +113,12 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.updateMembershipTier(input.id, input.input);
     }),
 
+  deleteMembershipTier: securedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.service.deleteMembershipTier(input.id);
+    }),
+
   submitMembershipApplication: securedProcedure
     .input(
       z.object({

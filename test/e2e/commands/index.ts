@@ -1,6 +1,8 @@
 import {
+  Arbitrary,
   constant,
-  double,
+  float,
+  integer,
   option,
   record,
   string,
@@ -27,6 +29,7 @@ import SubmitMembershipApplicationCommand from "./submitMembershipApplicationCom
 import ApproveMembershipApplicationCommand from "./approveMembershipApplicationCommand";
 import DeclineMembershipApplicationCommand from "./declineMembershipApplicationCommand";
 import DeactivateMembershipCommand from "./deactivateMembershipCommand";
+import DeleteMembershipTierCommand from "./deleteMembershipTierCommand";
 
 export const allCommands = () => {
   return [
@@ -37,7 +40,11 @@ export const allCommands = () => {
     updateClubApplicationQuestionsCommands(),
     createMembershipTierCommands(),
     updateMembershipTierCommands(),
-    submitMembershipApplicationCommands()
+    deleteMembershipTierCommands(),
+    submitMembershipApplicationCommands(),
+    approveMembershipApplicationCommands(),
+    declineMembershipApplicationCommands(),
+    deactivateMembershipCommands()
   ];
 };
 
@@ -149,8 +156,13 @@ function updateClubApplicationQuestionsCommands() {
   );
 }
 
-function toHundredthPrecision(i: number) {
-  return Number(i.toFixed(2));
+function monetaryValue(): Arbitrary<number> {
+  return (
+    // generate values between 0 to $9999.99 dollars
+    integer({ min: 0, max: 999999 })
+      //  2 decimals
+      .map((n) => n / 100)
+  );
 }
 
 function createMembershipTierCommands() {
@@ -159,9 +171,7 @@ function createMembershipTierCommands() {
     name: string(),
     benefitDescription: string(),
     contributionDescription: string(),
-    costPerMonthInUSD: double({ min: 0 })
-      // round to 2 decimals for now
-      .map((n) => toHundredthPrecision(2))
+    costPerMonthInUSD: monetaryValue()
   }).map(
     (i) =>
       new CreateMembershipTierCommand(
@@ -181,18 +191,26 @@ function updateMembershipTierCommands() {
     membershipTierIdSelector: itemSelector<number>(),
     name: string(),
     benefitDescription: string(),
-    contributionDescription: string()
+    contributionDescription: string(),
+    costPerMonthInUSD: monetaryValue()
   }).map(
     (i) =>
       new UpdateMembershipTierCommand(
         {
           name: i.name,
           benefitDescription: i.benefitDescription,
-          contributionDescription: i.contributionDescription
+          contributionDescription: i.contributionDescription,
+          costPerMonthInUSD: i.costPerMonthInUSD
         },
         i.membershipTierIdSelector
       )
   );
+}
+
+function deleteMembershipTierCommands() {
+  return record({
+    membershipTierIdSelector: itemSelector<number>()
+  }).map((i) => new DeleteMembershipTierCommand(i.membershipTierIdSelector));
 }
 
 function submitMembershipApplicationCommands() {

@@ -27,7 +27,6 @@ import { stringify } from "~/utils";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import ClubGetPayload = Prisma.ClubGetPayload;
 import MembershipGetPayload = Prisma.MembershipGetPayload;
-import UserGetPayload = Prisma.UserGetPayload;
 
 const logger = rootLogger.child({ module: "mainService" });
 
@@ -478,10 +477,38 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
+  async function hasMembersOnMembershipTier(membershipTierId: number) {
+    try {
+      const count = await prisma.membership.count({
+        where: { membershipTierId: membershipTierId }
+      });
+      logger.info(
+        `queried membership count ${count} for membership tier with id ${membershipTierId}`
+      );
+      return count > 0;
+    } catch (e) {
+      logger.error(
+        `failed to query membership count for membership tier with id ${membershipTierId} with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
+  async function checkNoMembersOnMembershipTier(
+    membershipTierId: number
+  ): Promise<void> {
+    if (await hasMembersOnMembershipTier(membershipTierId)) {
+      throw new Error(
+        "Cannot update membership tier if there are existing members subscribed  to it."
+      );
+    }
+  }
+
   async function updateMembershipTier(
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
+    await checkNoMembersOnMembershipTier(id);
     try {
       await prisma.membershipTier.update({
         data: input,
@@ -496,6 +523,24 @@ export function createMainService(prisma: PrismaClient): MainService {
     } catch (e) {
       logger.error(
         `failed to update membership tier with id ${id} from input ${stringify(input)} with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
+  async function deleteMembershipTier(id: number): Promise<MutationResult> {
+    await checkNoMembersOnMembershipTier(id);
+    try {
+      await prisma.membershipTier.delete({
+        where: {
+          id: id
+        }
+      });
+      logger.info(`deleted membership tier with id ${id}`);
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        `failed to delete membership tier with id ${id} with exception ${stringify(e)}`
       );
       throw e;
     }
@@ -697,6 +742,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     updateClubApplicationQuestions,
     createMembershipTier,
     updateMembershipTier,
+    deleteMembershipTier,
     submitMembershipApplication,
     approveMembershipApplication,
     declineMembershipApplication,
