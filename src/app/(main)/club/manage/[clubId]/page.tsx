@@ -6,7 +6,8 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { ClubOverviewPanel } from "~/client/components/OverviewPanel";
+import { ClubOverviewPanel } from "~/client/components/ClubOverviewPanel";
+import { ClubAdminPanel } from "~/client/components/ClubAdminPanel";
 
 export default function ManageClub() {
   const params = useParams<{ clubId: string }>();
@@ -30,6 +31,7 @@ export default function ManageClub() {
             <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>
             <Tabs.Tab value={"people"}>People</Tabs.Tab>
             <Tabs.Tab value={"intake"}>Intake</Tabs.Tab>
+            <Tabs.Tab value={"admin"}>Admin</Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value={"overview"}>
@@ -43,6 +45,9 @@ export default function ManageClub() {
           </Tabs.Panel>
           <Tabs.Panel value={"people"}>
             <></>
+          </Tabs.Panel>
+          <Tabs.Panel value={"admin"}>
+            <ClubAdminPanel clubId={r.data!.id} />
           </Tabs.Panel>
         </Tabs>
       </Stack>
