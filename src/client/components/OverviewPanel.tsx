@@ -15,6 +15,7 @@ import { IconAlertTriangle, IconCheck } from "@tabler/icons-react";
 import { logger, notifyError } from "~/client/logger";
 import createStorageClient from "~/client/utils/storageClient";
 import { useRouter } from "next/navigation";
+import { MemberCountStatistic } from "~/app/(main)/page";
 
 type ClubOverviewPanelProps = {
   club: Club;
@@ -33,15 +34,16 @@ export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
             w={300}
             h={300}
             src={storage.clubProfileImageUrl(club.id)}
-            fallbackSrc={"/club-image-fallback.png"}
+            fallbackSrc={"/club-profile-fallback.png"}
           />
           <Stack justify={"space-between"} style={{ flex: 1 }}>
             <Stack gap={6}>
               <Title order={4}>Club Details</Title>
-              <Title order={5} mt={2}>
+              <Title order={5} mt={6}>
                 Name
               </Title>
-              <Text>{club.name}</Text>
+              <Text c={"dimmed"}>{club.name}</Text>
+
               <Title order={5}>Tagline</Title>
               {club.tagLine === "" ? (
                 <Group gap={4}>
@@ -53,8 +55,10 @@ export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
                   </Text>
                 </Group>
               ) : (
-                <Text>{club.tagLine}</Text>
+                <Text c={"dimmed"}>{club.tagLine}</Text>
               )}
+
+              <MemberCountStatistic clubId={club.id} mt={"sm"} />
             </Stack>
             <Group grow>
               <Button
