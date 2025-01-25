@@ -84,6 +84,7 @@ export type MainMutations = {
   updateUser(id: number, input: UpdateUserInput): Promise<MutationResult>;
   createClub(input: CreateClubInput, userId: number): Promise<MutationResult>;
   updateClub(id: number, input: UpdateClubInput): Promise<MutationResult>;
+  deleteClub(id: number): Promise<MutationResult>;
   updateClubApplicationQuestions(
     clubId: number,
     input: UpdateClubApplicationQuestionsInput

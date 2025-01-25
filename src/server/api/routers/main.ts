@@ -85,6 +85,12 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.updateClub(input.id, input.input);
     }),
 
+  deleteClub: securedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.service.deleteClub(input.id);
+    }),
+
   updateClubApplicationQuestions: securedProcedure
     .input(
       z.object({

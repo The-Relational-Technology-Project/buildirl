@@ -65,7 +65,7 @@ model MembershipTier {
   benefitDescription      String
   contributionDescription String
   costPerMonthInUSD       Decimal
-  club                    Club                 @relation(fields: [clubId], references: [id])
+  club                    Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubId                  Int
   status                  MembershipTierStatus @default(PUBLISHED)
   memberships             Membership[]

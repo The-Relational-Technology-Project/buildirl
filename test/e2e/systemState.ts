@@ -160,6 +160,21 @@ export class SystemState {
     return Array.from(this.clubs.keys());
   }
 
+  public hasClubsWithNoMemberships(): boolean {
+    return this.getClubIdsWithNoMemberships().length > 0;
+  }
+
+  public getClubIdsWithNoMemberships(): number[] {
+    const clubsWithMemberships = this.getClubIdsWithMemberships();
+    return Array.from(this.clubs.keys()).filter(
+      (id) => !clubsWithMemberships.has(id)
+    );
+  }
+
+  private getClubIdsWithMemberships(): Set<number> {
+    return new Set(Array.from(this.memberships.values()).map((m) => m.clubId));
+  }
+
   public getUserOwnedClubs(
     userId: number
   ): OmitRecursively<Club, "createdAt">[] {
@@ -193,6 +208,18 @@ export class SystemState {
     this.clubs.set(id, {
       ...clubState,
       ...input
+    });
+  }
+
+  public deleteClub(id: number) {
+    this.deleteMembershipTiersForClub(id);
+    this.clubs.delete(id);
+  }
+
+  private deleteMembershipTiersForClub(clubId: number) {
+    const clubState = this.getClubState(clubId);
+    clubState.membershipTierIds.forEach((id) => {
+      this.deleteMembershipTier(id);
     });
   }
 

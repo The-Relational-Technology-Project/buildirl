@@ -1,7 +1,6 @@
 import {
   Arbitrary,
   constant,
-  float,
   integer,
   option,
   record,
@@ -32,6 +31,7 @@ import DeactivateMembershipCommand from "./deactivateMembershipCommand";
 import DeleteMembershipTierCommand from "./deleteMembershipTierCommand";
 import PublishMembershipTierCommand from "./publishMembershipTierCommand";
 import UnpublishMembershipTierCommand from "./unpublishMembershipTierCommand";
+import DeleteClubCommand from "./deleteClubCommand";
 
 export const allCommands = () => {
   return [
@@ -39,6 +39,7 @@ export const allCommands = () => {
     updateUserCommands(),
     createClubCommands(),
     updateClubCommands(),
+    deleteClubCommands(),
     updateClubApplicationQuestionsCommands(),
     createMembershipTierCommands(),
     updateMembershipTierCommands(),
@@ -144,6 +145,12 @@ function updateClubCommands() {
         i.clubIdSelector
       )
   );
+}
+
+function deleteClubCommands() {
+  return record({
+    clubIdSelector: itemSelector<number>()
+  }).map((i) => new DeleteClubCommand(i.clubIdSelector));
 }
 
 function updateClubApplicationQuestionsCommands() {

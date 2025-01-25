@@ -429,6 +429,48 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
+  async function hasAnyMemberships(clubId: number) {
+    try {
+      const memberCount = await prisma.membership.count({
+        where: {
+          membershipTier: {
+            clubId: clubId
+          }
+        }
+      });
+      logger.info(
+        `queried all membership count for club with clubId ${clubId} with result ${memberCount}`
+      );
+      return memberCount > 0;
+    } catch (e) {
+      logger.error(
+        `failed to query all membership count for club with clubId ${clubId} with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
+  async function deleteClub(id: number): Promise<MutationResult> {
+    if (await hasAnyMemberships(id)) {
+      throw new Error(
+        "cannot delete club if it has any memberships"
+      );
+    }
+
+    try {
+      await prisma.club.delete({
+        where: { id }
+      });
+      logger.info(`deleted club with id ${id}`);
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        `failed to delete club with id ${id} with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
   async function updateClubApplicationQuestions(
     clubId: number,
     input: UpdateClubApplicationQuestionsInput
@@ -502,7 +544,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   ): Promise<void> {
     if (await hasMembersOnMembershipTier(membershipTierId)) {
       throw new Error(
-        "Cannot update membership tier if there are existing members subscribed  to it."
+        "cannot update membership tier if there are existing members subscribed  to it"
       );
     }
   }
@@ -595,7 +637,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   async function unpublishMembershipTier(id: number): Promise<MutationResult> {
     if (!(await isPublished(id))) {
       throw new Error(
-        "Cannot unpublish an already unpublished membership tier."
+        "cannot unpublish an already unpublished membership tier"
       );
     }
     try {
@@ -808,6 +850,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     updateUser,
     createClub,
     updateClub,
+    deleteClub,
     updateClubApplicationQuestions,
     createMembershipTier,
     updateMembershipTier,
