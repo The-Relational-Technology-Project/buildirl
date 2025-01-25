@@ -20,6 +20,7 @@ import type { Club } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import { Maybe } from "~/utils/types";
 import { IconUsers } from "@tabler/icons-react";
+import { HEADER_BAR_HEIGHT } from "~/client/components/HeaderBar";
 
 type ClubCardProps = {
   club: Club;
@@ -131,6 +132,7 @@ export function MemberCountStatistic({
 export default function Home() {
   const r = api.main.userOwnedClubs.useQuery();
   const m = api.main.userMemberships.useQuery();
+  const router = useRouter();
 
   QueryError.check({
     result: r,
@@ -144,6 +146,24 @@ export default function Home() {
 
   if (!isAllLoaded([r, m])) {
     return null;
+  }
+
+  if (r.data!.length === 0 && m.data!.length === 0) {
+    return (
+      <Stack mt={"xl"} justify="center" style={{ minHeight: "60vh" }}>
+        <Title order={1} mb={"md"}>
+          Clubs
+        </Title>
+        <Stack justify="center" align="center" gap={10} style={{ flex: 1 }}>
+          <Image src="/home-icon.svg" alt="No clubs" w={120} style={{ filter: 'invert(0.6)' }} />
+          <Title order={3} c="dimmed" mt={20}>No clubs found</Title>
+          <Text size={"md"} c={"dimmed"}>
+            Discover clubs or create one of your own.
+          </Text>
+          <Button onClick={() => router.push("/club/create")}>Create club</Button>
+        </Stack>
+      </Stack>
+    );
   }
 
   return (
@@ -162,6 +182,9 @@ export default function Home() {
           membershipId={m.id}
         />
       ))}
+      <Text size={"sm"} c={"dimmed"} style={{ alignSelf: "center" }} mt={10}>
+        Discover more clubs to join or <a href="/club/create" style={{ color: "inherit" }}>create</a> one of your own.
+      </Text>
     </Stack>
   );
 }
