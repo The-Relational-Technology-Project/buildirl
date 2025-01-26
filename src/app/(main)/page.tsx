@@ -8,19 +8,16 @@ import {
   Stack,
   Title,
   Paper,
-  Flex,
-  ThemeIcon,
-  GroupProps
+  Flex
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
-import { isAllLoaded, isLoaded } from "~/client/utils";
+import { isAllLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
 import { storageClient } from "~/client/utils/storageClient";
 import type { Club } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import { Maybe } from "~/utils/types";
-import { IconUsers } from "@tabler/icons-react";
-import { HEADER_BAR_HEIGHT } from "~/client/components/HeaderBar";
+import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
 
 type ClubCardProps = {
   club: Club;
@@ -93,42 +90,6 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
   );
 }
 
-type MemberCountStatisticProps = {
-  clubId: number;
-};
-
-export function MemberCountStatistic({
-  clubId,
-  ...props
-}: MemberCountStatisticProps & GroupProps) {
-  const r = api.main.clubStatistics.useQuery({ clubId: clubId });
-
-  QueryError.check({
-    result: r,
-    fieldName: "clubStatistics"
-  });
-
-  return (
-    isLoaded(r) && (
-      <Group gap={4} {...props}>
-        <ThemeIcon
-          size={"xs"}
-          variant={"white"}
-          c={"black"}
-          style={{
-            backgroundColor: "transparent"
-          }}
-        >
-          <IconUsers />
-        </ThemeIcon>
-        <Text size={"sm"} fw={400}>
-          {`${r.data!.memberCount} member${r.data!.memberCount > 1 ? "s" : ""}`}
-        </Text>
-      </Group>
-    )
-  );
-}
-
 export default function Home() {
   const r = api.main.userOwnedClubs.useQuery();
   const m = api.main.userMemberships.useQuery();
@@ -155,12 +116,21 @@ export default function Home() {
           Clubs
         </Title>
         <Stack justify="center" align="center" gap={10} style={{ flex: 1 }}>
-          <Image src="/home-icon.svg" alt="No clubs" w={120} style={{ filter: 'invert(0.6)' }} />
-          <Title order={3} c="dimmed" mt={20}>No clubs found</Title>
+          <Image
+            src="/home-icon.svg"
+            alt="No clubs"
+            w={120}
+            style={{ filter: "invert(0.6)" }}
+          />
+          <Title order={3} c="dimmed" mt={20}>
+            No clubs found
+          </Title>
           <Text size={"md"} c={"dimmed"}>
             Discover clubs or create one of your own.
           </Text>
-          <Button onClick={() => router.push("/club/create")}>Create club</Button>
+          <Button onClick={() => router.push("/club/create")}>
+            Create club
+          </Button>
         </Stack>
       </Stack>
     );
@@ -183,7 +153,11 @@ export default function Home() {
         />
       ))}
       <Text size={"sm"} c={"dimmed"} style={{ alignSelf: "center" }} mt={10}>
-        Discover more clubs to join or <a href="/club/create" style={{ color: "inherit" }}>create</a> one of your own.
+        Discover more clubs to join or{" "}
+        <a href="/club/create" style={{ color: "inherit" }}>
+          create
+        </a>{" "}
+        one of your own.
       </Text>
     </Stack>
   );

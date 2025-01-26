@@ -15,7 +15,7 @@ import { IconAlertTriangle, IconCheck } from "@tabler/icons-react";
 import { logger, notifyError } from "~/client/logger";
 import createStorageClient from "~/client/utils/storageClient";
 import { useRouter } from "next/navigation";
-import { MemberCountStatistic } from "~/app/(main)/page";
+import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
 
 type ClubOverviewPanelProps = {
   club: Club;
