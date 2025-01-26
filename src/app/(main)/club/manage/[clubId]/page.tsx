@@ -8,6 +8,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { ClubOverviewPanel } from "~/client/components/ClubOverviewPanel";
 import { ClubAdminPanel } from "~/client/components/ClubAdminPanel";
+import { MembershipsPanel } from "~/client/components/MembershipsPanel";
 
 export default function ManageClub() {
   const params = useParams<{ clubId: string }>();
@@ -37,13 +38,13 @@ export default function ManageClub() {
           <Tabs.Panel value={"overview"}>
             <ClubOverviewPanel club={r.data!} />
           </Tabs.Panel>
-          <Tabs.Panel value={"intake"}>
-            <></>
-          </Tabs.Panel>
           <Tabs.Panel value={"memberships"}>
-            <></>
+            <MembershipsPanel club={r.data!} />
           </Tabs.Panel>
           <Tabs.Panel value={"people"}>
+            <></>
+          </Tabs.Panel>
+          <Tabs.Panel value={"intake"}>
             <></>
           </Tabs.Panel>
           <Tabs.Panel value={"admin"}>

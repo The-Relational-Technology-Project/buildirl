@@ -122,7 +122,7 @@ export default function Home() {
             w={120}
             style={{ filter: "invert(0.6)" }}
           />
-          <Title order={3} c="dimmed" mt={20}>
+          <Title order={3} c="dimmed" mt={"lg"}>
             No clubs found
           </Title>
           <Text size={"md"} c={"dimmed"}>

@@ -1,21 +1,13 @@
 import { Club } from "~/server/service/types";
-import {
-  Button,
-  Group,
-  Image,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-  Title
-} from "@mantine/core";
+import { Button, Group, Image, Paper, Stack, Text, Title } from "@mantine/core";
 import React from "react";
 import { notifications } from "@mantine/notifications";
-import { IconAlertTriangle, IconCheck } from "@tabler/icons-react";
+import { IconCheck } from "@tabler/icons-react";
 import { logger, notifyError } from "~/client/logger";
 import createStorageClient from "~/client/utils/storageClient";
 import { useRouter } from "next/navigation";
 import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
+import { AlertMessage } from "~/client/components/AlertMessage";
 
 type ClubOverviewPanelProps = {
   club: Club;
@@ -26,8 +18,8 @@ export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
   const router = useRouter();
 
   return (
-    <>
-      <Paper radius="md" p="xl" withBorder mt={20}>
+    <Stack>
+      <Paper radius="md" p="xl" withBorder mt={"lg"}>
         <Group justify={"flex-start"} align={"stretch"} gap={40}>
           <Image
             radius="md"
@@ -46,14 +38,9 @@ export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
 
               <Title order={5}>Tagline</Title>
               {club.tagLine === "" ? (
-                <Group gap={4}>
-                  <ThemeIcon color={"orange.5"} variant={"white"} size={"xs"}>
-                    <IconAlertTriangle />
-                  </ThemeIcon>
-                  <Text c={"orange.5"}>
-                    Please enter tagline and other basic information.
-                  </Text>
-                </Group>
+                <AlertMessage
+                  message={"Please enter tagline and other basic information."}
+                />
               ) : (
                 <Text c={"dimmed"}>{club.tagLine}</Text>
               )}
@@ -79,7 +66,7 @@ export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
           </Stack>
         </Group>
       </Paper>
-    </>
+    </Stack>
   );
 }
 
