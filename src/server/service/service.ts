@@ -384,8 +384,18 @@ export function createMainService(prisma: PrismaClient): MainService {
     input: CreateClubInput,
     userId: number
   ): Promise<MutationResult> {
+    return prisma.$transaction(async (tx) => {
+      return createClubInTransaction(input, userId, tx);
+    });
+  }
+
+  async function createClubInTransaction(
+    input: CreateClubInput,
+    userId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
     try {
-      const { id } = await prisma.club.create({
+      const { id } = await tx.club.create({
         data: {
           ...input,
           ownerUserId: userId,
@@ -399,6 +409,10 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(
         `created club from input ${stringify(input)} with clubId ${id}`
       );
+
+      // create the default free tier on each club
+      await createDefaultFreeMembershipTier(id, tx);
+
       return { createdEntityId: id };
     } catch (e) {
       logger.error(
@@ -452,9 +466,7 @@ export function createMainService(prisma: PrismaClient): MainService {
 
   async function deleteClub(id: number): Promise<MutationResult> {
     if (await hasAnyMemberships(id)) {
-      throw new Error(
-        "cannot delete club if it has any memberships"
-      );
+      throw new Error("cannot delete club if it has any memberships");
     }
 
     try {
@@ -494,12 +506,13 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
-  async function createMembershipTier(
+  async function createMembershipTierInTransaction(
     clubId: number,
-    input: CreateMembershipTierInput
+    input: CreateMembershipTierInput,
+    tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
-      const { id } = await prisma.membershipTier.create({
+      const { id } = await tx.membershipTier.create({
         data: {
           clubId: clubId,
           // default
@@ -520,6 +533,30 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       throw e;
     }
+  }
+  async function createMembershipTier(
+    clubId: number,
+    input: CreateMembershipTierInput
+  ): Promise<MutationResult> {
+    return prisma.$transaction(async (tx) => {
+      return createMembershipTierInTransaction(clubId, input, tx);
+    });
+  }
+
+  async function createDefaultFreeMembershipTier(
+    clubId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
+    return createMembershipTierInTransaction(
+      clubId,
+      {
+        name: "Free Tier",
+        benefitDescription: "",
+        contributionDescription: "",
+        costPerMonthInUSD: 0
+      },
+      tx
+    );
   }
 
   async function hasMembersOnMembershipTier(membershipTierId: number) {

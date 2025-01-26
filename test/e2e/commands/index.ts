@@ -169,8 +169,8 @@ function updateClubApplicationQuestionsCommands() {
 
 function monetaryValue(): Arbitrary<number> {
   return (
-    // generate values between 0 to $9999.99 dollars
-    integer({ min: 0, max: 999999 })
+    // generate values between $0.01 to $1000.00 dollars
+    integer({ min: 1, max: 100000 })
       //  2 decimals
       .map((n) => n / 100)
   );

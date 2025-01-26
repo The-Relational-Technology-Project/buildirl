@@ -193,11 +193,11 @@ export type UpdateClubApplicationQuestionsInput = z.infer<
   typeof UpdateClubApplicationQuestionsInputSchema
 >;
 
-// restrict to reasonable monetary range ($0 to $9999.99) with 2 decimal places
+// restrict to reasonable monetary range ($0.01 to $1000.00) with 2 decimal places
 const MonetaryValueSchema = z
   .number()
-  .min(0, "Cannot be negative value")
-  .max(9999.99, "Cannot be greater than $9999.99")
+  .min(0.01, "Must be a positive value greater than $0.01")
+  .max(1000.00, "Cannot be greater than $1000.00")
   // 2 decimal places
   .transform((val) => Number(val.toFixed(2)));
 

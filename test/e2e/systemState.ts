@@ -189,7 +189,7 @@ export class SystemState {
     );
   }
 
-  public createClub(userId: number, clubId: number, input: CreateClubInput) {
+  public createClub(userId: number, clubId: number, input: CreateClubInput, freeMembershipTierId: number) {
     if (!!this.clubs.get(clubId)) {
       throw new Error(`club with id ${clubId} already exists`);
     }
@@ -200,6 +200,17 @@ export class SystemState {
       // empty to start
       applicationQuestions: {},
       membershipTierIds: []
+    });
+
+    this.createFreeMembershipTier(freeMembershipTierId, clubId);
+  }
+
+  private createFreeMembershipTier(freeMembershipTierId: number, clubId: number) {
+    this.createMembershipTier(freeMembershipTierId, clubId, {
+      name: "Free Tier",
+      benefitDescription: "",
+      contributionDescription: "",
+      costPerMonthInUSD: 0
     });
   }
 
