@@ -189,7 +189,12 @@ export class SystemState {
     );
   }
 
-  public createClub(userId: number, clubId: number, input: CreateClubInput, freeMembershipTierId: number) {
+  public createClub(
+    userId: number,
+    clubId: number,
+    input: CreateClubInput,
+    freeMembershipTierId: number
+  ) {
     if (!!this.clubs.get(clubId)) {
       throw new Error(`club with id ${clubId} already exists`);
     }
@@ -205,7 +210,10 @@ export class SystemState {
     this.createFreeMembershipTier(freeMembershipTierId, clubId);
   }
 
-  private createFreeMembershipTier(freeMembershipTierId: number, clubId: number) {
+  private createFreeMembershipTier(
+    freeMembershipTierId: number,
+    clubId: number
+  ) {
     this.createMembershipTier(freeMembershipTierId, clubId, {
       name: "Free Tier",
       benefitDescription: "",
@@ -334,6 +342,20 @@ export class SystemState {
     return Array.from(this.membershipTiers.keys()).filter(
       (id) => !nonEmptyMembershipTierIds.has(id)
     );
+  }
+
+  public hasEmptyNonFreeMembershipTier(): boolean {
+    return this.getEmptyNonFreeMembershipTiersIds().length > 0;
+  }
+
+  public getEmptyNonFreeMembershipTiersIds(): number[] {
+    const nonEmptyMembershipTierIds = this.getNonEmptyMembershipTierIds();
+    return Array.from(this.membershipTiers.values())
+      .filter(
+        // definition of default free tier is 0 cost
+        (m) => !nonEmptyMembershipTierIds.has(m.id) && m.costPerMonthInUSD !== 0
+      )
+      .map((m) => m.id);
   }
 
   public hasPublishedMembershipTier(): boolean {

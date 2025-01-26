@@ -586,11 +586,64 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
+  async function isDefaultFreeMembershipTier(membershipTierId: number) {
+    try {
+      const result = await prisma.membershipTier.findUniqueOrThrow({
+        where: { id: membershipTierId },
+        select: { costPerMonthInUSD: true }
+      });
+      logger.info(
+        `checked if membership tier with id ${membershipTierId} is free tier with result ${result.costPerMonthInUSD.toNumber() === 0}`
+      );
+      // this is definition of free tier, manually created tiers cannot be 0 cost
+      return result.costPerMonthInUSD.toNumber() === 0;
+    } catch (e) {
+      logger.error(
+        `failed to check if membership tier with id ${membershipTierId} is free tier with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
+  async function checkIsNotDefaultFreeMembershipTier(membershipTierId: number) {
+    if (await isDefaultFreeMembershipTier(membershipTierId)) {
+      throw new Error("cannot delete default free membership tier");
+    }
+  }
+
+  async function checkIsNotDefaultFreeMembershipTierAndUpdatingCost(
+    membershipTierId: number,
+    input: UpdateMembershipTierInput
+  ) {
+    if (
+      (await isDefaultFreeMembershipTier(membershipTierId)) &&
+      input.costPerMonthInUSD !== 0
+    ) {
+      throw new Error(
+        "cannot update cost of default free membership tier to non-zero value"
+      );
+    }
+  }
+
+  async function checkIsNotUpdatingMembershipTierToZeroCost(
+    membershipTierId: number,
+    input: UpdateMembershipTierInput
+  ) {
+    if (
+      !(await isDefaultFreeMembershipTier(membershipTierId)) &&
+      input.costPerMonthInUSD === 0
+    ) {
+      throw new Error("cannot update cost of membership tier to zero value");
+    }
+  }
+
   async function updateMembershipTier(
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
     await checkNoMembersOnMembershipTier(id);
+    await checkIsNotDefaultFreeMembershipTierAndUpdatingCost(id, input);
+    await checkIsNotUpdatingMembershipTierToZeroCost(id, input);
     try {
       await prisma.membershipTier.update({
         data: input,
@@ -612,6 +665,7 @@ export function createMainService(prisma: PrismaClient): MainService {
 
   async function deleteMembershipTier(id: number): Promise<MutationResult> {
     await checkNoMembersOnMembershipTier(id);
+    await checkIsNotDefaultFreeMembershipTier(id);
     try {
       await prisma.membershipTier.delete({
         where: {

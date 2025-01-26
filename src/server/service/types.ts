@@ -197,7 +197,7 @@ export type UpdateClubApplicationQuestionsInput = z.infer<
 const MonetaryValueSchema = z
   .number()
   .min(0.01, "Must be a positive value greater than $0.01")
-  .max(1000.00, "Cannot be greater than $1000.00")
+  .max(1000.0, "Cannot be greater than $1000.00")
   // 2 decimal places
   .transform((val) => Number(val.toFixed(2)));
 
@@ -215,7 +215,10 @@ export const UpdateMembershipTierInputSchema = z.object({
   name: z.string(),
   benefitDescription: LongTextSchema,
   contributionDescription: LongTextSchema,
-  costPerMonthInUSD: MonetaryValueSchema
+  // allow 0 no-op update only on the default free membership tier
+  // there is no good way to express this as a check on zod though; it
+  // will be checked in service layer
+  costPerMonthInUSD: MonetaryValueSchema.or(z.literal(0))
 });
 export type UpdateMembershipTierInput = z.infer<
   typeof UpdateMembershipTierInputSchema

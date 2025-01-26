@@ -9,7 +9,7 @@ import { stringify } from "~/utils";
 export default class UpdateMembershipTierCommand
   implements Command<SystemState, MainService>
 {
-  private readonly input: UpdateMembershipTierInput;
+  private input: UpdateMembershipTierInput;
   private readonly membershipTierIdSelector: ItemSelector<number>;
   private membershipTierId: Maybe<number> = null;
 
@@ -25,10 +25,25 @@ export default class UpdateMembershipTierCommand
     return m.hasEmptyMembershipTier();
   }
 
+  private isDefaultFreeMembershipTier(
+    membershipTierId: number,
+    m: SystemState
+  ): boolean {
+    const membershipTier = m.getMembershipTier(membershipTierId);
+    // this is the definition of default free membership tier
+    return membershipTier.costPerMonthInUSD === 0;
+  }
+
   async run(m: SystemState, r: MainService): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
       m.getEmptyMembershipTiersIds()
     );
+
+    if (this.isDefaultFreeMembershipTier(this.membershipTierId, m)) {
+      // a bit hacky but we cannot update the cost of the free membership tier
+      this.input = { ...this.input, costPerMonthInUSD: 0 };
+    }
+
     await r.updateMembershipTier(this.membershipTierId, this.input);
     m.updateMembershipTier(this.membershipTierId, this.input);
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
