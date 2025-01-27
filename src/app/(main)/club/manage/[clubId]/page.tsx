@@ -23,7 +23,7 @@ export default function ManageClub() {
 
   return (
     isLoaded(r) && (
-      <Stack pt={"xl"} style={{ borderWidth: 1, borderColor: "black" }}>
+      <Stack pt={"xl"} style={{ borderWidth: 1, borderColor: "gray.2" }}>
         <Title order={2}>{r.data!.name}</Title>
 
         <Tabs color={"gray"} defaultValue={"overview"}>

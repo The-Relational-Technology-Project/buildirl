@@ -9,27 +9,14 @@ import {
   Button,
   ActionIcon,
   Space,
-  Box,
-  Modal,
-  TextInput,
-  Textarea,
-  NumberInput,
-  Slider,
-  TitleOrder
+  Box
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import {
-  Club,
-  LongTextSchema,
-  MembershipTier,
-  MembershipTierNameSchema,
-  MonetaryValueSchema
-} from "~/server/service/types";
+import { Club, MembershipTier } from "~/server/service/types";
 import React from "react";
 import { AlertMessage } from "~/client/components/AlertMessage";
 import { useDisclosure } from "@mantine/hooks";
-import { useForm } from "@mantine/form";
-import { safeValidateSchema } from "~/utils/zod";
+import { CreateMembershipTierModal } from "~/client/components/CreateMembershipTierModal";
 
 type MembershipsPanelProps = {
   club: Club;
@@ -96,118 +83,6 @@ export function MembershipsPanel({ club }: MembershipsPanelProps) {
         </Stack>
       )}
     </Stack>
-  );
-}
-
-type CreateMembershipTierModalProps = {
-  clubId: number;
-  opened: boolean;
-  handleClose: () => void;
-};
-
-function CreateMembershipTierModal({
-  clubId,
-  opened,
-  handleClose
-}: CreateMembershipTierModalProps) {
-  const utils = api.useUtils();
-
-  const createMembershipTier = api.main.createMembershipTier.useMutation({
-    onSuccess: () => {
-      utils.main.club.invalidate({ id: clubId });
-      utils.main.userOwnedClubs.invalidate();
-      handleClose();
-    }
-  });
-
-  const form = useForm({
-    initialValues: {
-      name: "",
-      benefitDescription: "",
-      contributionDescription: "",
-      costPerMonthInUSD: 20
-    },
-
-    validate: {
-      name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
-      benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
-      contributionDescription: (v) => safeValidateSchema(LongTextSchema, v),
-      costPerMonthInUSD: (v) => safeValidateSchema(MonetaryValueSchema, v)
-    }
-  });
-
-  return (
-    <Modal
-      opened={opened}
-      onClose={handleClose}
-      padding={"xl"}
-      title={<Title order={3}>Create tier</Title>}
-    >
-      <form
-        onSubmit={form.onSubmit(async (v) => {
-          await createMembershipTier.mutateAsync({
-            clubId: clubId,
-            input: {
-              name: v.name,
-              benefitDescription: v.benefitDescription,
-              contributionDescription: v.contributionDescription,
-              costPerMonthInUSD: v.costPerMonthInUSD
-            }
-          });
-          form.reset();
-        })}
-      >
-        <Stack>
-          <TextInput
-            placeholder="Tier name"
-            required
-            onChange={(e) => form.setFieldValue("name", e.currentTarget.value)}
-            error={form.errors.name}
-          />
-
-          <Textarea
-            placeholder="Describe the contributions expected of members in this tier."
-            minRows={3}
-            onChange={(e) =>
-              form.setFieldValue(
-                "contributionDescription",
-                e.currentTarget.value
-              )
-            }
-            error={form.errors.contributionDescription}
-          />
-
-          <Textarea
-            placeholder="Describe the benefits members in this tier can expect."
-            onChange={(e) =>
-              form.setFieldValue("benefitDescription", e.currentTarget.value)
-            }
-            error={form.errors.benefitDescription}
-          />
-
-          <Title order={6}>Monthly Cost</Title>
-          <Slider
-            label={(value) => `$${value}.00/month`}
-            onChange={(v) => form.setFieldValue("costPerMonthInUSD", v)}
-            color={"black"}
-            size={"xl"}
-            defaultValue={20}
-            precision={2}
-            min={1}
-            max={100}
-          />
-
-          <Button
-            type="submit"
-            mt="sm"
-            style={{ alignSelf: "center" }}
-            loading={createMembershipTier.isPending}
-          >
-            Create
-          </Button>
-        </Stack>
-      </form>
-    </Modal>
   );
 }
 

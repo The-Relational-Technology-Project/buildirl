@@ -11,7 +11,7 @@ export const theme = createTheme({
     Paper: {
       defaultProps: {
         style: {
-          borderColor: "black"
+          borderColor: "gray.2"
         }
       }
     }
