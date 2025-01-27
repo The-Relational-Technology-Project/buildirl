@@ -34,58 +34,56 @@ export function MembershipTiersPanel({ club }: MembershipsPanelProps) {
   );
 
   return (
-    <>
-      <Stack mt={"lg"} pb={"xl"}>
-        <Title order={4}>Active Tiers</Title>
+    <Stack mt={"lg"} pb={"xl"}>
+      <Title order={4}>Active Tiers</Title>
 
-        <Box style={{ overflowX: "auto" }}>
-          <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
-            {publishedTiers.map((t) => (
-              <MembershipTierCard
-                key={t.id}
-                clubId={club.id}
-                membershipTier={t}
-              />
-            ))}
+      <Box style={{ overflowX: "auto" }}>
+        <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
+          {publishedTiers.map((t) => (
+            <MembershipTierCard
+              key={t.id}
+              clubId={club.id}
+              membershipTier={t}
+            />
+          ))}
 
-            <ActionIcon
-              variant="light"
-              color={"black"}
-              onClick={open}
-              w={300}
-              h={400}
-            >
-              <IconPlus />
-            </ActionIcon>
-          </Group>
-        </Box>
-
-        {unpublishedTiers.length !== 0 && (
-          <Stack>
-            <Title order={4} mt="xl">
-              Inactive Tiers
-            </Title>
-            <Box style={{ overflowX: "auto" }}>
-              <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
-                {unpublishedTiers.map((t) => (
-                  <MembershipTierCard
-                    key={t.id}
-                    clubId={club.id}
-                    membershipTier={t}
-                  />
-                ))}
-              </Group>
-            </Box>
-          </Stack>
-        )}
-      </Stack>
+          <ActionIcon
+            variant="light"
+            color={"black"}
+            onClick={open}
+            w={300}
+            h={400}
+          >
+            <IconPlus />
+          </ActionIcon>
+        </Group>
+      </Box>
 
       <CreateMembershipTierModal
         clubId={club.id}
         opened={opened}
         handleClose={close}
       />
-    </>
+
+      {unpublishedTiers.length !== 0 && (
+        <Stack>
+          <Title order={4} mt="xl">
+            Inactive Tiers
+          </Title>
+          <Box style={{ overflowX: "auto" }}>
+            <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
+              {unpublishedTiers.map((t) => (
+                <MembershipTierCard
+                  key={t.id}
+                  clubId={club.id}
+                  membershipTier={t}
+                />
+              ))}
+            </Group>
+          </Box>
+        </Stack>
+      )}
+    </Stack>
   );
 }
 
@@ -116,99 +114,99 @@ export function MembershipTierCard({
   });
 
   return (
-    <>
-      <Paper key={membershipTier.id} p="md" withBorder h={400} w={300}>
-        <Stack h="100%" gap={4}>
-          {membershipTier.status === "PUBLISHED" ? (
-            <Badge color="green" style={{ alignSelf: "flex-end" }}>
-              Active
-            </Badge>
-          ) : (
-            <Badge color="red" style={{ alignSelf: "flex-end" }}>
-              Inactive
-            </Badge>
-          )}
+    <Paper key={membershipTier.id} p="md" withBorder h={400} w={300}>
+      <Stack h="100%" gap={4}>
+        {membershipTier.status === "PUBLISHED" ? (
+          <Badge color="green" style={{ alignSelf: "flex-end" }}>
+            Active
+          </Badge>
+        ) : (
+          <Badge color="red" style={{ alignSelf: "flex-end" }}>
+            Inactive
+          </Badge>
+        )}
 
-          <Title order={4} mt={4}>
-            {membershipTier.name}
-          </Title>
+        <Title order={4} mt={4}>
+          {membershipTier.name}
+        </Title>
 
-          <Stack gap={4}>
-            <Title order={6}>Contributions</Title>
-            {membershipTier.contributionDescription === "" ? (
-              <Box mb={50}>
-                <AlertMessage
-                  message={"Please update contribution details."}
-                  size={"sm"}
-                />
-              </Box>
-            ) : (
-              <Text size={"sm"} c="dimmed" lineClamp={4}>
-                {membershipTier.contributionDescription}
-              </Text>
-            )}
-          </Stack>
-
-          <Stack gap={4} mt={4}>
-            <Title order={6}>Benefits</Title>
-            {membershipTier.benefitDescription === "" ? (
+        <Stack gap={4}>
+          <Title order={6}>Contributions</Title>
+          {membershipTier.contributionDescription === "" ? (
+            <Box mb={50}>
               <AlertMessage
-                message={"Please update benefits details."}
+                message={"Please update contribution details."}
                 size={"sm"}
               />
-            ) : (
-              <Text size={"sm"} c="dimmed" lineClamp={4}>
-                {membershipTier.benefitDescription}
-              </Text>
-            )}
-          </Stack>
-
-          <Space flex={1} />
-
-          <Text fw={700} size={"md"} mb={"sm"}>
-            ${membershipTier.costPerMonthInUSD}/month
-          </Text>
-
-          <Group
-            style={{
-              alignSelf: "flex-end"
-            }}
-          >
-            <Button onClick={open}>Review</Button>
-            {membershipTier.status === "PUBLISHED" ? (
-              <Button
-                variant="light"
-                onClick={async () =>
-                  await unpublishMembershipTier.mutateAsync({
-                    id: membershipTier.id
-                  })
-                }
-                disabled={unpublishMembershipTier.isPending}
-              >
-                Archive
-              </Button>
-            ) : (
-              <Button
-                variant="light"
-                onClick={async () =>
-                  await publishMembershipTier.mutateAsync({
-                    id: membershipTier.id
-                  })
-                }
-                disabled={publishMembershipTier.isPending}
-              >
-                Publish
-              </Button>
-            )}
-          </Group>
+            </Box>
+          ) : (
+            <Text size={"sm"} c="dimmed" lineClamp={4}>
+              {membershipTier.contributionDescription}
+            </Text>
+          )}
         </Stack>
-      </Paper>
-      <UpdateMembershipTierModal
-        clubId={clubId}
-        membershipTier={membershipTier}
-        opened={opened}
-        handleClose={close}
-      />
-    </>
+
+        <Stack gap={4} mt={4}>
+          <Title order={6}>Benefits</Title>
+          {membershipTier.benefitDescription === "" ? (
+            <AlertMessage
+              message={"Please update benefits details."}
+              size={"sm"}
+            />
+          ) : (
+            <Text size={"sm"} c="dimmed" lineClamp={4}>
+              {membershipTier.benefitDescription}
+            </Text>
+          )}
+        </Stack>
+
+        <Space flex={1} />
+
+        <Text fw={700} size={"md"} mb={"sm"}>
+          ${membershipTier.costPerMonthInUSD}/month
+        </Text>
+
+        <Group
+          style={{
+            alignSelf: "flex-end"
+          }}
+        >
+          <Button onClick={open}>Review</Button>
+
+          <UpdateMembershipTierModal
+            clubId={clubId}
+            membershipTier={membershipTier}
+            opened={opened}
+            handleClose={close}
+          />
+
+          {membershipTier.status === "PUBLISHED" ? (
+            <Button
+              variant="light"
+              onClick={async () =>
+                await unpublishMembershipTier.mutateAsync({
+                  id: membershipTier.id
+                })
+              }
+              disabled={unpublishMembershipTier.isPending}
+            >
+              Archive
+            </Button>
+          ) : (
+            <Button
+              variant="light"
+              onClick={async () =>
+                await publishMembershipTier.mutateAsync({
+                  id: membershipTier.id
+                })
+              }
+              disabled={publishMembershipTier.isPending}
+            >
+              Publish
+            </Button>
+          )}
+        </Group>
+      </Stack>
+    </Paper>
   );
 }

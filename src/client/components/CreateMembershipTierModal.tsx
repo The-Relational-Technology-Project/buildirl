@@ -11,6 +11,7 @@ import {
   Modal,
   Slider,
   Stack,
+  Text,
   Textarea,
   TextInput,
   Title
@@ -61,7 +62,11 @@ export function CreateMembershipTierModal({
       opened={opened}
       onClose={handleClose}
       padding={"xl"}
-      title={<Title order={3}>Create tier</Title>}
+      title={
+        <Text size={"xl"} fw={700}>
+          Create Tier
+        </Text>
+      }
     >
       <form
         onSubmit={form.onSubmit(async (v) => {

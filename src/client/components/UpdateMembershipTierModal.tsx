@@ -14,6 +14,7 @@ import {
   Stack,
   Textarea,
   TextInput,
+  Text,
   Title
 } from "@mantine/core";
 import React from "react";
@@ -69,7 +70,11 @@ export function UpdateMembershipTierModal({
       opened={opened}
       onClose={handleClose}
       padding={"xl"}
-      title={<Title order={3}>Create tier</Title>}
+      title={
+        <Text size={"xl"} fw={700}>
+          Update Tier
+        </Text>
+      }
     >
       <form
         onSubmit={form.onSubmit(async (v) => {
