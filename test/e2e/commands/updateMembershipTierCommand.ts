@@ -1,7 +1,7 @@
 import { UpdateMembershipTierInput, MainService } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
-import { Maybe } from "~/utils/types";
+import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
@@ -30,8 +30,7 @@ export default class UpdateMembershipTierCommand
     m: SystemState
   ): boolean {
     const membershipTier = m.getMembershipTier(membershipTierId);
-    // this is the definition of default free membership tier
-    return membershipTier.costPerMonthInUSD === 0;
+    return isDefaultFreeTier(membershipTier);
   }
 
   async run(m: SystemState, r: MainService): Promise<void> {

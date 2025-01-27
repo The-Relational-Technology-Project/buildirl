@@ -1,13 +1,14 @@
 import { CreateClubInput, MainService } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
-import { idAsNumber, Maybe } from "~/utils/types";
+import { idAsNumber, isDefaultFreeTier, Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
 
 export default class CreateClubCommand
-  implements Command<SystemState, MainService> {
+  implements Command<SystemState, MainService>
+{
   private readonly input: CreateClubInput;
   private readonly userIdSelector: ItemSelector<number>;
   private userId: Maybe<number> = null;
@@ -27,7 +28,10 @@ export default class CreateClubCommand
     const result = await r.createClub(this.input, this.userId);
     this.clubId = idAsNumber(result.createdEntityId);
 
-    const freeMembershipTierId = await this.freeMembershipTierId(this.clubId, r);
+    const freeMembershipTierId = await this.freeMembershipTierId(
+      this.clubId,
+      r
+    );
     m.createClub(this.userId, this.clubId, this.input, freeMembershipTierId);
 
     await verifiers.verifyClub(this.clubId, r, m);
@@ -36,9 +40,9 @@ export default class CreateClubCommand
 
   async freeMembershipTierId(clubId: number, r: MainService): Promise<number> {
     const club = await r.getClub(clubId);
-    const freeMembershipTier = club.membershipTiers
-      // this is the definition of the default free tier
-      .find(mt => mt.costPerMonthInUSD === 0);
+    const freeMembershipTier = club.membershipTiers.find((mt) =>
+      isDefaultFreeTier(mt)
+    );
     if (!freeMembershipTier) {
       throw new Error("No free membership tier found");
     }

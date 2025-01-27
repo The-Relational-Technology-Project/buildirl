@@ -18,6 +18,7 @@ import {
   Title
 } from "@mantine/core";
 import React from "react";
+import { isDefaultFreeTier } from "~/utils/types";
 
 type UpdateMembershipTierModalProps = {
   clubId: number;
@@ -121,17 +122,21 @@ export function UpdateMembershipTierModal({
             error={form.errors.benefitDescription}
           />
 
-          <Title order={6}>Monthly Cost</Title>
-          <Slider
-            label={(value) => `$${value}.00/month`}
-            onChange={(v) => form.setFieldValue("costPerMonthInUSD", v)}
-            color={"black"}
-            size={"xl"}
-            defaultValue={membershipTier.costPerMonthInUSD}
-            precision={2}
-            min={1}
-            max={100}
-          />
+          {!isDefaultFreeTier(membershipTier) && (
+            <Stack>
+              <Title order={6}>Monthly Cost</Title>
+              <Slider
+                label={(value) => `$${value}.00/month`}
+                onChange={(v) => form.setFieldValue("costPerMonthInUSD", v)}
+                color={"black"}
+                size={"xl"}
+                defaultValue={membershipTier.costPerMonthInUSD}
+                precision={2}
+                min={1}
+                max={100}
+              />
+            </Stack>
+          )}
 
           <Button
             type="submit"
