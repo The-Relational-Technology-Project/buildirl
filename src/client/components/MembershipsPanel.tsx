@@ -13,7 +13,9 @@ import {
   Modal,
   TextInput,
   Textarea,
-  NumberInput
+  NumberInput,
+  Slider,
+  TitleOrder
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import {
@@ -135,7 +137,12 @@ function CreateMembershipTierModal({
   });
 
   return (
-    <Modal opened={opened} onClose={handleClose} title="Create tier">
+    <Modal
+      opened={opened}
+      onClose={handleClose}
+      padding={"xl"}
+      title={<Title order={3}>Create tier</Title>}
+    >
       <form
         onSubmit={form.onSubmit(async (v) => {
           await createMembershipTier.mutateAsync({
@@ -178,14 +185,16 @@ function CreateMembershipTierModal({
             error={form.errors.benefitDescription}
           />
 
-          <NumberInput
-            placeholder="Cost ($/month)"
-            onChange={(v) =>
-              form.setFieldValue("costPerMonthInUSD", v as number)
-            }
-            error={form.errors.costPerMonthInUSD}
+          <Title order={6}>Monthly Cost</Title>
+          <Slider
+            label={(value) => `$${value}.00/month`}
+            onChange={(v) => form.setFieldValue("costPerMonthInUSD", v)}
+            color={"black"}
+            size={"xl"}
+            defaultValue={20}
+            precision={2}
             min={1}
-            required
+            max={100}
           />
 
           <Button
