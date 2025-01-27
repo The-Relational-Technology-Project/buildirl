@@ -194,15 +194,19 @@ export type UpdateClubApplicationQuestionsInput = z.infer<
 >;
 
 // restrict to reasonable monetary range ($0.01 to $1000.00) with 2 decimal places
-const MonetaryValueSchema = z
+export const MonetaryValueSchema = z
   .number()
   .min(0.01, "Must be a positive value greater than $0.01")
   .max(1000.0, "Cannot be greater than $1000.00")
   // 2 decimal places
   .transform((val) => Number(val.toFixed(2)));
 
+export const MembershipTierNameSchema = z
+  .string()
+  .min(3, "Length must be >= 3 characters");
+
 export const CreateMembershipTierInputSchema = z.object({
-  name: z.string(),
+  name: MembershipTierNameSchema,
   benefitDescription: LongTextSchema,
   contributionDescription: LongTextSchema,
   costPerMonthInUSD: MonetaryValueSchema
@@ -212,7 +216,7 @@ export type CreateMembershipTierInput = z.infer<
 >;
 
 export const UpdateMembershipTierInputSchema = z.object({
-  name: z.string(),
+  name: MembershipTierNameSchema,
   benefitDescription: LongTextSchema,
   contributionDescription: LongTextSchema,
   // allow 0 no-op update only on the default free membership tier

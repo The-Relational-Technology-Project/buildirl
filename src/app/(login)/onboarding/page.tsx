@@ -70,7 +70,6 @@ function CreateUserForm(props: StackProps) {
         />
         <Button
           type="submit"
-          radius="xl"
           mt="sm"
           style={{ alignSelf: "center" }}
           loading={createUser.isPending}

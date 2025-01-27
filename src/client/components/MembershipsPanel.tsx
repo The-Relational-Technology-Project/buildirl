@@ -9,38 +9,32 @@ import {
   Button,
   ActionIcon,
   Space,
-  Box
+  Box,
+  Modal,
+  TextInput,
+  Textarea,
+  NumberInput
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { Club, MembershipTier } from "~/server/service/types";
+import {
+  Club,
+  LongTextSchema,
+  MembershipTier,
+  MembershipTierNameSchema,
+  MonetaryValueSchema
+} from "~/server/service/types";
 import React from "react";
 import { AlertMessage } from "~/client/components/AlertMessage";
+import { useDisclosure } from "@mantine/hooks";
+import { useForm } from "@mantine/form";
+import { safeValidateSchema } from "~/utils/zod";
 
 type MembershipsPanelProps = {
   club: Club;
 };
 
 export function MembershipsPanel({ club }: MembershipsPanelProps) {
-  const utils = api.useUtils();
-
-  const createMembershipTier = api.main.createMembershipTier.useMutation({
-    onSuccess: () => {
-      utils.main.club.invalidate({ id: club.id });
-      utils.main.userOwnedClubs.invalidate();
-    }
-  });
-  const updateMembershipTier = api.main.updateMembershipTier.useMutation({
-    onSuccess: () => {
-      utils.main.club.invalidate({ id: club.id });
-      utils.main.userOwnedClubs.invalidate();
-    }
-  });
-  const deleteMembershipTier = api.main.deleteMembershipTier.useMutation({
-    onSuccess: () => {
-      utils.main.club.invalidate({ id: club.id });
-      utils.main.userOwnedClubs.invalidate();
-    }
-  });
+  const [opened, { open, close }] = useDisclosure(false);
 
   const publishedTiers = club.membershipTiers.filter(
     (tier) => tier.status === "PUBLISHED"
@@ -53,39 +47,158 @@ export function MembershipsPanel({ club }: MembershipsPanelProps) {
     <Stack mt={"lg"} pb={"xl"}>
       <Title order={4}>Active Tiers</Title>
 
-      <Group align="flex-start">
-        {publishedTiers.map((t) => (
-          <MembershipTierCard key={t.id} clubId={club.id} membershipTier={t} />
-        ))}
+      <Box style={{ overflowX: "auto" }}>
+        <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
+          {publishedTiers.map((t) => (
+            <MembershipTierCard
+              key={t.id}
+              clubId={club.id}
+              membershipTier={t}
+            />
+          ))}
 
-        <ActionIcon
-          variant="light"
-          color={"black"}
-          onClick={() => {}}
-          w={300}
-          h={400}
-        >
-          <IconPlus />
-        </ActionIcon>
-      </Group>
+          <ActionIcon
+            variant="light"
+            color={"black"}
+            onClick={open}
+            w={300}
+            h={400}
+          >
+            <IconPlus />
+          </ActionIcon>
+        </Group>
+      </Box>
+
+      <CreateMembershipTierModal
+        clubId={club.id}
+        opened={opened}
+        handleClose={close}
+      />
 
       {unpublishedTiers.length !== 0 && (
         <Stack>
           <Title order={4} mt="xl">
             Inactive Tiers
           </Title>
-          <Group>
-            {unpublishedTiers.map((t) => (
-              <MembershipTierCard
-                key={t.id}
-                clubId={club.id}
-                membershipTier={t}
-              />
-            ))}
-          </Group>
+          <Box style={{ overflowX: "auto" }}>
+            <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
+              {unpublishedTiers.map((t) => (
+                <MembershipTierCard
+                  key={t.id}
+                  clubId={club.id}
+                  membershipTier={t}
+                />
+              ))}
+            </Group>
+          </Box>
         </Stack>
       )}
     </Stack>
+  );
+}
+
+type CreateMembershipTierModalProps = {
+  clubId: number;
+  opened: boolean;
+  handleClose: () => void;
+};
+
+function CreateMembershipTierModal({
+  clubId,
+  opened,
+  handleClose
+}: CreateMembershipTierModalProps) {
+  const utils = api.useUtils();
+
+  const createMembershipTier = api.main.createMembershipTier.useMutation({
+    onSuccess: () => {
+      utils.main.club.invalidate({ id: clubId });
+      utils.main.userOwnedClubs.invalidate();
+      handleClose();
+    }
+  });
+
+  const form = useForm({
+    initialValues: {
+      name: "",
+      benefitDescription: "",
+      contributionDescription: "",
+      costPerMonthInUSD: 20
+    },
+
+    validate: {
+      name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
+      benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
+      contributionDescription: (v) => safeValidateSchema(LongTextSchema, v),
+      costPerMonthInUSD: (v) => safeValidateSchema(MonetaryValueSchema, v)
+    }
+  });
+
+  return (
+    <Modal opened={opened} onClose={handleClose} title="Create tier">
+      <form
+        onSubmit={form.onSubmit(async (v) => {
+          await createMembershipTier.mutateAsync({
+            clubId: clubId,
+            input: {
+              name: v.name,
+              benefitDescription: v.benefitDescription,
+              contributionDescription: v.contributionDescription,
+              costPerMonthInUSD: v.costPerMonthInUSD
+            }
+          });
+          form.reset();
+        })}
+      >
+        <Stack>
+          <TextInput
+            placeholder="Tier name"
+            required
+            onChange={(e) => form.setFieldValue("name", e.currentTarget.value)}
+            error={form.errors.name}
+            radius="md"
+          />
+
+          <Textarea
+            placeholder="Describe the contributions expected of members in this tier."
+            onChange={(e) =>
+              form.setFieldValue(
+                "contributionDescription",
+                e.currentTarget.value
+              )
+            }
+            error={form.errors.contributionDescription}
+          />
+
+          <Textarea
+            placeholder="Describe the benefits members in this tier can expect."
+            onChange={(e) =>
+              form.setFieldValue("benefitDescription", e.currentTarget.value)
+            }
+            error={form.errors.benefitDescription}
+          />
+
+          <NumberInput
+            placeholder="Cost ($/month)"
+            onChange={(v) =>
+              form.setFieldValue("costPerMonthInUSD", v as number)
+            }
+            error={form.errors.costPerMonthInUSD}
+            min={1}
+            required
+          />
+
+          <Button
+            type="submit"
+            mt="sm"
+            style={{ alignSelf: "center" }}
+            loading={createMembershipTier.isPending}
+          >
+            Create
+          </Button>
+        </Stack>
+      </form>
+    </Modal>
   );
 }
 
@@ -107,6 +220,19 @@ export function MembershipTierCard({
     }
   });
   const unpublishMembershipTier = api.main.unpublishMembershipTier.useMutation({
+    onSuccess: () => {
+      utils.main.club.invalidate({ id: clubId });
+      utils.main.userOwnedClubs.invalidate();
+    }
+  });
+
+  const updateMembershipTier = api.main.updateMembershipTier.useMutation({
+    onSuccess: () => {
+      utils.main.club.invalidate({ id: clubId });
+      utils.main.userOwnedClubs.invalidate();
+    }
+  });
+  const deleteMembershipTier = api.main.deleteMembershipTier.useMutation({
     onSuccess: () => {
       utils.main.club.invalidate({ id: clubId });
       utils.main.userOwnedClubs.invalidate();

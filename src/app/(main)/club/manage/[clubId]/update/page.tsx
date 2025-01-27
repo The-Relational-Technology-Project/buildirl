@@ -218,7 +218,7 @@ export default function UpdateClubPage() {
 
   return (
     isLoaded(r) && (
-      <Stack pt={"xl"}>
+      <Stack pt={"xl"} mb={"lg"}>
         <ActionIcon
           onClick={() => router.back()}
           variant="transparent"
