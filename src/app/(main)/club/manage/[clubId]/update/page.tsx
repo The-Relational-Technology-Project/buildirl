@@ -195,7 +195,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           w={100}
           mt={"md"}
           style={{ alignSelf: "center" }}
-          disabled={!form.isValid() || updateClub.isPending}
+          disabled={!form.isValid()}
+          loading={updateClub.isPending}
         >
           Save
         </Button>

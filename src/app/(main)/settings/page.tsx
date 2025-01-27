@@ -73,7 +73,8 @@ function UpdateUserForm({ user }: UserFormProps) {
           type="submit"
           w={100}
           mt={"sm"}
-          disabled={!form.isValid() || updateUser.isPending}
+          disabled={!form.isValid()}
+          loading={updateUser.isPending}
         >
           Save
         </Button>

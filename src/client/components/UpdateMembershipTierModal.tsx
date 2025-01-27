@@ -3,6 +3,7 @@ import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
 import {
   LongTextSchema,
+  Membership,
   MembershipTier,
   MembershipTierNameSchema,
   MonetaryValueSchema
@@ -15,10 +16,13 @@ import {
   Textarea,
   TextInput,
   Text,
-  Title
+  Title,
+  Group
 } from "@mantine/core";
 import React from "react";
 import { isDefaultFreeTier } from "~/utils/types";
+import { QueryError } from "~/client/utils/QueryError";
+import { isAllLoaded } from "~/client/utils";
 
 type UpdateMembershipTierModalProps = {
   clubId: number;
@@ -36,13 +40,6 @@ export function UpdateMembershipTierModal({
   const utils = api.useUtils();
 
   const updateMembershipTier = api.main.updateMembershipTier.useMutation({
-    onSuccess: () => {
-      utils.main.club.invalidate({ id: clubId });
-      utils.main.userOwnedClubs.invalidate();
-      handleClose();
-    }
-  });
-  const deleteMembershipTier = api.main.deleteMembershipTier.useMutation({
     onSuccess: () => {
       utils.main.club.invalidate({ id: clubId });
       utils.main.userOwnedClubs.invalidate();
@@ -138,16 +135,95 @@ export function UpdateMembershipTierModal({
             </Stack>
           )}
 
-          <Button
-            type="submit"
-            mt="sm"
-            style={{ alignSelf: "center" }}
-            loading={updateMembershipTier.isPending}
-          >
-            Update
-          </Button>
+          <Group style={{ alignSelf: "center" }}>
+            <Button
+              type="submit"
+              mt="sm"
+              loading={updateMembershipTier.isPending}
+            >
+              Update
+            </Button>
+            <DeleteMembershipTierButton
+              clubId={clubId}
+              membershipTier={membershipTier}
+              handleClose={handleClose}
+            />
+          </Group>
         </Stack>
       </form>
     </Modal>
   );
+}
+
+type DeleteMembershipButtonProps = {
+  clubId: number;
+  membershipTier: MembershipTier;
+  handleClose: () => void;
+};
+
+function DeleteMembershipTierButton({
+  clubId,
+  membershipTier,
+  handleClose
+}: DeleteMembershipButtonProps) {
+  const utils = api.useUtils();
+
+  const r = api.main.activeMembershipsForClub.useQuery({
+    clubId: clubId
+  });
+  const m = api.main.membershipApplicationsForClub.useQuery({
+    clubId: clubId
+  });
+
+  QueryError.check({
+    result: r,
+    fieldName: "activeMembershipsForClub"
+  });
+  QueryError.check({
+    result: r,
+    fieldName: "membershipApplicationsForClub"
+  });
+
+  const deleteMembershipTier = api.main.deleteMembershipTier.useMutation({
+    onSuccess: () => {
+      utils.main.club.invalidate({ id: clubId });
+      utils.main.userOwnedClubs.invalidate();
+      handleClose();
+    }
+  });
+
+  const membershipTierIsEligibleForDeletion =
+    // default free tier cannot be deleted
+    !isDefaultFreeTier(membershipTier) &&
+    // allows button to display as disabled until ready
+    isAllLoaded([r, m]) &&
+    // only tier with no subscribers can be deleted
+    hasNoMembershipsForMembershipTier(r.data!, membershipTier.id) &&
+    hasNoMembershipsForMembershipTier(m.data!, membershipTier.id);
+
+  return (
+    <Button
+      mt="sm"
+      color={"red"}
+      onClick={async () => {
+        await deleteMembershipTier.mutateAsync({
+          id: membershipTier.id
+        });
+      }}
+      disabled={!membershipTierIsEligibleForDeletion}
+      loading={deleteMembershipTier.isPending}
+    >
+      Delete
+    </Button>
+  );
+}
+
+function hasNoMembershipsForMembershipTier(
+  memberships: Membership[],
+  membershipTierId: number
+): boolean {
+  const membershipsForTier = memberships.filter(
+    (m) => m.membershipTier.id === membershipTierId
+  );
+  return membershipsForTier.length === 0;
 }

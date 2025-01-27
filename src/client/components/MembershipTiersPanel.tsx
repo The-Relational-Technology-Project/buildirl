@@ -188,7 +188,7 @@ export function MembershipTierCard({
                   id: membershipTier.id
                 })
               }
-              disabled={unpublishMembershipTier.isPending}
+              loading={unpublishMembershipTier.isPending}
             >
               Archive
             </Button>
@@ -200,7 +200,7 @@ export function MembershipTierCard({
                   id: membershipTier.id
                 })
               }
-              disabled={publishMembershipTier.isPending}
+              loading={publishMembershipTier.isPending}
             >
               Publish
             </Button>

@@ -90,7 +90,8 @@ function CreateClubForm(props: StackProps) {
           w={100}
           mt={"sm"}
           style={{ alignSelf: "center" }}
-          disabled={!form.isValid() || createUser.isPending}
+          disabled={!form.isValid()}
+          loading={createUser.isPending}
         >
           Create
         </Button>
