@@ -17,7 +17,8 @@ import {
   TextInput,
   Text,
   Title,
-  Group
+  Group,
+  Tooltip
 } from "@mantine/core";
 import React from "react";
 import { isDefaultFreeTier } from "~/utils/types";
@@ -202,19 +203,28 @@ function DeleteMembershipTierButton({
     hasNoMembershipsForMembershipTier(m.data!, membershipTier.id);
 
   return (
-    <Button
-      mt="sm"
-      color={"red"}
-      onClick={async () => {
-        await deleteMembershipTier.mutateAsync({
-          id: membershipTier.id
-        });
-      }}
-      disabled={!membershipTierIsEligibleForDeletion}
-      loading={deleteMembershipTier.isPending}
+    <Tooltip
+      position={"bottom"}
+      label={
+        isDefaultFreeTier(membershipTier)
+          ? "The free tier cannot be deleted."
+          : "Only tiers with no members or pending applications can be deleted."
+      }
     >
-      Delete
-    </Button>
+      <Button
+        mt="sm"
+        color={"red"}
+        onClick={async () => {
+          await deleteMembershipTier.mutateAsync({
+            id: membershipTier.id
+          });
+        }}
+        disabled={!membershipTierIsEligibleForDeletion}
+        loading={deleteMembershipTier.isPending}
+      >
+        Delete
+      </Button>
+    </Tooltip>
   );
 }
 
