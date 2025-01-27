@@ -56,7 +56,6 @@ function CreateUserForm(props: StackProps) {
             form.setFieldValue("firstName", event.currentTarget.value)
           }
           error={form.errors.email && "Invalid name"}
-          radius="md"
         />
         <TextInput
           required
@@ -66,7 +65,6 @@ function CreateUserForm(props: StackProps) {
             form.setFieldValue("lastName", event.currentTarget.value)
           }
           error={form.errors.email && "Invalid name"}
-          radius="md"
         />
         <Button
           type="submit"

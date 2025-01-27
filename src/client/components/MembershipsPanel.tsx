@@ -156,11 +156,11 @@ function CreateMembershipTierModal({
             required
             onChange={(e) => form.setFieldValue("name", e.currentTarget.value)}
             error={form.errors.name}
-            radius="md"
           />
 
           <Textarea
             placeholder="Describe the contributions expected of members in this tier."
+            minRows={3}
             onChange={(e) =>
               form.setFieldValue(
                 "contributionDescription",

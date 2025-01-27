@@ -68,7 +68,6 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
             form.setFieldValue("email", event.currentTarget.value)
           }
           error={form.errors.email && "Invalid email"}
-          radius="md"
         />
         <Button type="submit" radius="xl" mt="sm">
           {"Send code"}
@@ -122,7 +121,6 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
             form.setFieldValue("code", event.currentTarget.value)
           }
           error={form.errors.code && "Invalid code"}
-          radius="md"
         />
         <Button type="submit" radius="xl" mt="sm">
           {"Login"}
