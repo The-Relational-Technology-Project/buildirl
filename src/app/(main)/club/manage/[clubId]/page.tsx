@@ -26,7 +26,7 @@ export default function ManageClub() {
       <Stack pt={"xl"} style={{ borderWidth: 1, borderColor: "black" }}>
         <Title order={2}>{r.data!.name}</Title>
 
-        <Tabs color={"gray"} radius={"xs"} defaultValue={"overview"}>
+        <Tabs color={"gray"} defaultValue={"overview"}>
           <Tabs.List>
             <Tabs.Tab value={"overview"}>Club Overview</Tabs.Tab>
             <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>

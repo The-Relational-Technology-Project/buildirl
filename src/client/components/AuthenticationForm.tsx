@@ -69,7 +69,7 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
           }
           error={form.errors.email && "Invalid email"}
         />
-        <Button type="submit" radius="xl" mt="sm">
+        <Button type="submit" mt="sm">
           {"Send code"}
         </Button>
       </Stack>
@@ -122,7 +122,7 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
           }
           error={form.errors.code && "Invalid code"}
         />
-        <Button type="submit" radius="xl" mt="sm">
+        <Button type="submit" mt="sm">
           {"Login"}
         </Button>
         <Anchor
@@ -145,7 +145,7 @@ export function AuthenticationForm() {
   const supabase = createComponentClient();
 
   return (
-    <Paper radius="md" p="xl" withBorder w={300}>
+    <Paper p="xl" withBorder w={300}>
       <Group justify="center">
         <Image src={"/logo.svg"} h={40} />
       </Group>

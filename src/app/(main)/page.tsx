@@ -35,7 +35,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
   const router = useRouter();
 
   return (
-    <Paper p="lg" radius="md" withBorder>
+    <Paper p="lg" withBorder>
       <Group justify="space-between" align="stretch" h={150}>
         <Flex direction="column" justify="space-between">
           <Stack gap={6}>

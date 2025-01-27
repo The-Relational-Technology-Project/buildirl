@@ -19,7 +19,7 @@ export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
 
   return (
     <Stack>
-      <Paper radius="md" p="xl" withBorder mt={"lg"}>
+      <Paper p="xl" withBorder mt={"lg"}>
         <Group justify={"flex-start"} align={"stretch"} gap={40}>
           <Image
             radius="md"

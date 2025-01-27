@@ -114,7 +114,7 @@ export default function Settings() {
     <Stack pt={"xl"}>
       <Title order={2}>Settings</Title>
 
-      <Tabs color={"gray"} radius={"xs"} defaultValue={"account"}>
+      <Tabs color={"gray"} defaultValue={"account"}>
         <Tabs.List>
           <Tabs.Tab value={"account"}>Account</Tabs.Tab>
           <Tabs.Tab value={"payment"}>Payment</Tabs.Tab>
