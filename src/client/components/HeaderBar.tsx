@@ -52,9 +52,7 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
             size={"sm"}
             fw={500}
             style={{
-              "&:hover": { color: "black" },
-              borderColor: "black",
-              borderWidth: 1
+              "&:hover": { color: "black" }
             }}
           >
             {label}
@@ -148,7 +146,7 @@ export function HeaderBar() {
       justify={"center"}
       style={{
         backgroundColor: "#efebe7",
-        borderBottom: "solid 1px"
+        borderBottom: "solid 1px #808080"
       }}
     >
       <LogoIcon />

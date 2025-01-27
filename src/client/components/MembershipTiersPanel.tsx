@@ -22,7 +22,7 @@ type MembershipsPanelProps = {
   club: Club;
 };
 
-export function MembershipsPanel({ club }: MembershipsPanelProps) {
+export function MembershipTiersPanel({ club }: MembershipsPanelProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
   const publishedTiers = club.membershipTiers.filter(
@@ -33,56 +33,58 @@ export function MembershipsPanel({ club }: MembershipsPanelProps) {
   );
 
   return (
-    <Stack mt={"lg"} pb={"xl"}>
-      <Title order={4}>Active Tiers</Title>
+    <>
+      <Stack mt={"lg"} pb={"xl"}>
+        <Title order={4}>Active Tiers</Title>
 
-      <Box style={{ overflowX: "auto" }}>
-        <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
-          {publishedTiers.map((t) => (
-            <MembershipTierCard
-              key={t.id}
-              clubId={club.id}
-              membershipTier={t}
-            />
-          ))}
+        <Box style={{ overflowX: "auto" }}>
+          <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
+            {publishedTiers.map((t) => (
+              <MembershipTierCard
+                key={t.id}
+                clubId={club.id}
+                membershipTier={t}
+              />
+            ))}
 
-          <ActionIcon
-            variant="light"
-            color={"black"}
-            onClick={open}
-            w={300}
-            h={400}
-          >
-            <IconPlus />
-          </ActionIcon>
-        </Group>
-      </Box>
+            <ActionIcon
+              variant="light"
+              color={"black"}
+              onClick={open}
+              w={300}
+              h={400}
+            >
+              <IconPlus />
+            </ActionIcon>
+          </Group>
+        </Box>
+
+        {unpublishedTiers.length !== 0 && (
+          <Stack>
+            <Title order={4} mt="xl">
+              Inactive Tiers
+            </Title>
+            <Box style={{ overflowX: "auto" }}>
+              <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
+                {unpublishedTiers.map((t) => (
+                  <MembershipTierCard
+                    key={t.id}
+                    clubId={club.id}
+                    membershipTier={t}
+                  />
+                ))}
+              </Group>
+            </Box>
+          </Stack>
+        )}
+      </Stack>
 
       <CreateMembershipTierModal
         clubId={club.id}
         opened={opened}
         handleClose={close}
       />
-
-      {unpublishedTiers.length !== 0 && (
-        <Stack>
-          <Title order={4} mt="xl">
-            Inactive Tiers
-          </Title>
-          <Box style={{ overflowX: "auto" }}>
-            <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
-              {unpublishedTiers.map((t) => (
-                <MembershipTierCard
-                  key={t.id}
-                  clubId={club.id}
-                  membershipTier={t}
-                />
-              ))}
-            </Group>
-          </Box>
-        </Stack>
-      )}
-    </Stack>
+    </>
   );
 }
 

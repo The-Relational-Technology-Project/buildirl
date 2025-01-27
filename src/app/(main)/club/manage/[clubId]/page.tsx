@@ -8,7 +8,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { ClubOverviewPanel } from "~/client/components/ClubOverviewPanel";
 import { ClubAdminPanel } from "~/client/components/ClubAdminPanel";
-import { MembershipsPanel } from "~/client/components/MembershipsPanel";
+import { MembershipTiersPanel } from "~/client/components/MembershipTiersPanel";
 
 export default function ManageClub() {
   const params = useParams<{ clubId: string }>();
@@ -23,7 +23,7 @@ export default function ManageClub() {
 
   return (
     isLoaded(r) && (
-      <Stack pt={"xl"} style={{ borderWidth: 1, borderColor: "gray.2" }}>
+      <Stack pt={"xl"} style={{ borderWidth: 1, borderColor: "gray.4" }}>
         <Title order={2}>{r.data!.name}</Title>
 
         <Tabs color={"gray"} defaultValue={"overview"}>
@@ -39,7 +39,7 @@ export default function ManageClub() {
             <ClubOverviewPanel club={r.data!} />
           </Tabs.Panel>
           <Tabs.Panel value={"memberships"}>
-            <MembershipsPanel club={r.data!} />
+            <MembershipTiersPanel club={r.data!} />
           </Tabs.Panel>
           <Tabs.Panel value={"people"}>
             <></>
