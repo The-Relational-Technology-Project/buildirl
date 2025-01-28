@@ -132,7 +132,8 @@ export function UpdateMembershipTierModal({
                 size={"xl"}
                 defaultValue={membershipTier.costPerMonthInUSD}
                 precision={2}
-                min={1}
+                step={5}
+                min={5}
                 max={100}
               />
             </Stack>

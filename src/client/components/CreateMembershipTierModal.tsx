@@ -120,7 +120,8 @@ export function CreateMembershipTierModal({
             size={"xl"}
             defaultValue={DEFAULT_COST_PER_MONTH_USD}
             precision={2}
-            min={1}
+            step={5}
+            min={5}
             max={100}
           />
 
