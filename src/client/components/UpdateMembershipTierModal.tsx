@@ -2,6 +2,7 @@ import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
 import {
+  Club,
   LongTextSchema,
   Membership,
   MembershipTier,
@@ -26,14 +27,14 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 
 type UpdateMembershipTierModalProps = {
-  clubId: number;
+  club: Club;
   membershipTier: MembershipTier;
   opened: boolean;
   handleClose: () => void;
 };
 
 export function UpdateMembershipTierModal({
-  clubId,
+  club,
   membershipTier,
   opened,
   handleClose
@@ -42,7 +43,8 @@ export function UpdateMembershipTierModal({
 
   const updateMembershipTier = api.main.updateMembershipTier.useMutation({
     onSuccess: () => {
-      utils.main.club.invalidate({ id: clubId });
+      utils.main.club.invalidate({ id: club.id });
+      utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
       handleClose();
     }
@@ -145,7 +147,7 @@ export function UpdateMembershipTierModal({
               Update
             </Button>
             <DeleteMembershipTierButton
-              clubId={clubId}
+              club={club}
               membershipTier={membershipTier}
               handleClose={handleClose}
             />
@@ -157,23 +159,23 @@ export function UpdateMembershipTierModal({
 }
 
 type DeleteMembershipButtonProps = {
-  clubId: number;
+  club: Club;
   membershipTier: MembershipTier;
   handleClose: () => void;
 };
 
 function DeleteMembershipTierButton({
-  clubId,
+  club,
   membershipTier,
   handleClose
 }: DeleteMembershipButtonProps) {
   const utils = api.useUtils();
 
   const r = api.main.activeMembershipsForClub.useQuery({
-    clubId: clubId
+    clubId: club.id
   });
   const m = api.main.membershipApplicationsForClub.useQuery({
-    clubId: clubId
+    clubId: club.id
   });
 
   QueryError.check({
@@ -187,7 +189,8 @@ function DeleteMembershipTierButton({
 
   const deleteMembershipTier = api.main.deleteMembershipTier.useMutation({
     onSuccess: () => {
-      utils.main.club.invalidate({ id: clubId });
+      utils.main.club.invalidate({ id: club.id });
+      utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
       handleClose();
     }

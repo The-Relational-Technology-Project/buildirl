@@ -39,9 +39,10 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
   const router = useRouter();
 
   const updateClub = api.main.updateClub.useMutation({
-    onSuccess: async () => {
-      await utils.main.club.invalidate({ id: club.id });
-      await utils.main.userOwnedClubs.invalidate();
+    onSuccess: () => {
+      utils.main.club.invalidate({ id: club.id });
+      utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
+      utils.main.userOwnedClubs.invalidate();
       router.back();
     }
   });

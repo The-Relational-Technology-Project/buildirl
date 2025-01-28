@@ -40,11 +40,7 @@ export function MembershipTiersPanel({ club }: MembershipsPanelProps) {
       <Box style={{ overflowX: "auto" }}>
         <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
           {publishedTiers.map((t) => (
-            <MembershipTierCard
-              key={t.id}
-              clubId={club.id}
-              membershipTier={t}
-            />
+            <MembershipTierCard key={t.id} club={club} membershipTier={t} />
           ))}
 
           <ActionIcon
@@ -60,7 +56,7 @@ export function MembershipTiersPanel({ club }: MembershipsPanelProps) {
       </Box>
 
       <CreateMembershipTierModal
-        clubId={club.id}
+        club={club}
         opened={opened}
         handleClose={close}
       />
@@ -73,11 +69,7 @@ export function MembershipTiersPanel({ club }: MembershipsPanelProps) {
           <Box style={{ overflowX: "auto" }}>
             <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
               {unpublishedTiers.map((t) => (
-                <MembershipTierCard
-                  key={t.id}
-                  clubId={club.id}
-                  membershipTier={t}
-                />
+                <MembershipTierCard key={t.id} club={club} membershipTier={t} />
               ))}
             </Group>
           </Box>
@@ -88,12 +80,12 @@ export function MembershipTiersPanel({ club }: MembershipsPanelProps) {
 }
 
 type MembershipTierCardProps = {
-  clubId: number;
+  club: Club;
   membershipTier: MembershipTier;
 };
 
 export function MembershipTierCard({
-  clubId,
+  club,
   membershipTier
 }: MembershipTierCardProps) {
   const [opened, { open, close }] = useDisclosure(false);
@@ -102,13 +94,15 @@ export function MembershipTierCard({
 
   const publishMembershipTier = api.main.publishMembershipTier.useMutation({
     onSuccess: () => {
-      utils.main.club.invalidate({ id: clubId });
+      utils.main.club.invalidate({ id: club.id });
+      utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
     }
   });
   const unpublishMembershipTier = api.main.unpublishMembershipTier.useMutation({
     onSuccess: () => {
-      utils.main.club.invalidate({ id: clubId });
+      utils.main.club.invalidate({ id: club.id });
+      utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
     }
   });
@@ -174,7 +168,7 @@ export function MembershipTierCard({
           <Button onClick={open}>Review</Button>
 
           <UpdateMembershipTierModal
-            clubId={clubId}
+            club={club}
             membershipTier={membershipTier}
             opened={opened}
             handleClose={close}

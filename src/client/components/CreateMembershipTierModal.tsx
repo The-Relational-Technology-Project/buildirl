@@ -2,6 +2,7 @@ import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
 import {
+  Club,
   LongTextSchema,
   MembershipTierNameSchema,
   MonetaryValueSchema
@@ -19,7 +20,7 @@ import {
 import React from "react";
 
 type CreateMembershipTierModalProps = {
-  clubId: number;
+  club: Club;
   opened: boolean;
   handleClose: () => void;
 };
@@ -27,7 +28,7 @@ type CreateMembershipTierModalProps = {
 const DEFAULT_COST_PER_MONTH_USD = 50;
 
 export function CreateMembershipTierModal({
-  clubId,
+  club,
   opened,
   handleClose
 }: CreateMembershipTierModalProps) {
@@ -35,7 +36,8 @@ export function CreateMembershipTierModal({
 
   const createMembershipTier = api.main.createMembershipTier.useMutation({
     onSuccess: () => {
-      utils.main.club.invalidate({ id: clubId });
+      utils.main.club.invalidate({ id: club.id });
+      utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
       handleClose();
     }
@@ -71,7 +73,7 @@ export function CreateMembershipTierModal({
       <form
         onSubmit={form.onSubmit(async (v) => {
           await createMembershipTier.mutateAsync({
-            clubId: clubId,
+            clubId: club.id,
             input: {
               name: v.name,
               benefitDescription: v.benefitDescription,
