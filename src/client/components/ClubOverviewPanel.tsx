@@ -71,7 +71,7 @@ export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
 }
 
 async function copyToClipboard(clubPublicId: string): Promise<void> {
-  const url = window.location.origin + "/share/" + clubPublicId;
+  const url = window.location.origin + "/club/" + clubPublicId;
 
   try {
     await navigator.clipboard.writeText(url);

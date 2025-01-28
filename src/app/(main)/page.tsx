@@ -57,7 +57,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
           <Group justify="flex-start">
             <Button
               variant="light"
-              onClick={() => router.push(`/share/${club.publicId}`)}
+              onClick={() => router.push(`/club/${club.publicId}`)}
             >
               View club
             </Button>
