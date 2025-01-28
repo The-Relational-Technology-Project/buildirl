@@ -20,6 +20,8 @@ export default function MainLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   // Prefetching of user-authenticated data goes here
   void api.main.user.prefetch();
+  void api.main.userOwnedClubs.prefetch();
+  void api.main.userMemberships.prefetch();
 
   return (
     <AppShell header={{ height: HEADER_BAR_HEIGHT }}>

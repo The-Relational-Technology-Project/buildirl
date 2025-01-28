@@ -57,7 +57,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
           <Group justify="flex-start">
             <Button
               variant="light"
-              onClick={() => router.push(`/club/${club.publicId}`)}
+              onClick={() => router.push(`/join/${club.publicId}`)}
             >
               View club
             </Button>
@@ -154,7 +154,7 @@ export default function Home() {
       ))}
       <Text size={"sm"} c={"dimmed"} style={{ alignSelf: "center" }} mt={10}>
         Discover more clubs to join or{" "}
-        <a href="/club/create" style={{ color: "inherit" }}>
+        <a href="/src/app/(main)/club/create" style={{ color: "inherit" }}>
           create
         </a>{" "}
         one of your own.

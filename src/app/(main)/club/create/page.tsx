@@ -73,7 +73,7 @@ function CreateClubForm(props: StackProps) {
         </Title>
         <Group gap={4}>
           <Text c={"dimmed"} size={"sm"}>
-            buildirl.com/club/
+            buildirl.com/join/
           </Text>
           <TextInput
             required

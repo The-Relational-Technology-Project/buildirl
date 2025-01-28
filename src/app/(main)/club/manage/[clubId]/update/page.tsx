@@ -178,7 +178,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           </Title>
           <Group gap={4}>
             <Text c={"dimmed"} size={"sm"}>
-              buildirl.com/club/
+              buildirl.com/join/
             </Text>
             <TextInput
               required
