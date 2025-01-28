@@ -139,13 +139,11 @@ export function UpdateMembershipTierModal({
           )}
 
           <Group style={{ alignSelf: "center" }}>
-            <Button
-              type="submit"
-              mt="sm"
-              loading={updateMembershipTier.isPending}
-            >
-              Update
-            </Button>
+            <UpdateMembershipTierButton
+              clubId={club.id}
+              membershipTierId={membershipTier.id}
+              isLoading={updateMembershipTier.isPending}
+            />
             <DeleteMembershipTierButton
               club={club}
               membershipTier={membershipTier}
@@ -155,6 +153,57 @@ export function UpdateMembershipTierModal({
         </Stack>
       </form>
     </Modal>
+  );
+}
+
+type UpdateMembershipTierButtonProps = {
+  clubId: number;
+  membershipTierId: number;
+  isLoading: boolean;
+};
+
+function UpdateMembershipTierButton({
+  clubId,
+  membershipTierId,
+  isLoading
+}: UpdateMembershipTierButtonProps) {
+  const utils = api.useUtils();
+
+  const r = api.main.activeMembershipsForClub.useQuery({
+    clubId: clubId
+  });
+  const m = api.main.membershipApplicationsForClub.useQuery({
+    clubId: clubId
+  });
+
+  QueryError.check({
+    result: r,
+    fieldName: "activeMembershipsForClub"
+  });
+  QueryError.check({
+    result: r,
+    fieldName: "membershipApplicationsForClub"
+  });
+
+  const membershipTierIsEligibleForUpdate =
+    // allows button to display as disabled until ready
+    isAllLoaded([r, m]) &&
+    // only tier with no members can be deleted
+    hasNoMembershipsForMembershipTier(r.data!, membershipTierId) &&
+    hasNoMembershipsForMembershipTier(m.data!, membershipTierId);
+
+  return (
+    <Tooltip
+      position={"bottom"}
+      label={
+        "Only tiers with no members or pending applications can be updated."
+      }
+      hidden={membershipTierIsEligibleForUpdate}
+    >
+      <Button type="submit" mt="sm" loading={isLoading}>
+        Update
+      </Button>
+    </Tooltip>
   );
 }
 
@@ -201,7 +250,7 @@ function DeleteMembershipTierButton({
     !isDefaultFreeTier(membershipTier) &&
     // allows button to display as disabled until ready
     isAllLoaded([r, m]) &&
-    // only tier with no subscribers can be deleted
+    // only tier with no members can be deleted
     hasNoMembershipsForMembershipTier(r.data!, membershipTier.id) &&
     hasNoMembershipsForMembershipTier(m.data!, membershipTier.id);
 
@@ -213,6 +262,7 @@ function DeleteMembershipTierButton({
           ? "The free tier cannot be deleted."
           : "Only tiers with no members or pending applications can be deleted."
       }
+      hidden={membershipTierIsEligibleForDeletion}
     >
       <Button
         mt="sm"
