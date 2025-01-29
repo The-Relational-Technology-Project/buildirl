@@ -206,7 +206,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
   );
 }
 
-export default function UpdateClubPage() {
+export default function UpdateClub() {
   const params = useParams<{ clubId: string }>();
   const clubId = parseInt(params.clubId);
   const router = useRouter();

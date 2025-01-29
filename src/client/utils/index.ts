@@ -25,3 +25,10 @@ export function toDisplayMonth(dateTime: Date): string {
     month: "long"
   });
 }
+
+export function paramAsString(param: string | string[] | undefined): string {
+  if (!param || typeof param !== "string") {
+    throw new Error(`expected param as string but found ${param}`);
+  }
+  return param;
+}

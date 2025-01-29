@@ -550,7 +550,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     return createMembershipTierInTransaction(
       clubId,
       {
-        name: "Free Tier",
+        name: "Free",
         benefitDescription: "",
         contributionDescription: "",
         costPerMonthInUSD: 0

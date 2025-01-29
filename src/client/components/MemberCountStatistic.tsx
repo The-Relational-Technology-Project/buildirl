@@ -33,7 +33,7 @@ export function MemberCountStatistic({
           <IconUsers />
         </ThemeIcon>
         <Text size={"sm"} fw={400}>
-          {`${r.data!.memberCount} member${r.data!.memberCount > 1 ? "s" : ""}`}
+          {`${r.data!.memberCount} member${r.data!.memberCount > 1 && "s"}`}
         </Text>
       </Group>
     )

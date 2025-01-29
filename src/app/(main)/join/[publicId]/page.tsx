@@ -14,14 +14,14 @@ import {
 import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isLoaded } from "~/client/utils";
+import { isLoaded, paramAsString } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import { storageClient } from "~/client/utils/storageClient";
 import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
 
-export default function ClubPage() {
+export default function ClubJoin() {
   const params = useParams();
-  const publicId = params.publicId as string;
+  const publicId = paramAsString(params.publicId);
   const router = useRouter();
 
   const r = api.main.clubByPublicId.useQuery({
@@ -31,27 +31,26 @@ export default function ClubPage() {
     result: r,
     fieldName: "clubByPublicId"
   });
-  const club = r.data!;
 
   return (
     isLoaded(r) && (
       <Stack p="sm" maw={PAGE_WIDTH} align={"center"}>
         <Image
-          src={storageClient.clubProfileImageUrl(club.id)}
+          src={storageClient.clubProfileImageUrl(r.data!.id)}
           fallbackSrc="/club-profile-fallback.png"
           h={250}
           w={250}
           radius={"md"}
-          alt={club.name}
+          alt={r.data!.name}
         />
         <Stack align={"center"} gap={8}>
           <Title order={1} fw={400}>
-            {club.name}
+            {r.data!.name}
           </Title>
 
-          <MemberCountStatistic clubId={club.id} />
+          <MemberCountStatistic clubId={r.data!.id} />
 
-          <Text ta={"center"}>{club.tagLine}</Text>
+          <Text ta={"center"}>{r.data!.tagLine}</Text>
 
           <Text
             td={"underline"}
@@ -63,9 +62,9 @@ export default function ClubPage() {
           </Text>
 
           <Group>
-            {club.websiteURL && (
+            {r.data!.websiteURL && (
               <ActionIcon
-                onClick={() => window.open(`${club.websiteURL}`)}
+                onClick={() => window.open(`${r.data!.websiteURL}`)}
                 variant={"white"}
                 color={"black"}
               >
@@ -73,10 +72,12 @@ export default function ClubPage() {
               </ActionIcon>
             )}
 
-            {club.instagramHandle && (
+            {r.data!.instagramHandle && (
               <ActionIcon
                 onClick={() =>
-                  window.open(`https://instagram.com/${club.instagramHandle}`)
+                  window.open(
+                    `https://instagram.com/${r.data!.instagramHandle}`
+                  )
                 }
                 variant={"white"}
                 color={"black"}
@@ -91,21 +92,21 @@ export default function ClubPage() {
           variant={"filled"}
           color={"violet"}
           radius={90}
-          onClick={() => router.push(`/join/${club.publicId}/tiers`)}
+          onClick={() => router.push(`/join/${r.data!.publicId}/tiers`)}
           size="lg"
         >
           Join as member
         </Button>
 
         <ContributingMembersLink
-          clubId={club.id}
-          clubPublicId={club.publicId}
+          clubId={r.data!.id}
+          clubPublicId={r.data!.publicId}
         />
 
-        {club.eventCalendarURL && (
+        {r.data!.eventCalendarURL && (
           <Button
             variant={"outline"}
-            onClick={() => window.open(club.eventCalendarURL!)}
+            onClick={() => window.open(r.data!.eventCalendarURL!)}
             size="md"
             mt={"md"}
           >
@@ -147,7 +148,7 @@ export function ContributingMembersLink({
           onClick={() => router.push(`/join/${clubPublicId}/members`)}
           size="sm"
         >
-          {`${r.data!.memberCount} contributing member${r.data!.memberCount > 1 ? "s" : ""} >`}
+          {`${r.data!.memberCount} contributing member${r.data!.memberCount > 1 && "s"} >`}
         </Text>
       </Stack>
     )

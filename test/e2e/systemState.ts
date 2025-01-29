@@ -215,7 +215,7 @@ export class SystemState {
     clubId: number
   ) {
     this.createMembershipTier(freeMembershipTierId, clubId, {
-      name: "Free Tier",
+      name: "Free",
       benefitDescription: "",
       contributionDescription: "",
       costPerMonthInUSD: 0
