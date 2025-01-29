@@ -118,7 +118,7 @@ export default function Home() {
         <Stack justify="center" align="center" gap={10} style={{ flex: 1 }}>
           <Image
             src="/home-icon.svg"
-            alt="No clubs"
+            alt="home icon"
             w={120}
             style={{ filter: "invert(0.6)" }}
           />

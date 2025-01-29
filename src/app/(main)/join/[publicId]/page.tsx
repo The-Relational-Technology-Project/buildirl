@@ -148,7 +148,7 @@ export function ContributingMembersLink({
           onClick={() => router.push(`/join/${clubPublicId}/members`)}
           size="sm"
         >
-          {`${r.data!.memberCount} contributing member${r.data!.memberCount > 1 && "s"} >`}
+          {`${r.data!.memberCount} contributing member${r.data!.memberCount > 1 ? "s" : ""} >`}
         </Text>
       </Stack>
     )

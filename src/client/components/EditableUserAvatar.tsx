@@ -36,7 +36,11 @@ export default function EditableUserAvatar({
 
   return (
     <Box w={100} h={100} style={{ position: "relative" }}>
-      <Avatar size={100} src={storageClient.userProfileImageUrl(userId)} />
+      <Avatar
+        size={100}
+        src={storageClient.userProfileImageUrl(userId)}
+        alt={"user avatar"}
+      />
       <FileInput
         accept="image/*"
         id={"profile-picture-input"}
