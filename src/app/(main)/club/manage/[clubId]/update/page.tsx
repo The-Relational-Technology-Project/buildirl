@@ -29,6 +29,7 @@ import { useParams, useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { IconArrowLeft } from "@tabler/icons-react";
+import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
 
 type UpdateClubFormProps = {
   club: Club;
@@ -220,19 +221,11 @@ export default function UpdateClub() {
 
   return (
     isLoaded(r) && (
-      <Stack pt={"xl"} mb={"lg"}>
-        <ActionIcon
-          onClick={() => router.back()}
-          variant="transparent"
-          color="white"
-        >
-          <IconArrowLeft color="black" />
-        </ActionIcon>
-
+      <WithLocalNavigationHeader>
         <Stack px={200}>
           <UpdateClubForm club={r.data!} />
         </Stack>
-      </Stack>
+      </WithLocalNavigationHeader>
     )
   );
 }

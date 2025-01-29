@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { isLoaded, paramAsString } from "~/client/utils";
+import { isLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import {
@@ -14,14 +14,14 @@ import {
 } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
 import React from "react";
+import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
 
 export default function ClubAbout() {
-  const params = useParams();
-  const publicId = paramAsString(params.publicId);
+  const params = useParams<{ publicId: string }>();
   const router = useRouter();
 
   const r = api.main.clubByPublicId.useQuery({
-    publicId
+    publicId: params.publicId
   });
   QueryError.check({
     result: r,
@@ -30,21 +30,13 @@ export default function ClubAbout() {
 
   return (
     isLoaded(r) && (
-      <Stack mt={"xl"}>
-        <ActionIcon
-          onClick={() => router.back()}
-          variant="transparent"
-          color="white"
-        >
-          <IconArrowLeft color="black" />
-        </ActionIcon>
-
+      <WithLocalNavigationHeader>
         <Title order={4}>{r.data!.name}</Title>
         <Text size={"md"} c={"dimmed"}>
           {r.data!.description}
         </Text>
         <ClubStatistics clubId={r.data!.id} mt={"xl"} />
-      </Stack>
+      </WithLocalNavigationHeader>
     )
   );
 }

@@ -14,14 +14,14 @@ import {
 import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isLoaded, paramAsString } from "~/client/utils";
+import { isLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import { storageClient } from "~/client/utils/storageClient";
 import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
 
 export default function ClubJoin() {
-  const params = useParams();
-  const publicId = paramAsString(params.publicId);
+  const params = useParams<{publicId: string}>();
+  const publicId = params.publicId;
   const router = useRouter();
 
   const r = api.main.clubByPublicId.useQuery({
