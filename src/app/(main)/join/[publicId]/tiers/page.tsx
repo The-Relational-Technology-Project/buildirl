@@ -15,6 +15,7 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { MembershipTier } from "~/server/service/types";
+import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
 
 export default function ClubTiers() {
   const params = useParams<{ publicId: string }>();
@@ -31,28 +32,30 @@ export default function ClubTiers() {
 
   return (
     isLoaded(r) && (
-      <Stack py="xl" gap={"xl"}>
-        <Stack align={"center"} gap={"xs"}>
-          <Title order={2}>BE A JOINER.</Title>
-          <Text c="dimmed" ta="center">
-            Become a contributing member
-          </Text>
-        </Stack>
+      <WithLocalNavigationHeader>
+        <Stack gap={"xl"}>
+          <Stack align={"center"} gap={"xs"}>
+            <Title order={2}>BE A JOINER.</Title>
+            <Text c="dimmed" ta="center">
+              Become a contributing member
+            </Text>
+          </Stack>
 
-        <Box style={{ overflowX: "auto" }}>
-          <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
-            {r
-              .data!.membershipTiers.filter((t) => t.status === "PUBLISHED")
-              .map((t) => (
-                <MembershipTierCard
-                  key={t.id}
-                  membershipTier={t}
-                  clubPublicId={params.publicId}
-                />
-              ))}
-          </Group>
-        </Box>
-      </Stack>
+          <Box style={{ overflowX: "auto" }}>
+            <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
+              {r
+                .data!.membershipTiers.filter((t) => t.status === "PUBLISHED")
+                .map((t) => (
+                  <MembershipTierCard
+                    key={t.id}
+                    membershipTier={t}
+                    clubPublicId={params.publicId}
+                  />
+                ))}
+            </Group>
+          </Box>
+        </Stack>
+      </WithLocalNavigationHeader>
     )
   );
 }
