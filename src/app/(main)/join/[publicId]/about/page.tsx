@@ -5,14 +5,12 @@ import { isLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import {
-  ActionIcon,
   Group,
   Stack,
   StackProps,
   Text,
   Title
 } from "@mantine/core";
-import { IconArrowLeft } from "@tabler/icons-react";
 import React from "react";
 import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
 

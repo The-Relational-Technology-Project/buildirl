@@ -20,10 +20,11 @@ import createStorageClient, {
   storageClient
 } from "~/client/utils/storageClient";
 import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import { strictParseInt } from "~/utils";
 
 export default function User() {
   const params = useParams<{ userId: string }>();
-  const userId = parseInt(params.userId);
+  const userId = strictParseInt(params.userId);
   const searchParams = useSearchParams();
   const isLocalNavBarHidden = searchParams.get("back") !== "true";
 

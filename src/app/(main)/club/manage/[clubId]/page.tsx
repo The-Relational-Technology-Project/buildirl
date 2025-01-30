@@ -9,10 +9,11 @@ import { isLoaded } from "~/client/utils";
 import { ClubOverviewPanel } from "~/client/components/ClubOverviewPanel";
 import { ClubAdminPanel } from "~/client/components/ClubAdminPanel";
 import { ManageMembershipTiersPanel } from "~/client/components/ManageMembershipTiersPanel";
+import { strictParseInt } from "~/utils";
 
 export default function ManageClub() {
   const params = useParams<{ clubId: string }>();
-  const userId = parseInt(params.clubId);
+  const userId = strictParseInt(params.clubId);
 
   const r = api.main.club.useQuery({ id: userId });
 
@@ -27,15 +28,15 @@ export default function ManageClub() {
         <Title order={2}>{r.data!.name}</Title>
 
         <Tabs color={"gray"} defaultValue={"overview"}>
-        <Box style={{ overflowX: "auto" }}>
-              <Tabs.List style={{ flexWrap: "nowrap" }}>
-                <Tabs.Tab value={"overview"}>Club Overview</Tabs.Tab>
-                <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>
-                <Tabs.Tab value={"people"}>People</Tabs.Tab>
-                <Tabs.Tab value={"intake"}>Intake</Tabs.Tab>
+          <Box style={{ overflowX: "auto" }}>
+            <Tabs.List style={{ flexWrap: "nowrap" }}>
+              <Tabs.Tab value={"overview"}>Club Overview</Tabs.Tab>
+              <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>
+              <Tabs.Tab value={"people"}>People</Tabs.Tab>
+              <Tabs.Tab value={"intake"}>Intake</Tabs.Tab>
               <Tabs.Tab value={"admin"}>Admin</Tabs.Tab>
             </Tabs.List>
-        </Box>
+          </Box>
 
           <Tabs.Panel value={"overview"}>
             <ClubOverviewPanel club={r.data!} />

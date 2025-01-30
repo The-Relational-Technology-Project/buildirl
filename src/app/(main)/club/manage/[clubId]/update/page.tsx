@@ -13,7 +13,6 @@ import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
 import {
-  ActionIcon,
   Button,
   Divider,
   Group,
@@ -28,8 +27,8 @@ import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { IconArrowLeft } from "@tabler/icons-react";
 import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import { strictParseInt } from "~/utils";
 
 type UpdateClubFormProps = {
   club: Club;
@@ -209,7 +208,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
 export default function UpdateClub() {
   const params = useParams<{ clubId: string }>();
-  const clubId = parseInt(params.clubId);
+  const clubId = strictParseInt(params.clubId);
   const router = useRouter();
 
   const r = api.main.club.useQuery({ id: clubId });

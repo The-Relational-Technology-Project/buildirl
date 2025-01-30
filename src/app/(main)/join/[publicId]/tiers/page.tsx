@@ -1,21 +1,13 @@
 "use client";
 
-import {
-  Stack,
-  Title,
-  Text,
-  Button,
-  Card,
-  Group,
-  Box,
-  Space
-} from "@mantine/core";
+import { Stack, Title, Text, Button, Card, Space } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { MembershipTier } from "~/server/service/types";
 import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import { Carousel } from "@mantine/carousel";
 
 export default function ClubTiers() {
   const params = useParams<{ publicId: string }>();
@@ -41,19 +33,23 @@ export default function ClubTiers() {
             </Text>
           </Stack>
 
-          <Box style={{ overflowX: "auto" }}>
-            <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
-              {r
-                .data!.membershipTiers.filter((t) => t.status === "PUBLISHED")
-                .map((t) => (
+          <Carousel
+            slideSize="33.333333%"
+            slideGap="md"
+            align="center"
+            withControls={false}
+          >
+            {r
+              .data!.membershipTiers.filter((t) => t.status === "PUBLISHED")
+              .map((t) => (
+                <Carousel.Slide key={t.id}>
                   <MembershipTierCard
-                    key={t.id}
                     membershipTier={t}
                     clubPublicId={params.publicId}
                   />
-                ))}
-            </Group>
-          </Box>
+                </Carousel.Slide>
+              ))}
+          </Carousel>
         </Stack>
       </WithLocalNavigationHeader>
     )

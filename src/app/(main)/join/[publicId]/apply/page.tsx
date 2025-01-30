@@ -1,3 +1,67 @@
-export default function ApplyPage() {
-  return <></>;
+"use client";
+
+import { Stack, Title, Text, Button, Paper, Center } from "@mantine/core";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { api } from "~/trpc/react";
+import { QueryError } from "~/client/utils/QueryError";
+import { isLoaded } from "~/client/utils";
+import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import { strictParseInt } from "~/utils";
+
+export default function Apply() {
+  const params = useParams<{ publicId: string }>();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const membershipTierId = strictParseInt(searchParams.get("membershipTierId"));
+
+  const r = api.main.clubByPublicId.useQuery({
+    publicId: params.publicId
+  });
+
+  const submitApplication = api.main.submitMembershipApplication.useMutation({
+    onSuccess: () => {
+      router.push(`/join/${params.publicId}/applied`);
+    }
+  });
+
+  QueryError.check({
+    result: r,
+    fieldName: "clubByPublicId"
+  });
+
+  return (
+    isLoaded(r) && (
+      <WithLocalNavigationHeader>
+        <Center>
+          <Paper w={400} h={400} withBorder>
+            <Stack align="center" gap="xl">
+              <Stack align="center" gap={4}>
+                <Title order={2}>YOU ROCK!</Title>
+                <Text c="dimmed" ta="center">
+                  Let's See If We're A Fit!
+                </Text>
+              </Stack>
+
+              <Button
+                variant="filled"
+                color="violet"
+                size="lg"
+                onClick={() => {
+                  submitApplication.mutate({
+                    membershipTierId,
+                    input: {
+                      applicationResponses: {}
+                    }
+                  });
+                }}
+                loading={submitApplication.isPending}
+              >
+                LET'S GO
+              </Button>
+            </Stack>
+          </Paper>
+        </Center>
+      </WithLocalNavigationHeader>
+    )
+  );
 }

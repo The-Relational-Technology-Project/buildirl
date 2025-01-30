@@ -1,4 +1,5 @@
 import { Prisma } from ".prisma/client";
+import { Maybe } from "~/utils/types";
 
 /**
  * A version of stringify that handles bigints using string as a pass-through
@@ -9,4 +10,15 @@ export function stringify<T>(data: T): string {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     typeof value === "bigint" ? value.toString() : value
   );
+}
+
+export function strictParseInt(s: Maybe<string>): number {
+  if (null === s) {
+    throw new Error(`${s} is not a int`);
+  }
+  const r = parseInt(s);
+  if (isNaN(r)) {
+    throw new Error(`${s} is not an int`);
+  }
+  return r;
 }
