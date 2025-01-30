@@ -72,19 +72,21 @@ export function MembershipTierCard({
       <Stack h={"100%"} gap={10}>
         <Title order={3}>{membershipTier.name}</Title>
 
-        {membershipTier.benefitDescription !== "" && (
-          <Stack gap={0}>
-            <Title order={6}>Our member experience</Title>
-            <Text size="sm">{membershipTier.benefitDescription}</Text>
-          </Stack>
-        )}
+        <Stack>
+          {membershipTier.benefitDescription !== "" && (
+            <Stack gap={0}>
+              <Title order={6}>Our member experience</Title>
+              <Text size="sm">{membershipTier.benefitDescription}</Text>
+            </Stack>
+          )}
 
-        {membershipTier.contributionDescription !== "" && (
-          <Stack gap={0} mt={"md"}>
-            <Title order={6}>Your contribution is key!</Title>
-            <Text size="sm">{membershipTier.contributionDescription}</Text>
-          </Stack>
-        )}
+          {membershipTier.contributionDescription !== "" && (
+            <Stack gap={0}>
+              <Title order={6}>Your contribution is key!</Title>
+              <Text size="sm">{membershipTier.contributionDescription}</Text>
+            </Stack>
+          )}
+        </Stack>
 
         <Space flex={1} />
 

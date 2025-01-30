@@ -25,6 +25,7 @@ import React from "react";
 import { isDefaultFreeTier } from "~/utils/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
+import { z } from "zod";
 
 type UpdateMembershipTierModalProps = {
   club: Club;
@@ -62,7 +63,8 @@ export function UpdateMembershipTierModal({
       name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
       benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
       contributionDescription: (v) => safeValidateSchema(LongTextSchema, v),
-      costPerMonthInUSD: (v) => safeValidateSchema(MonetaryValueSchema, v)
+      costPerMonthInUSD: (v) =>
+        safeValidateSchema(MonetaryValueSchema.or(z.literal(0)), v)
     }
   });
 
@@ -167,8 +169,6 @@ function UpdateMembershipTierButton({
   membershipTierId,
   isLoading
 }: UpdateMembershipTierButtonProps) {
-  const utils = api.useUtils();
-
   const r = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
   });
@@ -200,7 +200,12 @@ function UpdateMembershipTierButton({
       }
       hidden={membershipTierIsEligibleForUpdate}
     >
-      <Button type="submit" mt="sm" loading={isLoading}>
+      <Button
+        type="submit"
+        mt="sm"
+        loading={isLoading}
+        disabled={!membershipTierIsEligibleForUpdate}
+      >
         Update
       </Button>
     </Tooltip>
