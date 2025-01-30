@@ -43,12 +43,11 @@ export function WithLocalNavigationHeader({
         {title && <Title order={3}>{title}</Title>}
       </Stack>
 
-      <Stack
+      <Box
         mt={`calc(${HEADER_BAR_HEIGHT}px + ${title === undefined ? 20 : 70}px)`}
-        style={{ overflow: "auto" }}
       >
         {children}
-      </Stack>
+      </Box>
     </Stack>
   );
 }
