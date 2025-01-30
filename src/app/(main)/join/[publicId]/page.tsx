@@ -20,7 +20,7 @@ import { storageClient } from "~/client/utils/storageClient";
 import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
 
 export default function ClubJoin() {
-  const params = useParams<{publicId: string}>();
+  const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
   const router = useRouter();
 
@@ -125,7 +125,7 @@ type ContributingMembersLinkProps = {
   clubPublicId: string;
 };
 
-export function ContributingMembersLink({
+function ContributingMembersLink({
   clubId,
   clubPublicId
 }: ContributingMembersLinkProps & GroupProps) {

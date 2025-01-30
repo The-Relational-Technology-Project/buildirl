@@ -1,4 +1,4 @@
-import { ActionIcon, Stack, Title } from "@mantine/core";
+import { ActionIcon, Box, Stack, Title } from "@mantine/core";
 import { HEADER_BAR_HEIGHT } from "~/client/components/HeaderBar";
 import { IconArrowLeft } from "@tabler/icons-react";
 import React from "react";
@@ -7,13 +7,20 @@ import { useRouter } from "next/navigation";
 type WithLocalNavigationHeaderProps = {
   title?: string;
   children: React.ReactNode;
+  hidden?: boolean;
 };
 
 export function WithLocalNavigationHeader({
   children,
-  title
+  title,
+  hidden = false
 }: WithLocalNavigationHeaderProps) {
   const router = useRouter();
+
+  if (hidden) {
+    return <Box mt={40}>{children}</Box>;
+  }
+
   return (
     <Stack>
       <Stack

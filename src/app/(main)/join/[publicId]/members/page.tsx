@@ -32,7 +32,7 @@ export default function ClubMembers() {
 
   return (
     isLoaded(r) && (
-      <WithLocalNavigationHeader title={"Member"}>
+      <WithLocalNavigationHeader>
         <MemberList clubId={r.data!.id} owner={r.data!.owner} />
       </WithLocalNavigationHeader>
     )
@@ -81,7 +81,10 @@ type MemberListItemProps = {
 function MemberListItem({ member, isLastItem }: MemberListItemProps) {
   const router = useRouter();
   return (
-    <Stack onClick={() => router.push(`/user/${member.id}`)}>
+    <Stack
+      onClick={() => router.push(`/user/${member.id}?back=true`)}
+      style={{ cursor: "pointer" }}
+    >
       <Group>
         <Avatar
           size="md"
