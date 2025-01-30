@@ -222,7 +222,7 @@ export default function UpdateClub() {
   return (
     isLoaded(r) && (
       <WithLocalNavigationHeader>
-        <Stack px={200}>
+        <Stack px={{ base: 20, sm: 200 }}>
           <UpdateClubForm club={r.data!} />
         </Stack>
       </WithLocalNavigationHeader>
