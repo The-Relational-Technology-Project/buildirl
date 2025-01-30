@@ -34,7 +34,7 @@ export default function ClubJoin() {
 
   return (
     isLoaded(r) && (
-      <Stack p="sm" maw={PAGE_WIDTH} align={"center"}>
+      <Stack p="sm" maw={PAGE_WIDTH} align={"center"} mt={"md"}>
         <Image
           src={storageClient.clubProfileImageUrl(r.data!.id)}
           fallbackSrc="/club-profile-fallback.png"

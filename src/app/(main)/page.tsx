@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Image,
-  Text,
-  Group,
-  Button,
-  Stack,
-  Title,
-  Paper,
-  Flex
-} from "@mantine/core";
+import { Image, Text, Button, Stack, Title, Paper, Flex } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { isAllLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
@@ -36,8 +27,13 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
 
   return (
     <Paper p="lg" withBorder>
-      <Group justify="space-between" align="stretch" h={150}>
-        <Flex direction="column" justify="space-between">
+      <Flex
+        direction={{ base: "column-reverse", xs: "row" }}
+        justify="space-between"
+        align={{ base: "center", xs: "stretch" }}
+        gap={"md"}
+      >
+        <Stack justify="space-between">
           <Stack gap={6}>
             <Title order={4}>{club.name}</Title>
 
@@ -47,14 +43,14 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
               size="sm"
               c="dimmed"
               lineClamp={3}
-              w={400}
+              maw={400}
               style={{ wordWrap: "break-word" }}
             >
               {club.tagLine}
             </Text>
           </Stack>
 
-          <Group justify="flex-start">
+          <Flex gap={"md"} justify={{ base: "center", xs: "flex-start" }}>
             <Button
               variant="light"
               onClick={() => router.push(`/join/${club.publicId}`)}
@@ -74,8 +70,8 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
                 Manage membership
               </Button>
             )}
-          </Group>
-        </Flex>
+          </Flex>
+        </Stack>
 
         <Image
           src={storageClient.clubProfileImageUrl(club.id)}
@@ -85,7 +81,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
           radius={"md"}
           alt={club.name}
         />
-      </Group>
+      </Flex>
     </Paper>
   );
 }

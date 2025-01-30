@@ -144,6 +144,7 @@ export function HeaderBar() {
       h={HEADER_BAR_HEIGHT}
       align={"center"}
       justify={"center"}
+      w={"100vw"}
       style={{
         backgroundColor: "#efebe7",
         borderBottom: "solid 1px #808080"

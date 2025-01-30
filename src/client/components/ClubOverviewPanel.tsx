@@ -1,5 +1,15 @@
 import { Club } from "~/server/service/types";
-import { Button, Group, Image, Paper, Stack, Text, Title } from "@mantine/core";
+import {
+  Button,
+  Flex,
+  Group,
+  Image,
+  Paper,
+  Stack,
+  Text,
+  Title,
+  useMatches
+} from "@mantine/core";
 import React from "react";
 import { notifications } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";
@@ -16,15 +26,21 @@ type ClubOverviewPanelProps = {
 export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
   const storage = createStorageClient();
   const router = useRouter();
+  const editButtonText = useMatches({ base: "Edit", sm: "Edit Club Page" });
 
   return (
     <Stack>
       <Paper p="xl" withBorder mt={"lg"}>
-        <Group justify={"flex-start"} align={"stretch"} gap={40}>
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          justify={"flex-start"}
+          align={{ base: "center", md: "stretch" }}
+          gap={40}
+        >
           <Image
             radius="md"
-            w={300}
-            h={300}
+            w={{ base: 240, md: 300 }}
+            h={{ base: 240, md: 300 }}
             src={storage.clubProfileImageUrl(club.id)}
             fallbackSrc={"/club-profile-fallback.png"}
           />
@@ -52,7 +68,7 @@ export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
                 mt={"sm"}
                 onClick={() => router.push(`${club.id}/update`)}
               >
-                Edit Club Page
+                {editButtonText}
               </Button>
               <Button
                 mt={"sm"}
@@ -64,7 +80,7 @@ export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
               </Button>
             </Group>
           </Stack>
-        </Group>
+        </Flex>
       </Paper>
     </Stack>
   );
