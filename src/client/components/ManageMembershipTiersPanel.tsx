@@ -19,11 +19,13 @@ import { useDisclosure } from "@mantine/hooks";
 import { CreateMembershipTierModal } from "~/client/components/CreateMembershipTierModal";
 import { UpdateMembershipTierModal } from "~/client/components/UpdateMembershipTierModal";
 
-type MembershipsPanelProps = {
+type ManageMembershipsPanelProps = {
   club: Club;
 };
 
-export function MembershipTiersPanel({ club }: MembershipsPanelProps) {
+export function ManageMembershipTiersPanel({
+  club
+}: ManageMembershipsPanelProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
   const publishedTiers = club.membershipTiers.filter(
@@ -40,7 +42,11 @@ export function MembershipTiersPanel({ club }: MembershipsPanelProps) {
       <Box style={{ overflowX: "auto" }}>
         <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
           {publishedTiers.map((t) => (
-            <MembershipTierCard key={t.id} club={club} membershipTier={t} />
+            <ManageMembershipTierCard
+              key={t.id}
+              club={club}
+              membershipTier={t}
+            />
           ))}
 
           <ActionIcon
@@ -69,7 +75,11 @@ export function MembershipTiersPanel({ club }: MembershipsPanelProps) {
           <Box style={{ overflowX: "auto" }}>
             <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
               {unpublishedTiers.map((t) => (
-                <MembershipTierCard key={t.id} club={club} membershipTier={t} />
+                <ManageMembershipTierCard
+                  key={t.id}
+                  club={club}
+                  membershipTier={t}
+                />
               ))}
             </Group>
           </Box>
@@ -79,15 +89,15 @@ export function MembershipTiersPanel({ club }: MembershipsPanelProps) {
   );
 }
 
-type MembershipTierCardProps = {
+type ManageMembershipTierCardProps = {
   club: Club;
   membershipTier: MembershipTier;
 };
 
-export function MembershipTierCard({
+export function ManageMembershipTierCard({
   club,
   membershipTier
-}: MembershipTierCardProps) {
+}: ManageMembershipTierCardProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
   const utils = api.useUtils();

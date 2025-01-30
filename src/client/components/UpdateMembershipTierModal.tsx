@@ -88,12 +88,11 @@ export function UpdateMembershipTierModal({
               costPerMonthInUSD: v.costPerMonthInUSD
             }
           });
-          form.reset();
         })}
       >
         <Stack>
           <TextInput
-            defaultValue={membershipTier.name}
+            defaultValue={form.values.name}
             placeholder="Tier name"
             required
             onChange={(e) => form.setFieldValue("name", e.currentTarget.value)}
@@ -101,7 +100,7 @@ export function UpdateMembershipTierModal({
           />
 
           <Textarea
-            defaultValue={membershipTier.contributionDescription}
+            defaultValue={form.values.contributionDescription}
             placeholder="Describe the contributions expected of members in this tier."
             minRows={3}
             onChange={(e) =>
@@ -114,7 +113,7 @@ export function UpdateMembershipTierModal({
           />
 
           <Textarea
-            defaultValue={membershipTier.benefitDescription}
+            defaultValue={form.values.benefitDescription}
             placeholder="Describe the benefits members in this tier can expect."
             onChange={(e) =>
               form.setFieldValue("benefitDescription", e.currentTarget.value)
@@ -130,7 +129,7 @@ export function UpdateMembershipTierModal({
                 onChange={(v) => form.setFieldValue("costPerMonthInUSD", v)}
                 color={"black"}
                 size={"xl"}
-                defaultValue={membershipTier.costPerMonthInUSD}
+                defaultValue={form.values.costPerMonthInUSD}
                 precision={2}
                 step={5}
                 min={5}

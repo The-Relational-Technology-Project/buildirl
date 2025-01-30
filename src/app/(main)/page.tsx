@@ -154,7 +154,7 @@ export default function Home() {
       ))}
       <Text size={"sm"} c={"dimmed"} style={{ alignSelf: "center" }} mt={10}>
         Discover more clubs to join or{" "}
-        <a href="/src/app/(main)/club/create" style={{ color: "inherit" }}>
+        <a href="/club/create" style={{ color: "inherit" }}>
           create
         </a>{" "}
         one of your own.

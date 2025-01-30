@@ -25,7 +25,7 @@ function CreateClubForm(props: StackProps) {
   const createUser = api.main.createClub.useMutation({
     onSuccess: async (r) => {
       await utils.main.userOwnedClubs.invalidate();
-      router.push(`manage/${r.createdEntityId}`);
+      router.push(`/club/manage/${r.createdEntityId}`);
     }
   });
 
