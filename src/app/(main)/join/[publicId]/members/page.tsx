@@ -79,8 +79,9 @@ type MemberListItemProps = {
 };
 
 function MemberListItem({ member, isLastItem }: MemberListItemProps) {
+  const router = useRouter();
   return (
-    <Stack>
+    <Stack onClick={() => router.push(`/user/${member.id}`)}>
       <Group>
         <Avatar
           size="md"
