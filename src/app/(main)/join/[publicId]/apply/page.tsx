@@ -23,7 +23,7 @@ export default function Apply() {
   const submitMembershipApplication =
     api.main.submitMembershipApplication.useMutation({
       onSuccess: () => {
-        router.push(`/join/${params.publicId}/applied`);
+        router.push(`/join/${params.publicId}/apply/completed`);
       }
     });
 
