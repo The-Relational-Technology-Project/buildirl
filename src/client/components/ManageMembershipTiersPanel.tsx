@@ -18,6 +18,7 @@ import { AlertMessage } from "~/client/components/AlertMessage";
 import { useDisclosure } from "@mantine/hooks";
 import { CreateMembershipTierModal } from "~/client/components/CreateMembershipTierModal";
 import { UpdateMembershipTierModal } from "~/client/components/UpdateMembershipTierModal";
+import { Carousel } from "@mantine/carousel";
 
 type ManageMembershipsPanelProps = {
   club: Club;
@@ -39,16 +40,19 @@ export function ManageMembershipTiersPanel({
     <Stack mt={"lg"} pb={"xl"}>
       <Title order={4}>Active Tiers</Title>
 
-      <Box style={{ overflowX: "auto" }}>
-        <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
-          {publishedTiers.map((t) => (
-            <ManageMembershipTierCard
-              key={t.id}
-              club={club}
-              membershipTier={t}
-            />
-          ))}
+      <Carousel
+        slideSize="33.333333%"
+        slideGap="md"
+        align="start"
+        withControls={false}
+      >
+        {publishedTiers.map((t) => (
+          <Carousel.Slide key={t.id}>
+            <ManageMembershipTierCard club={club} membershipTier={t} />
+          </Carousel.Slide>
+        ))}
 
+        <Carousel.Slide>
           <ActionIcon
             variant="light"
             color={"black"}
@@ -58,8 +62,8 @@ export function ManageMembershipTiersPanel({
           >
             <IconPlus />
           </ActionIcon>
-        </Group>
-      </Box>
+        </Carousel.Slide>
+      </Carousel>
 
       <CreateMembershipTierModal
         club={club}
@@ -72,17 +76,18 @@ export function ManageMembershipTiersPanel({
           <Title order={4} mt="xl">
             Inactive Tiers
           </Title>
-          <Box style={{ overflowX: "auto" }}>
-            <Group wrap="nowrap" style={{ minWidth: "min-content" }}>
-              {unpublishedTiers.map((t) => (
-                <ManageMembershipTierCard
-                  key={t.id}
-                  club={club}
-                  membershipTier={t}
-                />
-              ))}
-            </Group>
-          </Box>
+          <Carousel
+            slideSize="33.333333%"
+            slideGap="md"
+            align="start"
+            withControls={false}
+          >
+            {unpublishedTiers.map((t) => (
+              <Carousel.Slide key={t.id}>
+                <ManageMembershipTierCard club={club} membershipTier={t} />
+              </Carousel.Slide>
+            ))}
+          </Carousel>
         </Stack>
       )}
     </Stack>

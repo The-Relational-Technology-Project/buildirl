@@ -11,7 +11,6 @@ import { Carousel } from "@mantine/carousel";
 
 export default function ClubTiers() {
   const params = useParams<{ publicId: string }>();
-  const router = useRouter();
 
   const r = api.main.clubByPublicId.useQuery({
     publicId: params.publicId
