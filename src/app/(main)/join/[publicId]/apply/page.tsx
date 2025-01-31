@@ -16,6 +16,7 @@ export default function Apply() {
   const router = useRouter();
   const membershipTierId = strictParseInt(searchParams.get("membershipTierId"));
 
+  const utils = api.useUtils();
   const r = api.main.clubByPublicId.useQuery({
     publicId: params.publicId
   });
@@ -23,6 +24,7 @@ export default function Apply() {
   const submitMembershipApplication =
     api.main.submitMembershipApplication.useMutation({
       onSuccess: () => {
+        utils.main.userMemberships.invalidate();
         router.push(`/join/${params.publicId}/apply/completed`);
       }
     });

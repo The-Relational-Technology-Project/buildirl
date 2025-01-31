@@ -7,20 +7,17 @@ import {
   Avatar,
   Center,
   Group,
-  Divider,
-  ThemeIcon
+  Divider
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isLoaded, toDisplayMonth } from "~/client/utils";
+import { isLoaded } from "~/client/utils";
 import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
-import { IconCalendarWeek } from "@tabler/icons-react";
-import createStorageClient, {
-  storageClient
-} from "~/client/utils/storageClient";
+import { storageClient } from "~/client/utils/storageClient";
 import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
+import { JoinedDate } from "~/client/components/JoinedDate";
 
 export default function User() {
   const params = useParams<{ userId: string }>();
@@ -50,21 +47,7 @@ export default function User() {
                 <Title order={3} fw={500} pt={10}>
                   {r.data!.firstName} {r.data!.lastName}
                 </Title>
-                <Group gap={6}>
-                  <ThemeIcon
-                    size={"xs"}
-                    variant={"white"}
-                    c={"dimmed"}
-                    style={{
-                      backgroundColor: "transparent"
-                    }}
-                  >
-                    <IconCalendarWeek />
-                  </ThemeIcon>
-                  <Text c={"dimmed"} size={"sm"}>
-                    Joined {toDisplayMonth(r.data!.createdAt)}
-                  </Text>
-                </Group>
+                <JoinedDate date={r.data!.createdAt} />
               </Stack>
             </Group>
             {r.data!.description !== "" && (

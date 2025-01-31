@@ -13,9 +13,9 @@ import { strictParseInt } from "~/utils";
 
 export default function ManageClub() {
   const params = useParams<{ clubId: string }>();
-  const userId = strictParseInt(params.clubId);
+  const clubId = strictParseInt(params.clubId);
 
-  const r = api.main.club.useQuery({ id: userId });
+  const r = api.main.club.useQuery({ id: clubId });
 
   QueryError.check({
     result: r,
@@ -24,7 +24,7 @@ export default function ManageClub() {
 
   return (
     isLoaded(r) && (
-      <Stack pt={"xl"} style={{ borderWidth: 1, borderColor: "gray.4" }}>
+      <Stack pt={"xl"}>
         <Title order={2}>{r.data!.name}</Title>
 
         <Tabs color={"gray"} defaultValue={"overview"}>

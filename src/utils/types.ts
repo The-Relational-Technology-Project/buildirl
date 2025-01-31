@@ -1,4 +1,8 @@
-import { MembershipTier } from "~/server/service/types";
+import {
+  Membership,
+  MembershipStatus,
+  MembershipTier
+} from "~/server/service/types";
 
 export type Maybe<T> = T | null;
 
@@ -32,4 +36,18 @@ export function idAsBigInt(maybeId: Maybe<Id>): bigint {
 export function isDefaultFreeTier(membershipTier: MembershipTier): boolean {
   // this is the definition of default free tier
   return membershipTier.costPerMonthInUSD === 0;
+}
+
+export function membershipForClub(
+  memberships: Membership[],
+  clubId: number
+): Maybe<Membership> {
+  const clubMembership = memberships.find((m) => m.club.id === clubId);
+
+  // no membership
+  if (!clubMembership) {
+    return null;
+  }
+
+  return clubMembership;
 }

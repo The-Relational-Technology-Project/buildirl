@@ -18,8 +18,8 @@ import { isLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import { storageClient } from "~/client/utils/storageClient";
 import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
-import { Club, Membership, MembershipStatus } from "~/server/service/types";
-import { Maybe } from "~/utils/types";
+import { Club } from "~/server/service/types";
+import { membershipForClub } from "~/utils/types";
 
 export default function ClubJoin() {
   const params = useParams<{ publicId: string }>();
@@ -161,9 +161,9 @@ function JoinButton({ club }: JoinButtonProps) {
     return null;
   }
 
-  const status = membershipStatusForClub(r.data!, club.id);
+  const membership = membershipForClub(r.data!, club.id);
 
-  switch (status) {
+  switch (membership?.status) {
     case "PENDING":
       return (
         <Button
@@ -202,18 +202,4 @@ function JoinButton({ club }: JoinButtonProps) {
         </Button>
       );
   }
-}
-
-function membershipStatusForClub(
-  memberships: Membership[],
-  clubId: number
-): Maybe<MembershipStatus> {
-  const clubMembership = memberships.find((m) => m.club.id === clubId);
-
-  // no membership
-  if (!clubMembership) {
-    return null;
-  }
-
-  return clubMembership.status;
 }

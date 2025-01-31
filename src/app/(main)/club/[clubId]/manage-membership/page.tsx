@@ -1,3 +1,107 @@
+"use client";
+
+import { Button, Stack, Title, Text, Paper } from "@mantine/core";
+import { useParams, useRouter } from "next/navigation";
+import { strictParseInt } from "~/utils";
+import { api } from "~/trpc/react";
+import { QueryError } from "~/client/utils/QueryError";
+import { isLoaded } from "~/client/utils";
+import React from "react";
+import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import { JoinedDate } from "~/client/components/JoinedDate";
+import { membershipForClub } from "~/utils/types";
+
 export default function ManageMembership() {
-  return <></>;
+  const params = useParams<{ clubId: string }>();
+  const clubId = strictParseInt(params.clubId);
+  const router = useRouter();
+
+  const r = api.main.userMemberships.useQuery();
+
+  QueryError.check({
+    result: r,
+    fieldName: "userMemberships"
+  });
+
+  if (!isLoaded(r)) {
+    return null;
+  }
+
+  const membership = membershipForClub(r.data!, clubId);
+  if (null === membership || membership.status != "ACTIVE") {
+    throw new Error(
+      `expected to have active membership but found ${membership}`
+    );
+  }
+
+  const utils = api.useUtils();
+  const deactivateMembership = api.main.deactivateMembership.useMutation({
+    onSuccess: async () => {
+      await utils.main.userMemberships.invalidate();
+      router.back();
+    }
+  });
+
+  return (
+    <WithLocalNavigationHeader>
+      <Stack>
+        <Title order={3}>Your membership to {membership.club.name}</Title>
+        <Paper p={"xl"} withBorder>
+          <Title order={4}>Membership details</Title>
+
+          <JoinedDate date={membership.createdAt} mt={8} />
+
+          <Stack gap={2} mt={"md"}>
+            <Title order={5}>Name</Title>
+            <Text size={"sm"} c={"dimmed"}>
+              {membership.membershipTier.name}
+            </Text>
+            <Title order={5} mt={"sm"}>
+              Your benefits
+            </Title>
+            <Text size={"sm"} c={"dimmed"}>
+              {membership.membershipTier.benefitDescription}
+            </Text>
+            <Title order={5} mt={"sm"}>
+              Your contributions
+            </Title>
+            <Text size={"sm"} c={"dimmed"}>
+              {membership.membershipTier.contributionDescription}
+            </Text>
+            <Title order={5} mt={"sm"}>
+              Costs
+            </Title>
+            <Text
+              size={"sm"}
+              c={"dimmed"}
+            >{`$${membership.membershipTier.costPerMonthInUSD}.00/month`}</Text>
+          </Stack>
+        </Paper>
+
+        <Stack w={"100%"} align={"center"} mt={"md"}>
+          <Button
+            w={150}
+            variant={"filled"}
+            color={"orange"}
+            onClick={async () =>
+              await deactivateMembership.mutateAsync({
+                membershipId: membership.id
+              })
+            }
+          >
+            Leave Club
+          </Button>
+          <Text
+            c={"dimmed"}
+            size={"sm"}
+            w={300}
+            style={{ textAlign: "center" }}
+          >
+            Your membership will be canceled. Re-joining will require a
+            re-application.
+          </Text>
+        </Stack>
+      </Stack>
+    </WithLocalNavigationHeader>
+  );
 }
