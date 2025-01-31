@@ -60,7 +60,7 @@ type MembershipTierCardProps = {
   membershipTier: MembershipTier;
 };
 
-export function MembershipTierCard({
+function MembershipTierCard({
   membershipTier,
   clubPublicId
 }: MembershipTierCardProps) {

@@ -18,6 +18,8 @@ import { isLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import { storageClient } from "~/client/utils/storageClient";
 import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
+import { Club, Membership, MembershipStatus } from "~/server/service/types";
+import { Maybe } from "~/utils/types";
 
 export default function ClubJoin() {
   const params = useParams<{ publicId: string }>();
@@ -88,15 +90,7 @@ export default function ClubJoin() {
           </Group>
         </Stack>
 
-        <Button
-          variant={"filled"}
-          color={"violet"}
-          radius={90}
-          onClick={() => router.push(`/join/${r.data!.publicId}/tiers`)}
-          size="lg"
-        >
-          Join as member
-        </Button>
+        <JoinButton club={r.data!} />
 
         <ContributingMembersLink
           clubId={r.data!.id}
@@ -153,4 +147,73 @@ function ContributingMembersLink({
       </Stack>
     )
   );
+}
+
+type JoinButtonProps = {
+  club: Club;
+};
+
+function JoinButton({ club }: JoinButtonProps) {
+  const router = useRouter();
+  const r = api.main.userMemberships.useQuery();
+
+  if (!isLoaded(r)) {
+    return null;
+  }
+
+  const status = membershipStatusForClub(r.data!, club.id);
+
+  switch (status) {
+    case "PENDING":
+      return (
+        <Button
+          variant={"filled"}
+          color={"violet"}
+          radius={90}
+          onClick={() => router.push(`/join/${club.publicId}/apply/completed`)}
+          size="lg"
+        >
+          Pending Approval
+        </Button>
+      );
+    case "ACTIVE":
+      return (
+        <Button
+          variant={"filled"}
+          color={"violet"}
+          radius={90}
+          onClick={() => router.push(`/club/manage-membership/${club.id}`)}
+          size="lg"
+        >
+          Manage Membership
+        </Button>
+      );
+    // no membership, declined, or deactivated
+    default:
+      return (
+        <Button
+          variant={"filled"}
+          color={"violet"}
+          radius={90}
+          onClick={() => router.push(`/join/${club.publicId}/tiers`)}
+          size="lg"
+        >
+          Join as Member
+        </Button>
+      );
+  }
+}
+
+function membershipStatusForClub(
+  memberships: Membership[],
+  clubId: number
+): Maybe<MembershipStatus> {
+  const clubMembership = memberships.find((m) => m.club.id === clubId);
+
+  // no membership
+  if (!clubMembership) {
+    return null;
+  }
+
+  return clubMembership.status;
 }

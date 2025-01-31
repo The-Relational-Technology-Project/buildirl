@@ -6,7 +6,6 @@ import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
 
 export default function ApplicationCompleted() {
   const params = useParams<{ publicId: string }>();
-  const publicId = params.publicId;
   const router = useRouter();
 
   return (
@@ -23,7 +22,7 @@ export default function ApplicationCompleted() {
           size="lg"
           mt={"xl"}
           onClick={() => {
-            router.push(`/join/${publicId}/`);
+            router.push(`/join/${params.publicId}/`);
           }}
         >
           Back
