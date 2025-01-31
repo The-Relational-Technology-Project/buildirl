@@ -182,7 +182,7 @@ function JoinButton({ club }: JoinButtonProps) {
           variant={"filled"}
           color={"violet"}
           radius={90}
-          onClick={() => router.push(`/club/manage-membership/${club.id}`)}
+          onClick={() => router.push(`/club/${club.id}/manage-membership`)}
           size="lg"
         >
           Manage Membership

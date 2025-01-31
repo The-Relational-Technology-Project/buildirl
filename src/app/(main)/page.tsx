@@ -58,7 +58,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
               View club
             </Button>
             {isOwned ? (
-              <Button onClick={() => router.push(`/club/manage/${club.id}`)}>
+              <Button onClick={() => router.push(`/club/${club.id}/manage`)}>
                 Manage club
               </Button>
             ) : (
