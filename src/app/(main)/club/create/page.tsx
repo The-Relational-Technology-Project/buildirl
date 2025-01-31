@@ -8,7 +8,6 @@ import {
   Text,
   Group,
   Title,
-  Center,
   Paper,
   StackProps
 } from "@mantine/core";
@@ -17,7 +16,7 @@ import { useForm } from "@mantine/form";
 import React from "react";
 import { safeValidateSchema } from "~/utils/zod";
 import { useRouter } from "next/navigation";
-import { HEADER_BAR_HEIGHT } from "~/client/components/HeaderBar";
+import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
 
 function CreateClubForm(props: StackProps) {
   const router = useRouter();
@@ -102,11 +101,11 @@ function CreateClubForm(props: StackProps) {
 
 export default function CreateClub() {
   return (
-    <Center h={`calc(100vh - ${HEADER_BAR_HEIGHT}px)`} pb={200}>
+    <AbsoluteCenter adjustForHeader>
       <Paper p="xl" withBorder w={300}>
         <Title order={4}>Create a club</Title>
         <CreateClubForm mt={"md"} />
       </Paper>
-    </Center>
+    </AbsoluteCenter>
   );
 }

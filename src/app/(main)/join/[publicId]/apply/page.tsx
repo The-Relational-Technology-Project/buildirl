@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Title, Text, Button, Paper, Center } from "@mantine/core";
+import { Stack, Title, Text, Button, Paper } from "@mantine/core";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -8,7 +8,7 @@ import { isLoaded } from "~/client/utils";
 import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
 import { Image } from "@mantine/core";
-import { HEADER_BAR_HEIGHT } from "~/client/components/HeaderBar";
+import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
 
 export default function Apply() {
   const params = useParams<{ publicId: string }>();
@@ -20,11 +20,12 @@ export default function Apply() {
     publicId: params.publicId
   });
 
-  const submitApplication = api.main.submitMembershipApplication.useMutation({
-    onSuccess: () => {
-      router.push(`/join/${params.publicId}/applied`);
-    }
-  });
+  const submitMembershipApplication =
+    api.main.submitMembershipApplication.useMutation({
+      onSuccess: () => {
+        router.push(`/join/${params.publicId}/applied`);
+      }
+    });
 
   QueryError.check({
     result: r,
@@ -34,7 +35,7 @@ export default function Apply() {
   return (
     isLoaded(r) && (
       <WithLocalNavigationHeader>
-        <Center h={`calc(100vh - ${HEADER_BAR_HEIGHT}px)`} pb={200}>
+        <AbsoluteCenter adjustForHeader>
           <Paper w={400} h={400} p={"xl"} withBorder>
             <Stack align="center" gap="xl">
               <Title order={2}>You Rock!</Title>
@@ -55,20 +56,20 @@ export default function Apply() {
                 color="violet"
                 size="lg"
                 onClick={() => {
-                  submitApplication.mutate({
+                  submitMembershipApplication.mutate({
                     membershipTierId,
                     input: {
                       applicationResponses: {}
                     }
                   });
                 }}
-                loading={submitApplication.isPending}
+                loading={submitMembershipApplication.isPending}
               >
                 Apply
               </Button>
             </Stack>
           </Paper>
-        </Center>
+        </AbsoluteCenter>
       </WithLocalNavigationHeader>
     )
   );

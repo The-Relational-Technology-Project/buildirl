@@ -2,7 +2,6 @@
 
 import {
   Button,
-  Center,
   Paper,
   Stack,
   StackProps,
@@ -15,6 +14,7 @@ import { safeValidateSchema } from "~/utils/zod";
 import { FirstNameSchema, LastNameSchema } from "~/server/service/types";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
 
 function CreateUserForm(props: StackProps) {
   const router = useRouter();
@@ -81,7 +81,7 @@ function CreateUserForm(props: StackProps) {
 
 export default function Onboarding() {
   return (
-    <Center h={"100vh"} pb={200}>
+    <AbsoluteCenter>
       <Paper p="xl" withBorder w={300}>
         <Title order={4}>Welcome</Title>
         <Text size={"md"} fw={300} mt={"xs"}>
@@ -89,6 +89,6 @@ export default function Onboarding() {
         </Text>
         <CreateUserForm mt="md" />
       </Paper>
-    </Center>
+    </AbsoluteCenter>
   );
 }

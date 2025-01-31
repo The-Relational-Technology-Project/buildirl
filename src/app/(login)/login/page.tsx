@@ -1,10 +1,10 @@
 "use client";
 
-import { Center } from "@mantine/core";
 import { AuthenticationForm } from "~/client/components/AuthenticationForm";
 import { useEffect } from "react";
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { useRouter } from "next/navigation";
+import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
 
 export default function Login() {
   const supabase = createComponentClient();
@@ -23,8 +23,8 @@ export default function Login() {
   }, [supabase.auth, router]);
 
   return (
-    <Center h="100vh" pb={200}>
+    <AbsoluteCenter>
       <AuthenticationForm />
-    </Center>
+    </AbsoluteCenter>
   );
 }
