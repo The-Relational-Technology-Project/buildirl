@@ -7,6 +7,8 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
+import { Image } from "@mantine/core";
+import { HEADER_BAR_HEIGHT } from "~/client/components/HeaderBar";
 
 export default function Apply() {
   const params = useParams<{ publicId: string }>();
@@ -32,15 +34,21 @@ export default function Apply() {
   return (
     isLoaded(r) && (
       <WithLocalNavigationHeader>
-        <Center>
-          <Paper w={400} h={400} withBorder>
+        <Center h={`calc(100vh - ${HEADER_BAR_HEIGHT}px)`} pb={200}>
+          <Paper w={400} h={400} p={"xl"} withBorder>
             <Stack align="center" gap="xl">
-              <Stack align="center" gap={4}>
-                <Title order={2}>YOU ROCK!</Title>
-                <Text c="dimmed" ta="center">
-                  Let's See If We're A Fit!
-                </Text>
-              </Stack>
+              <Title order={2}>You Rock!</Title>
+
+              <Image
+                src={"/abstract-design.svg"}
+                h={120}
+                w={120}
+                alt={"abstract art"}
+              />
+
+              <Text c="dimmed" ta="center">
+                Let's See If We're A Fit!
+              </Text>
 
               <Button
                 variant="filled"
@@ -56,7 +64,7 @@ export default function Apply() {
                 }}
                 loading={submitApplication.isPending}
               >
-                LET'S GO
+                Apply
               </Button>
             </Stack>
           </Paper>
