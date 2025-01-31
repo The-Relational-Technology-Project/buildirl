@@ -1,4 +1,4 @@
-import { MembershipStatus, Prisma, type PrismaClient } from "@prisma/client";
+import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import {
   ApplicationQuestionsSchema,
@@ -20,7 +20,8 @@ import {
   UpdateMembershipTierInput,
   UpdateUserInput,
   URLSchema,
-  User
+  User,
+  MembershipStatus
 } from "~/server/service/types";
 import { parseAsZodType, parseNullableAsZodType } from "~/utils/zod";
 import { stringify } from "~/utils";
@@ -682,7 +683,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
-  async function isPublished(membershipTierId: number) {
+  async function isMembershipTierPublished(membershipTierId: number) {
     try {
       const r = await prisma.membershipTier.findUniqueOrThrow({
         select: {
@@ -705,7 +706,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   }
 
   async function publishMembershipTier(id: number): Promise<MutationResult> {
-    if (await isPublished(id)) {
+    if (await isMembershipTierPublished(id)) {
       throw new Error("Cannot publish an already published membership tier.");
     }
     try {
@@ -726,7 +727,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   }
 
   async function unpublishMembershipTier(id: number): Promise<MutationResult> {
-    if (!(await isPublished(id))) {
+    if (!(await isMembershipTierPublished(id))) {
       throw new Error(
         "cannot unpublish an already unpublished membership tier"
       );
@@ -786,6 +787,14 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
+  async function checkMembershipTierIsPublished(membershipTierId: number) {
+    if (!(await isMembershipTierPublished(membershipTierId))) {
+      throw new Error(
+        `Cannot submit membership application for unpublished membership tier with membershipTierId ${membershipTierId}`
+      );
+    }
+  }
+
   async function checkUserIsNotClubOwner(userId: number, clubId: number) {
     const ownerUserId = await getOwnerUserId(clubId);
     if (ownerUserId === userId) {
@@ -813,6 +822,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     input: SubmitMembershipApplicationInput,
     userId: number
   ): Promise<MutationResult> {
+    await checkMembershipTierIsPublished(membershipTierId);
     const clubId = await getClubIdFromMembershipTierId(membershipTierId);
     await checkUserIsNotClubOwner(userId, clubId);
     await checkUserDoesNotHaveMembershipForClub(userId, clubId);

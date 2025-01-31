@@ -17,12 +17,12 @@ export default class UnpublishMembershipTierCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasPublishedMembershipTier();
+    return m.hasPublishedMembershipTiers();
   }
 
   async run(m: SystemState, r: MainService): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
-      m.getPublishedMembershipTiersIds()
+      m.getPublishedMembershipTierIds()
     );
     await r.unpublishMembershipTier(this.membershipTierId);
     m.unpublishMembershipTier(this.membershipTierId);

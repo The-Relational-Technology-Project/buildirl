@@ -325,14 +325,6 @@ export class SystemState {
     return membershipTier;
   }
 
-  public hasMembershipTiers(): boolean {
-    return this.membershipTiers.size > 0;
-  }
-
-  public getMembershipTierIds(): number[] {
-    return Array.from(this.membershipTiers.keys());
-  }
-
   public hasEmptyMembershipTier(): boolean {
     return this.getEmptyMembershipTiersIds().length > 0;
   }
@@ -358,11 +350,11 @@ export class SystemState {
       .map((m) => m.id);
   }
 
-  public hasPublishedMembershipTier(): boolean {
-    return this.getPublishedMembershipTiersIds().length > 0;
+  public hasPublishedMembershipTiers(): boolean {
+    return this.getPublishedMembershipTierIds().length > 0;
   }
 
-  public getPublishedMembershipTiersIds(): number[] {
+  public getPublishedMembershipTierIds(): number[] {
     return Array.from(this.membershipTiers.values())
       .filter((t) => t.status === "PUBLISHED")
       .map((t) => t.id);
