@@ -66,7 +66,7 @@ export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
             <Group grow>
               <Button
                 mt={"sm"}
-                onClick={() => router.push(`${club.id}/update`)}
+                onClick={() => router.push(`/club/${club.id}/manage/update`)}
               >
                 {editButtonText}
               </Button>
