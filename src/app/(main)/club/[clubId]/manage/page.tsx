@@ -11,6 +11,7 @@ import { ClubAdminPanel } from "~/client/components/ClubAdminPanel";
 import { ManageMembershipTiersPanel } from "~/client/components/ManageMembershipTiersPanel";
 import { strictParseInt } from "~/utils";
 import { MembershipApplicationTable } from "~/client/components/MembershipApplicationTable";
+import { ActiveMembershipTable } from "~/client/components/ActiveMembershipTable";
 
 export default function ManageClub() {
   const params = useParams<{ clubId: string }>();
@@ -66,8 +67,9 @@ type ManagePeoplePanelProps = {
 
 function ManagePeoplePanel({ clubId }: ManagePeoplePanelProps) {
   return (
-    <Stack>
+    <Stack gap={0} pb={"xl"}>
       <MembershipApplicationTable clubId={clubId} />
+      <ActiveMembershipTable clubId={clubId} />
     </Stack>
   );
 }
