@@ -54,6 +54,9 @@ export type Membership = {
   membershipTier: MembershipTier;
   status: MembershipStatus;
   applicationResponses: ApplicationResponses;
+  // this isn't exactly the join date as it is the date
+  // the membership went into `PENDING` state
+  // TODO refine
   createdAt: Date;
 };
 

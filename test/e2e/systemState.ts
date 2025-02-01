@@ -388,14 +388,14 @@ export class SystemState {
     return club.id;
   }
 
-  public userIsNotOwnerAndDoesNotHaveMembershipInClub(
+  public userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(
     userId: number,
     clubId: number
   ): boolean {
     return (
-      !Array.from(this.memberships.values()).some(
-        (m) => m.userId === userId && m.clubId === clubId
-      ) &&
+      !Array.from(this.memberships.values())
+        .filter((v) => v.status === "ACTIVE")
+        .some((m) => m.userId === userId && m.clubId === clubId) &&
       // nor are they owner
       this.getClubState(clubId).ownerUserId !== userId
     );
@@ -467,6 +467,7 @@ export class SystemState {
     userId: number
   ) {
     const clubId = this.getClubIdForMembershipTier(membershipTierId);
+    // add or update if already exists (e.g. declined or deactivated)
     this.memberships.set(membershipId, {
       id: membershipId,
       userId: userId,

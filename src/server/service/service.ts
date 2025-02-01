@@ -28,6 +28,7 @@ import { stringify } from "~/utils";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import ClubGetPayload = Prisma.ClubGetPayload;
 import MembershipGetPayload = Prisma.MembershipGetPayload;
+import { Maybe } from "~/utils/types";
 
 const logger = rootLogger.child({ module: "mainService" });
 
@@ -790,7 +791,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   async function checkMembershipTierIsPublished(membershipTierId: number) {
     if (!(await isMembershipTierPublished(membershipTierId))) {
       throw new Error(
-        `Cannot submit membership application for unpublished membership tier with membershipTierId ${membershipTierId}`
+        `cannot submit membership application for unpublished membership tier with membershipTierId ${membershipTierId}`
       );
     }
   }
@@ -799,22 +800,40 @@ export function createMainService(prisma: PrismaClient): MainService {
     const ownerUserId = await getOwnerUserId(clubId);
     if (ownerUserId === userId) {
       throw new Error(
-        `Cannot submit membership application for club owner with userId ${userId} of clubId ${clubId}`
+        `cannot submit membership application for club owner with userId ${userId} of clubId ${clubId}`
       );
     }
   }
 
-  async function checkUserDoesNotHaveMembershipForClub(
+  async function checkUserDoesNotHaveActiveMembershipForClub(
     userId: number,
     clubId: number
-  ) {
-    const memberships = await getUserMemberships(userId);
-    const membershipsForClub = memberships.filter((m) => m.club.id === clubId);
-    if (membershipsForClub.length > 0) {
+  ): Promise<void> {
+    const membership = await userMembershipForClub(userId, clubId);
+    if (membership !== null && membership.status === "ACTIVE") {
       throw new Error(
-        `User with userId ${userId} already has a membership for club with clubId ${clubId}, ${membershipsForClub[0]!}`
+        `cannot submit membership application for user with id ${userId} for club with id ${clubId} 
+        with an existing active membership ${stringify(membership)}`
       );
     }
+  }
+
+  async function userMembershipForClub(
+    userId: number,
+    clubId: number
+  ): Promise<Maybe<Membership>> {
+    const memberships = await getUserMemberships(userId);
+    const membershipsForClub = memberships.filter((m) => m.club.id === clubId);
+    if (membershipsForClub.length === 0) {
+      return null;
+    }
+    if (membershipsForClub.length === 1) {
+      return membershipsForClub[0]!;
+    }
+    throw new Error(
+      `did not expect more than 1 membership for user with id ${userId} for club with id ${clubId} 
+      but found ${stringify(membershipsForClub)}`
+    );
   }
 
   async function submitMembershipApplication(
@@ -825,7 +844,24 @@ export function createMainService(prisma: PrismaClient): MainService {
     await checkMembershipTierIsPublished(membershipTierId);
     const clubId = await getClubIdFromMembershipTierId(membershipTierId);
     await checkUserIsNotClubOwner(userId, clubId);
-    await checkUserDoesNotHaveMembershipForClub(userId, clubId);
+    await checkUserDoesNotHaveActiveMembershipForClub(userId, clubId);
+    const existingMembership = await userMembershipForClub(userId, clubId);
+    if (null === existingMembership) {
+      return await createMembershipApplication(membershipTierId, input, userId);
+    }
+    // declined or deactivate membership can reapply with overwrite
+    return await updateMembershipWithNewApplication(
+      membershipTierId,
+      input,
+      existingMembership.id
+    );
+  }
+
+  async function createMembershipApplication(
+    membershipTierId: number,
+    input: SubmitMembershipApplicationInput,
+    userId: number
+  ): Promise<MutationResult> {
     try {
       const { id } = await prisma.membership.create({
         data: {
@@ -845,6 +881,34 @@ export function createMainService(prisma: PrismaClient): MainService {
     } catch (e) {
       logger.error(
         `failed to create pending membership from input ${stringify(input)} with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
+  async function updateMembershipWithNewApplication(
+    membershipTierId: number,
+    input: SubmitMembershipApplicationInput,
+    membershipId: bigint
+  ): Promise<MutationResult> {
+    try {
+      const { id } = await prisma.membership.update({
+        data: {
+          membershipTierId: membershipTierId,
+          applicationResponses: input.applicationResponses,
+          status: "PENDING"
+        },
+        where: {
+          id: membershipId
+        }
+      });
+      logger.info(
+        `updated membership to pending membership from input ${stringify(input)} with membershipId ${id}`
+      );
+      return { createdEntityId: id };
+    } catch (e) {
+      logger.error(
+        `failed to update membership to pending membership from input ${stringify(input)} with exception ${stringify(e)}`
       );
       throw e;
     }

@@ -32,11 +32,11 @@ export default class SubmitMembershipApplicationCommand
     return (
       m.hasUsers() &&
       m.hasPublishedMembershipTiers() &&
-      this.userIsNotOwnerAndDoesNotHaveMembershipInClub(m)
+      this.userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(m)
     );
   }
 
-  private userIsNotOwnerAndDoesNotHaveMembershipInClub(
+  private userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(
     m: Readonly<SystemState>
   ): boolean {
     // check ahead for selection, this should be deterministic between check and run
@@ -45,7 +45,7 @@ export default class SubmitMembershipApplicationCommand
     );
     const userId = this.userIdSelector.select(m.getUserIds());
     const clubId = m.getClubIdForMembershipTier(membershipTierId);
-    return m.userIsNotOwnerAndDoesNotHaveMembershipInClub(userId, clubId);
+    return m.userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(userId, clubId);
   }
 
   async run(m: SystemState, r: MainService): Promise<void> {

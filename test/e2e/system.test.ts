@@ -51,14 +51,17 @@ describe("mainService", () => {
 
   it("should run system", async () => {
     await assert(
-      asyncProperty(commands(allCommands(), { size: "+1" }), async (cmds) => {
-        const s = () => ({
-          model: new SystemState(),
-          real: service
-        });
-        // TODO check that all commands were run at least once
-        await asyncModelRun(s, cmds);
-      }),
+      asyncProperty(
+        commands(allCommands(), { size: "large" }),
+        async (cmds) => {
+          const s = () => ({
+            model: new SystemState(),
+            real: service
+          });
+          // TODO check that all commands were run at least once
+          await asyncModelRun(s, cmds);
+        }
+      ),
       {
         // shrinking causes issues with global database entities
         endOnFailure: true
