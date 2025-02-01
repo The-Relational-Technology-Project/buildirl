@@ -38,6 +38,7 @@ export default function ManageMembership() {
   const deactivateMembership = api.main.deactivateMembership.useMutation({
     onSuccess: async () => {
       await utils.main.userMemberships.invalidate();
+      await utils.main.activeMembershipsForClub.invalidate({ clubId: clubId });
       router.back();
     }
   });

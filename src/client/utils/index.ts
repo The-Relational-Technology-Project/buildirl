@@ -25,3 +25,11 @@ export function toDisplayMonth(dateTime: Date): string {
     month: "long"
   });
 }
+
+export function toDisplayDate(dateTime: Date): string {
+  return dateTime.toLocaleDateString("en-us", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric"
+  });
+}

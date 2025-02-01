@@ -10,6 +10,7 @@ import { ClubOverviewPanel } from "~/client/components/ClubOverviewPanel";
 import { ClubAdminPanel } from "~/client/components/ClubAdminPanel";
 import { ManageMembershipTiersPanel } from "~/client/components/ManageMembershipTiersPanel";
 import { strictParseInt } from "~/utils";
+import { MembershipApplicationTable } from "~/client/components/MembershipApplicationTable";
 
 export default function ManageClub() {
   const params = useParams<{ clubId: string }>();
@@ -45,7 +46,7 @@ export default function ManageClub() {
             <ManageMembershipTiersPanel club={r.data!} />
           </Tabs.Panel>
           <Tabs.Panel value={"people"}>
-            <></>
+            <ManagePeoplePanel clubId={r.data!.id} />
           </Tabs.Panel>
           <Tabs.Panel value={"intake"}>
             <></>
@@ -56,5 +57,17 @@ export default function ManageClub() {
         </Tabs>
       </Stack>
     )
+  );
+}
+
+type ManagePeoplePanelProps = {
+  clubId: number;
+};
+
+function ManagePeoplePanel({ clubId }: ManagePeoplePanelProps) {
+  return (
+    <Stack>
+      <MembershipApplicationTable clubId={clubId} />
+    </Stack>
   );
 }
