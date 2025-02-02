@@ -29,9 +29,10 @@ export default function ManageMembership() {
 
   const membership = membershipForClub(r.data!, clubId);
   if (null === membership || membership.status != "ACTIVE") {
-    throw new Error(
-      `expected to have active membership but found ${membership}`
-    );
+    // we don't error here but return null page because this page
+    // gets rehydrated after deactivate membership before the router.back()
+    // is completed
+    return null;
   }
 
   const utils = api.useUtils();
