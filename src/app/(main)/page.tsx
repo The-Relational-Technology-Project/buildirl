@@ -105,7 +105,9 @@ export default function Home() {
     return null;
   }
 
-  if (r.data!.length === 0 && m.data!.length === 0) {
+  const activeMemberships = m.data!.filter((m) => m.status === "ACTIVE");
+
+  if (r.data!.length === 0 && activeMemberships.length === 0) {
     return (
       <Stack mt={"xl"} justify="center" style={{ minHeight: "60vh" }}>
         <Title order={1} mb={"md"}>
@@ -140,7 +142,7 @@ export default function Home() {
       {r.data!.map((c) => (
         <ClubCard key={c.id} club={c} isOwned={true} membershipId={null} />
       ))}
-      {m.data!.map((m) => (
+      {activeMemberships.map((m) => (
         <ClubCard
           key={m.club.id}
           club={m.club}
