@@ -37,7 +37,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // do not redirect for these excluded endpoints
-  if (request.nextUrl.pathname.startsWith("/api/auth/confirm")) {
+  if (startsWith(request.nextUrl.pathname, ["/api/auth/confirm", "/join"])) {
     return supabaseResponse;
   }
 
@@ -77,4 +77,8 @@ export async function updateSession(request: NextRequest) {
   // of sync and terminate the user's session prematurely!
 
   return supabaseResponse;
+}
+
+function startsWith(s: string, m: string[]) {
+  return m.some((m) => s.startsWith(m));
 }

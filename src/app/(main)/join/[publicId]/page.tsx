@@ -170,7 +170,7 @@ function JoinButton({ club }: JoinButtonProps) {
           variant={"filled"}
           color={"violet"}
           radius={90}
-          onClick={() => router.push(`/join/${club.publicId}/apply/completed`)}
+          onClick={() => router.push(`/apply/${club.publicId}/completed`)}
           size="lg"
         >
           Pending Approval

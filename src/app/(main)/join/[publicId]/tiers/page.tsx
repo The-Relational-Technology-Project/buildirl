@@ -97,7 +97,7 @@ function MembershipTierCard({
           color={"violet"}
           onClick={() =>
             router.push(
-              `/join/${clubPublicId}/apply?membershipTierId=${membershipTier.id}`
+              `/apply/${clubPublicId}?membershipTierId=${membershipTier.id}`
             )
           }
         >
