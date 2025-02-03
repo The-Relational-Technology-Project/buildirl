@@ -30,6 +30,7 @@ import { z } from "zod";
 type UpdateMembershipTierModalProps = {
   club: Club;
   membershipTier: MembershipTier;
+  isLastPublished: boolean;
   opened: boolean;
   handleClose: () => void;
 };
@@ -37,6 +38,7 @@ type UpdateMembershipTierModalProps = {
 export function UpdateMembershipTierModal({
   club,
   membershipTier,
+  isLastPublished,
   opened,
   handleClose
 }: UpdateMembershipTierModalProps) {
@@ -149,6 +151,7 @@ export function UpdateMembershipTierModal({
             <DeleteMembershipTierButton
               club={club}
               membershipTier={membershipTier}
+              isLastPublished={isLastPublished}
               handleClose={handleClose}
             />
           </Group>
@@ -215,12 +218,14 @@ function UpdateMembershipTierButton({
 type DeleteMembershipButtonProps = {
   club: Club;
   membershipTier: MembershipTier;
+  isLastPublished: boolean;
   handleClose: () => void;
 };
 
 function DeleteMembershipTierButton({
   club,
   membershipTier,
+  isLastPublished,
   handleClose
 }: DeleteMembershipButtonProps) {
   const utils = api.useUtils();
@@ -251,6 +256,7 @@ function DeleteMembershipTierButton({
   });
 
   const membershipTierIsEligibleForDeletion =
+    !isLastPublished &&
     // default free tier cannot be deleted
     !isDefaultFreeTier(membershipTier) &&
     // allows button to display as disabled until ready
@@ -262,11 +268,7 @@ function DeleteMembershipTierButton({
   return (
     <Tooltip
       position={"bottom"}
-      label={
-        isDefaultFreeTier(membershipTier)
-          ? "The free tier cannot be deleted."
-          : "Only tiers with no members or pending applications can be deleted."
-      }
+      label={deleteButtonTooltipLabel(membershipTier, isLastPublished)}
       hidden={membershipTierIsEligibleForDeletion}
     >
       <Button
@@ -294,4 +296,17 @@ function hasNoMembershipsForMembershipTier(
     (m) => m.membershipTier.id === membershipTierId
   );
   return membershipsForTier.length === 0;
+}
+
+function deleteButtonTooltipLabel(
+  membershipTier: MembershipTier,
+  isLastPublished: boolean
+) {
+  if (isDefaultFreeTier(membershipTier)) {
+    return "The free tier cannot be deleted.";
+  }
+  if (isLastPublished) {
+    return "There must be at least one active published tier.";
+  }
+  return "Only tiers with no members or pending applications can be deleted.";
 }

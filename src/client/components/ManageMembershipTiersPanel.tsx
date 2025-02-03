@@ -9,7 +9,8 @@ import {
   Button,
   ActionIcon,
   Space,
-  Box
+  Box,
+  Tooltip
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { Club, MembershipTier } from "~/server/service/types";
@@ -48,7 +49,14 @@ export function ManageMembershipTiersPanel({
       >
         {publishedTiers.map((t) => (
           <Carousel.Slide key={t.id}>
-            <ManageMembershipTierCard club={club} membershipTier={t} />
+            <ManageMembershipTierCard
+              club={club}
+              membershipTier={t}
+              // a trick because we know this is only true if there is
+              // only 1 remaining published tier and if so this must be
+              // that tier
+              isLastPublished={publishedTiers.length === 1}
+            />
           </Carousel.Slide>
         ))}
 
@@ -84,7 +92,12 @@ export function ManageMembershipTiersPanel({
           >
             {unpublishedTiers.map((t) => (
               <Carousel.Slide key={t.id}>
-                <ManageMembershipTierCard club={club} membershipTier={t} />
+                <ManageMembershipTierCard
+                  club={club}
+                  membershipTier={t}
+                  // not published!
+                  isLastPublished={false}
+                />
               </Carousel.Slide>
             ))}
           </Carousel>
@@ -97,11 +110,13 @@ export function ManageMembershipTiersPanel({
 type ManageMembershipTierCardProps = {
   club: Club;
   membershipTier: MembershipTier;
+  isLastPublished: boolean;
 };
 
 export function ManageMembershipTierCard({
   club,
-  membershipTier
+  membershipTier,
+  isLastPublished
 }: ManageMembershipTierCardProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
@@ -185,22 +200,30 @@ export function ManageMembershipTierCard({
           <UpdateMembershipTierModal
             club={club}
             membershipTier={membershipTier}
+            isLastPublished={isLastPublished}
             opened={opened}
             handleClose={close}
           />
 
           {membershipTier.status === "PUBLISHED" ? (
-            <Button
-              variant="light"
-              onClick={async () =>
-                await unpublishMembershipTier.mutateAsync({
-                  id: membershipTier.id
-                })
-              }
-              loading={unpublishMembershipTier.isPending}
+            <Tooltip
+              position={"bottom"}
+              label={"There must be at least one active published tier."}
+              hidden={!isLastPublished}
             >
-              Archive
-            </Button>
+              <Button
+                variant="light"
+                onClick={async () =>
+                  await unpublishMembershipTier.mutateAsync({
+                    id: membershipTier.id
+                  })
+                }
+                loading={unpublishMembershipTier.isPending}
+                disabled={isLastPublished}
+              >
+                Archive
+              </Button>
+            </Tooltip>
           ) : (
             <Button
               variant="light"
