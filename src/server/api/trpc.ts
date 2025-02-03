@@ -160,10 +160,16 @@ const withAuthorization = t.middleware(({ ctx, next }) => {
 });
 
 /**
- * This is the base piece you use to build new queries and mutations on your tRPC API. It does not
- * guarantee that a user querying is authorized, but you can still access user session data if they
- * are logged in.
+ * This is the base piece you use to build secured queries and mutations on your tRPC API. It guarantees that
+ * a user is authorized, and you can access user context
  */
 export const securedProcedure = t.procedure
   .use(timingMiddleware)
   .use(withAuthorization);
+
+/**
+ * This is the base piece you use to build public queries and mutations on your tRPC API. It does not
+ * guarantee that a user querying is authorized, but you can still access user session data if they
+ * are logged in
+ */
+export const publicProcedure = t.procedure.use(timingMiddleware);

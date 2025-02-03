@@ -25,7 +25,7 @@ export default function Apply() {
     api.main.submitMembershipApplication.useMutation({
       onSuccess: () => {
         utils.main.userMemberships.invalidate();
-        router.push(`/join/${params.publicId}/apply/completed`);
+        router.push(`/apply/${params.publicId}/completed`);
       }
     });
 

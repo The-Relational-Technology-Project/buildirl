@@ -14,10 +14,26 @@ import {
   PAGE_WIDTH
 } from "~/client/components/HeaderBar";
 import { api } from "~/trpc/server";
+import { createSSRClient } from "~/utils/supabase/auth/ssrClient";
 
-export default function MainLayout({
+export default async function MainLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
+  // we want to resolve this via supabase SSR to avoid `use client` for
+  // the entire main route group
+  const supabase = await createSSRClient();
+  const r = await supabase.auth.getSession();
+  if (!r.data.session) {
+    return <PublicLayout>{children}</PublicLayout>;
+  }
+  return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
+}
+
+type LayoutProps = {
+  children: React.ReactNode;
+};
+
+function AuthenticatedLayout({ children }: LayoutProps) {
   // Prefetching of user-authenticated data goes here
   void api.main.user.prefetch();
   void api.main.userOwnedClubs.prefetch();
@@ -34,5 +50,13 @@ export default function MainLayout({
         </Center>
       </AppShellMain>
     </AppShell>
+  );
+}
+
+function PublicLayout({ children }: LayoutProps) {
+  return (
+    <Center h={"100%"}>
+      <Box w={{ base: "80vw", md: PAGE_WIDTH }}>{children}</Box>
+    </Center>
   );
 }

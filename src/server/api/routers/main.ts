@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { createTRPCRouter, securedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  securedProcedure
+} from "~/server/api/trpc";
 import {
   CreateClubInputSchema,
   CreateMembershipTierInputSchema,
@@ -25,7 +29,7 @@ export const mainRouter = createTRPCRouter({
     return ctx.service.getUserMemberships(ctx.user.userId);
   }),
 
-  clubByPublicId: securedProcedure
+  clubByPublicId: publicProcedure
     .input(z.object({ publicId: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.service.getClubByPublicId(input.publicId);
@@ -43,7 +47,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.getMembershipApplicationsForClub(input.clubId);
     }),
 
-  clubStatistics: securedProcedure
+  clubStatistics: publicProcedure
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
       return ctx.service.getClubStatistics(input.clubId);
@@ -55,7 +59,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.getUser(input.id);
     }),
 
-  club: securedProcedure
+  club: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(({ ctx, input }) => {
       return ctx.service.getClub(input.id);
