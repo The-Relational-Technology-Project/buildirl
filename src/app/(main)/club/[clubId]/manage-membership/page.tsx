@@ -18,6 +18,15 @@ export default function ManageMembership() {
 
   const r = api.main.userMemberships.useQuery();
 
+  const utils = api.useUtils();
+  const deactivateMembership = api.main.deactivateMembership.useMutation({
+    onSuccess: async () => {
+      await utils.main.userMemberships.invalidate();
+      await utils.main.activeMembershipsForClub.invalidate({ clubId: clubId });
+      router.back();
+    }
+  });
+
   QueryError.check({
     result: r,
     fieldName: "userMemberships"
@@ -34,15 +43,6 @@ export default function ManageMembership() {
     // is completed
     return null;
   }
-
-  const utils = api.useUtils();
-  const deactivateMembership = api.main.deactivateMembership.useMutation({
-    onSuccess: async () => {
-      await utils.main.userMemberships.invalidate();
-      await utils.main.activeMembershipsForClub.invalidate({ clubId: clubId });
-      router.back();
-    }
-  });
 
   return (
     <WithLocalNavigationHeader>
