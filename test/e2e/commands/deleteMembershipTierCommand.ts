@@ -17,12 +17,12 @@ export default class DeleteMembershipTierCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasEmptyNonFreeMembershipTier();
+    return m.hasEmptyNotFreeAndNotLastPublishedMembershipTier();
   }
 
   async run(m: SystemState, r: MainService): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
-      m.getEmptyNonFreeMembershipTiersIds()
+      m.getEmptyNotFreeAndNotLastPublishedMembershipTiersIds()
     );
     await r.deleteMembershipTier(this.membershipTierId);
     // must get this value before deleting

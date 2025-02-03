@@ -336,18 +336,35 @@ export class SystemState {
     );
   }
 
-  public hasEmptyNonFreeMembershipTier(): boolean {
-    return this.getEmptyNonFreeMembershipTiersIds().length > 0;
+  public hasEmptyNotFreeAndNotLastPublishedMembershipTier(): boolean {
+    return (
+      this.getEmptyNotFreeAndNotLastPublishedMembershipTiersIds().length > 0
+    );
   }
 
-  public getEmptyNonFreeMembershipTiersIds(): number[] {
+  public getEmptyNotFreeAndNotLastPublishedMembershipTiersIds(): number[] {
     const nonEmptyMembershipTierIds = this.getNonEmptyMembershipTierIds();
     return Array.from(this.membershipTiers.values())
       .filter(
         // definition of default free tier is 0 cost
-        (m) => !nonEmptyMembershipTierIds.has(m.id) && m.costPerMonthInUSD !== 0
+        (m) =>
+          !nonEmptyMembershipTierIds.has(m.id) &&
+          m.costPerMonthInUSD !== 0 &&
+          !this.isMembershipTierLastPublished(m.id)
       )
       .map((m) => m.id);
+  }
+
+  public isMembershipTierLastPublished(membershipTierId: number): boolean {
+    const clubId = this.getClubIdForMembershipTier(membershipTierId);
+    const club = this.getClubState(clubId);
+    const publishedMembershipTiers = club.membershipTierIds.filter(
+      (id) => this.getMembershipTier(id).status === "PUBLISHED"
+    );
+    return (
+      publishedMembershipTiers.length === 1 &&
+      publishedMembershipTiers[0] === membershipTierId
+    );
   }
 
   public hasPublishedMembershipTiers(): boolean {
@@ -357,6 +374,19 @@ export class SystemState {
   public getPublishedMembershipTierIds(): number[] {
     return Array.from(this.membershipTiers.values())
       .filter((t) => t.status === "PUBLISHED")
+      .map((t) => t.id);
+  }
+
+  public hasPublishedButNotLastPublishedMembershipTiers(): boolean {
+    return this.getPublishedButNotLastPublishedMembershipTierIds().length > 0;
+  }
+
+  public getPublishedButNotLastPublishedMembershipTierIds(): number[] {
+    return Array.from(this.membershipTiers.values())
+      .filter(
+        (t) =>
+          t.status === "PUBLISHED" && !this.isMembershipTierLastPublished(t.id)
+      )
       .map((t) => t.id);
   }
 

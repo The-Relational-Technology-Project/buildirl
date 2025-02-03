@@ -668,6 +668,9 @@ export function createMainService(prisma: PrismaClient): MainService {
   async function deleteMembershipTier(id: number): Promise<MutationResult> {
     await checkNoMembersOnMembershipTier(id);
     await checkIsNotDefaultFreeMembershipTier(id);
+    if (await isMembershipTierLastPublishedTier(id)) {
+      throw new Error("cannot delete last published membership tier");
+    }
     try {
       await prisma.membershipTier.delete({
         where: {
@@ -727,11 +730,31 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
+  async function isMembershipTierLastPublishedTier(membershipTierId: number) {
+    try {
+      const allPublishedMembershipTiers = await prisma.membershipTier.findMany({
+        where: { status: "PUBLISHED" }
+      });
+      logger.info(
+        `queried all published membership tiers with result ${stringify(allPublishedMembershipTiers)}`
+      );
+      return allPublishedMembershipTiers.length === 1 && allPublishedMembershipTiers[0]!.id === membershipTierId;
+    } catch (e) {
+      logger.error(
+        `failed to query all published membership tiers with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
   async function unpublishMembershipTier(id: number): Promise<MutationResult> {
     if (!(await isMembershipTierPublished(id))) {
       throw new Error(
         "cannot unpublish an already unpublished membership tier"
       );
+    }
+    if (await isMembershipTierLastPublishedTier(id)) {
+      throw new Error("cannot unpublish last published membership tier");
     }
     try {
       await prisma.membershipTier.update({
