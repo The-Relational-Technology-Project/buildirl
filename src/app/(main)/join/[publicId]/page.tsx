@@ -157,7 +157,7 @@ type JoinButtonProps = {
 function JoinButton({ ...props }: JoinButtonProps) {
   const r = api.main.isUserAuthenticated.useQuery();
 
-  QueryError.check({
+  QueryError.checkNullable({
     result: r,
     fieldName: "isUserAuthenticated"
   });
@@ -219,7 +219,7 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
   }
 }
 
-export function DefaultJoinButton({ club }: JoinButtonProps) {
+function DefaultJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
   return (
     <Button

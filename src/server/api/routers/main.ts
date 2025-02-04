@@ -39,7 +39,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.getClubByPublicId(input.publicId);
     }),
 
-  activeMembershipsForClub: securedProcedure
+  activeMembershipsForClub: publicProcedure
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
       return ctx.service.getActiveMembershipsForClub(input.clubId);
