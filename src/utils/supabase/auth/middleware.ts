@@ -17,11 +17,29 @@ export async function updateSession(request: NextRequest) {
     data: { user }
   } = await supabase.auth.getUser();
 
-  function redirect(pathname: string): NextResponse {
+  function redirect(
+    pathname: string,
+    params: Record<string, string> = {},
+    keepExistingParams: boolean = false
+  ): NextResponse {
     const url = request.nextUrl.clone();
+
+    if (!keepExistingParams) {
+      // clear existing search params
+      for (const key of [...url.searchParams.keys()]) {
+        url.searchParams.delete(key);
+      }
+    }
+
+    // add new search params
+    for (const [key, value] of Object.entries(params)) {
+      url.searchParams.set(key, value);
+    }
+
     url.pathname = pathname;
     return NextResponse.redirect(url);
   }
+
   async function isOnboarded(user: User): Promise<boolean> {
     const result = await supabase
       .from("user")
@@ -43,21 +61,25 @@ export async function updateSession(request: NextRequest) {
 
   // no user, respond by redirecting the user to the login page
   if (!user && !request.nextUrl.pathname.startsWith("/login")) {
-    const url = new URL(request.nextUrl.origin);
-    url.pathname = "/login";
-    // capture the original URL to redirect back after login
-    url.searchParams.set(
-      "redirect",
-      request.nextUrl.pathname + request.nextUrl.search
+    return redirect(
+      "/login",
+      // capture the original URL to redirect back after login
+      {
+        redirect: request.nextUrl.pathname
+      },
+      // we want to keep search params of the redirect url too
+      true
     );
-    return NextResponse.redirect(url);
   }
 
   if (user && request.nextUrl.pathname.startsWith("/login")) {
     // user is logged in, redirect to the redirect search param if it exists
     const redirectUrl = request.nextUrl.searchParams.get("redirect");
     if (redirectUrl) {
-      return redirect(redirectUrl);
+      // pass through the redirect params too
+      // TODO minor nit, the redirect url is still kept in the query params
+      //  under 'redirect' key and could be removed
+      return redirect(redirectUrl, {}, true);
     }
     // otherwise redirect to root
     return redirect("/");
