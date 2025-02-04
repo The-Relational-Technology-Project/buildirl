@@ -41,9 +41,16 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // no user, respond by redirecting the user to the login page
   if (!user && !request.nextUrl.pathname.startsWith("/login")) {
-    // no user, potentially respond by redirecting the user to the login page
-    return redirect("/login");
+    const url = new URL(request.nextUrl.origin);
+    url.pathname = "/login";
+    // capture the original URL to redirect back after login
+    url.searchParams.set(
+      "redirect",
+      request.nextUrl.pathname + request.nextUrl.search
+    );
+    return NextResponse.redirect(url);
   }
 
   if (user && request.nextUrl.pathname.startsWith("/login")) {
