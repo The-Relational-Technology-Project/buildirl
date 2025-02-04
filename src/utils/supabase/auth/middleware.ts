@@ -54,7 +54,12 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && request.nextUrl.pathname.startsWith("/login")) {
-    // user is logged in, redirect to the index
+    // user is logged in, redirect to the redirect search param if it exists
+    const redirectUrl = request.nextUrl.searchParams.get("redirect");
+    if (redirectUrl) {
+      return redirect(redirectUrl);
+    }
+    // otherwise redirect to root
     return redirect("/");
   }
 
