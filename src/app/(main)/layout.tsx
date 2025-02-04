@@ -51,7 +51,7 @@ function AuthenticatedLayout({ children }: LayoutProps) {
 
 function PublicLayout({ children }: LayoutProps) {
   return (
-    <Center h={"100%"}>
+    <Center h={"100%"} pt={HEADER_BAR_HEIGHT}>
       <Box w={{ base: "80vw", md: PAGE_WIDTH }}>{children}</Box>
     </Center>
   );
