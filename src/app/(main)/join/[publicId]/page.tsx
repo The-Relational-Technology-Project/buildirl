@@ -20,6 +20,7 @@ import { storageClient } from "~/client/utils/storageClient";
 import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
 import { membershipForClub } from "~/utils/types";
+import { isUserAuthenticated } from "~/client/utils/auth";
 
 export default function ClubJoin() {
   const params = useParams<{ publicId: string }>();
@@ -153,7 +154,21 @@ type JoinButtonProps = {
   club: Club;
 };
 
-function JoinButton({ club }: JoinButtonProps) {
+function JoinButton({ ...props }: JoinButtonProps) {
+  const r = api.main.isUserAuthenticated.useQuery();
+
+  QueryError.check({
+    result: r,
+    fieldName: "isUserAuthenticated"
+  });
+
+  if (r.data!) {
+    return <AuthenticatedJoinButton {...props} />;
+  }
+  return <DefaultJoinButton {...props} />;
+}
+
+function AuthenticatedJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
   const r = api.main.userMemberships.useQuery();
 
@@ -202,4 +217,19 @@ function JoinButton({ club }: JoinButtonProps) {
         </Button>
       );
   }
+}
+
+export function DefaultJoinButton({ club }: JoinButtonProps) {
+  const router = useRouter();
+  return (
+    <Button
+      variant={"filled"}
+      color={"violet"}
+      radius={90}
+      onClick={() => router.push(`/join/${club.publicId}/tiers`)}
+      size="lg"
+    >
+      Join as Member
+    </Button>
+  );
 }

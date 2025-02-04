@@ -23,7 +23,6 @@ export default function ClubMembers() {
   const r = api.main.clubByPublicId.useQuery({
     publicId: params.publicId
   });
-  const router = useRouter();
 
   QueryError.check({
     result: r,

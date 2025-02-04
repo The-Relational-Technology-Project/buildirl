@@ -21,6 +21,10 @@ export const mainRouter = createTRPCRouter({
     return ctx.service.getUser(ctx.user.userId);
   }),
 
+  isUserAuthenticated: publicProcedure.query(({ ctx }) => {
+    return ctx.user != null;
+  }),
+
   userOwnedClubs: securedProcedure.query(({ ctx }) => {
     return ctx.service.getUserOwnedClubs(ctx.user.userId);
   }),

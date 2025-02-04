@@ -14,19 +14,15 @@ import {
   PAGE_WIDTH
 } from "~/client/components/HeaderBar";
 import { api } from "~/trpc/server";
-import { createSSRClient } from "~/utils/supabase/auth/ssrClient";
+import { isUserAuthenticated } from "~/client/utils/auth";
 
 export default async function MainLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
-  // we want to resolve this via supabase SSR to avoid `use client` for
-  // the entire main route group
-  const supabase = await createSSRClient();
-  const r = await supabase.auth.getSession();
-  if (!r.data.session) {
-    return <PublicLayout>{children}</PublicLayout>;
+  if (await isUserAuthenticated()) {
+    return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
   }
-  return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
+  return <PublicLayout>{children}</PublicLayout>;
 }
 
 type LayoutProps = {
