@@ -1,5 +1,11 @@
 import { z } from "zod";
 import { Id, Maybe } from "~/utils/types";
+import {
+  FormQuestions,
+  FormQuestionsSchema,
+  FormResponses,
+  FormResponsesSchema
+} from "~/server/service/types/form";
 
 export type MainService = MainQueries & MainMutations;
 
@@ -35,14 +41,9 @@ export type Club = {
   websiteURL: Maybe<URL>;
   instagramHandle: Maybe<InstagramHandle>;
   eventCalendarURL: Maybe<URL>;
-  applicationQuestions: ApplicationQuestions;
+  applicationQuestions: FormQuestions;
   membershipTiers: MembershipTier[];
 };
-
-// TODO define the shape of this, one of the text questions need to
-//  be marked as primary display
-export const ApplicationQuestionsSchema = z.object({});
-export type ApplicationQuestions = z.infer<typeof ApplicationQuestionsSchema>;
 
 export type MembershipStatus = "ACTIVE" | "PENDING" | "DECLINED" | "INACTIVE";
 export type MembershipTierStatus = "PUBLISHED" | "UNPUBLISHED";
@@ -53,7 +54,7 @@ export type Membership = {
   club: Club;
   membershipTier: MembershipTier;
   status: MembershipStatus;
-  applicationResponses: ApplicationResponses;
+  applicationResponses: FormResponses;
   // this isn't exactly the join date as it is the date
   // the membership went into `PENDING` state
   // TODO refine
@@ -68,10 +69,6 @@ export type MembershipTier = {
   contributionDescription: string;
   costPerMonthInUSD: number;
 };
-
-// TODO define the shape of this relative to ApplicationQuestionsSchema
-export const ApplicationResponsesSchema = z.object({});
-export type ApplicationResponses = z.infer<typeof ApplicationQuestionsSchema>;
 
 export type ClubStatistics = {
   memberCount: number;
@@ -190,7 +187,7 @@ export const UpdateClubInputSchema = z.object({
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;
 
 export const UpdateClubApplicationQuestionsInputSchema = z.object({
-  applicationQuestions: ApplicationQuestionsSchema
+  applicationQuestions: FormQuestionsSchema
 });
 export type UpdateClubApplicationQuestionsInput = z.infer<
   typeof UpdateClubApplicationQuestionsInputSchema
@@ -232,7 +229,7 @@ export type UpdateMembershipTierInput = z.infer<
 >;
 
 export const SubmitMembershipApplicationInputSchema = z.object({
-  applicationResponses: ApplicationResponsesSchema
+  applicationResponses: FormResponsesSchema
 });
 export type SubmitMembershipApplicationInput = z.infer<
   typeof SubmitMembershipApplicationInputSchema

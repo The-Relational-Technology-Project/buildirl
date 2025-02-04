@@ -1,5 +1,4 @@
 import {
-  ApplicationQuestions,
   Club,
   CreateClubInput,
   CreateUserInput,
@@ -14,12 +13,12 @@ import {
   UpdateMembershipTierInput,
   SubmitMembershipApplicationInput,
   MembershipStatus,
-  ApplicationResponses,
   Membership,
   ClubStatistics
 } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
+import { FormQuestions, FormResponses } from "~/server/service/types/form";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -33,7 +32,7 @@ type ClubState = {
   websiteURL: Maybe<URL>;
   instagramHandle: Maybe<InstagramHandle>;
   eventCalendarURL: Maybe<URL>;
-  applicationQuestions: ApplicationQuestions;
+  applicationQuestions: FormQuestions;
   membershipTierIds: number[];
 };
 
@@ -43,7 +42,7 @@ type MembershipState = {
   clubId: number;
   membershipTierId: number;
   status: MembershipStatus;
-  applicationResponses: ApplicationResponses;
+  applicationResponses: FormResponses;
 };
 
 type UserState = {

@@ -1,8 +1,6 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import {
-  ApplicationQuestionsSchema,
-  ApplicationResponsesSchema,
   Club,
   ClubStatistics,
   CreateClubInput,
@@ -23,6 +21,10 @@ import {
   User,
   MembershipStatus
 } from "~/server/service/types";
+import {
+  FormQuestionsSchema,
+  FormResponsesSchema
+} from "~/server/service/types/form";
 import { parseAsZodType, parseNullableAsZodType } from "~/utils/zod";
 import { stringify } from "~/utils";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
@@ -143,7 +145,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       eventCalendarURL: parseNullableAsZodType(r.eventCalendarURL, URLSchema),
       applicationQuestions: parseAsZodType(
         r.applicationQuestions,
-        ApplicationQuestionsSchema
+        FormQuestionsSchema
       ),
       membershipTiers: orderedByCost(
         r.membershipTiers.map((t) => asMembershipTier(t))
@@ -183,7 +185,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       status: r.status,
       applicationResponses: parseAsZodType(
         r.applicationResponses,
-        ApplicationResponsesSchema
+        FormResponsesSchema
       ),
       createdAt: r.createdAt
     };
@@ -738,7 +740,10 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(
         `queried all published membership tiers with result ${stringify(allPublishedMembershipTiers)}`
       );
-      return allPublishedMembershipTiers.length === 1 && allPublishedMembershipTiers[0]!.id === membershipTierId;
+      return (
+        allPublishedMembershipTiers.length === 1 &&
+        allPublishedMembershipTiers[0]!.id === membershipTierId
+      );
     } catch (e) {
       logger.error(
         `failed to query all published membership tiers with exception ${stringify(e)}`
