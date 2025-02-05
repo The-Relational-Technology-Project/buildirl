@@ -10,40 +10,76 @@ enum FormQuestionType {
 const FormQuestionTypeSchema = z.nativeEnum(FormQuestionType);
 
 const BaseFormQuestionSchema = z.object({
-  question: z.string().min(10, "Length must be >= 10"),
+  question: z
+    .string()
+    .min(10, "Length must be >= 10")
+    .max(300, "Length must be <= 300"),
   type: FormQuestionTypeSchema
 });
 
 /**
- * Question-type specific metadata
+ * Question-type specific schema and metadata definitions
  */
 
+const ShortTextQuestionSchema = BaseFormQuestionSchema.extend({
+  type: z.literal(FormQuestionType.SHORT_TEXT),
+  metadata: z.undefined().optional()
+});
+
+const LongTextQuestionSchema = BaseFormQuestionSchema.extend({
+  type: z.literal(FormQuestionType.LONG_TEXT),
+  metadata: z.undefined().optional()
+});
+
 const SelectQuestionMetadataSchema = z.object({
-  choices: z.array(z.string()).min(1, "At least one choice is required")
+  choices: z.array(z.string()).min(2, "At least two choice is required")
+});
+
+const SingleSelectQuestionSchema = BaseFormQuestionSchema.extend({
+  type: z.literal(FormQuestionType.SINGLE_SELECT),
+  metadata: SelectQuestionMetadataSchema
+});
+
+const MultiSelectQuestionSchema = BaseFormQuestionSchema.extend({
+  type: z.literal(FormQuestionType.MULTI_SELECT),
+  metadata: SelectQuestionMetadataSchema
 });
 
 const FormQuestionSchema = z.discriminatedUnion("type", [
-  BaseFormQuestionSchema.extend({
-    type: z.literal(FormQuestionType.SHORT_TEXT),
-    response: z.undefined().optional()
-  }),
-  BaseFormQuestionSchema.extend({
-    type: z.literal(FormQuestionType.LONG_TEXT),
-    response: z.undefined().optional()
-  }),
-  BaseFormQuestionSchema.extend({
-    type: z.literal(FormQuestionType.SINGLE_SELECT),
-    response: SelectQuestionMetadataSchema
-  }),
-  BaseFormQuestionSchema.extend({
-    type: z.literal(FormQuestionType.MULTI_SELECT),
-    response: SelectQuestionMetadataSchema
-  })
+  ShortTextQuestionSchema,
+  LongTextQuestionSchema,
+  SingleSelectQuestionSchema,
+  MultiSelectQuestionSchema
 ]);
 
 export const FormQuestionsSchema = z.array(FormQuestionSchema);
 export type FormQuestions = z.infer<typeof FormQuestionsSchema>;
 
-// TODO define the shape of this relative to FormQuestionsSchema
-export const FormResponsesSchema = z.object({});
+export const FormResponsesSchema = z.array(
+  z.discriminatedUnion("type", [
+    ShortTextQuestionSchema.extend({
+      response: z
+        .string()
+        .min(3, "Length must be >= 3")
+        .max(150, "Length must be <= 150")
+    }),
+    LongTextQuestionSchema.extend({
+      response: z
+        .string()
+        .min(10, "Length must be >= 10")
+        .max(1000, "Length must be <= 1000")
+    }),
+    MultiSelectQuestionSchema.extend({
+      // no validation that the selection is one of the choices
+      response: z
+        .array(z.number())
+        .min(1, "At least one choice must be selected")
+    }),
+    SingleSelectQuestionSchema.extend({
+      // no validation that the selection is one of the choices
+      response: z.number()
+    })
+  ])
+);
+
 export type FormResponses = z.infer<typeof FormResponsesSchema>;

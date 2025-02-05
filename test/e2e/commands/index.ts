@@ -157,7 +157,7 @@ function updateClubApplicationQuestionsCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
     // TODO
-    applicationQuestions: constant({})
+    applicationQuestions: constant([])
   }).map(
     (i) =>
       new UpdateClubApplicationQuestionsCommand(
@@ -241,7 +241,7 @@ function submitMembershipApplicationCommands() {
     membershipTierIdSelector: itemSelector<number>(),
     userIdSelector: itemSelector<number>(),
     // TODO
-    applicationResponses: constant({})
+    applicationResponses: constant([])
   }).map(
     (i) =>
       new SubmitMembershipApplicationCommand(

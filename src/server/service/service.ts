@@ -404,7 +404,7 @@ export function createMainService(prisma: PrismaClient): MainService {
           ...input,
           ownerUserId: userId,
           // default empty
-          applicationQuestions: {}
+          applicationQuestions: []
         },
         select: {
           id: true
