@@ -20,7 +20,8 @@ function CreateUserForm(props: StackProps) {
   const router = useRouter();
   const createUser = api.main.createUser.useMutation({
     onSuccess: () => {
-      router.push("/");
+      // allow middleware to redirect user to original page
+      router.refresh();
     }
   });
 

@@ -40,6 +40,20 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  function redirectToRedirectUrlIfItExistsOtherwiseRedirectToRoot() {
+    // if there is a redirect url
+    const redirectUrl = request.nextUrl.searchParams.get("redirect");
+    if (redirectUrl) {
+      // redirect to the redirect url, retaining all params
+      // this still passes the original redirect url as it is possible
+      // there will be multiple redirect (e.g., login -> onboarding -> to original page)
+      return redirect(redirectUrl, {}, true);
+    }
+
+    // otherwise redirect to root
+    return redirect("/");
+  }
+
   async function isOnboarded(user: User): Promise<boolean> {
     const result = await supabase
       .from("user")
@@ -73,27 +87,22 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && request.nextUrl.pathname.startsWith("/login")) {
-    // user is logged in, redirect to the redirect search param if it exists
-    const redirectUrl = request.nextUrl.searchParams.get("redirect");
-    if (redirectUrl) {
-      // pass through the redirect params too
-      // TODO minor nit, the redirect url is still kept in the query params
-      //  under 'redirect' key and could be removed
-      return redirect(redirectUrl, {}, true);
-    }
-    // otherwise redirect to root
-    return redirect("/");
+    // redirect from login if already logged in
+    redirectToRedirectUrlIfItExistsOtherwiseRedirectToRoot();
   }
 
   if (user) {
     const onboarded = await isOnboarded(user);
     if (onboarded && request.nextUrl.pathname.startsWith("/onboarding")) {
-      // redirect to index from onboarding if already onboarded
-      return redirect("/");
+      // redirect from onboarding if already onboarded
+      redirectToRedirectUrlIfItExistsOtherwiseRedirectToRoot();
     }
     if (!onboarded && !request.nextUrl.pathname.startsWith("/onboarding")) {
       // redirect to onboarding if not yet onboarded
-      return redirect("/onboarding");
+      //
+      // retain query params including redirect url, so we can redirect
+      // the user to their original route after onboarding completion
+      return redirect("/onboarding", {}, true);
     }
   }
 
