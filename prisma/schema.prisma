@@ -28,33 +28,33 @@ enum MembershipTierStatus {
 model User {
   id          Int          @id @default(autoincrement())
   // internal-only
-  authUserId  String       @unique
-  firstName   String
-  lastName    String
+  authUserId  String       @unique @map("auth_user_id")
+  firstName   String       @map("first_name")
+  lastName    String       @map("last_name")
   description String
   memberships Membership[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  Club        Club[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  club        Club[]
 
   @@map("user")
 }
 
 model Club {
   id                   Int              @id @default(autoincrement())
-  publicId             String           @unique
+  publicId             String           @unique @map("public_id")
   name                 String
-  tagLine              String
+  tagLine              String           @map("tag_line")
   description          String
   owner                User             @relation(fields: [ownerUserId], references: [id])
-  ownerUserId          Int
-  websiteURL           String?
-  eventCalendarURL     String?
-  instagramHandle      String?
-  applicationQuestions Json
+  ownerUserId          Int              @map("owner_user_id")
+  websiteURL           String?          @map("website_url")
+  eventCalendarURL     String?          @map("event_calendar_url")
+  instagramHandle      String?          @map("instagram_handle")
+  applicationQuestions Json             @map("application_questions")
   membershipTiers      MembershipTier[]
-  createdAt            DateTime         @default(now())
-  updatedAt            DateTime         @updatedAt
+  createdAt            DateTime         @default(now()) @map("created_at")
+  updatedAt            DateTime         @updatedAt @map("updated_at")
 
   @@map("club")
 }
@@ -62,29 +62,29 @@ model Club {
 model MembershipTier {
   id                      Int                  @id @default(autoincrement())
   name                    String
-  benefitDescription      String
-  contributionDescription String
-  costPerMonthInUSD       Decimal
+  benefitDescription      String               @map("benefit_description")
+  contributionDescription String               @map("contribution_description")
+  costPerMonthInUSD       Decimal              @map("cost_per_month_usd")
   club                    Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  clubId                  Int
+  clubId                  Int                  @map("club_id")
   status                  MembershipTierStatus @default(PUBLISHED)
   memberships             Membership[]
-  createdAt               DateTime             @default(now())
-  updatedAt               DateTime             @updatedAt
+  createdAt               DateTime             @default(now()) @map("created_at")
+  updatedAt               DateTime             @updatedAt @map("updated_at")
 
   @@map("membership_tier")
 }
 
 model Membership {
   id                   BigInt           @id @default(autoincrement())
-  userId               Int
+  userId               Int              @map("user_id")
   user                 User             @relation(fields: [userId], references: [id])
-  membershipTierId     Int
+  membershipTierId     Int              @map("membership_tier_id")
   membershipTier       MembershipTier   @relation(fields: [membershipTierId], references: [id])
-  applicationResponses Json
+  applicationResponses Json             @map("application_responses")
   status               MembershipStatus
-  createdAt            DateTime         @default(now())
-  updatedAt            DateTime         @updatedAt
+  createdAt            DateTime         @default(now()) @map("created_at")
+  updatedAt            DateTime         @updatedAt @map("updated_at")
 
   @@unique([userId, membershipTierId])
   @@map("membership")

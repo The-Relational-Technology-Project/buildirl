@@ -58,7 +58,7 @@ export async function updateSession(request: NextRequest) {
     const result = await supabase
       .from("user")
       .select("id")
-      .eq("authUserId", user.id)
+      .eq("auth_user_id", user.id)
       .maybeSingle();
 
     if (!!result.error) {
