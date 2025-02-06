@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { type User } from "@supabase/auth-js";
 import { createMiddlewareClient } from "~/utils/supabase/auth/client";
+import { logger } from "~/client/logger";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -88,14 +89,14 @@ export async function updateSession(request: NextRequest) {
 
   if (user && request.nextUrl.pathname.startsWith("/login")) {
     // redirect from login if already logged in
-    redirectToRedirectUrlIfItExistsOtherwiseRedirectToRoot();
+    return redirectToRedirectUrlIfItExistsOtherwiseRedirectToRoot();
   }
 
   if (user) {
     const onboarded = await isOnboarded(user);
     if (onboarded && request.nextUrl.pathname.startsWith("/onboarding")) {
       // redirect from onboarding if already onboarded
-      redirectToRedirectUrlIfItExistsOtherwiseRedirectToRoot();
+      return redirectToRedirectUrlIfItExistsOtherwiseRedirectToRoot();
     }
     if (!onboarded && !request.nextUrl.pathname.startsWith("/onboarding")) {
       // redirect to onboarding if not yet onboarded
