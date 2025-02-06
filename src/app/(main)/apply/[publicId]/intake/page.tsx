@@ -52,7 +52,7 @@ export default function FormPage() {
     resolver: zodResolver(FormResponsesSchema)
   });
 
-  const { handleSubmit, control, register } = methods;
+  const { handleSubmit, register } = methods;
 
   const onSubmit = (data: FormResponses) => {
     console.log(data);

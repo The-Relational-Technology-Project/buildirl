@@ -72,12 +72,12 @@ export const FormResponsesSchema = z.array(
     MultiSelectQuestionSchema.extend({
       // no validation that the selection is one of the choices
       response: z
-        .array(z.number())
+        .array(z.string())
         .min(1, "At least one choice must be selected")
     }),
     SingleSelectQuestionSchema.extend({
       // no validation that the selection is one of the choices
-      response: z.number()
+      response: z.string()
     })
   ])
 );
