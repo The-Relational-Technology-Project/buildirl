@@ -32,7 +32,7 @@ const LongTextQuestionSchema = BaseFormQuestionSchema.extend({
 });
 
 const SelectQuestionMetadataSchema = z.object({
-  choices: z.array(z.string()).min(2, "At least two choice is required")
+  choices: z.array(z.string().min(3)).min(2, "At least two choice is required")
 });
 
 const SingleSelectQuestionSchema = BaseFormQuestionSchema.extend({
@@ -73,11 +73,13 @@ export const FormResponseSchema = z.discriminatedUnion("type", [
   }),
   MultiSelectQuestionSchema.extend({
     // no validation that the selection is one of the choices
-    response: z.array(z.string()).min(1, "At least one choice must be selected")
+    response: z
+      .array(z.string().min(3))
+      .min(1, "At least one choice must be selected.")
   }),
   SingleSelectQuestionSchema.extend({
     // no validation that the selection is one of the choices
-    response: z.string()
+    response: z.string().min(3)
   })
 ]);
 export type FormResponse = z.infer<typeof FormResponseSchema>;

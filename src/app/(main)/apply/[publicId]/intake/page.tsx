@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Box,
+  Text,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -67,14 +67,15 @@ type ApplicationFormProps = {
 
 function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
   const [activeStep, setActiveStep] = useState(0);
-  const { handleSubmit, register, control } = useForm<FormResponses>({
-    resolver: zodResolver(FormResponsesSchema),
-    defaultValues: {
-      responses: applicationQuestions.questions.map((question) =>
-        defaultResponse(question)
-      )
-    }
-  });
+  const { handleSubmit, register, control, formState, watch, trigger } =
+    useForm<FormResponses>({
+      resolver: zodResolver(FormResponsesSchema),
+      defaultValues: {
+        responses: applicationQuestions.questions.map((question) =>
+          defaultResponse(question)
+        )
+      }
+    });
 
   function defaultResponse(question: FormQuestion): FormResponse {
     switch (question.type) {
@@ -103,6 +104,14 @@ function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
     }
   }
 
+  // trigger validation on every input change
+  const currentResponse = watch(`responses.${activeStep}.response`);
+  useEffect(() => {
+    (async () => {
+      await trigger(`responses.${activeStep}.response`);
+    })();
+  }, [currentResponse, activeStep, trigger]);
+
   const onSubmit = (data: FormResponses) => {
     console.log(data);
     // Save the responses to your backend or state management
@@ -116,6 +125,10 @@ function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
     );
   const prevStep = () =>
     setActiveStep((current) => (current > 0 ? current - 1 : current));
+
+  const isCurrentStepValid = () => {
+    return !formState.errors.responses?.[activeStep]?.response;
+  };
 
   const renderQuestion = (question: FormQuestion, index: number) => {
     switch (question.type) {
@@ -194,7 +207,7 @@ function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
       <Stepper size="xs" color="violet" active={activeStep}>
         {applicationQuestions.questions.map((question, index) => (
           <Stepper.Step key={index}>
-            <Box mt={"xl"}>{renderQuestion(question, index)}</Box>
+            <Stack mt={"xl"}>{renderQuestion(question, index)}</Stack>
           </Stepper.Step>
         ))}
       </Stepper>
@@ -206,9 +219,13 @@ function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
           </Button>
         )}
         {activeStep === applicationQuestions.questions.length - 1 ? (
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={!isCurrentStepValid()}>
+            Submit
+          </Button>
         ) : (
-          <Button onClick={nextStep}>Next</Button>
+          <Button onClick={nextStep} disabled={!isCurrentStepValid()}>
+            Next
+          </Button>
         )}
       </Group>
     </form>
