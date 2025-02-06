@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-enum FormQuestionType {
+export enum FormQuestionType {
   SHORT_TEXT = "SHORT_TEXT",
   LONG_TEXT = "LONG_TEXT",
   SINGLE_SELECT = "SINGLE_SELECT",

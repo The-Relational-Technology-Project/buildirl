@@ -22,6 +22,7 @@
     "format-check": "yarn prettier --check ."
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.10.0",
     "@mantine/carousel": "^7.16.2",
     "@mantine/core": "^7.16.2",
     "@mantine/dates": "^7.16.2",
