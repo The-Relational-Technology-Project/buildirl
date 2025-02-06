@@ -4,10 +4,12 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Box,
   Button,
   Group,
   MultiSelect,
   Select,
+  Stack,
   Stepper,
   Textarea,
   TextInput
@@ -50,7 +52,11 @@ export default function IntakePage() {
       }
     ]
   };
-  return <ApplicationForm applicationQuestions={mockQuestions} />;
+  return (
+    <Stack pt={"xl"} px={{ base: undefined, md: 150 }}>
+      <ApplicationForm applicationQuestions={mockQuestions} />
+    </Stack>
+  );
 }
 
 type ApplicationFormProps = {
@@ -138,7 +144,9 @@ function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
                 label={question.question}
                 data={question.metadata?.choices || []}
                 // expect only 1 string for this type
-                value={assertAsString(field.value)}
+                value={
+                  field.value === null ? null : assertAsString(field.value)
+                }
                 onChange={(value) => {
                   field.onChange(value);
                 }}
@@ -172,18 +180,20 @@ function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stepper active={activeStep}>
+      <Stepper size="xs" color="violet" active={activeStep}>
         {applicationQuestions.questions.map((question, index) => (
-          <Stepper.Step key={index} label={`Question ${index + 1}`}>
-            {renderQuestion(question, index)}
+          <Stepper.Step key={index}>
+            <Box mt={"xl"}>{renderQuestion(question, index)}</Box>
           </Stepper.Step>
         ))}
       </Stepper>
 
-      <Group mt="xl">
-        <Button variant="default" onClick={prevStep}>
-          Back
-        </Button>
+      <Group mt="xl" justify={"center"}>
+        {activeStep > 0 && (
+          <Button variant="default" onClick={prevStep}>
+            Back
+          </Button>
+        )}
         {activeStep === applicationQuestions.questions.length - 1 ? (
           <Button type="submit">Submit</Button>
         ) : (
