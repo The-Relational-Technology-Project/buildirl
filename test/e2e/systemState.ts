@@ -202,7 +202,7 @@ export class SystemState {
       ...input,
       ownerUserId: userId,
       // empty to start
-      applicationQuestions: [],
+      applicationQuestions: { questions: [] },
       membershipTierIds: []
     });
 

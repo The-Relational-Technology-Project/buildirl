@@ -61,7 +61,7 @@ export default function Apply() {
                   submitMembershipApplication.mutate({
                     membershipTierId,
                     input: {
-                      applicationResponses: []
+                      applicationResponses: { responses: [] }
                     }
                   });
                 }}
