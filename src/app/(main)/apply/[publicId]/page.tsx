@@ -9,25 +9,16 @@ import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigati
 import { strictParseInt } from "~/utils";
 import { Image } from "@mantine/core";
 import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
+import { Club } from "~/server/service/types";
 
 export default function Apply() {
   const params = useParams<{ publicId: string }>();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const membershipTierId = strictParseInt(searchParams.get("membershipTierId"));
 
-  const utils = api.useUtils();
   const r = api.main.clubByPublicId.useQuery({
     publicId: params.publicId
   });
-
-  const submitMembershipApplication =
-    api.main.submitMembershipApplication.useMutation({
-      onSuccess: () => {
-        utils.main.userMemberships.invalidate();
-        router.push(`/apply/${params.publicId}/completed`);
-      }
-    });
 
   QueryError.check({
     result: r,
@@ -53,26 +44,73 @@ export default function Apply() {
                 Let's See If We're A Fit!
               </Text>
 
-              <Button
-                variant="filled"
-                color="violet"
-                size="lg"
-                onClick={() => {
-                  submitMembershipApplication.mutate({
-                    membershipTierId,
-                    input: {
-                      applicationResponses: { responses: [] }
-                    }
-                  });
-                }}
-                loading={submitMembershipApplication.isPending}
-              >
-                Apply
-              </Button>
+              <NextActionButton
+                club={r.data!}
+                membershipTierId={membershipTierId}
+              />
             </Stack>
           </Paper>
         </AbsoluteCenter>
       </WithLocalNavigationHeader>
     )
   );
+}
+
+type NextActionButtonProps = {
+  club: Club;
+  membershipTierId: number;
+};
+
+function NextActionButton({ club, membershipTierId }: NextActionButtonProps) {
+  const utils = api.useUtils();
+  const router = useRouter();
+
+  const submitMembershipApplication =
+    api.main.submitMembershipApplication.useMutation({
+      onSuccess: () => {
+        utils.main.userMemberships.invalidate();
+        router.push(`/apply/${club.publicId}/completed`);
+      }
+    });
+
+  if (requiresIntake(club)) {
+    return (
+      <Button
+        variant="filled"
+        color="violet"
+        size="lg"
+        onClick={() => {
+          router.push(
+            `/apply/${club.publicId}/intake?membershipTierId=${membershipTierId}`
+          );
+        }}
+      >
+        Let's Go
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      variant="filled"
+      color="violet"
+      size="lg"
+      onClick={() => {
+        submitMembershipApplication.mutate({
+          membershipTierId,
+          // no intake required
+          input: {
+            applicationResponses: { responses: [] }
+          }
+        });
+      }}
+      loading={submitMembershipApplication.isPending}
+    >
+      Apply
+    </Button>
+  );
+}
+
+function requiresIntake(club: Club) {
+  return club.applicationQuestions.questions.length > 0;
 }
