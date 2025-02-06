@@ -45,7 +45,7 @@ const MultiSelectQuestionSchema = BaseFormQuestionSchema.extend({
   metadata: SelectQuestionMetadataSchema
 });
 
-const FormQuestionSchema = z.discriminatedUnion("type", [
+export const FormQuestionSchema = z.discriminatedUnion("type", [
   ShortTextQuestionSchema,
   LongTextQuestionSchema,
   SingleSelectQuestionSchema,

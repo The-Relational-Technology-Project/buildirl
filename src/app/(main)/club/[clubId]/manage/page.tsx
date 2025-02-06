@@ -12,6 +12,7 @@ import { ManageMembershipTiersPanel } from "~/client/components/ManageMembership
 import { strictParseInt } from "~/utils";
 import { MembershipApplicationTable } from "~/client/components/MembershipApplicationTable";
 import { ActiveMembershipTable } from "~/client/components/ActiveMembershipTable";
+import { ManageIntakePanel } from "~/client/components/ManageIntakePanel";
 
 export default function ManageClub() {
   const params = useParams<{ clubId: string }>();
@@ -50,7 +51,7 @@ export default function ManageClub() {
             <ManagePeoplePanel clubId={r.data!.id} />
           </Tabs.Panel>
           <Tabs.Panel value={"intake"}>
-            <></>
+            <ManageIntakePanel />
           </Tabs.Panel>
           <Tabs.Panel value={"admin"}>
             <ClubAdminPanel clubId={r.data!.id} />
