@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Text,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -24,49 +23,63 @@ import {
   FormResponses,
   FormResponsesSchema
 } from "~/server/service/types/form";
-import { assertAsString, assertAsStringArray } from "~/utils";
+import { assertAsString, assertAsStringArray, strictParseInt } from "~/utils";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { api } from "~/trpc/react";
+import { QueryError } from "~/client/utils/QueryError";
+import { isLoaded } from "~/client/utils";
 
 export default function IntakePage() {
-  // Mock data for the form questions
-  const mockQuestions: FormQuestions = {
-    questions: [
-      {
-        question: "What is your name?",
-        type: FormQuestionType.SHORT_TEXT
-      },
-      {
-        question: "Tell us about yourself",
-        type: FormQuestionType.LONG_TEXT
-      },
-      {
-        question: "What is your favorite color?",
-        type: FormQuestionType.SINGLE_SELECT,
-        metadata: {
-          choices: ["Red", "Blue", "Green"]
-        }
-      },
-      {
-        question: "Select your hobbies",
-        type: FormQuestionType.MULTI_SELECT,
-        metadata: {
-          choices: ["Reading", "Swimming", "Coding"]
-        }
-      }
-    ]
-  };
+  const params = useParams<{ publicId: string }>();
+  const searchParams = useSearchParams();
+  const membershipTierId = strictParseInt(searchParams.get("membershipTierId"));
+
+  const r = api.main.clubByPublicId.useQuery({
+    publicId: params.publicId
+  });
+
+  QueryError.check({
+    result: r,
+    fieldName: "clubByPublicId"
+  });
+
   return (
-    <Stack pt={"xl"} px={{ base: undefined, md: 150 }}>
-      <ApplicationForm applicationQuestions={mockQuestions} />
-    </Stack>
+    isLoaded(r) && (
+      <Stack pt={"xl"} px={{ base: undefined, md: 150 }}>
+        <ApplicationForm
+          applicationQuestions={r.data!.applicationQuestions}
+          membershipTierId={membershipTierId}
+          clubPublicId={params.publicId}
+        />
+      </Stack>
+    )
   );
 }
 
 type ApplicationFormProps = {
   applicationQuestions: FormQuestions;
+  membershipTierId: number;
+  clubPublicId: string;
 };
 
-function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
+function ApplicationForm({
+  applicationQuestions,
+  membershipTierId,
+  clubPublicId
+}: ApplicationFormProps) {
   const [activeStep, setActiveStep] = useState(0);
+
+  const utils = api.useUtils();
+  const router = useRouter();
+
+  const submitMembershipApplication =
+    api.main.submitMembershipApplication.useMutation({
+      onSuccess: () => {
+        utils.main.userMemberships.invalidate();
+        router.push(`/apply/${clubPublicId}/completed`);
+      }
+    });
+
   const { handleSubmit, register, control, formState, watch, trigger } =
     useForm<FormResponses>({
       resolver: zodResolver(FormResponsesSchema),
@@ -112,9 +125,11 @@ function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
     })();
   }, [currentResponse, activeStep, trigger]);
 
-  const onSubmit = (data: FormResponses) => {
-    console.log(data);
-    // Save the responses to your backend or state management
+  const onSubmit = async (responses: FormResponses) => {
+    await submitMembershipApplication.mutateAsync({
+      membershipTierId: membershipTierId,
+      input: { applicationResponses: responses }
+    });
   };
 
   const nextStep = () =>
