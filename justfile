@@ -20,6 +20,8 @@ db-migrate:
     prisma migrate dev
 
 # drop data and re-seed the database from seed.ts
+# note, if you do this, you must reapply grant permissions:
+# https://stackoverflow.com/questions/67551593/supabase-client-permission-denied-for-schema-public
 db-reset-hard:
    prisma migrate reset
 
