@@ -1,59 +1,99 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
-  Stepper,
   Group,
-  TextInput,
-  Textarea,
+  MultiSelect,
   Select,
-  MultiSelect
+  Stepper,
+  Textarea,
+  TextInput
 } from "@mantine/core";
-import { z } from "zod";
 import {
   FormQuestion,
-  FormQuestionsSchema,
+  FormQuestions,
   FormQuestionType,
+  FormResponse,
   FormResponses,
   FormResponsesSchema
 } from "~/server/service/types/form";
-
-// Mock data for the form questions
-const formQuestions: z.infer<typeof FormQuestionsSchema> = {
-  questions: [
-    {
-      question: "What is your name?",
-      type: FormQuestionType.SHORT_TEXT
-    },
-    {
-      question: "Tell us about yourself",
-      type: FormQuestionType.LONG_TEXT
-    },
-    {
-      question: "What is your favorite color?",
-      type: FormQuestionType.SINGLE_SELECT,
-      metadata: {
-        choices: ["Red", "Blue", "Green"]
-      }
-    },
-    {
-      question: "Select your hobbies",
-      type: FormQuestionType.MULTI_SELECT,
-      metadata: {
-        choices: ["Reading", "Swimming", "Coding"]
-      }
-    }
-  ]
-};
+import { assertAsString, assertAsStringArray } from "~/utils";
 
 export default function IntakePage() {
+  // Mock data for the form questions
+  const mockQuestions: FormQuestions = {
+    questions: [
+      {
+        question: "What is your name?",
+        type: FormQuestionType.SHORT_TEXT
+      },
+      {
+        question: "Tell us about yourself",
+        type: FormQuestionType.LONG_TEXT
+      },
+      {
+        question: "What is your favorite color?",
+        type: FormQuestionType.SINGLE_SELECT,
+        metadata: {
+          choices: ["Red", "Blue", "Green"]
+        }
+      },
+      {
+        question: "Select your hobbies",
+        type: FormQuestionType.MULTI_SELECT,
+        metadata: {
+          choices: ["Reading", "Swimming", "Coding"]
+        }
+      }
+    ]
+  };
+  return <ApplicationForm applicationQuestions={mockQuestions} />;
+}
+
+type ApplicationFormProps = {
+  applicationQuestions: FormQuestions;
+};
+
+function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
   const [activeStep, setActiveStep] = useState(0);
-  const { handleSubmit, register } = useForm<FormResponses>({
-    resolver: zodResolver(FormResponsesSchema)
+  const { handleSubmit, register, control } = useForm<FormResponses>({
+    resolver: zodResolver(FormResponsesSchema),
+    defaultValues: {
+      responses: applicationQuestions.questions.map((question) =>
+        defaultResponse(question)
+      )
+    }
   });
+
+  function defaultResponse(question: FormQuestion): FormResponse {
+    switch (question.type) {
+      case FormQuestionType.SHORT_TEXT:
+        return {
+          ...question,
+          response: ""
+        };
+      case FormQuestionType.LONG_TEXT:
+        return {
+          ...question,
+          response: ""
+        };
+      case FormQuestionType.SINGLE_SELECT:
+        return {
+          ...question,
+          response: ""
+        };
+      case FormQuestionType.MULTI_SELECT:
+        return {
+          ...question,
+          response: []
+        };
+      default:
+        throw new Error(`unsupported question type`);
+    }
+  }
 
   const onSubmit = (data: FormResponses) => {
     console.log(data);
@@ -62,7 +102,9 @@ export default function IntakePage() {
 
   const nextStep = () =>
     setActiveStep((current) =>
-      current < formQuestions.questions.length - 1 ? current + 1 : current
+      current < applicationQuestions.questions.length - 1
+        ? current + 1
+        : current
     );
   const prevStep = () =>
     setActiveStep((current) => (current > 0 ? current - 1 : current));
@@ -87,31 +129,51 @@ export default function IntakePage() {
         );
       case FormQuestionType.SINGLE_SELECT:
         return (
-          <Select
+          <Controller
             key={index}
-            label={question.question}
-            data={question.metadata?.choices || []}
-            {...register(`responses.${index}.response`)}
+            name={`responses.${index}.response`}
+            control={control}
+            render={({ field }) => (
+              <Select
+                label={question.question}
+                data={question.metadata?.choices || []}
+                // expect only 1 string for this type
+                value={assertAsString(field.value)}
+                onChange={(value) => {
+                  field.onChange(value);
+                }}
+              />
+            )}
           />
         );
       case FormQuestionType.MULTI_SELECT:
         return (
-          <MultiSelect
+          <Controller
             key={index}
-            label={question.question}
-            data={question.metadata?.choices || []}
-            {...register(`responses.${index}.response`)}
+            name={`responses.${index}.response`}
+            control={control}
+            render={({ field }) => (
+              <MultiSelect
+                label={question.question}
+                data={question.metadata?.choices || []}
+                // expect only list of string for this type
+                value={assertAsStringArray(field.value)}
+                onChange={(values) => {
+                  field.onChange(values);
+                }}
+              />
+            )}
           />
         );
       default:
-        return null;
+        throw new Error(`unsupported question type`);
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stepper active={activeStep}>
-        {formQuestions.questions.map((question, index) => (
+        {applicationQuestions.questions.map((question, index) => (
           <Stepper.Step key={index} label={`Question ${index + 1}`}>
             {renderQuestion(question, index)}
           </Stepper.Step>
@@ -122,7 +184,7 @@ export default function IntakePage() {
         <Button variant="default" onClick={prevStep}>
           Back
         </Button>
-        {activeStep === formQuestions.questions.length - 1 ? (
+        {activeStep === applicationQuestions.questions.length - 1 ? (
           <Button type="submit">Submit</Button>
         ) : (
           <Button onClick={nextStep}>Next</Button>

@@ -22,3 +22,17 @@ export function strictParseInt(s: Maybe<string>): number {
   }
   return r;
 }
+
+export function assertAsString(value: string | string[]): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  throw new Error("value is not a string");
+}
+
+export function assertAsStringArray(value: string | string[]): string[] {
+  if (typeof value === "string") {
+    throw new Error("value is not a string array");
+  }
+  return value;
+}

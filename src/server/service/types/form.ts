@@ -58,33 +58,31 @@ export const FormQuestionsSchema = z.object({
 });
 export type FormQuestions = z.infer<typeof FormQuestionsSchema>;
 
-export const FormResponsesSchema = z.object({
-  responses: z.array(
-    z.discriminatedUnion("type", [
-      ShortTextQuestionSchema.extend({
-        response: z
-          .string()
-          .min(3, "Length must be >= 3")
-          .max(150, "Length must be <= 150")
-      }),
-      LongTextQuestionSchema.extend({
-        response: z
-          .string()
-          .min(10, "Length must be >= 10")
-          .max(1000, "Length must be <= 1000")
-      }),
-      MultiSelectQuestionSchema.extend({
-        // no validation that the selection is one of the choices
-        response: z
-          .array(z.string())
-          .min(1, "At least one choice must be selected")
-      }),
-      SingleSelectQuestionSchema.extend({
-        // no validation that the selection is one of the choices
-        response: z.string()
-      })
-    ])
-  )
-});
+export const FormResponseSchema = z.discriminatedUnion("type", [
+  ShortTextQuestionSchema.extend({
+    response: z
+      .string()
+      .min(3, "Length must be >= 3")
+      .max(150, "Length must be <= 150")
+  }),
+  LongTextQuestionSchema.extend({
+    response: z
+      .string()
+      .min(10, "Length must be >= 10")
+      .max(1000, "Length must be <= 1000")
+  }),
+  MultiSelectQuestionSchema.extend({
+    // no validation that the selection is one of the choices
+    response: z.array(z.string()).min(1, "At least one choice must be selected")
+  }),
+  SingleSelectQuestionSchema.extend({
+    // no validation that the selection is one of the choices
+    response: z.string()
+  })
+]);
+export type FormResponse = z.infer<typeof FormResponseSchema>;
 
+export const FormResponsesSchema = z.object({
+  responses: z.array(FormResponseSchema)
+});
 export type FormResponses = z.infer<typeof FormResponsesSchema>;
