@@ -6,9 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
   Button,
+  Checkbox,
+  CheckboxGroup,
   Group,
-  MultiSelect,
-  Select,
+  Radio,
+  RadioGroup,
   Stack,
   Stepper,
   Textarea,
@@ -140,17 +142,19 @@ function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
             name={`responses.${index}.response`}
             control={control}
             render={({ field }) => (
-              <Select
+              <RadioGroup
                 label={question.question}
-                data={question.metadata?.choices || []}
-                // expect only 1 string for this type
                 value={
                   field.value === null ? null : assertAsString(field.value)
                 }
                 onChange={(value) => {
                   field.onChange(value);
                 }}
-              />
+              >
+                {question.metadata?.choices.map((choice) => (
+                  <Radio key={choice} value={choice} label={choice} pt={"xs"} />
+                ))}
+              </RadioGroup>
             )}
           />
         );
@@ -161,15 +165,22 @@ function ApplicationForm({ applicationQuestions }: ApplicationFormProps) {
             name={`responses.${index}.response`}
             control={control}
             render={({ field }) => (
-              <MultiSelect
+              <CheckboxGroup
                 label={question.question}
-                data={question.metadata?.choices || []}
-                // expect only list of string for this type
                 value={assertAsStringArray(field.value)}
                 onChange={(values) => {
                   field.onChange(values);
                 }}
-              />
+              >
+                {question.metadata?.choices.map((choice) => (
+                  <Checkbox
+                    key={choice}
+                    value={choice}
+                    label={choice}
+                    pt={"xs"}
+                  />
+                ))}
+              </CheckboxGroup>
             )}
           />
         );
