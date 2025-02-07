@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -80,15 +80,17 @@ function ApplicationForm({
       }
     });
 
-  const { handleSubmit, register, control, formState, watch, trigger } =
-    useForm<FormResponses>({
+  const { handleSubmit, register, control, formState } = useForm<FormResponses>(
+    {
       resolver: zodResolver(FormResponsesSchema),
       defaultValues: {
         responses: applicationQuestions.questions.map((question) =>
           defaultResponse(question)
         )
-      }
-    });
+      },
+      mode: "onBlur"
+    }
+  );
 
   function defaultResponse(question: FormQuestion): FormResponse {
     switch (question.type) {
@@ -117,14 +119,6 @@ function ApplicationForm({
     }
   }
 
-  // trigger validation on every input change
-  const currentResponse = watch(`responses.${activeStep}.response`);
-  useEffect(() => {
-    (async () => {
-      await trigger(`responses.${activeStep}.response`);
-    })();
-  }, [currentResponse, activeStep, trigger]);
-
   const onSubmit = async (responses: FormResponses) => {
     await submitMembershipApplication.mutateAsync({
       membershipTierId: membershipTierId,
@@ -149,18 +143,34 @@ function ApplicationForm({
     switch (question.type) {
       case FormQuestionType.SHORT_TEXT:
         return (
-          <TextInput
-            key={index}
-            label={question.question}
-            {...register(`responses.${index}.response`)}
+          <Controller
+            name={`responses.${index}.response`}
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                key={index}
+                label={question.question}
+                placeholder={"Enter your response"}
+                {...field}
+                onBlur={field.onBlur}
+              />
+            )}
           />
         );
       case FormQuestionType.LONG_TEXT:
         return (
-          <Textarea
-            key={index}
-            label={question.question}
-            {...register(`responses.${index}.response`)}
+          <Controller
+            name={`responses.${index}.response`}
+            control={control}
+            render={({ field }) => (
+              <Textarea
+                key={index}
+                label={question.question}
+                placeholder={"Enter your response"}
+                {...field}
+                onBlur={field.onBlur}
+              />
+            )}
           />
         );
       case FormQuestionType.SINGLE_SELECT:
@@ -178,6 +188,7 @@ function ApplicationForm({
                 onChange={(value) => {
                   field.onChange(value);
                 }}
+                onBlur={field.onBlur}
               >
                 {question.metadata?.choices.map((choice) => (
                   <Radio key={choice} value={choice} label={choice} pt={"xs"} />
@@ -199,6 +210,7 @@ function ApplicationForm({
                 onChange={(values) => {
                   field.onChange(values);
                 }}
+                onBlur={field.onBlur}
               >
                 {question.metadata?.choices.map((choice) => (
                   <Checkbox
