@@ -40,7 +40,8 @@ export function ManageIntakePanel() {
     resolver: zodResolver(FormQuestionsSchema),
     defaultValues: {
       questions: new Array<FormQuestion>()
-    }
+    },
+    mode: "onBlur"
   });
 
   const {
@@ -82,11 +83,15 @@ export function ManageIntakePanel() {
                   metadata: undefined
                 })
               }
+              w={150}
+              style={{ alignSelf: "center" }}
             >
               Add Question
             </Button>
 
-            <Button type="submit">Submit</Button>
+            <Button type="submit" w={150} style={{ alignSelf: "center" }}>
+              Submit
+            </Button>
           </Stack>
         </form>
       </FormProvider>
@@ -130,6 +135,7 @@ function QuestionPanel({
               placeholder="Enter the question"
               error={errors.questions?.[index]?.question?.message}
               {...field}
+              onBlur={field.onBlur}
             />
           )}
         />
@@ -146,6 +152,7 @@ function QuestionPanel({
                 errors.questions?.[index]?.type?.message
               }
               {...field}
+              onBlur={field.onBlur}
             />
           )}
         />
@@ -171,6 +178,7 @@ function QuestionPanel({
                             updatedChoices[choiceIndex] = e.target.value;
                             field.onChange(updatedChoices);
                           }}
+                          onBlur={field.onBlur}
                           placeholder={`Choice ${choiceIndex + 1}`}
                         />
                         <ActionIcon
