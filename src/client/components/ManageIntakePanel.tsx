@@ -5,7 +5,8 @@ import {
   useFieldArray,
   Control,
   FieldErrors,
-  useFormContext
+  useFormContext,
+  FormProvider
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -35,16 +36,18 @@ const QUESTION_TYPES = [
 ];
 
 export function ManageIntakePanel() {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors }
-  } = useForm<FormQuestions>({
+  const methods = useForm<FormQuestions>({
     resolver: zodResolver(FormQuestionsSchema),
     defaultValues: {
       questions: new Array<FormQuestion>()
     }
   });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = methods;
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -57,38 +60,36 @@ export function ManageIntakePanel() {
 
   return (
     <Box p="xl">
-      <Text size="xl" fw={500} mb="xl">
-        Define Form Questions
-      </Text>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack>
+            {fields.map((field, index) => (
+              <QuestionPanel
+                key={field.id}
+                control={control}
+                index={index}
+                errors={errors}
+                onDelete={() => remove(index)}
+              />
+            ))}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack>
-          {fields.map((field, index) => (
-            <QuestionPanel
-              key={field.id}
-              control={control}
-              index={index}
-              errors={errors}
-              onDelete={() => remove(index)}
-            />
-          ))}
+            <Button
+              leftSection={<IconPlus size={16} />}
+              onClick={() =>
+                append({
+                  question: "",
+                  type: FormQuestionType.SHORT_TEXT,
+                  metadata: undefined
+                })
+              }
+            >
+              Add Question
+            </Button>
 
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={() =>
-              append({
-                question: "",
-                type: FormQuestionType.SHORT_TEXT,
-                metadata: undefined
-              })
-            }
-          >
-            Add Question
-          </Button>
-
-          <Button type="submit">Submit</Button>
-        </Stack>
-      </form>
+            <Button type="submit">Submit</Button>
+          </Stack>
+        </form>
+      </FormProvider>
     </Box>
   );
 }
@@ -132,7 +133,10 @@ function QuestionPanel({
             <Select
               label="Question Type"
               data={QUESTION_TYPES}
-              error={errors.questions?.[index]?.metadata?.type}
+              error={
+                //@ts-ignore
+                errors.questions?.[index]?.type?.message
+              }
               {...field}
             />
           )}
@@ -150,28 +154,45 @@ function QuestionPanel({
                     Choices
                   </Text>
                   {field.value?.map((choice, choiceIndex) => (
-                    <Group key={choiceIndex} mb="xs">
-                      <TextInput
-                        value={choice}
-                        onChange={(e) => {
-                          const updatedChoices = [...field.value];
-                          updatedChoices[choiceIndex] = e.target.value;
-                          field.onChange(updatedChoices);
-                        }}
-                        placeholder={`Choice ${choiceIndex + 1}`}
-                      />
-                      <ActionIcon
-                        color="red"
-                        onClick={() => {
-                          const updatedChoices = field.value.filter(
-                            (_, i) => i !== choiceIndex
-                          );
-                          field.onChange(updatedChoices);
-                        }}
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
-                    </Group>
+                    <Stack gap={"xs"} mb="xs">
+                      <Group key={choiceIndex}>
+                        <TextInput
+                          value={choice}
+                          onChange={(e) => {
+                            const updatedChoices = [...field.value];
+                            updatedChoices[choiceIndex] = e.target.value;
+                            field.onChange(updatedChoices);
+                          }}
+                          placeholder={`Choice ${choiceIndex + 1}`}
+                        />
+                        <ActionIcon
+                          color="red"
+                          onClick={() => {
+                            const updatedChoices = field.value.filter(
+                              (_, i) => i !== choiceIndex
+                            );
+                            field.onChange(updatedChoices);
+                          }}
+                        >
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      </Group>
+                      {
+                        // @ts-ignore
+                        errors.questions?.[2].metadata?.choices?.[
+                          choiceIndex
+                        ] && (
+                          <Text c="red" size="sm">
+                            {
+                              // @ts-ignore
+                              errors.questions?.[index]?.metadata?.choices?.[
+                                choiceIndex
+                              ]?.message
+                            }
+                          </Text>
+                        )
+                      }
+                    </Stack>
                   ))}
                   <Button
                     leftSection={<IconPlus size={16} />}
@@ -181,11 +202,17 @@ function QuestionPanel({
                   >
                     Add Choice
                   </Button>
-                  {errors.questions?.[index]?.metadata && (
-                    <Text c="red" size="sm" mt="xs">
-                      {errors.questions[index].metadata.message}
-                    </Text>
-                  )}
+                  {
+                    // @ts-ignore
+                    errors.questions?.[index]?.metadata?.choices && (
+                      <Text c="red" size="sm" mt="xs">
+                        {
+                          // @ts-ignore
+                          errors.questions?.[index]?.metadata?.choices?.message
+                        }
+                      </Text>
+                    )
+                  }
                 </Box>
               );
             }}
