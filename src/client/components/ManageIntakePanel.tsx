@@ -20,7 +20,7 @@ import {
   ActionIcon,
   Card
 } from "@mantine/core";
-import { IconTrash, IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconX } from "@tabler/icons-react";
 import {
   FormQuestionType,
   FormQuestionsSchema,
@@ -111,7 +111,15 @@ function QuestionPanel({
   const questionType = watch(`questions.${index}.type`);
 
   return (
-    <Card withBorder p="md">
+    <Card withBorder pt={"sm"} pb="md" px="md">
+      <ActionIcon
+        onClick={onDelete}
+        variant={"transparent"}
+        color={"black"}
+        style={{ alignSelf: "flex-end" }}
+      >
+        <IconX size={16} />
+      </ActionIcon>
       <Stack>
         <Controller
           name={`questions.${index}.question`}
@@ -134,7 +142,7 @@ function QuestionPanel({
               label="Question Type"
               data={QUESTION_TYPES}
               error={
-                //@ts-ignore
+                //@ts-ignore too much to get the typing of these complex error objects right ¯\_(ツ)_/¯
                 errors.questions?.[index]?.type?.message
               }
               {...field}
@@ -154,8 +162,8 @@ function QuestionPanel({
                     Choices
                   </Text>
                   {field.value?.map((choice, choiceIndex) => (
-                    <Stack gap={"xs"} mb="xs">
-                      <Group key={choiceIndex}>
+                    <Stack gap={"xs"} mb="xs" key={choiceIndex}>
+                      <Group gap={2}>
                         <TextInput
                           value={choice}
                           onChange={(e) => {
@@ -166,7 +174,8 @@ function QuestionPanel({
                           placeholder={`Choice ${choiceIndex + 1}`}
                         />
                         <ActionIcon
-                          color="red"
+                          variant={"transparent"}
+                          color={"black"}
                           onClick={() => {
                             const updatedChoices = field.value.filter(
                               (_, i) => i !== choiceIndex
@@ -174,12 +183,12 @@ function QuestionPanel({
                             field.onChange(updatedChoices);
                           }}
                         >
-                          <IconTrash size={16} />
+                          <IconX size={16} />
                         </ActionIcon>
                       </Group>
                       {
                         // @ts-ignore
-                        errors.questions?.[2].metadata?.choices?.[
+                        errors.questions?.[index]?.metadata?.choices?.[
                           choiceIndex
                         ] && (
                           <Text c="red" size="sm">
@@ -199,6 +208,7 @@ function QuestionPanel({
                     onClick={() => {
                       field.onChange([...(field.value || []), ""]);
                     }}
+                    mt={"xs"}
                   >
                     Add Choice
                   </Button>
@@ -218,12 +228,6 @@ function QuestionPanel({
             }}
           />
         )}
-
-        <Group>
-          <ActionIcon color="red" onClick={onDelete}>
-            <IconTrash size={16} />
-          </ActionIcon>
-        </Group>
       </Stack>
     </Card>
   );
