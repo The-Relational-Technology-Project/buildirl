@@ -110,7 +110,7 @@ export function ManageIntakePanel({ club }: ManageIntakePanelProps) {
 
             <Button
               type="submit"
-              disabled={!!errors}
+              disabled={Object.keys(errors).length > 0}
               loading={updateClubApplicationQuestions.isPending}
               w={150}
               style={{ alignSelf: "center" }}

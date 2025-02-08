@@ -147,6 +147,7 @@ function ApplicationForm({
       case FormQuestionType.SHORT_TEXT:
         return (
           <Controller
+            key={index}
             name={`responses.${index}.response`}
             control={control}
             render={({ field }) => (
@@ -154,7 +155,6 @@ function ApplicationForm({
                 key={index}
                 label={question.question}
                 placeholder={"Enter your response"}
-                error={errors.responses?.[index]?.response?.message}
                 {...field}
                 onBlur={field.onBlur}
               />
@@ -164,6 +164,7 @@ function ApplicationForm({
       case FormQuestionType.LONG_TEXT:
         return (
           <Controller
+            key={index}
             name={`responses.${index}.response`}
             control={control}
             render={({ field }) => (
@@ -238,7 +239,7 @@ function ApplicationForm({
       <Stepper size="xs" color="violet" active={activeStep}>
         {applicationQuestions.questions.map((question, index) => (
           <Stepper.Step key={index}>
-            <Stack mt={"xl"}>
+            <Stack mt={"xl"} gap={4}>
               {renderQuestion(question, index)}
               {errors.responses?.[index]?.response && (
                 <Text c="red" size="sm">
