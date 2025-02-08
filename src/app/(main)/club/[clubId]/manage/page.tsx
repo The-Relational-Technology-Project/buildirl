@@ -51,7 +51,7 @@ export default function ManageClub() {
             <ManagePeoplePanel clubId={r.data!.id} />
           </Tabs.Panel>
           <Tabs.Panel value={"intake"}>
-            <ManageIntakePanel />
+            <ManageIntakePanel club={r.data!} />
           </Tabs.Panel>
           <Tabs.Panel value={"admin"}>
             <ClubAdminPanel clubId={r.data!.id} />

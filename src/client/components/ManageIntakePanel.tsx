@@ -27,6 +27,7 @@ import {
   FormQuestion,
   FormQuestions
 } from "~/server/service/types/form";
+import { Club } from "~/server/service/types";
 
 const QUESTION_TYPES = [
   { value: FormQuestionType.SHORT_TEXT, label: "Short Text" },
@@ -35,12 +36,14 @@ const QUESTION_TYPES = [
   { value: FormQuestionType.MULTI_SELECT, label: "Multi Select" }
 ];
 
-export function ManageIntakePanel() {
+type ManageIntakePanelProps = {
+  club: Club;
+};
+
+export function ManageIntakePanel({ club }: ManageIntakePanelProps) {
   const methods = useForm<FormQuestions>({
     resolver: zodResolver(FormQuestionsSchema),
-    defaultValues: {
-      questions: new Array<FormQuestion>()
-    },
+    defaultValues: club.applicationQuestions,
     mode: "onBlur"
   });
 
