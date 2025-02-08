@@ -129,12 +129,15 @@ function ApplicationForm({
     });
   };
 
-  const nextStep = () =>
+  const nextStep = (e: React.MouseEvent) => {
+    // need to be explicit here otherwise this submits the form
+    e.preventDefault();
     setActiveStep((current) =>
       current < applicationQuestions.questions.length - 1
         ? current + 1
         : current
     );
+  };
   const prevStep = () =>
     setActiveStep((current) => (current > 0 ? current - 1 : current));
 
