@@ -12,6 +12,7 @@ import {
   RadioGroup,
   Stack,
   Stepper,
+  Text,
   Textarea,
   TextInput
 } from "@mantine/core";
@@ -80,17 +81,19 @@ function ApplicationForm({
       }
     });
 
-  const { handleSubmit, register, control, formState } = useForm<FormResponses>(
-    {
-      resolver: zodResolver(FormResponsesSchema),
-      defaultValues: {
-        responses: applicationQuestions.questions.map((question) =>
-          defaultResponse(question)
-        )
-      },
-      mode: "onBlur"
-    }
-  );
+  const {
+    handleSubmit,
+    control,
+    formState: { errors }
+  } = useForm<FormResponses>({
+    resolver: zodResolver(FormResponsesSchema),
+    defaultValues: {
+      responses: applicationQuestions.questions.map((question) =>
+        defaultResponse(question)
+      )
+    },
+    mode: "onBlur"
+  });
 
   function defaultResponse(question: FormQuestion): FormResponse {
     switch (question.type) {
@@ -136,7 +139,7 @@ function ApplicationForm({
     setActiveStep((current) => (current > 0 ? current - 1 : current));
 
   const isCurrentStepValid = () => {
-    return !formState.errors.responses?.[activeStep]?.response;
+    return !errors.responses?.[activeStep]?.response;
   };
 
   const renderQuestion = (question: FormQuestion, index: number) => {
@@ -151,6 +154,7 @@ function ApplicationForm({
                 key={index}
                 label={question.question}
                 placeholder={"Enter your response"}
+                error={errors.responses?.[index]?.response?.message}
                 {...field}
                 onBlur={field.onBlur}
               />
@@ -234,7 +238,14 @@ function ApplicationForm({
       <Stepper size="xs" color="violet" active={activeStep}>
         {applicationQuestions.questions.map((question, index) => (
           <Stepper.Step key={index}>
-            <Stack mt={"xl"}>{renderQuestion(question, index)}</Stack>
+            <Stack mt={"xl"}>
+              {renderQuestion(question, index)}
+              {errors.responses?.[index]?.response && (
+                <Text c="red" size="sm">
+                  {errors.responses?.[index]?.response?.message}
+                </Text>
+              )}
+            </Stack>
           </Stepper.Step>
         ))}
       </Stepper>
