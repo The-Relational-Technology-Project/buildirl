@@ -28,6 +28,8 @@ import {
   FormQuestions
 } from "~/server/service/types/form";
 import { Club } from "~/server/service/types";
+import { api } from "~/trpc/react";
+import { useRouter } from "next/navigation";
 
 const QUESTION_TYPES = [
   { value: FormQuestionType.SHORT_TEXT, label: "Short Text" },
@@ -41,6 +43,17 @@ type ManageIntakePanelProps = {
 };
 
 export function ManageIntakePanel({ club }: ManageIntakePanelProps) {
+  const utils = api.useUtils();
+
+  const updateClubApplicationQuestions =
+    api.main.updateClubApplicationQuestions.useMutation({
+      onSuccess: () => {
+        utils.main.club.invalidate({ id: club.id });
+        utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
+        utils.main.userOwnedClubs.invalidate();
+      }
+    });
+
   const methods = useForm<FormQuestions>({
     resolver: zodResolver(FormQuestionsSchema),
     defaultValues: club.applicationQuestions,
@@ -58,8 +71,11 @@ export function ManageIntakePanel({ club }: ManageIntakePanelProps) {
     name: "questions"
   });
 
-  const onSubmit = (questions: FormQuestions) => {
-    console.log("form questions:", questions);
+  const onSubmit = async (questions: FormQuestions) => {
+    await updateClubApplicationQuestions.mutateAsync({
+      clubId: club.id,
+      input: { applicationQuestions: questions }
+    });
   };
 
   return (
@@ -92,7 +108,13 @@ export function ManageIntakePanel({ club }: ManageIntakePanelProps) {
               Add Question
             </Button>
 
-            <Button type="submit" w={150} style={{ alignSelf: "center" }}>
+            <Button
+              type="submit"
+              disabled={!!errors}
+              loading={updateClubApplicationQuestions.isPending}
+              w={150}
+              style={{ alignSelf: "center" }}
+            >
               Submit
             </Button>
           </Stack>
