@@ -8,6 +8,7 @@ import {
   Checkbox,
   CheckboxGroup,
   Group,
+  Paper,
   Radio,
   RadioGroup,
   Stack,
@@ -240,36 +241,41 @@ function ApplicationForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stepper size="xs" color="violet" active={activeStep}>
-        {applicationQuestions.questions.map((question, index) => (
-          <Stepper.Step key={index}>
-            <Stack mt={"xl"} gap={4}>
-              {renderQuestion(question, index)}
-              {errors.responses?.[index]?.response && (
-                <Text c="red" size="sm">
-                  {errors.responses?.[index]?.response?.message}
-                </Text>
-              )}
-            </Stack>
-          </Stepper.Step>
+        {applicationQuestions.questions.map((_, index) => (
+          <Stepper.Step key={index} />
         ))}
       </Stepper>
 
-      <Group mt="xl" justify={"center"}>
-        {activeStep > 0 && (
-          <Button variant="default" onClick={prevStep}>
-            Back
-          </Button>
-        )}
-        {activeStep === applicationQuestions.questions.length - 1 ? (
-          <Button type="submit" disabled={!isCurrentStepValid()}>
-            Submit
-          </Button>
-        ) : (
-          <Button onClick={nextStep} disabled={!isCurrentStepValid()}>
-            Next
-          </Button>
-        )}
-      </Group>
+      <Paper p={"xl"} mt={"xl"} withBorder>
+        <Stack gap={4}>
+          {renderQuestion(
+            applicationQuestions.questions[activeStep]!,
+            activeStep
+          )}
+          {errors.responses?.[activeStep]?.response && (
+            <Text c="red" size="sm">
+              {errors.responses?.[activeStep]?.response?.message}
+            </Text>
+          )}
+        </Stack>
+
+        <Group mt="xl" justify={"center"}>
+          {activeStep > 0 && (
+            <Button variant="default" onClick={prevStep}>
+              Back
+            </Button>
+          )}
+          {activeStep === applicationQuestions.questions.length - 1 ? (
+            <Button type="submit" disabled={!isCurrentStepValid()}>
+              Submit
+            </Button>
+          ) : (
+            <Button onClick={nextStep} disabled={!isCurrentStepValid()}>
+              Next
+            </Button>
+          )}
+        </Group>
+      </Paper>
     </form>
   );
 }
