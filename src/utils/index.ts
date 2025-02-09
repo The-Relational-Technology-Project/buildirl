@@ -36,3 +36,13 @@ export function assertAsStringArray(value: string | string[]): string[] {
   }
   return value;
 }
+
+export function findOne<T>(l: T[], filter: (i: T) => boolean): T {
+  const r = l.filter((i) => filter(i));
+  if (r.length !== 1) {
+    throw new Error(
+      `expected to find exactly 1 match but found ${stringify(l)}`
+    );
+  }
+  return r[0]!;
+}
