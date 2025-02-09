@@ -47,7 +47,7 @@ export function ActiveMembershipTable({ clubId }: ActiveMembershipTableProps) {
     <Table.Tr key={m.id}>
       <Table.Td
         miw={140}
-        onClick={() => router.push(`/user/${m.user.id}/club/${clubId}`)}
+        onClick={() => router.push(`/user/${m.user.id}?back=true`)}
         style={{ cursor: "pointer" }}
       >
         <Group gap={4}>

@@ -115,7 +115,7 @@ export function ManageIntakePanel({ club }: ManageIntakePanelProps) {
               w={150}
               style={{ alignSelf: "center" }}
             >
-              Submit
+              Save
             </Button>
           </Stack>
         </form>

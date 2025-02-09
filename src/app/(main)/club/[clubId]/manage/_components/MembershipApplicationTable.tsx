@@ -8,7 +8,8 @@ import {
   Text,
   Avatar,
   Title,
-  Box
+  Box,
+  ActionIcon
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -16,6 +17,7 @@ import { isLoaded, toDisplayDate } from "~/client/utils";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { IconListCheck, IconX } from "@tabler/icons-react";
 
 type MembershipApplicationTableProps = {
   clubId: number;
@@ -62,7 +64,7 @@ export function MembershipApplicationTable({
     <Table.Tr key={m.id}>
       <Table.Td
         miw={140}
-        onClick={() => router.push(`/user/${m.user.id}/club/${clubId}`)}
+        onClick={() => router.push(`/user/${m.user.id}?back=true`)}
         style={{ cursor: "pointer" }}
       >
         <Group gap={4}>
@@ -77,6 +79,17 @@ export function MembershipApplicationTable({
       <Table.Td miw={100}>{m.membershipTier.name}</Table.Td>
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
+      <Table.Td>
+        <ActionIcon
+          onClick={() =>
+            router.push(`/club/${clubId}/member/${m.user.id}/application`)
+          }
+          variant={"transparent"}
+          color={"black"}
+        >
+          <IconListCheck size={16} />
+        </ActionIcon>
+      </Table.Td>
 
       <Table.Td>
         <Group>
@@ -131,6 +144,7 @@ export function MembershipApplicationTable({
                 <Table.Th>Tier</Table.Th>
                 <Table.Th>Contribution</Table.Th>
                 <Table.Th>Date Applied</Table.Th>
+                <Table.Th />
                 <Table.Th>Action</Table.Th>
               </Table.Tr>
             </Table.Thead>

@@ -1,27 +1,35 @@
+"use client";
+
+import { useParams } from "next/navigation";
+import { findOne, strictParseInt } from "~/utils";
+import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
 import React from "react";
 import {
   Box,
   Checkbox,
+  Paper,
+  PaperProps,
   Radio,
   Stack,
   Textarea,
-  TextInput
+  TextInput,
+  Title
 } from "@mantine/core";
-import { FormQuestionType, FormResponse } from "~/server/service/types/form";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { findOne } from "~/utils";
+import { FormQuestionType, FormResponse } from "~/server/service/types/form";
 
 interface ApplicationResponsesSectionProps {
   userId: number;
   clubId: number;
 }
 
-export function ApplicationResponsesSection({
+function ApplicationResponsesSection({
   userId,
-  clubId
-}: ApplicationResponsesSectionProps) {
+  clubId,
+  ...props
+}: ApplicationResponsesSectionProps & PaperProps) {
   const r = api.main.membershipApplicationsForClub.useQuery({ clubId });
 
   QueryError.check({
@@ -75,12 +83,29 @@ export function ApplicationResponsesSection({
   };
 
   return (
-    <Stack>
-      {userApplication.applicationResponses.responses.map((response, index) => (
-        <Box key={index} mb={20}>
-          {renderResponse(response)}
-        </Box>
-      ))}
-    </Stack>
+    <Paper withBorder p={"lg"} {...props}>
+      <Stack>
+        <Title order={4}>Application Responses</Title>
+        {userApplication.applicationResponses.responses.map(
+          (response, index) => (
+            <Box key={index} mb={20}>
+              {renderResponse(response)}
+            </Box>
+          )
+        )}
+      </Stack>
+    </Paper>
+  );
+}
+
+export default function MemberApplication() {
+  const params = useParams<{ userId: string; clubId: string }>();
+  const userId = strictParseInt(params.userId);
+  const clubId = strictParseInt(params.clubId);
+
+  return (
+    <WithLocalNavigationHeader>
+      <ApplicationResponsesSection userId={userId} clubId={clubId} />
+    </WithLocalNavigationHeader>
   );
 }
