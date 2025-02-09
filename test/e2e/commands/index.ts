@@ -241,11 +241,16 @@ function submitMembershipApplicationCommands() {
     membershipTierIdSelector: itemSelector<number>(),
     userIdSelector: itemSelector<number>(),
     // TODO
-    applicationResponses: constant({ responses: [] })
+    applicationResponses: constant({ responses: [] }),
+    // TODO
+    shareEmail: constant(false)
   }).map(
     (i) =>
       new SubmitMembershipApplicationCommand(
-        { applicationResponses: i.applicationResponses },
+        {
+          applicationResponses: i.applicationResponses,
+          shareEmail: i.shareEmail
+        },
         i.membershipTierIdSelector,
         i.userIdSelector
       )

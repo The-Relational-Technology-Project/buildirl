@@ -126,7 +126,7 @@ function ApplicationForm({
   const onSubmit = async (responses: FormResponses) => {
     await submitMembershipApplication.mutateAsync({
       membershipTierId: membershipTierId,
-      input: { applicationResponses: responses }
+      input: { applicationResponses: responses, shareEmail: false }
     });
   };
 

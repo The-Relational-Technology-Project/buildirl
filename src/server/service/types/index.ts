@@ -55,6 +55,8 @@ export type Membership = {
   membershipTier: MembershipTier;
   status: MembershipStatus;
   applicationResponses: FormResponses;
+  // null if not shared
+  email: Maybe<Email>;
   // this isn't exactly the join date as it is the date
   // the membership went into `PENDING` state
   // TODO refine
@@ -151,6 +153,9 @@ export const ClubPublicIdSchema = z
 export const URLSchema = z.string().url("Not a valid url");
 export type URL = z.infer<typeof URLSchema>;
 
+const EmailSchema = z.string().email("Not a valid email");
+export type Email = z.infer<typeof EmailSchema>;
+
 export const InstagramHandleSchema = z
   .string()
   .regex(INSTAGRAM_HANDLE_REGEX, "Not a valid Instagram handle");
@@ -229,7 +234,8 @@ export type UpdateMembershipTierInput = z.infer<
 >;
 
 export const SubmitMembershipApplicationInputSchema = z.object({
-  applicationResponses: FormResponsesSchema
+  applicationResponses: FormResponsesSchema,
+  shareEmail: z.boolean()
 });
 export type SubmitMembershipApplicationInput = z.infer<
   typeof SubmitMembershipApplicationInputSchema

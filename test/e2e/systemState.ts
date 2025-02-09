@@ -439,7 +439,9 @@ export class SystemState {
       club: this.getClub(membershipState.clubId),
       membershipTier: this.getMembershipTier(membershipState.membershipTierId),
       status: membershipState.status,
-      applicationResponses: membershipState.applicationResponses
+      applicationResponses: membershipState.applicationResponses,
+      // always null for now as sharedEmail is always set to `false`
+      email: null
     };
   }
 

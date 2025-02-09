@@ -84,7 +84,8 @@ function createVerifiers() {
       club: clubWithoutCreatedAt(membership.club),
       membershipTier: membership.membershipTier,
       status: membership.status,
-      applicationResponses: membership.applicationResponses
+      applicationResponses: membership.applicationResponses,
+      email: membership.email
     };
   }
 

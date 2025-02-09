@@ -19,7 +19,8 @@ import {
   UpdateUserInput,
   URLSchema,
   User,
-  MembershipStatus
+  MembershipStatus,
+  Email
 } from "~/server/service/types";
 import {
   FormQuestionsSchema,
@@ -85,6 +86,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     },
     status: true,
     applicationResponses: true,
+    shareEmail: true,
     createdAt: true
   };
 
@@ -174,9 +176,9 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
-  function asMembership(
+  async function asMembership(
     r: MembershipGetPayload<{ select: typeof MEMBERSHIP_SELECT }>
-  ): Membership {
+  ): Promise<Membership> {
     return {
       id: r.id,
       user: r.user,
@@ -187,8 +189,17 @@ export function createMainService(prisma: PrismaClient): MainService {
         r.applicationResponses,
         FormResponsesSchema
       ),
+      email: await userEmail(r.shareEmail),
       createdAt: r.createdAt
     };
+  }
+
+  async function userEmail(shareEmail: boolean): Promise<Maybe<Email>> {
+    if (!shareEmail) {
+      return null;
+    }
+    // TODO
+    return null;
   }
 
   async function getUserMemberships(userId: number): Promise<Membership[]> {
@@ -199,7 +210,9 @@ export function createMainService(prisma: PrismaClient): MainService {
           userId: userId
         }
       });
-      const memberships = results.map((r) => asMembership(r));
+      const memberships = await Promise.all(
+        results.map((r) => asMembership(r))
+      );
       logger.info(
         `queried memberships for user with userId ${userId} with result ${stringify(memberships)}`
       );
@@ -263,7 +276,9 @@ export function createMainService(prisma: PrismaClient): MainService {
           status: "ACTIVE"
         }
       });
-      const memberships = results.map((r) => asMembership(r));
+      const memberships = await Promise.all(
+        results.map((r) => asMembership(r))
+      );
       logger.info(
         `queried memberships for club with clubId ${clubId} with result ${stringify(memberships)}`
       );
@@ -289,7 +304,9 @@ export function createMainService(prisma: PrismaClient): MainService {
           status: "PENDING"
         }
       });
-      const memberships = results.map((r) => asMembership(r));
+      const memberships = await Promise.all(
+        results.map((r) => asMembership(r))
+      );
       logger.info(
         `queried pending memberships for club with clubId ${clubId} with result ${stringify(memberships)}`
       );
@@ -896,6 +913,7 @@ export function createMainService(prisma: PrismaClient): MainService {
           userId: userId,
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
+          shareEmail: input.shareEmail,
           status: "PENDING"
         },
         select: {

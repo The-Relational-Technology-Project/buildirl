@@ -95,12 +95,13 @@ function NextActionButton({ club, membershipTierId }: NextActionButtonProps) {
       variant="filled"
       color="violet"
       size="lg"
-      onClick={() => {
-        submitMembershipApplication.mutate({
+      onClick={async () => {
+        await submitMembershipApplication.mutateAsync({
           membershipTierId,
           // no intake required
           input: {
-            applicationResponses: { responses: [] }
+            applicationResponses: { responses: [] },
+            shareEmail: false
           }
         });
       }}
