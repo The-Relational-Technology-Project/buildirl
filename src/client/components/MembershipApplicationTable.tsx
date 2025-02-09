@@ -62,7 +62,7 @@ export function MembershipApplicationTable({
     <Table.Tr key={m.id}>
       <Table.Td
         miw={140}
-        onClick={() => router.push(`/user/${m.user.id}?back=true`)}
+        onClick={() => router.push(`/user/${m.user.id}/club/${clubId}`)}
         style={{ cursor: "pointer" }}
       >
         <Group gap={4}>
