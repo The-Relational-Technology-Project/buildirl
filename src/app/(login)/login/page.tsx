@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthenticationForm } from "~/client/components/AuthenticationForm";
+import { AuthenticationForm } from "~/app/(login)/login/_components/AuthenticationForm";
 import { useEffect } from "react";
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { useRouter } from "next/navigation";

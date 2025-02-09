@@ -6,13 +6,13 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { ClubOverviewPanel } from "~/client/components/ClubOverviewPanel";
-import { ClubAdminPanel } from "~/client/components/ClubAdminPanel";
-import { ManageMembershipTiersPanel } from "~/client/components/ManageMembershipTiersPanel";
+import { ClubOverviewPanel } from "~/app/(main)/club/[clubId]/manage/_components/ClubOverviewPanel";
+import { ClubAdminPanel } from "~/app/(main)/club/[clubId]/manage/_components/ClubAdminPanel";
+import { ManageMembershipTiersPanel } from "~/app/(main)/club/[clubId]/manage/_components/ManageMembershipTiersPanel";
 import { strictParseInt } from "~/utils";
-import { MembershipApplicationTable } from "~/client/components/MembershipApplicationTable";
-import { ActiveMembershipTable } from "~/client/components/ActiveMembershipTable";
-import { ManageIntakePanel } from "~/client/components/ManageIntakePanel";
+import { MembershipApplicationTable } from "~/app/(main)/club/[clubId]/manage/_components/MembershipApplicationTable";
+import { ActiveMembershipTable } from "~/app/(main)/club/[clubId]/manage/_components/ActiveMembershipTable";
+import { ManageIntakePanel } from "~/app/(main)/club/[clubId]/manage/_components/ManageIntakePanel";
 
 export default function ManageClub() {
   const params = useParams<{ clubId: string }>();

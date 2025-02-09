@@ -17,8 +17,8 @@ import { Club, MembershipTier } from "~/server/service/types";
 import React from "react";
 import { AlertMessage } from "~/client/components/AlertMessage";
 import { useDisclosure } from "@mantine/hooks";
-import { CreateMembershipTierModal } from "~/client/components/CreateMembershipTierModal";
-import { UpdateMembershipTierModal } from "~/client/components/UpdateMembershipTierModal";
+import { CreateMembershipTierModal } from "~/app/(main)/club/[clubId]/manage/_components/CreateMembershipTierModal";
+import { UpdateMembershipTierModal } from "~/app/(main)/club/[clubId]/manage/_components/UpdateMembershipTierModal";
 import { Carousel } from "@mantine/carousel";
 
 type ManageMembershipsPanelProps = {
