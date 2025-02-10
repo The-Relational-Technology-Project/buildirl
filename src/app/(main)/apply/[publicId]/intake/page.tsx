@@ -46,15 +46,15 @@ function ShareEmailQuestion({
 }: ShareEmailQuestionProp) {
   return (
     <Stack>
-      <Text fw={500}>Will you share your email with the club manager?</Text>
+      <Text fw={500}>Share your email</Text>
       <Text c="dimmed" size="sm">
-        This will allow them to reach out to you with more information on
-        getting involved with the club.
+        This will allow club managers to reach out to you with more information
+        on getting involved with the club.
       </Text>
       <Switch
         checked={shareEmail}
         onChange={(event) => setShareEmail(event.currentTarget.checked)}
-        label="Share my email"
+        label="Acknowledge"
         mt="md"
       />
     </Stack>
@@ -100,7 +100,7 @@ function ApplicationForm({
   clubPublicId
 }: ApplicationFormProps) {
   const [activeStep, setActiveStep] = useState(0);
-  const [shareEmail, setShareEmail] = useState(true);
+  const [shareEmail, setShareEmail] = useState(false);
 
   const utils = api.useUtils();
   const router = useRouter();
@@ -311,7 +311,9 @@ function ApplicationForm({
             </Button>
           )}
           {activeStep === totalQuestions - 1 ? (
-            <Button type="submit" disabled={!isCurrentStepValid()}>
+            // for now, this is hardcoded assuming share email
+            // is always the last question
+            <Button type="submit" disabled={!shareEmail}>
               Submit
             </Button>
           ) : (
