@@ -189,17 +189,29 @@ export function createMainService(prisma: PrismaClient): MainService {
         r.applicationResponses,
         FormResponsesSchema
       ),
-      email: await userEmail(r.shareEmail),
+      // only expose email if explicitly shared
+      email: r.shareEmail ? await userEmail(r.user.id) : null,
       createdAt: r.createdAt
     };
   }
 
-  async function userEmail(shareEmail: boolean): Promise<Maybe<Email>> {
-    if (!shareEmail) {
-      return null;
+  async function userEmail(userId: number): Promise<Maybe<Email>> {
+    try {
+      const userSettings = await prisma.userSettings.findUniqueOrThrow({
+        where: {
+          userId: userId
+        }
+      });
+      logger.info(
+        `queried user email for user with id ${userId}`
+      );
+      return userSettings.email;
+    } catch (e) {
+      logger.error(
+        `failed to query user email for user with id ${userId} with exception ${stringify(e)}`
+      );
+      throw e;
     }
-    // TODO
-    throw new Error("unimplemented");
   }
 
   async function getUserMemberships(userId: number): Promise<Membership[]> {
@@ -359,8 +371,19 @@ export function createMainService(prisma: PrismaClient): MainService {
     authUserId: string,
     authEmail: Maybe<string>
   ): Promise<MutationResult> {
+    return prisma.$transaction(async (tx) => {
+      return createUserInTransaction(input, authUserId, authEmail, tx);
+    });
+  }
+
+  async function createUserInTransaction(
+    input: CreateUserInput,
+    authUserId: string,
+    authEmail: Maybe<string>,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
     try {
-      const { id } = await prisma.user.create({
+      const { id } = await tx.user.create({
         data: {
           ...input,
           authUserId
@@ -372,10 +395,31 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(
         `created user from input ${stringify(input)} with userId ${id}`
       );
+
+      await createUserSettingInTransaction(id, authEmail, tx);
+
       return { createdEntityId: id };
     } catch (e) {
       logger.error(
         `failed to create user from input ${stringify(input)} with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
+  async function createUserSettingInTransaction(
+    userId: number,
+    authEmail: Maybe<string>,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    try {
+      await tx.userSettings.create({
+        data: { userId, email: authEmail }
+      });
+      logger.info(`created user setting for user with id ${userId}`);
+    } catch (e) {
+      logger.error(
+        `failed to create user setting for user with id ${userId} with exception ${stringify(e)}`
       );
       throw e;
     }
