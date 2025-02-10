@@ -29,7 +29,6 @@ export function ActiveMembershipTable({ clubId }: ActiveMembershipTableProps) {
   const deactivateMembership = api.main.deactivateMembership.useMutation({
     onSuccess: async () => {
       await utils.main.activeMembershipsForClub.invalidate({ clubId: clubId });
-      router.back();
     }
   });
 
