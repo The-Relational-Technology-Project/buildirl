@@ -4,15 +4,19 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Box,
   Button,
+  Center,
   Checkbox,
   CheckboxGroup,
+  Flex,
   Group,
   Paper,
   Radio,
   RadioGroup,
   Stack,
   Stepper,
+  Switch,
   Text,
   Textarea,
   TextInput
@@ -30,6 +34,32 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
+
+type ShareEmailQuestionProp = {
+  shareEmail: boolean;
+  setShareEmail: (shareEmail: boolean) => void;
+};
+
+function ShareEmailQuestion({
+  shareEmail,
+  setShareEmail
+}: ShareEmailQuestionProp) {
+  return (
+    <Stack>
+      <Text fw={500}>Will you share your email with the club manager?</Text>
+      <Text c="dimmed" size="sm">
+        This will allow them to reach out to you with more information on
+        getting involved with the club.
+      </Text>
+      <Switch
+        checked={shareEmail}
+        onChange={(event) => setShareEmail(event.currentTarget.checked)}
+        label="Share my email"
+        mt="md"
+      />
+    </Stack>
+  );
+}
 
 export default function IntakePage() {
   const params = useParams<{ publicId: string }>();
@@ -70,6 +100,7 @@ function ApplicationForm({
   clubPublicId
 }: ApplicationFormProps) {
   const [activeStep, setActiveStep] = useState(0);
+  const [shareEmail, setShareEmail] = useState(false);
 
   const utils = api.useUtils();
   const router = useRouter();
@@ -81,6 +112,9 @@ function ApplicationForm({
         router.push(`/apply/${clubPublicId}/completed`);
       }
     });
+
+  // +1 for the share email question
+  const totalQuestions = applicationQuestions.questions.length + 1;
 
   const {
     handleSubmit,
@@ -126,7 +160,7 @@ function ApplicationForm({
   const onSubmit = async (responses: FormResponses) => {
     await submitMembershipApplication.mutateAsync({
       membershipTierId: membershipTierId,
-      input: { applicationResponses: responses, shareEmail: false }
+      input: { applicationResponses: responses, shareEmail }
     });
   };
 
@@ -134,9 +168,7 @@ function ApplicationForm({
     // need to be explicit here otherwise this submits the form
     e.preventDefault();
     setActiveStep((current) =>
-      current < applicationQuestions.questions.length - 1
-        ? current + 1
-        : current
+      current < totalQuestions - 1 ? current + 1 : current
     );
   };
   const prevStep = () =>
@@ -240,24 +272,37 @@ function ApplicationForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stepper size="xs" color="violet" active={activeStep}>
+      <Stepper
+        size="xs"
+        color="violet"
+        active={activeStep}
+        hidden={totalQuestions === 1}
+      >
         {applicationQuestions.questions.map((_, index) => (
           <Stepper.Step key={index} />
         ))}
+        <Stepper.Step key={applicationQuestions.questions.length + 1} />
       </Stepper>
 
       <Paper p={"xl"} mt={"xl"} withBorder>
-        <Stack gap={4}>
-          {renderQuestion(
-            applicationQuestions.questions[activeStep]!,
-            activeStep
-          )}
-          {errors.responses?.[activeStep]?.response && (
-            <Text c="red" size="sm">
-              {errors.responses?.[activeStep]?.response?.message}
-            </Text>
-          )}
-        </Stack>
+        {activeStep < applicationQuestions.questions.length ? (
+          <Stack gap={4}>
+            {renderQuestion(
+              applicationQuestions.questions[activeStep]!,
+              activeStep
+            )}
+            {errors.responses?.[activeStep]?.response && (
+              <Text c="red" size="sm">
+                {errors.responses?.[activeStep]?.response?.message}
+              </Text>
+            )}
+          </Stack>
+        ) : (
+          <ShareEmailQuestion
+            shareEmail={shareEmail}
+            setShareEmail={setShareEmail}
+          />
+        )}
 
         <Group mt="xl" justify={"center"}>
           {activeStep > 0 && (
@@ -265,7 +310,7 @@ function ApplicationForm({
               Back
             </Button>
           )}
-          {activeStep === applicationQuestions.questions.length - 1 ? (
+          {activeStep === totalQuestions - 1 ? (
             <Button type="submit" disabled={!isCurrentStepValid()}>
               Submit
             </Button>
