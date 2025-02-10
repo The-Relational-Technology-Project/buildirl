@@ -17,6 +17,7 @@ import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { EmailLink } from "~/client/components/EmailLink";
+import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 
 type ActiveMembershipTableProps = {
   clubId: number;
@@ -46,20 +47,22 @@ export function ActiveMembershipTable({ clubId }: ActiveMembershipTableProps) {
   const rows = r.data!.map((m) => (
     <Table.Tr key={m.id}>
       <Table.Td
-        miw={140}
         onClick={() => router.push(`/user/${m.user.id}?back=true`)}
         style={{ cursor: "pointer" }}
       >
-        <Group gap={4}>
+        <Group gap={4} wrap={"nowrap"}>
           <Avatar
             size="md"
             radius="xl"
             src={storageClient.userProfileImageUrl(m.user.id)}
           />
-          <Text size={"sm"}>{`${m.user.firstName} ${m.user.lastName}`}</Text>
+          <Text
+            size={"sm"}
+            style={{ textWrap: "nowrap" }}
+          >{`${m.user.firstName} ${m.user.lastName}`}</Text>
         </Group>
       </Table.Td>
-      <Table.Td miw={100}>{m.membershipTier.name}</Table.Td>
+      <Table.Td>{m.membershipTier.name}</Table.Td>
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
       <Table.Td>
@@ -94,7 +97,7 @@ export function ActiveMembershipTable({ clubId }: ActiveMembershipTableProps) {
       </Box>
       <Paper mt={"sm"} px={"md"} py={"sm"} withBorder>
         <ScrollArea h={300}>
-          <Table miw={700}>
+          <Table miw={{ base: undefined, md: `calc(${PAGE_WIDTH} - 100px)` }}>
             <Table.Thead
               style={{
                 position: "sticky",
