@@ -43,7 +43,6 @@ type MembershipState = {
   membershipTierId: number;
   status: MembershipStatus;
   applicationResponses: FormResponses;
-  shareEmail: boolean;
 };
 
 type UserState = {
@@ -460,10 +459,7 @@ export class SystemState {
       membershipTier: this.getMembershipTier(membershipState.membershipTierId),
       status: membershipState.status,
       applicationResponses: membershipState.applicationResponses,
-      // email is exposed if explicitly shared
-      email: membershipState.shareEmail
-        ? this.getUserEmail(membershipState.userId)
-        : null
+      email: this.getUserEmail(membershipState.userId)
     };
   }
 
@@ -532,8 +528,7 @@ export class SystemState {
       clubId: clubId,
       membershipTierId: membershipTierId,
       status: "PENDING",
-      applicationResponses: input.applicationResponses,
-      shareEmail: input.shareEmail
+      applicationResponses: input.applicationResponses
     });
   }
 

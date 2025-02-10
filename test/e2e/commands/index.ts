@@ -246,7 +246,7 @@ function submitMembershipApplicationCommands() {
     userIdSelector: itemSelector<number>(),
     // TODO
     applicationResponses: constant({ responses: [] }),
-    shareEmail: boolean()
+    shareEmail: constant(true)
   }).map(
     (i) =>
       new SubmitMembershipApplicationCommand(

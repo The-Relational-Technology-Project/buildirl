@@ -86,7 +86,6 @@ export function createMainService(prisma: PrismaClient): MainService {
     },
     status: true,
     applicationResponses: true,
-    shareEmail: true,
     createdAt: true
   };
 
@@ -189,8 +188,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         r.applicationResponses,
         FormResponsesSchema
       ),
-      // only expose email if explicitly shared
-      email: r.shareEmail ? await userEmail(r.user.id) : null,
+      email: await userEmail(r.user.id),
       createdAt: r.createdAt
     };
   }
@@ -929,6 +927,11 @@ export function createMainService(prisma: PrismaClient): MainService {
     input: SubmitMembershipApplicationInput,
     userId: number
   ): Promise<MutationResult> {
+    if (!input.shareEmail) {
+      throw new Error(
+        "email sharing required in order to submit membership application"
+      );
+    }
     await checkMembershipTierIsPublished(membershipTierId);
     const clubId = await getClubIdFromMembershipTierId(membershipTierId);
     await checkUserIsNotClubOwner(userId, clubId);
@@ -956,7 +959,6 @@ export function createMainService(prisma: PrismaClient): MainService {
           userId: userId,
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          shareEmail: input.shareEmail,
           status: "PENDING"
         },
         select: {
@@ -985,7 +987,6 @@ export function createMainService(prisma: PrismaClient): MainService {
         data: {
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          shareEmail: input.shareEmail,
           status: "PENDING"
         },
         where: {
