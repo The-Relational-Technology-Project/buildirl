@@ -202,9 +202,7 @@ export function createMainService(prisma: PrismaClient): MainService {
           userId: userId
         }
       });
-      logger.info(
-        `queried user email for user with id ${userId}`
-      );
+      logger.info(`queried user email for user with id ${userId}`);
       return userSettings.email;
     } catch (e) {
       logger.error(
@@ -466,7 +464,7 @@ export function createMainService(prisma: PrismaClient): MainService {
           ...input,
           ownerUserId: userId,
           // default empty
-          applicationQuestions: []
+          applicationQuestions: { questions: [] }
         },
         select: {
           id: true
@@ -987,6 +985,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         data: {
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
+          shareEmail: input.shareEmail,
           status: "PENDING"
         },
         where: {

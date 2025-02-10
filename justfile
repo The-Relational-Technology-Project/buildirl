@@ -16,6 +16,7 @@ db-stop:
 
 # update migrations and remote db specified in .env.POSTGRES_URL
 # from schema.prisma definition
+# TODO setup .dotenv https://www.prisma.io/docs/orm/more/development-environment/environment-variables/using-multiple-env-files
 db-migrate:
     prisma migrate dev
 
