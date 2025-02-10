@@ -3,7 +3,6 @@ import {
   useForm,
   Controller,
   useFieldArray,
-  Control,
   FieldErrors,
   useFormContext,
   FormProvider
@@ -24,12 +23,10 @@ import { IconPlus, IconX } from "@tabler/icons-react";
 import {
   FormQuestionType,
   FormQuestionsSchema,
-  FormQuestion,
   FormQuestions
 } from "~/server/service/types/form";
 import { Club } from "~/server/service/types";
 import { api } from "~/trpc/react";
-import { useRouter } from "next/navigation";
 
 const QUESTION_TYPES = [
   { value: FormQuestionType.SHORT_TEXT, label: "Short Text" },
@@ -86,7 +83,6 @@ export function ManageIntakePanel({ club }: ManageIntakePanelProps) {
             {fields.map((field, index) => (
               <QuestionPanel
                 key={field.id}
-                control={control}
                 index={index}
                 errors={errors}
                 onDelete={() => remove(index)}
@@ -127,18 +123,33 @@ export function ManageIntakePanel({ club }: ManageIntakePanelProps) {
 type QuestionPanelProps = {
   index: number;
   onDelete: () => void;
-  control: Control<FormQuestions>;
   errors: FieldErrors<FormQuestions>;
 };
 
-function QuestionPanel({
-  control,
-  index,
-  errors,
-  onDelete
-}: QuestionPanelProps) {
-  const { watch } = useFormContext<FormQuestions>();
+function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
+  const { watch, setValue, control } = useFormContext<FormQuestions>();
   const questionType = watch(`questions.${index}.type`);
+
+  const resetMetadataOnTypeChange = (newType: FormQuestionType) => {
+    if (questionType !== newType) {
+      setValue(`questions.${index}.metadata`, defaultMetadata(newType));
+    }
+  };
+
+  function defaultMetadata(type: FormQuestionType) {
+    switch (type) {
+      case FormQuestionType.SHORT_TEXT:
+        return undefined;
+      case FormQuestionType.LONG_TEXT:
+        return undefined;
+      case FormQuestionType.SINGLE_SELECT:
+        return { choices: [] };
+      case FormQuestionType.MULTI_SELECT:
+        return { choices: [] };
+      default:
+        throw new Error(`unsupported question type`);
+    }
+  }
 
   return (
     <Card withBorder pt={"sm"} pb="md" px="md">
@@ -177,6 +188,10 @@ function QuestionPanel({
                 errors.questions?.[index]?.type?.message
               }
               {...field}
+              onChange={(value) => {
+                resetMetadataOnTypeChange(value as FormQuestionType);
+                field.onChange(value);
+              }}
               onBlur={field.onBlur}
             />
           )}
