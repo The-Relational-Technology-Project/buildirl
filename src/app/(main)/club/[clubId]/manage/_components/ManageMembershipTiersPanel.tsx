@@ -140,48 +140,50 @@ export function ManageMembershipTierCard({
   return (
     <Paper key={membershipTier.id} p="md" withBorder h={400} w={300}>
       <Stack h="100%" gap={4}>
-        {membershipTier.status === "PUBLISHED" ? (
-          <Badge color="green" style={{ alignSelf: "flex-end" }}>
-            Active
-          </Badge>
-        ) : (
-          <Badge color="red" style={{ alignSelf: "flex-end" }}>
-            Inactive
-          </Badge>
-        )}
+        <Box style={{ alignSelf: "flex-end" }}>
+          {membershipTier.status === "PUBLISHED" ? (
+            <Badge color="green">Active</Badge>
+          ) : (
+            <Badge color="red">Inactive</Badge>
+          )}
+        </Box>
 
         <Title order={4} mt={4}>
           {membershipTier.name}
         </Title>
 
-        <Stack gap={4}>
-          <Title order={6}>Contributions</Title>
-          {membershipTier.contributionDescription === "" ? (
-            <Box mb={50}>
-              <AlertMessage
-                message={"Please update contribution details."}
-                size={"sm"}
-              />
+        <Stack style={{ overflowY: "auto" }}>
+          <Stack gap={4}>
+            <Title order={6}>Contributions</Title>
+            <Box mih={70}>
+              {membershipTier.contributionDescription === "" ? (
+                <AlertMessage
+                  message={"Please update contribution details."}
+                  size={"sm"}
+                />
+              ) : (
+                <Text size={"sm"} c="dimmed">
+                  {membershipTier.contributionDescription}
+                </Text>
+              )}
             </Box>
-          ) : (
-            <Text size={"sm"} c="dimmed" lineClamp={4}>
-              {membershipTier.contributionDescription}
-            </Text>
-          )}
-        </Stack>
+          </Stack>
 
-        <Stack gap={4} mt={4}>
-          <Title order={6}>Benefits</Title>
-          {membershipTier.benefitDescription === "" ? (
-            <AlertMessage
-              message={"Please update benefits details."}
-              size={"sm"}
-            />
-          ) : (
-            <Text size={"sm"} c="dimmed" lineClamp={4}>
-              {membershipTier.benefitDescription}
-            </Text>
-          )}
+          <Stack gap={4} mt={4}>
+            <Title order={6}>Benefits</Title>
+            <Box mih={70}>
+              {membershipTier.benefitDescription === "" ? (
+                <AlertMessage
+                  message={"Please update benefits details."}
+                  size={"sm"}
+                />
+              ) : (
+                <Text size={"sm"} c="dimmed">
+                  {membershipTier.benefitDescription}
+                </Text>
+              )}
+            </Box>
+          </Stack>
         </Stack>
 
         <Space flex={1} />

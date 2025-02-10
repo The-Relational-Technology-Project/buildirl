@@ -131,7 +131,7 @@ export const LastNameSchema = z
 
 export const LongTextSchema = z
   .string()
-  .max(1000, "Cannot be more than 1000 characters");
+  .max(2000, "Cannot be more than 2000 characters");
 
 export const CreateUserInputSchema = z.object({
   firstName: FirstNameSchema,

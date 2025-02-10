@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Title, Text, Button, Card, Space } from "@mantine/core";
+import { Stack, Title, Text, Button, Card, Space, Box } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -70,39 +70,45 @@ function MembershipTierCard({
       <Stack h={"100%"} gap={10}>
         <Title order={3}>{membershipTier.name}</Title>
 
-        <Stack>
+        <Stack style={{ overflowY: "auto" }}>
           {membershipTier.benefitDescription !== "" && (
             <Stack gap={0}>
               <Title order={6}>Our member experience</Title>
-              <Text size="sm">{membershipTier.benefitDescription}</Text>
+              <Box mih={70}>
+                <Text size="sm">{membershipTier.benefitDescription}</Text>
+              </Box>
             </Stack>
           )}
 
           {membershipTier.contributionDescription !== "" && (
             <Stack gap={0}>
               <Title order={6}>Your contribution is key!</Title>
-              <Text size="sm">{membershipTier.contributionDescription}</Text>
+              <Box mih={70}>
+                <Text size="sm">{membershipTier.contributionDescription}</Text>
+              </Box>
             </Stack>
           )}
         </Stack>
 
         <Space flex={1} />
 
-        <Text size="xl" fw={500}>
-          ${membershipTier.costPerMonthInUSD} / month
-        </Text>
+        <Stack>
+          <Text size="xl" fw={500}>
+            ${membershipTier.costPerMonthInUSD} / month
+          </Text>
 
-        <Button
-          variant="filled"
-          color={"violet"}
-          onClick={() =>
-            router.push(
-              `/apply/${clubPublicId}?membershipTierId=${membershipTier.id}`
-            )
-          }
-        >
-          Apply to Join
-        </Button>
+          <Button
+            variant="filled"
+            color={"violet"}
+            onClick={() =>
+              router.push(
+                `/apply/${clubPublicId}?membershipTierId=${membershipTier.id}`
+              )
+            }
+          >
+            Apply to Join
+          </Button>
+        </Stack>
       </Stack>
     </Card>
   );

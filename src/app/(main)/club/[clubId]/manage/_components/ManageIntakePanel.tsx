@@ -143,9 +143,9 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
       case FormQuestionType.LONG_TEXT:
         return undefined;
       case FormQuestionType.SINGLE_SELECT:
-        return { choices: [] };
+        return { choices: [""] };
       case FormQuestionType.MULTI_SELECT:
-        return { choices: [] };
+        return { choices: [""] };
       default:
         throw new Error(`unsupported question type`);
     }
