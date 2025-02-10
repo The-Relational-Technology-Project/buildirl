@@ -16,6 +16,7 @@ import { isLoaded, toDisplayDate } from "~/client/utils";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { EmailLink } from "~/client/components/EmailLink";
 
 type ActiveMembershipTableProps = {
   clubId: number;
@@ -62,6 +63,10 @@ export function ActiveMembershipTable({ clubId }: ActiveMembershipTableProps) {
       <Table.Td miw={100}>{m.membershipTier.name}</Table.Td>
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
+      <Table.Td>
+        {m.email === null ? null : <EmailLink email={m.email} />}
+      </Table.Td>
+      <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
 
       <Table.Td>
         <Button
@@ -103,6 +108,8 @@ export function ActiveMembershipTable({ clubId }: ActiveMembershipTableProps) {
                 <Table.Th>Tier</Table.Th>
                 <Table.Th>Contribution</Table.Th>
                 <Table.Th>Date Joined</Table.Th>
+                {/*Email*/}
+                <Table.Th />
                 <Table.Th>Action</Table.Th>
               </Table.Tr>
             </Table.Thead>

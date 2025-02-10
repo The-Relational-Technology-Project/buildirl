@@ -9,7 +9,8 @@ import {
   Avatar,
   Title,
   Box,
-  ActionIcon
+  ActionIcon,
+  Anchor
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -17,7 +18,8 @@ import { isLoaded, toDisplayDate } from "~/client/utils";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { IconListCheck, IconX } from "@tabler/icons-react";
+import { IconListCheck } from "@tabler/icons-react";
+import { EmailLink } from "~/client/components/EmailLink";
 
 type MembershipApplicationTableProps = {
   clubId: number;
@@ -79,6 +81,9 @@ export function MembershipApplicationTable({
       <Table.Td miw={100}>{m.membershipTier.name}</Table.Td>
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
+      <Table.Td>
+        {m.email === null ? null : <EmailLink email={m.email} />}
+      </Table.Td>
       <Table.Td>
         <ActionIcon
           onClick={() =>
@@ -144,6 +149,9 @@ export function MembershipApplicationTable({
                 <Table.Th>Tier</Table.Th>
                 <Table.Th>Contribution</Table.Th>
                 <Table.Th>Date Applied</Table.Th>
+                {/*Email*/}
+                <Table.Th />
+                {/* Application Questions */}
                 <Table.Th />
                 <Table.Th>Action</Table.Th>
               </Table.Tr>
