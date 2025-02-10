@@ -199,7 +199,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       return null;
     }
     // TODO
-    return null;
+    throw new Error("unimplemented");
   }
 
   async function getUserMemberships(userId: number): Promise<Membership[]> {
@@ -356,7 +356,8 @@ export function createMainService(prisma: PrismaClient): MainService {
 
   async function createUser(
     input: CreateUserInput,
-    authUserId: string
+    authUserId: string,
+    authEmail: Maybe<string>
   ): Promise<MutationResult> {
     try {
       const { id } = await prisma.user.create({

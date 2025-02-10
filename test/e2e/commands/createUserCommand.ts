@@ -12,10 +12,16 @@ export default class CreateUserCommand
   private readonly input: CreateUserInput;
   private userId: Maybe<number> = null;
   private readonly authUserId: string;
+  private readonly authEmail: Maybe<string>;
 
-  constructor(input: CreateUserInput, authUserId: string) {
+  constructor(
+    input: CreateUserInput,
+    authUserId: string,
+    authEmail: Maybe<string>
+  ) {
     this.input = input;
     this.authUserId = authUserId;
+    this.authEmail = authEmail;
   }
 
   check(m: Readonly<SystemState>): boolean {
@@ -23,9 +29,13 @@ export default class CreateUserCommand
   }
 
   async run(m: SystemState, r: MainService): Promise<void> {
-    const result = await r.createUser(this.input, this.authUserId);
+    const result = await r.createUser(
+      this.input,
+      this.authUserId,
+      this.authEmail
+    );
     this.userId = idAsNumber(result.createdEntityId);
-    m.createUser(this.userId, this.input);
+    m.createUser(this.userId, this.input, this.authEmail);
     await verifiers.verifyUser(this.userId, r, m);
   }
 
@@ -34,7 +44,8 @@ export default class CreateUserCommand
       CreateUserCommand: {
         input: this.input,
         userId: this.userId,
-        authUserId: this.authUserId
+        authUserId: this.authUserId,
+        authEmail: this.authEmail
       }
     });
   }

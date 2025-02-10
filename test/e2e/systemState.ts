@@ -43,6 +43,7 @@ type MembershipState = {
   membershipTierId: number;
   status: MembershipStatus;
   applicationResponses: FormResponses;
+  shareEmail: boolean;
 };
 
 type UserState = {
@@ -50,6 +51,8 @@ type UserState = {
   firstName: string;
   lastName: string;
   description: string;
+  // settings
+  email: Maybe<string>;
 };
 
 export class SystemState {
@@ -65,12 +68,28 @@ export class SystemState {
     this.memberships = new Map();
   }
 
-  public getUser(id: number): Omit<User, "createdAt"> {
+  // use this only for internal operations as it also contains
+  // user settings which are private to `User`
+  public getUserState(id: number): UserState {
     const user = this.users.get(id);
     if (!user) {
       throw new Error(`user with id ${id} was expected`);
     }
     return user;
+  }
+
+  public getUser(id: number): Omit<User, "createdAt"> {
+    const user = this.users.get(id);
+    if (!user) {
+      throw new Error(`user with id ${id} was expected`);
+    }
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      description: user.description
+      // do not pass through user settings like email
+    };
   }
 
   public hasUsers(): boolean {
@@ -81,18 +100,19 @@ export class SystemState {
     return Array.from(this.users.keys());
   }
 
-  public createUser(id: number, input: CreateUserInput) {
+  public createUser(id: number, input: CreateUserInput, email: Maybe<string>) {
     if (!!this.users.get(id)) {
       throw new Error(`user with id ${id} already exists`);
     }
     this.users.set(id, {
       id: id,
-      ...input
+      ...input,
+      email: email
     });
   }
 
   public updateUser(id: number, input: UpdateUserInput) {
-    const user = this.getUser(id);
+    const user = this.getUserState(id);
     this.users.set(id, {
       ...user,
       description: input.description
@@ -440,9 +460,16 @@ export class SystemState {
       membershipTier: this.getMembershipTier(membershipState.membershipTierId),
       status: membershipState.status,
       applicationResponses: membershipState.applicationResponses,
-      // always null for now as sharedEmail is always set to `false`
-      email: null
+      // email is exposed if explicitly shared
+      email: membershipState.shareEmail
+        ? this.getUserEmail(membershipState.userId)
+        : null
     };
+  }
+
+  private getUserEmail(userId: number): Maybe<string> {
+    const user = this.getUserState(userId);
+    return user.email;
   }
 
   public getActiveMembershipsForClub(
@@ -505,7 +532,8 @@ export class SystemState {
       clubId: clubId,
       membershipTierId: membershipTierId,
       status: "PENDING",
-      applicationResponses: input.applicationResponses
+      applicationResponses: input.applicationResponses,
+      shareEmail: input.shareEmail
     });
   }
 

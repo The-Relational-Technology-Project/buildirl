@@ -1,6 +1,8 @@
 import {
   Arbitrary,
+  boolean,
   constant,
+  emailAddress,
   integer,
   option,
   record,
@@ -58,7 +60,8 @@ function createUserCommands() {
     firstName: string().filter((s) => isZodType(s, FirstNameSchema)),
     lastName: string().filter((s) => isZodType(s, LastNameSchema)),
     description: string(),
-    authUserId: uuid()
+    authUserId: uuid(),
+    authEmail: option(emailAddress(), { freq: 4 })
   }).map(
     (i) =>
       new CreateUserCommand(
@@ -67,7 +70,8 @@ function createUserCommands() {
           lastName: i.lastName,
           description: i.description
         },
-        i.authUserId
+        i.authUserId,
+        i.authEmail
       )
   );
 }
@@ -242,8 +246,7 @@ function submitMembershipApplicationCommands() {
     userIdSelector: itemSelector<number>(),
     // TODO
     applicationResponses: constant({ responses: [] }),
-    // TODO
-    shareEmail: constant(false)
+    shareEmail: boolean()
   }).map(
     (i) =>
       new SubmitMembershipApplicationCommand(

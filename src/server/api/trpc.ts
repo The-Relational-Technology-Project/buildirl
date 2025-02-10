@@ -13,13 +13,8 @@ import { ZodError } from "zod";
 
 import { prisma } from "~/server/prisma";
 import { Maybe } from "~/utils/types";
-import {
-  createComponentClient,
-  createMiddlewareClient
-} from "~/utils/supabase/auth/client";
 import { createMainService } from "~/server/service/service";
 import { logger } from "~/client/logger";
-import { NextRequest } from "next/server";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -47,8 +42,9 @@ export const createTRPCContext = async (opts: {
 };
 
 type UserContext = {
-  authUserId: string;
   userId: Maybe<number>;
+  authUserId: string;
+  authEmail: Maybe<string>;
 };
 
 async function authUser(supabase: SupabaseClient): Promise<Maybe<UserContext>> {
@@ -61,7 +57,7 @@ async function authUser(supabase: SupabaseClient): Promise<Maybe<UserContext>> {
     return null;
   }
   const userId = await userIdByAuthUserId(user.id);
-  return { authUserId: user.id, userId: userId };
+  return { userId: userId, authUserId: user.id, authEmail: user.email ?? null };
 }
 
 function userIdByAuthUserId(authUserId: string): Promise<Maybe<number>> {

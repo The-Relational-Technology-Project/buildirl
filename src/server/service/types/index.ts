@@ -77,11 +77,11 @@ export type ClubStatistics = {
   pendingMembershipApplications: number;
 };
 
-// TODO define
 export type MainMutations = {
   createUser(
     input: CreateUserInput,
-    authUserId: string
+    authUserId: string,
+    authEmail: Maybe<string>
   ): Promise<MutationResult>;
   updateUser(id: number, input: UpdateUserInput): Promise<MutationResult>;
   createClub(input: CreateClubInput, userId: number): Promise<MutationResult>;

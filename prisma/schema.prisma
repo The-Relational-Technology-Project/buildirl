@@ -26,18 +26,27 @@ enum MembershipTierStatus {
 }
 
 model User {
-  id          Int          @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   // internal-only
-  authUserId  String       @unique @map("auth_user_id")
-  firstName   String       @map("first_name")
-  lastName    String       @map("last_name")
+  authUserId  String        @unique @map("auth_user_id")
+  firstName   String        @map("first_name")
+  lastName    String        @map("last_name")
   description String
+  settings    UserSettings?
   memberships Membership[]
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
   club        Club[]
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
 
   @@map("user")
+}
+
+model UserSettings {
+  userId    Int      @id @unique
+  user      User     @relation(fields: [userId], references: [id])
+  email     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 }
 
 model Club {

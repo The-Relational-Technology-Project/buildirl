@@ -72,7 +72,11 @@ export const mainRouter = createTRPCRouter({
   createUser: securedProcedure
     .input(CreateUserInputSchema)
     .mutation(({ ctx, input }) => {
-      return ctx.service.createUser(input, ctx.user.authUserId);
+      return ctx.service.createUser(
+        input,
+        ctx.user.authUserId,
+        ctx.user.authEmail
+      );
     }),
 
   updateUser: securedProcedure
