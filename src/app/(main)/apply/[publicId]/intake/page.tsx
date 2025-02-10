@@ -100,7 +100,7 @@ function ApplicationForm({
   clubPublicId
 }: ApplicationFormProps) {
   const [activeStep, setActiveStep] = useState(0);
-  const [shareEmail, setShareEmail] = useState(false);
+  const [shareEmail, setShareEmail] = useState(true);
 
   const utils = api.useUtils();
   const router = useRouter();
