@@ -91,7 +91,7 @@ model Membership {
   membershipTierId     Int              @map("membership_tier_id")
   membershipTier       MembershipTier   @relation(fields: [membershipTierId], references: [id])
   applicationResponses Json             @map("application_responses")
-  shareEmail           Boolean          @default(false) @map("share_email")
+  shareEmail           Boolean          @map("share_email")
   status               MembershipStatus
   createdAt            DateTime         @default(now()) @map("created_at")
   updatedAt            DateTime         @updatedAt @map("updated_at")
