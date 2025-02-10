@@ -13,7 +13,8 @@ import {
   Stack,
   Textarea,
   TextInput,
-  Title
+  Title,
+  Text
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -86,11 +87,18 @@ function ApplicationResponsesSection({
     <Paper withBorder p={"lg"} {...props}>
       <Stack>
         <Title order={4}>Application Responses</Title>
-        {userApplication.applicationResponses.responses.map(
-          (response, index) => (
-            <Box key={index} mb={20}>
-              {renderResponse(response)}
-            </Box>
+        {userApplication.applicationResponses.responses.length === 0 ? (
+          <Text mt={5} size={"sm"} c={"dimmed"}>
+            No responses were given. This is likely because you had no intake
+            questions.
+          </Text>
+        ) : (
+          userApplication.applicationResponses.responses.map(
+            (response, index) => (
+              <Box key={index} mb={20}>
+                {renderResponse(response)}
+              </Box>
+            )
           )
         )}
       </Stack>
