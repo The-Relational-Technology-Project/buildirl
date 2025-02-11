@@ -147,7 +147,7 @@ export function AuthenticationForm() {
   return (
     <Paper p="xl" withBorder w={300}>
       <Group justify="center">
-        <Image src={"/logo.svg"} h={40} />
+        <Image src={"/images/logo.svg"} h={40} />
       </Group>
 
       <Divider

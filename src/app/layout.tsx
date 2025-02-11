@@ -13,7 +13,7 @@ import {
   mantineHtmlProps,
   MantineProvider
 } from "@mantine/core";
-import { theme } from "~/client/theme";
+import { index } from "~/client/theme";
 import { HydrateClient } from "~/trpc/server";
 import { Notifications } from "@mantine/notifications";
 
@@ -33,7 +33,7 @@ export default function RootLayout({
       </head>
       <body className={GeistSans.className}>
         <TRPCReactProvider>
-          <MantineProvider theme={theme}>
+          <MantineProvider theme={index}>
             <HydrateClient>{children}</HydrateClient>
             <Notifications position={"bottom-center"} />
           </MantineProvider>

@@ -40,7 +40,7 @@ export default function ClubJoin() {
       <Stack p="sm" maw={PAGE_WIDTH} align={"center"} mt={"md"}>
         <Image
           src={storageClient.clubProfileImageUrl(r.data!.id)}
-          fallbackSrc="/club-profile-fallback.png"
+          fallbackSrc="/images/club-profile-fallback.png"
           h={250}
           w={250}
           radius={"md"}

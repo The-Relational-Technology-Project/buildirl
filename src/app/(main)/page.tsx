@@ -75,7 +75,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
 
         <Image
           src={storageClient.clubProfileImageUrl(club.id)}
-          fallbackSrc="/club-profile-fallback.png"
+          fallbackSrc="/images/club-profile-fallback.png"
           h={120}
           w={120}
           radius={"md"}
@@ -115,7 +115,7 @@ export default function Home() {
         </Title>
         <Stack justify="center" align="center" gap={10} style={{ flex: 1 }}>
           <Image
-            src="/home-icon.svg"
+            src="/images/home-icon.svg"
             alt="home icon"
             w={120}
             style={{ filter: "invert(0.6)" }}

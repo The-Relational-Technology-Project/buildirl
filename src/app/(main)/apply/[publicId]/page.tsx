@@ -34,7 +34,7 @@ export default function Apply() {
               <Title order={2}>You Rock!</Title>
 
               <Image
-                src={"/abstract-design.svg"}
+                src={"/images/abstract-design.svg"}
                 h={120}
                 w={120}
                 alt={"abstract art"}

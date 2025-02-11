@@ -14,7 +14,13 @@ export default function ApplicationCompleted() {
         <Title order={3}>Thank you for applying!</Title>
         <Text c="dimmed">Your application is being reviewed.</Text>
 
-        <Image src={"/books.png"} h={120} w={120} alt={"books"} mt={"lg"} />
+        <Image
+          src={"/images/books.png"}
+          h={120}
+          w={120}
+          alt={"books"}
+          mt={"lg"}
+        />
 
         <Button
           variant="filled"

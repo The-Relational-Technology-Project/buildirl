@@ -66,7 +66,7 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
 function LogoIcon() {
   return (
     <Image
-      src={"/logo-icon.svg"}
+      src={"/images/logo-icon.svg"}
       w={15}
       h={20}
       style={{
