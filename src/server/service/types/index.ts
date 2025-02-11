@@ -6,6 +6,7 @@ import {
   FormResponses,
   FormResponsesSchema
 } from "~/server/service/types/form";
+import { TemplateTheme, TemplateThemeSchema } from "~/client/theme/templates";
 
 export type MainService = MainQueries & MainMutations;
 
@@ -42,6 +43,7 @@ export type Club = {
   instagramHandle: Maybe<InstagramHandle>;
   eventCalendarURL: Maybe<URL>;
   applicationQuestions: FormQuestions;
+  theme: Maybe<TemplateTheme>;
   membershipTiers: MembershipTier[];
 };
 
@@ -187,7 +189,9 @@ export const UpdateClubInputSchema = z.object({
   description: LongTextSchema,
   websiteURL: URLSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
-  eventCalendarURL: URLSchema.nullable()
+  eventCalendarURL: URLSchema.nullable(),
+  // update-only fields
+  theme: TemplateThemeSchema.nullable()
 });
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;
 

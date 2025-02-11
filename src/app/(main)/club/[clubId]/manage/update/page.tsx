@@ -94,7 +94,9 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
               websiteURL: websiteURL === "" ? null : websiteURL,
               instagramHandle: instagramHandle === "" ? null : instagramHandle,
               eventCalendarURL:
-                eventCalendarURL === "" ? null : eventCalendarURL
+                eventCalendarURL === "" ? null : eventCalendarURL,
+              // TODO
+              theme: null
             }
           });
         }

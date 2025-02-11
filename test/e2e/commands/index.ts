@@ -4,6 +4,7 @@ import {
   constant,
   emailAddress,
   integer,
+  oneof,
   option,
   record,
   string,
@@ -34,6 +35,7 @@ import DeleteMembershipTierCommand from "./deleteMembershipTierCommand";
 import PublishMembershipTierCommand from "./publishMembershipTierCommand";
 import UnpublishMembershipTierCommand from "./unpublishMembershipTierCommand";
 import DeleteClubCommand from "./deleteClubCommand";
+import { TEMPLATE_THEME_SELECTION } from "~/client/theme/templates";
 
 export const allCommands = () => {
   return [
@@ -133,7 +135,8 @@ function updateClubCommands() {
       string().filter((s) => isZodType(s, InstagramHandleSchema)),
       { freq: 4 }
     ),
-    eventCalendarURL: option(webUrl(), { freq: 4 })
+    eventCalendarURL: option(webUrl(), { freq: 4 }),
+    theme: option(oneof(...TEMPLATE_THEME_SELECTION.map(constant)), { freq: 4 })
   }).map(
     (i) =>
       new UpdateClubCommand(
@@ -144,7 +147,8 @@ function updateClubCommands() {
           description: i.description,
           websiteURL: i.websiteURL,
           instagramHandle: i.instagramHandle,
-          eventCalendarURL: i.eventCalendarURL
+          eventCalendarURL: i.eventCalendarURL,
+          theme: i.theme
         },
         i.clubIdSelector
       )

@@ -32,6 +32,7 @@ import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import ClubGetPayload = Prisma.ClubGetPayload;
 import MembershipGetPayload = Prisma.MembershipGetPayload;
 import { Maybe } from "~/utils/types";
+import { TemplateThemeSchema } from "~/client/theme/templates";
 
 const logger = rootLogger.child({ module: "mainService" });
 
@@ -66,6 +67,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     instagramHandle: true,
     eventCalendarURL: true,
     applicationQuestions: true,
+    theme: true,
     membershipTiers: {
       select: MEMBERSHIP_TIER_SELECT
     }
@@ -148,6 +150,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         r.applicationQuestions,
         FormQuestionsSchema
       ),
+      theme: parseNullableAsZodType(r.theme, TemplateThemeSchema),
       membershipTiers: orderedByCost(
         r.membershipTiers.map((t) => asMembershipTier(t))
       )
@@ -462,7 +465,8 @@ export function createMainService(prisma: PrismaClient): MainService {
           ...input,
           ownerUserId: userId,
           // default empty
-          applicationQuestions: { questions: [] }
+          applicationQuestions: { questions: [] },
+          theme: Prisma.DbNull
         },
         select: {
           id: true
@@ -490,7 +494,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   ): Promise<MutationResult> {
     try {
       await prisma.club.update({
-        data: input,
+        data: { ...input, theme: input.theme ?? Prisma.DbNull },
         where: {
           id: id
         }

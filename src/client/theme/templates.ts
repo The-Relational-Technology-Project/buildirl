@@ -1,8 +1,11 @@
-export type TemplateTheme = {
-  headingFontFamily: string;
-  backgroundName: string;
-  isDark: boolean;
-};
+import { z } from "zod";
+
+export const TemplateThemeSchema = z.object({
+  headingFontFamily: z.string().min(3, "Length must be >= 3"),
+  backgroundName: z.string().min(3, "Length must be >= 3"),
+  isDark: z.boolean()
+});
+export type TemplateTheme = z.infer<typeof TemplateThemeSchema>;
 
 const WHITE_FLOWER: TemplateTheme = {
   headingFontFamily: "Brush Script MT, cursive",
@@ -16,4 +19,4 @@ const PURPLE_SWIRL: TemplateTheme = {
   isDark: true
 };
 
-export const TEMPLATE_SELECTION = [WHITE_FLOWER, PURPLE_SWIRL];
+export const TEMPLATE_THEME_SELECTION = [WHITE_FLOWER, PURPLE_SWIRL];

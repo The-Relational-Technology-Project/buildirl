@@ -19,6 +19,7 @@ import {
 import { Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
 import { FormQuestions, FormResponses } from "~/server/service/types/form";
+import { TemplateTheme } from "~/client/theme/templates";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -33,6 +34,7 @@ type ClubState = {
   instagramHandle: Maybe<InstagramHandle>;
   eventCalendarURL: Maybe<URL>;
   applicationQuestions: FormQuestions;
+  theme: Maybe<TemplateTheme>;
   membershipTierIds: number[];
 };
 
@@ -164,6 +166,7 @@ export class SystemState {
       instagramHandle: clubState.instagramHandle,
       eventCalendarURL: clubState.eventCalendarURL,
       applicationQuestions: clubState.applicationQuestions,
+      theme: clubState.theme,
       membershipTiers: this.orderedByCost(
         clubState.membershipTierIds.map((id) => this.getMembershipTier(id))
       )
@@ -222,6 +225,7 @@ export class SystemState {
       ownerUserId: userId,
       // empty to start
       applicationQuestions: { questions: [] },
+      theme: null,
       membershipTierIds: []
     });
 

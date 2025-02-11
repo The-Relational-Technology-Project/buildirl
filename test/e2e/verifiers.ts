@@ -39,6 +39,7 @@ function createVerifiers() {
       instagramHandle: club.instagramHandle,
       eventCalendarURL: club.eventCalendarURL,
       applicationQuestions: club.applicationQuestions,
+      theme: club.theme,
       membershipTiers: club.membershipTiers
     };
   }

@@ -63,6 +63,7 @@ model Club {
   eventCalendarURL     String?          @map("event_calendar_url")
   instagramHandle      String?          @map("instagram_handle")
   applicationQuestions Json             @map("application_questions")
+  theme                Json?
   membershipTiers      MembershipTier[]
   createdAt            DateTime         @default(now()) @map("created_at")
   updatedAt            DateTime         @updatedAt @map("updated_at")
