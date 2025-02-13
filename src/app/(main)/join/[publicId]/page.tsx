@@ -9,8 +9,7 @@ import {
   Button,
   Image,
   ActionIcon,
-  GroupProps,
-  Box
+  GroupProps
 } from "@mantine/core";
 import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
@@ -48,7 +47,14 @@ export default function ClubJoin() {
           alt={r.data!.name}
         />
         <Stack align={"center"} gap={8}>
-          <Title order={1} fw={400}>
+          <Title
+            order={1}
+            fw={400}
+            style={{
+              // we only want to apply this theme font family to this heading not all headings
+              fontFamily: r.data!.theme?.headingFontFamily ?? "inherit"
+            }}
+          >
             {r.data!.name}
           </Title>
 
