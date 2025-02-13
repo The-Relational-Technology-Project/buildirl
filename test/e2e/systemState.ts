@@ -307,8 +307,24 @@ export class SystemState {
   }
 
   public deleteMembershipTier(id: number) {
+    this.deleteMembershipsForMembershipTier(id);
     this.deleteMembershipTierFromClub(id);
     this.membershipTiers.delete(id);
+  }
+
+  private deleteMembershipsForMembershipTier(membershipTierId: number) {
+    const membershipsForMembershipTier = Array.from(
+      this.memberships.values()
+    ).filter((m) => m.membershipTierId === membershipTierId);
+
+    for (const membership of membershipsForMembershipTier) {
+      if (membership.status === "ACTIVE") {
+        throw new Error(
+          `cannot delete active membership with id ${membership.id}`
+        );
+      }
+      this.memberships.delete(membership.id);
+    }
   }
 
   public publishMembershipTier(id: number) {
@@ -347,30 +363,33 @@ export class SystemState {
     return membershipTier;
   }
 
-  public hasEmptyMembershipTier(): boolean {
-    return this.getEmptyMembershipTiersIds().length > 0;
+  public hasNoActiveMembersMembershipTier(): boolean {
+    return this.getNoActiveMembersMembershipTiersIds().length > 0;
   }
 
-  public getEmptyMembershipTiersIds(): number[] {
-    const nonEmptyMembershipTierIds = this.getNonEmptyMembershipTierIds();
+  public getNoActiveMembersMembershipTiersIds(): number[] {
+    const activeMembersMembershipTierIds =
+      this.getActiveMembersMembershipTierIds();
     return Array.from(this.membershipTiers.keys()).filter(
-      (id) => !nonEmptyMembershipTierIds.has(id)
+      (id) => !activeMembersMembershipTierIds.has(id)
     );
   }
 
   public hasEmptyNotFreeAndNotLastPublishedMembershipTier(): boolean {
     return (
-      this.getEmptyNotFreeAndNotLastPublishedMembershipTiersIds().length > 0
+      this.getNoActiveMembersNotFreeAndNotLastPublishedMembershipTiersIds()
+        .length > 0
     );
   }
 
-  public getEmptyNotFreeAndNotLastPublishedMembershipTiersIds(): number[] {
-    const nonEmptyMembershipTierIds = this.getNonEmptyMembershipTierIds();
+  public getNoActiveMembersNotFreeAndNotLastPublishedMembershipTiersIds(): number[] {
+    const activeMembersMembershipTierIds =
+      this.getActiveMembersMembershipTierIds();
     return Array.from(this.membershipTiers.values())
       .filter(
         // definition of default free tier is 0 cost
         (m) =>
-          !nonEmptyMembershipTierIds.has(m.id) &&
+          !activeMembersMembershipTierIds.has(m.id) &&
           m.costPerMonthInUSD !== 0 &&
           !this.isMembershipTierLastPublished(m.id)
       )
@@ -422,9 +441,11 @@ export class SystemState {
       .map((t) => t.id);
   }
 
-  private getNonEmptyMembershipTierIds(): Set<number> {
+  private getActiveMembersMembershipTierIds(): Set<number> {
     return new Set(
-      Array.from(this.memberships.values()).map((m) => m.membershipTierId)
+      Array.from(this.memberships.values())
+        .filter((m) => m.status === "ACTIVE")
+        .map((m) => m.membershipTierId)
     );
   }
 

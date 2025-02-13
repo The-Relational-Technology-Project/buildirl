@@ -22,7 +22,7 @@ export default class UpdateMembershipTierCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasEmptyMembershipTier();
+    return m.hasNoActiveMembersMembershipTier();
   }
 
   private isDefaultFreeMembershipTier(
@@ -35,7 +35,7 @@ export default class UpdateMembershipTierCommand
 
   async run(m: SystemState, r: MainService): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
-      m.getEmptyMembershipTiersIds()
+      m.getNoActiveMembersMembershipTiersIds()
     );
 
     if (this.isDefaultFreeMembershipTier(this.membershipTierId, m)) {

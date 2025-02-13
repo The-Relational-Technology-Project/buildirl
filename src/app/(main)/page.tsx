@@ -139,17 +139,21 @@ export default function Home() {
       <Title order={1} mb={"md"}>
         Clubs
       </Title>
-      {r.data!.map((c) => (
-        <ClubCard key={c.id} club={c} isOwned={true} membershipId={null} />
-      ))}
-      {activeMemberships.map((m) => (
-        <ClubCard
-          key={m.club.id}
-          club={m.club}
-          isOwned={false}
-          membershipId={m.id}
-        />
-      ))}
+      {r
+        .data!.sort((c) => c.id)
+        .map((c) => (
+          <ClubCard key={c.id} club={c} isOwned={true} membershipId={null} />
+        ))}
+      {activeMemberships
+        .sort((m) => m.club.id)
+        .map((m) => (
+          <ClubCard
+            key={m.club.id}
+            club={m.club}
+            isOwned={false}
+            membershipId={m.id}
+          />
+        ))}
       <Text size={"sm"} c={"dimmed"} style={{ alignSelf: "center" }} mt={10}>
         Discover more clubs to join or{" "}
         <a href="/club/create" style={{ color: "inherit" }}>

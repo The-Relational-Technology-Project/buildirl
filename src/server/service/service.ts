@@ -628,10 +628,10 @@ export function createMainService(prisma: PrismaClient): MainService {
     );
   }
 
-  async function hasMembersOnMembershipTier(membershipTierId: number) {
+  async function hasActiveMembersOnMembershipTier(membershipTierId: number) {
     try {
       const count = await prisma.membership.count({
-        where: { membershipTierId: membershipTierId }
+        where: { membershipTierId: membershipTierId, status: "ACTIVE" }
       });
       logger.info(
         `queried membership count ${count} for membership tier with id ${membershipTierId}`
@@ -645,12 +645,12 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
-  async function checkNoMembersOnMembershipTier(
+  async function checkNoActiveMembersOnMembershipTier(
     membershipTierId: number
   ): Promise<void> {
-    if (await hasMembersOnMembershipTier(membershipTierId)) {
+    if (await hasActiveMembersOnMembershipTier(membershipTierId)) {
       throw new Error(
-        "cannot update membership tier if there are existing members subscribed  to it"
+        "cannot update membership tier if there are existing members subscribed to it"
       );
     }
   }
@@ -710,7 +710,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
-    await checkNoMembersOnMembershipTier(id);
+    await checkNoActiveMembersOnMembershipTier(id);
     await checkIsNotDefaultFreeMembershipTierAndUpdatingCost(id, input);
     await checkIsNotUpdatingMembershipTierToZeroCost(id, input);
     try {
@@ -733,7 +733,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   }
 
   async function deleteMembershipTier(id: number): Promise<MutationResult> {
-    await checkNoMembersOnMembershipTier(id);
+    await checkNoActiveMembersOnMembershipTier(id);
     await checkIsNotDefaultFreeMembershipTier(id);
     if (await isMembershipTierLastPublishedTier(id)) {
       throw new Error("cannot delete last published membership tier");

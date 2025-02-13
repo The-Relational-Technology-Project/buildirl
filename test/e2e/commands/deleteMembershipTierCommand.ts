@@ -22,7 +22,7 @@ export default class DeleteMembershipTierCommand
 
   async run(m: SystemState, r: MainService): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
-      m.getEmptyNotFreeAndNotLastPublishedMembershipTiersIds()
+      m.getNoActiveMembersNotFreeAndNotLastPublishedMembershipTiersIds()
     );
     await r.deleteMembershipTier(this.membershipTierId);
     // must get this value before deleting

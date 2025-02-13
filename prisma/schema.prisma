@@ -92,7 +92,7 @@ model Membership {
   userId               Int              @map("user_id")
   user                 User             @relation(fields: [userId], references: [id])
   membershipTierId     Int              @map("membership_tier_id")
-  membershipTier       MembershipTier   @relation(fields: [membershipTierId], references: [id])
+  membershipTier       MembershipTier   @relation(fields: [membershipTierId], references: [id], onDelete: Cascade)
   applicationResponses Json             @map("application_responses")
   status               MembershipStatus
   createdAt            DateTime         @default(now()) @map("created_at")
