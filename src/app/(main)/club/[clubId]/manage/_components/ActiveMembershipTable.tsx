@@ -68,7 +68,6 @@ export function ActiveMembershipTable({ clubId }: ActiveMembershipTableProps) {
       <Table.Td>
         {m.email === null ? null : <EmailLink email={m.email} />}
       </Table.Td>
-      <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
 
       <Table.Td>
         <Button
