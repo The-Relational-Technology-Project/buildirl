@@ -9,7 +9,8 @@ import {
   Button,
   Image,
   ActionIcon,
-  GroupProps
+  GroupProps,
+  Box
 } from "@mantine/core";
 import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
 import { api } from "~/trpc/react";

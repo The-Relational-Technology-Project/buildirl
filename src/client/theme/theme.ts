@@ -1,6 +1,6 @@
 import { createTheme } from "@mantine/core";
 
-export const index = createTheme({
+export const theme = createTheme({
   components: {
     Button: {
       defaultProps: {
