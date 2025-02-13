@@ -136,7 +136,10 @@ function updateClubCommands() {
       { freq: 4 }
     ),
     eventCalendarURL: option(webUrl(), { freq: 4 }),
-    theme: option(oneof(...TEMPLATE_THEME_SELECTION.map(constant)), { freq: 4 })
+    theme: option(
+      oneof(...Object.values(TEMPLATE_THEME_SELECTION).map(constant)),
+      { freq: 4 }
+    )
   }).map(
     (i) =>
       new UpdateClubCommand(

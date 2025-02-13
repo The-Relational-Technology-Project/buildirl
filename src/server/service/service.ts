@@ -26,7 +26,7 @@ import {
   FormQuestionsSchema,
   FormResponsesSchema
 } from "~/server/service/types/form";
-import { parseAsZodType, parseNullableAsZodType } from "~/utils/zod";
+import { parseAsZodType } from "~/utils/zod";
 import { stringify } from "~/utils";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import ClubGetPayload = Prisma.ClubGetPayload;
@@ -140,17 +140,20 @@ export function createMainService(prisma: PrismaClient): MainService {
       tagLine: r.tagLine,
       description: r.description,
       owner: r.owner,
-      websiteURL: parseNullableAsZodType(r.websiteURL, URLSchema),
-      instagramHandle: parseNullableAsZodType(
+      websiteURL: parseAsZodType(r.websiteURL, URLSchema.nullable()),
+      instagramHandle: parseAsZodType(
         r.instagramHandle,
-        InstagramHandleSchema
+        InstagramHandleSchema.nullable()
       ),
-      eventCalendarURL: parseNullableAsZodType(r.eventCalendarURL, URLSchema),
+      eventCalendarURL: parseAsZodType(
+        r.eventCalendarURL,
+        URLSchema.nullable()
+      ),
       applicationQuestions: parseAsZodType(
         r.applicationQuestions,
         FormQuestionsSchema
       ),
-      theme: parseNullableAsZodType(r.theme, TemplateThemeSchema),
+      theme: parseAsZodType(r.theme, TemplateThemeSchema.nullable()),
       membershipTiers: orderedByCost(
         r.membershipTiers.map((t) => asMembershipTier(t))
       )

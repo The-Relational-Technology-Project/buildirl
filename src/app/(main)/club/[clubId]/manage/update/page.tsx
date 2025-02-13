@@ -29,6 +29,8 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
+import { ThemeSelector } from "~/app/(main)/club/[clubId]/manage/update/_components/ThemeSelector";
+import { TemplateThemeSchema } from "~/client/theme/templates";
 
 type UpdateClubFormProps = {
   club: Club;
@@ -55,7 +57,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       description: club.description,
       websiteURL: club.websiteURL,
       instagramHandle: club.instagramHandle,
-      eventCalendarURL: club.eventCalendarURL
+      eventCalendarURL: club.eventCalendarURL,
+      theme: club.theme
     },
 
     validateInputOnChange: true,
@@ -68,7 +71,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       websiteURL: (v) => safeValidateSchema(URLSchema.nullable(), v),
       instagramHandle: (v) =>
         safeValidateSchema(InstagramHandleSchema.nullable(), v),
-      eventCalendarURL: (v) => safeValidateSchema(URLSchema.nullable(), v)
+      eventCalendarURL: (v) => safeValidateSchema(URLSchema.nullable(), v),
+      theme: (v) => safeValidateSchema(TemplateThemeSchema.nullable(), v)
     }
   });
 
@@ -82,7 +86,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           description,
           websiteURL,
           instagramHandle,
-          eventCalendarURL
+          eventCalendarURL,
+          theme
         }) => {
           await updateClub.mutateAsync({
             id: club.id,
@@ -95,8 +100,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
               instagramHandle: instagramHandle === "" ? null : instagramHandle,
               eventCalendarURL:
                 eventCalendarURL === "" ? null : eventCalendarURL,
-              // TODO
-              theme: null
+              theme: theme
             }
           });
         }
@@ -193,6 +197,18 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
             />
           </Group>
         </Stack>
+
+        <Stack gap={8}>
+          <Title order={6} mt={6}>
+            Theme
+          </Title>
+          <ThemeSelector
+            value={form.values.theme}
+            onChange={(theme) => form.setFieldValue("theme", theme)}
+            mt={4}
+          />
+        </Stack>
+
         <Button
           type="submit"
           w={100}
@@ -211,7 +227,6 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 export default function UpdateClub() {
   const params = useParams<{ clubId: string }>();
   const clubId = strictParseInt(params.clubId);
-  const router = useRouter();
 
   const r = api.main.club.useQuery({ id: clubId });
 
@@ -223,7 +238,7 @@ export default function UpdateClub() {
   return (
     isLoaded(r) && (
       <WithLocalNavigationHeader>
-        <Stack px={{ base: 20, sm: 200 }}>
+        <Stack px={{ base: 20, sm: 200 }} mb={"md"}>
           <UpdateClubForm club={r.data!} />
         </Stack>
       </WithLocalNavigationHeader>

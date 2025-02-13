@@ -1,8 +1,4 @@
-import {
-  Membership,
-  MembershipStatus,
-  MembershipTier
-} from "~/server/service/types";
+import { Membership, MembershipTier } from "~/server/service/types";
 
 export type Maybe<T> = T | null;
 
