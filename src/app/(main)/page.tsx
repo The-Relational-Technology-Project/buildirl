@@ -140,12 +140,12 @@ export default function Home() {
         Clubs
       </Title>
       {r
-        .data!.sort((c) => c.id)
+        .data!.sort((c1, c2) => c1.id - c2.id)
         .map((c) => (
           <ClubCard key={c.id} club={c} isOwned={true} membershipId={null} />
         ))}
       {activeMemberships
-        .sort((m) => m.club.id)
+        .sort((m1, m2) => m1.club.id - m2.club.id)
         .map((m) => (
           <ClubCard
             key={m.club.id}
