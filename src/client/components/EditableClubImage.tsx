@@ -57,7 +57,7 @@ export default function EditableClubImage({
         variant="filled"
         radius="xl"
         size="sm"
-        color="black"
+        color={"black"}
         aria-label="Upload Club Profile Picture"
         style={{ position: "absolute", right: 0, bottom: 0 }}
       >

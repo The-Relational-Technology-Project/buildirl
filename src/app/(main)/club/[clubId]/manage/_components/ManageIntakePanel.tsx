@@ -16,7 +16,6 @@ import {
   Group,
   Stack,
   Text,
-  ActionIcon,
   Card
 } from "@mantine/core";
 import { IconPlus, IconX } from "@tabler/icons-react";
@@ -27,6 +26,7 @@ import {
 } from "~/server/service/types/form";
 import { Club } from "~/server/service/types";
 import { api } from "~/trpc/react";
+import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
 
 const QUESTION_TYPES = [
   { value: FormQuestionType.SHORT_TEXT, label: "Short Text" },
@@ -153,14 +153,13 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
 
   return (
     <Card withBorder pt={"sm"} pb="md" px="md">
-      <ActionIcon
+      <ColorSchemeAwareActionIcon
         onClick={onDelete}
         variant={"transparent"}
-        color={"black"}
         style={{ alignSelf: "flex-end" }}
       >
         <IconX size={16} />
-      </ActionIcon>
+      </ColorSchemeAwareActionIcon>
       <Stack>
         <Controller
           name={`questions.${index}.question`}
@@ -221,9 +220,8 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
                           onBlur={field.onBlur}
                           placeholder={`Choice ${choiceIndex + 1}`}
                         />
-                        <ActionIcon
+                        <ColorSchemeAwareActionIcon
                           variant={"transparent"}
-                          color={"black"}
                           onClick={() => {
                             const updatedChoices = field.value.filter(
                               (_, i) => i !== choiceIndex
@@ -232,7 +230,7 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
                           }}
                         >
                           <IconX size={16} />
-                        </ActionIcon>
+                        </ColorSchemeAwareActionIcon>
                       </Group>
                       {
                         // @ts-ignore

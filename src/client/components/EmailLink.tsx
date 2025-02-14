@@ -1,6 +1,7 @@
 import { Anchor, ThemeIcon } from "@mantine/core";
 import React from "react";
 import { IconMail } from "@tabler/icons-react";
+import { ColorSchemeAwareThemeIcon } from "~/client/components/ColorSchemeAwareThemeIcon";
 
 type EmailLinkProp = {
   email: string;
@@ -9,9 +10,9 @@ type EmailLinkProp = {
 export function EmailLink({ email }: EmailLinkProp) {
   return (
     <Anchor href={`mailto:${email}`}>
-      <ThemeIcon variant={"transparent"} color={"black"}>
+      <ColorSchemeAwareThemeIcon variant={"transparent"}>
         <IconMail size={16} />
-      </ThemeIcon>
+      </ColorSchemeAwareThemeIcon>
     </Anchor>
   );
 }

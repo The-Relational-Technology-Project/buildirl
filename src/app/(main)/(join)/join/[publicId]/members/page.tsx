@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Stack,
-  Avatar,
-  Group,
-  Text,
-  Title,
-  Divider,
-  ActionIcon
-} from "@mantine/core";
+import { Stack, Avatar, Group, Text, Divider } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
 import { useParams, useRouter } from "next/navigation";

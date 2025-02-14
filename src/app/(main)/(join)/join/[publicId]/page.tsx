@@ -8,9 +8,9 @@ import {
   Group,
   Button,
   Image,
-  ActionIcon,
   GroupProps,
-  useMantineColorScheme
+  useMantineColorScheme,
+  useMantineTheme
 } from "@mantine/core";
 import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
@@ -22,12 +22,15 @@ import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
 import { membershipForClub } from "~/utils/types";
 import { isUserAuthenticated } from "~/client/utils/auth";
+import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
 
 export default function ClubJoin() {
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
   const router = useRouter();
-  const { colorScheme } = useMantineColorScheme();
 
   const r = api.main.clubByPublicId.useQuery({
     publicId
@@ -75,27 +78,25 @@ export default function ClubJoin() {
 
           <Group>
             {r.data!.websiteURL && (
-              <ActionIcon
+              <ColorSchemeAwareActionIcon
                 onClick={() => window.open(`${r.data!.websiteURL}`)}
                 variant={"transparent"}
-                color={colorScheme === "dark" ? "gray.5" : "black"}
               >
                 <IconLink size={"md"} />
-              </ActionIcon>
+              </ColorSchemeAwareActionIcon>
             )}
 
             {r.data!.instagramHandle && (
-              <ActionIcon
+              <ColorSchemeAwareActionIcon
                 onClick={() =>
                   window.open(
                     `https://instagram.com/${r.data!.instagramHandle}`
                   )
                 }
                 variant={"transparent"}
-                color={colorScheme === "dark" ? "gray.5" : "black"}
               >
                 <IconBrandInstagram size={"md"} />
-              </ActionIcon>
+              </ColorSchemeAwareActionIcon>
             )}
           </Group>
         </Stack>
@@ -113,7 +114,7 @@ export default function ClubJoin() {
             onClick={() => window.open(r.data!.eventCalendarURL!)}
             size="md"
             mt={"md"}
-            color={colorScheme === "dark" ? "gray.5" : "black"}
+            color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
           >
             Come to an event
           </Button>

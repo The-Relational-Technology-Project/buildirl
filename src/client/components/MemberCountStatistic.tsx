@@ -1,14 +1,9 @@
-import {
-  Group,
-  GroupProps,
-  Text,
-  ThemeIcon,
-  useMantineColorScheme
-} from "@mantine/core";
+import { Group, GroupProps, Text } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { IconUsers } from "@tabler/icons-react";
+import { ColorSchemeAwareThemeIcon } from "~/client/components/ColorSchemeAwareThemeIcon";
 
 type MemberCountStatisticProps = {
   clubId: number;
@@ -19,7 +14,6 @@ export function MemberCountStatistic({
   ...props
 }: MemberCountStatisticProps & GroupProps) {
   const r = api.main.clubStatistics.useQuery({ clubId: clubId });
-  const { colorScheme } = useMantineColorScheme();
 
   QueryError.check({
     result: r,
@@ -29,16 +23,9 @@ export function MemberCountStatistic({
   return (
     isLoaded(r) && (
       <Group gap={4} {...props}>
-        <ThemeIcon
-          size={"xs"}
-          variant={"transparent"}
-          c={colorScheme === "dark" ? "gray.5" : "black"}
-          style={{
-            backgroundColor: "transparent"
-          }}
-        >
+        <ColorSchemeAwareThemeIcon size={"xs"} variant={"transparent"}>
           <IconUsers />
-        </ThemeIcon>
+        </ColorSchemeAwareThemeIcon>
         <Text size={"sm"} fw={400}>
           {`${r.data!.memberCount} member${r.data!.memberCount > 1 ? "s" : ""}`}
         </Text>

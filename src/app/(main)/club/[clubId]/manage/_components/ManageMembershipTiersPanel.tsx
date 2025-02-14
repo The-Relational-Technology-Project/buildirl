@@ -7,7 +7,6 @@ import {
   Title,
   Text,
   Button,
-  ActionIcon,
   Space,
   Box,
   Tooltip
@@ -20,6 +19,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { CreateMembershipTierModal } from "~/app/(main)/club/[clubId]/manage/_components/CreateMembershipTierModal";
 import { UpdateMembershipTierModal } from "~/app/(main)/club/[clubId]/manage/_components/UpdateMembershipTierModal";
 import { Carousel } from "@mantine/carousel";
+import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
 
 type ManageMembershipsPanelProps = {
   club: Club;
@@ -61,15 +61,14 @@ export function ManageMembershipTiersPanel({
         ))}
 
         <Carousel.Slide>
-          <ActionIcon
+          <ColorSchemeAwareActionIcon
             variant="light"
-            color={"black"}
             onClick={open}
             w={300}
             h={400}
           >
             <IconPlus />
-          </ActionIcon>
+          </ColorSchemeAwareActionIcon>
         </Carousel.Slide>
       </Carousel>
 

@@ -8,8 +8,7 @@ import {
   Text,
   Avatar,
   Title,
-  Box,
-  ActionIcon
+  Box
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -21,6 +20,7 @@ import { IconListCheck } from "@tabler/icons-react";
 import { EmailLink } from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import { useMantineColorScheme, useMantineTheme } from "@mantine/core";
+import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
 
 type MembershipApplicationTableProps = {
   clubId: number;
@@ -91,15 +91,14 @@ export function MembershipApplicationTable({
         {m.email === null ? null : <EmailLink email={m.email} />}
       </Table.Td>
       <Table.Td>
-        <ActionIcon
+        <ColorSchemeAwareActionIcon
           onClick={() =>
             router.push(`/club/${clubId}/member/${m.user.id}/application`)
           }
           variant={"transparent"}
-          color={"black"}
         >
           <IconListCheck size={16} />
-        </ActionIcon>
+        </ColorSchemeAwareActionIcon>
       </Table.Td>
 
       <Table.Td>

@@ -1,14 +1,9 @@
-import {
-  ActionIcon,
-  Box,
-  Stack,
-  Title,
-  useMantineColorScheme
-} from "@mantine/core";
+import { Box, Stack, useMantineColorScheme } from "@mantine/core";
 import { HEADER_BAR_HEIGHT } from "~/client/components/HeaderBar";
 import { IconArrowLeft } from "@tabler/icons-react";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
 
 type WithLocalNavigationHeaderProps = {
   title?: string;
@@ -35,14 +30,13 @@ export function WithLocalNavigationHeader({
         pb={4}
         style={{ zIndex: 100, background: "transparent" }}
       >
-        <ActionIcon
+        <ColorSchemeAwareActionIcon
           onClick={() => router.back()}
           variant="transparent"
-          color={colorScheme === "dark" ? "gray.5" : "black"}
           mt={"lg"}
         >
           <IconArrowLeft />
-        </ActionIcon>
+        </ColorSchemeAwareActionIcon>
       </Box>
 
       <Box mt={`calc(${HEADER_BAR_HEIGHT}px + 20px)`}>{children}</Box>
