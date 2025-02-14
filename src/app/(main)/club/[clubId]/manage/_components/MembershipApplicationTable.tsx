@@ -9,8 +9,7 @@ import {
   Avatar,
   Title,
   Box,
-  ActionIcon,
-  Anchor
+  ActionIcon
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -21,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { IconListCheck } from "@tabler/icons-react";
 import { EmailLink } from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
+import { useMantineColorScheme, useMantineTheme } from "@mantine/core";
 
 type MembershipApplicationTableProps = {
   clubId: number;
@@ -29,6 +29,9 @@ type MembershipApplicationTableProps = {
 export function MembershipApplicationTable({
   clubId
 }: MembershipApplicationTableProps) {
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+
   const router = useRouter();
 
   const utils = api.useUtils();
@@ -143,8 +146,7 @@ export function MembershipApplicationTable({
             <Table.Thead
               style={{
                 position: "sticky",
-                top: 0,
-                backgroundColor: "white"
+                top: 0
               }}
             >
               <Table.Tr>

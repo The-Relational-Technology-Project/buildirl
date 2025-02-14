@@ -8,7 +8,9 @@ import {
   Text,
   Avatar,
   Title,
-  Box
+  Box,
+  useMantineColorScheme,
+  useMantineTheme
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -24,6 +26,9 @@ type ActiveMembershipTableProps = {
 };
 
 export function ActiveMembershipTable({ clubId }: ActiveMembershipTableProps) {
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+
   const router = useRouter();
 
   const utils = api.useUtils();
@@ -101,7 +106,8 @@ export function ActiveMembershipTable({ clubId }: ActiveMembershipTableProps) {
               style={{
                 position: "sticky",
                 top: 0,
-                backgroundColor: "white"
+                background:
+                  colorScheme === "dark" ? theme.colors.dark[7] : "white"
               }}
             >
               <Table.Tr>
