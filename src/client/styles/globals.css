@@ -1,8 +1,5 @@
 body {
-    @mixin light {
-        background: #fffcf8;
-    }
-
+    background: #fffcf8;
     margin: 0;
 }
 
