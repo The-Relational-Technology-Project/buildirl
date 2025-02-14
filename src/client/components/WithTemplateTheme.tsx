@@ -11,7 +11,8 @@ type WithTemplateThemeProps = {
 
 // TODO we use emotion because it's simple way to modify the global.css
 //  However, usage of emotion is tech debt because of performance and robust concerns with SSR.
-//  @mantine/emotion is also deprecated as of V7
+//  in addition, they do not play well and are overriden by postcss mixins which we will need
+//  to support dark mode. @mantine/emotion is also deprecated as of V7
 export function WithTemplateTheme({ children, theme }: WithTemplateThemeProps) {
   if (null === theme) {
     return children;
@@ -23,7 +24,7 @@ export function WithTemplateTheme({ children, theme }: WithTemplateThemeProps) {
     setColorScheme(theme.isDark ? "dark" : "light");
     return () => {
       // revert to default color scheme
-      setColorScheme("auto");
+      setColorScheme("light");
     };
   }, [setColorScheme]);
 
