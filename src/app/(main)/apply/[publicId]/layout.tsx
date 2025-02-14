@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { WithThemeBackground } from "~/client/components/WithThemeBackground";
+import { WithTemplateTheme } from "~/client/components/WithTemplateTheme";
 
 export default function ApplyLayout({
   children
@@ -23,9 +23,7 @@ export default function ApplyLayout({
 
   return (
     isLoaded(r) && (
-      <WithThemeBackground theme={r.data!.theme}>
-        {children}
-      </WithThemeBackground>
+      <WithTemplateTheme theme={r.data!.theme}>{children}</WithTemplateTheme>
     )
   );
 }
