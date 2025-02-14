@@ -1,22 +1,15 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { isLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import {
-  Group,
-  Stack,
-  StackProps,
-  Text,
-  Title
-} from "@mantine/core";
+import { Group, Stack, StackProps, Text, Title } from "@mantine/core";
 import React from "react";
 import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
 
 export default function ClubAbout() {
   const params = useParams<{ publicId: string }>();
-  const router = useRouter();
 
   const r = api.main.clubByPublicId.useQuery({
     publicId: params.publicId

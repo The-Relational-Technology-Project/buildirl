@@ -32,13 +32,14 @@ type NavigationLinkProps = {
 
 function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
   const currentPath = usePathname();
+
   return (
     <Group mr={"xxs"}>
       <Link href={navigateTo} style={{ textDecoration: "none" }}>
         <Group style={{ gap: 4 }}>
           <ThemeIcon
             size={"xs"}
-            variant={"white"}
+            variant={"transparent"}
             c={currentPath === navigateTo ? "black" : "dimmed"}
             style={{
               backgroundColor: "transparent",
@@ -146,7 +147,7 @@ export function HeaderBar() {
       justify={"center"}
       w={"100vw"}
       style={{
-        backgroundColor: "#efebe7",
+        backgroundColor: "transparent",
         borderBottom: "solid 1px #808080"
       }}
     >

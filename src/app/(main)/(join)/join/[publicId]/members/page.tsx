@@ -31,7 +31,7 @@ export default function ClubMembers() {
 
   return (
     isLoaded(r) && (
-      <WithLocalNavigationHeader title={"Members"}>
+      <WithLocalNavigationHeader>
         <MemberList clubId={r.data!.id} owner={r.data!.owner} />
       </WithLocalNavigationHeader>
     )

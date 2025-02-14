@@ -18,14 +18,14 @@ export function WithTemplateTheme({ children, theme }: WithTemplateThemeProps) {
   }
 
   // set color scheme based on if theme `isDark`
-  const { setColorScheme, clearColorScheme } = useMantineColorScheme();
+  const { setColorScheme } = useMantineColorScheme();
   useEffect(() => {
     setColorScheme(theme.isDark ? "dark" : "light");
     return () => {
       // revert to default color scheme
       setColorScheme("auto");
     };
-  }, [setColorScheme, clearColorScheme]);
+  }, [setColorScheme]);
 
   return (
     <Box>

@@ -1,4 +1,10 @@
-import { Group, GroupProps, Text, ThemeIcon } from "@mantine/core";
+import {
+  Group,
+  GroupProps,
+  Text,
+  ThemeIcon,
+  useMantineColorScheme
+} from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -13,6 +19,7 @@ export function MemberCountStatistic({
   ...props
 }: MemberCountStatisticProps & GroupProps) {
   const r = api.main.clubStatistics.useQuery({ clubId: clubId });
+  const { colorScheme } = useMantineColorScheme();
 
   QueryError.check({
     result: r,
@@ -24,8 +31,8 @@ export function MemberCountStatistic({
       <Group gap={4} {...props}>
         <ThemeIcon
           size={"xs"}
-          variant={"white"}
-          c={"black"}
+          variant={"transparent"}
+          c={colorScheme === "dark" ? "gray.5" : "black"}
           style={{
             backgroundColor: "transparent"
           }}

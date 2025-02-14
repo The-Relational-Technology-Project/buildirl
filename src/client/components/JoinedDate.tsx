@@ -12,7 +12,7 @@ export function JoinedDate({ date, ...props }: JoinedDateProps & GroupProps) {
     <Group gap={6} {...props}>
       <ThemeIcon
         size={"xs"}
-        variant={"white"}
+        variant={"transparent"}
         c={"dimmed"}
         style={{
           backgroundColor: "transparent"

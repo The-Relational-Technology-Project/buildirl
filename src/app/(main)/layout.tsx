@@ -51,8 +51,12 @@ function AuthenticatedLayout({ children }: LayoutProps) {
 
 function PublicLayout({ children }: LayoutProps) {
   return (
-    <Center h={"100%"} pt={HEADER_BAR_HEIGHT}>
-      <Box w={{ base: "80vw", md: PAGE_WIDTH }}>{children}</Box>
-    </Center>
+    <AppShell header={{ height: HEADER_BAR_HEIGHT }}>
+      <AppShellMain h={"100%"}>
+        <Center>
+          <Box w={{ base: "80vw", md: PAGE_WIDTH }}>{children}</Box>
+        </Center>
+      </AppShellMain>
+    </AppShell>
   );
 }

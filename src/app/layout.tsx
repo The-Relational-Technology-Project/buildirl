@@ -29,11 +29,11 @@ export default function RootLayout({
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
-        <ColorSchemeScript defaultColorScheme={"auto"} />
+        <ColorSchemeScript defaultColorScheme={"light"} />
       </head>
       <body className={GeistSans.className}>
         <TRPCReactProvider>
-          <MantineProvider theme={theme}>
+          <MantineProvider theme={theme} defaultColorScheme={"light"}>
             <HydrateClient>{children}</HydrateClient>
             <Notifications position={"bottom-center"} />
           </MantineProvider>

@@ -9,7 +9,8 @@ import {
   Button,
   Image,
   ActionIcon,
-  GroupProps
+  GroupProps,
+  useMantineColorScheme
 } from "@mantine/core";
 import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
@@ -26,6 +27,7 @@ export default function ClubJoin() {
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
   const router = useRouter();
+  const { colorScheme } = useMantineColorScheme();
 
   const r = api.main.clubByPublicId.useQuery({
     publicId
@@ -75,8 +77,8 @@ export default function ClubJoin() {
             {r.data!.websiteURL && (
               <ActionIcon
                 onClick={() => window.open(`${r.data!.websiteURL}`)}
-                variant={"white"}
-                color={"black"}
+                variant={"transparent"}
+                color={colorScheme === "dark" ? "gray.5" : "black"}
               >
                 <IconLink size={"md"} />
               </ActionIcon>
@@ -89,8 +91,8 @@ export default function ClubJoin() {
                     `https://instagram.com/${r.data!.instagramHandle}`
                   )
                 }
-                variant={"white"}
-                color={"black"}
+                variant={"transparent"}
+                color={colorScheme === "dark" ? "gray.5" : "black"}
               >
                 <IconBrandInstagram size={"md"} />
               </ActionIcon>
@@ -111,6 +113,7 @@ export default function ClubJoin() {
             onClick={() => window.open(r.data!.eventCalendarURL!)}
             size="md"
             mt={"md"}
+            color={colorScheme === "dark" ? "gray.5" : "black"}
           >
             Come to an event
           </Button>
