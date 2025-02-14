@@ -26,7 +26,7 @@ export function WithTemplateTheme({ children, theme }: WithTemplateThemeProps) {
       // revert to default color scheme
       setColorScheme("light");
     };
-  }, [setColorScheme]);
+  }, [theme]);
 
   return (
     <Box>
