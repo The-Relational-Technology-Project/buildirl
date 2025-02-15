@@ -11,6 +11,7 @@ import {
   CreateUserInputSchema,
   SubmitMembershipApplicationInputSchema,
   UpdateClubApplicationQuestionsInputSchema,
+  UpdateClubDisplayImageUrlsInputSchema,
   UpdateClubInputSchema,
   UpdateMembershipTierInputSchema,
   UpdateUserInputSchema
@@ -115,6 +116,17 @@ export const mainRouter = createTRPCRouter({
         input.clubId,
         input.input
       );
+    }),
+
+  updateClubDisplayImageUrls: securedProcedure
+    .input(
+      z.object({
+        clubId: z.number(),
+        input: UpdateClubDisplayImageUrlsInputSchema
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.service.updateClubDisplayImageUrls(input.clubId, input.input);
     }),
 
   createMembershipTier: securedProcedure

@@ -1,11 +1,15 @@
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { logger } from "~/client/logger";
+import { Url, UrlSchema } from "~/server/service/types";
+import { parseAsZodType } from "~/utils/zod";
 
 export type StorageClient = {
   uploadUserProfileImage(userId: number, image: File): Promise<void>;
-  userProfileImageUrl(userId: number): string;
+  userProfileImageUrl(userId: number): Url;
   uploadClubProfileImage(clubId: number, image: File): Promise<void>;
-  clubProfileImageUrl(clubId: number): string;
+  clubProfileImageUrl(clubId: number): Url;
+  uploadClubDisplayImage(clubId: number, image: File): Promise<Url>;
+  deleteClubDisplayImage(clubId: number, imageUrl: Url): Promise<void>;
 };
 
 /**
@@ -66,7 +70,7 @@ export default function createStorageClient(): StorageClient {
     // which can prevent image from updating on change
     // https://stackoverflow.com/questions/71450588/nextjs-image-cache-invalidation
     const timeStamp = new Date().getTime();
-    return `${data.publicUrl}?v=${timeStamp}`;
+    return parseAsZodType(`${data.publicUrl}?v=${timeStamp}`, UrlSchema);
   }
 
   function clubProfileImageUrl(clubId: number) {
@@ -77,14 +81,73 @@ export default function createStorageClient(): StorageClient {
     // which can prevent image from updating on change
     // https://stackoverflow.com/questions/71450588/nextjs-image-cache-invalidation
     const timeStamp = new Date().getTime();
-    return `${data.publicUrl}?v=${timeStamp}`;
+    return parseAsZodType(`${data.publicUrl}?v=${timeStamp}`, UrlSchema);
+  }
+
+  function clubDisplayImageRelativeUrl(clubId: number, fileName: string) {
+    return `club/${clubId}/display/${fileName}`;
+  }
+
+  async function uploadClubDisplayImage(
+    clubId: number,
+    displayImage: File
+  ): Promise<Url> {
+    const filePath = clubDisplayImageRelativeUrl(clubId, displayImage.name);
+
+    const { error } = await supabaseClient.storage
+      .from("images")
+      .upload(filePath, displayImage, {
+        upsert: false
+      });
+
+    if (error) {
+      throw new Error(
+        `failed to upload display image for club with id ${clubId} with exception ${error.message}`
+      );
+    }
+
+    const { data } = supabaseClient.storage
+      .from("images")
+      .getPublicUrl(filePath);
+
+    const publicUrl = parseAsZodType(data.publicUrl, UrlSchema);
+
+    logger.info(
+      `uploaded display image for club with id ${clubId} at ${publicUrl}`
+    );
+
+    return publicUrl;
+  }
+
+  function relativeFilePathFromPublicUrl(imageUrl: Url): Url {
+    const pathSegments = imageUrl.split("/");
+    // remove the first 4 segments from supabase public url (e.g., https://xyz.supabase.co/storage/)
+    return pathSegments.slice(4).join("/");
+  }
+
+  async function deleteClubDisplayImage(clubId: number, imageUrl: Url) {
+    const filePath = relativeFilePathFromPublicUrl(imageUrl);
+
+    const { error } = await supabaseClient.storage
+      .from("images")
+      .remove([filePath]);
+
+    if (error) {
+      throw new Error(
+        `failed to delete display image for club with id ${clubId} with exception ${error.message}`
+      );
+    }
+
+    logger.info(`deleted display image for club with id ${clubId}`);
   }
 
   return {
     uploadUserProfileImage,
     uploadClubProfileImage,
     userProfileImageUrl,
-    clubProfileImageUrl
+    clubProfileImageUrl,
+    uploadClubDisplayImage,
+    deleteClubDisplayImage
   };
 }
 
