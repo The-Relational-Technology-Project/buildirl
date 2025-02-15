@@ -12,6 +12,9 @@ export type StorageClient = {
   deleteClubDisplayImage(clubId: number, imageUrl: Url): Promise<void>;
 };
 
+const SUPABASE_PUBLIC_URL_REGEX =
+  /^https:\/\/([a-zA-Z0-9-]+\.)?supabase\.co\/storage\/v1\/object\/public\/(?<filePath>.+)$/;
+
 /**
  * tRPC does not do a good job handling file uploads as it serializes everything into JSON,
  * so we circumvent it and use this direct client for upload mutations
@@ -120,9 +123,11 @@ export default function createStorageClient(): StorageClient {
   }
 
   function relativeFilePathFromPublicUrl(imageUrl: Url): Url {
-    const pathSegments = imageUrl.split("/");
-    // remove the first 4 segments from supabase public url (e.g., https://xyz.supabase.co/storage/)
-    return pathSegments.slice(4).join("/");
+    const match = SUPABASE_PUBLIC_URL_REGEX.exec(imageUrl);
+    if (!match || !match.groups?.filePath) {
+      throw new Error("Url must be a valid Supabase storage public url");
+    }
+    return match.groups.filePath;
   }
 
   async function deleteClubDisplayImage(clubId: number, imageUrl: Url) {
