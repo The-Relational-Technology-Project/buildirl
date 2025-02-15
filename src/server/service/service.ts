@@ -20,7 +20,8 @@ import {
   UrlSchema,
   User,
   MembershipStatus,
-  Email
+  Email,
+  UpdateClubDisplayImageUrlsInput
 } from "~/server/service/types";
 import {
   FormQuestionsSchema,
@@ -33,6 +34,7 @@ import ClubGetPayload = Prisma.ClubGetPayload;
 import MembershipGetPayload = Prisma.MembershipGetPayload;
 import { Maybe } from "~/utils/types";
 import { TemplateThemeSchema } from "~/client/theme/templates";
+import { z } from "zod";
 
 const logger = rootLogger.child({ module: "mainService" });
 
@@ -68,6 +70,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     eventCalendarUrl: true,
     applicationQuestions: true,
     theme: true,
+    displayImageUrls: true,
     membershipTiers: {
       select: MEMBERSHIP_TIER_SELECT
     }
@@ -154,6 +157,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         FormQuestionsSchema
       ),
       theme: parseAsZodType(r.theme, TemplateThemeSchema.nullable()),
+      displayImageUrls: parseAsZodType(r.displayImageUrls, z.array(UrlSchema)),
       membershipTiers: orderedByCost(
         r.membershipTiers.map((t) => asMembershipTier(t))
       )
@@ -507,6 +511,27 @@ export function createMainService(prisma: PrismaClient): MainService {
     } catch (e) {
       logger.error(
         `failed to update club with id ${id} from input ${stringify(input)} with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
+  async function updateClubDisplayImageUrls(
+    clubId: number,
+    input: UpdateClubDisplayImageUrlsInput
+  ): Promise<MutationResult> {
+    try {
+      await prisma.club.update({
+        data: { displayImageUrls: input.displayImageUrls },
+        where: { id: clubId }
+      });
+      logger.info(
+        `updated club display image urls for club with clubId ${clubId} from input ${stringify(input)}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        `failed to update club display image urls for club with clubId ${clubId} from input ${stringify(input)} with exception ${stringify(e)}`
       );
       throw e;
     }
@@ -1115,6 +1140,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     updateClub,
     deleteClub,
     updateClubApplicationQuestions,
+    updateClubDisplayImageUrls,
     createMembershipTier,
     updateMembershipTier,
     deleteMembershipTier,

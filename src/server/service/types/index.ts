@@ -44,6 +44,7 @@ export type Club = {
   eventCalendarUrl: Maybe<Url>;
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
+  displayImageUrls: Url[];
   membershipTiers: MembershipTier[];
 };
 
@@ -92,6 +93,10 @@ export type MainMutations = {
   updateClubApplicationQuestions(
     clubId: number,
     input: UpdateClubApplicationQuestionsInput
+  ): Promise<MutationResult>;
+  updateClubDisplayImageUrls(
+    clubId: number,
+    input: UpdateClubDisplayImageUrlsInput
   ): Promise<MutationResult>;
   createMembershipTier(
     clubId: number,
@@ -200,6 +205,13 @@ export const UpdateClubApplicationQuestionsInputSchema = z.object({
 });
 export type UpdateClubApplicationQuestionsInput = z.infer<
   typeof UpdateClubApplicationQuestionsInputSchema
+>;
+
+export const UpdateClubDisplayImageUrlsInputSchema = z.object({
+  displayImageUrls: z.array(UrlSchema)
+});
+export type UpdateClubDisplayImageUrlsInput = z.infer<
+  typeof UpdateClubDisplayImageUrlsInputSchema
 >;
 
 // restrict to reasonable monetary range ($0.01 to $1000.00) with 2 decimal places

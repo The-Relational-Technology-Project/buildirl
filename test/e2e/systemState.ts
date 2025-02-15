@@ -14,7 +14,8 @@ import {
   SubmitMembershipApplicationInput,
   MembershipStatus,
   Membership,
-  ClubStatistics
+  ClubStatistics,
+  UpdateClubDisplayImageUrlsInput
 } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
@@ -35,6 +36,7 @@ type ClubState = {
   eventCalendarUrl: Maybe<Url>;
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
+  displayImageUrls: Url[];
   membershipTierIds: number[];
 };
 
@@ -167,6 +169,7 @@ export class SystemState {
       eventCalendarUrl: clubState.eventCalendarUrl,
       applicationQuestions: clubState.applicationQuestions,
       theme: clubState.theme,
+      displayImageUrls: clubState.displayImageUrls,
       membershipTiers: this.orderedByCost(
         clubState.membershipTierIds.map((id) => this.getMembershipTier(id))
       )
@@ -226,6 +229,7 @@ export class SystemState {
       // empty to start
       applicationQuestions: { questions: [] },
       theme: null,
+      displayImageUrls: [],
       membershipTierIds: []
     });
 
@@ -267,6 +271,17 @@ export class SystemState {
   public updateClubApplicationQuestions(
     id: number,
     input: UpdateClubApplicationQuestionsInput
+  ) {
+    const clubState = this.getClubState(id);
+    this.clubs.set(id, {
+      ...clubState,
+      ...input
+    });
+  }
+
+  public updateClubDisplayImageUrls(
+    id: number,
+    input: UpdateClubDisplayImageUrlsInput
   ) {
     const clubState = this.getClubState(id);
     this.clubs.set(id, {

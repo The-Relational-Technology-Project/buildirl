@@ -1,5 +1,6 @@
 import {
   Arbitrary,
+  array,
   boolean,
   constant,
   emailAddress,
@@ -36,6 +37,7 @@ import PublishMembershipTierCommand from "./publishMembershipTierCommand";
 import UnpublishMembershipTierCommand from "./unpublishMembershipTierCommand";
 import DeleteClubCommand from "./deleteClubCommand";
 import { TEMPLATE_THEME_SELECTION } from "~/client/theme/templates";
+import UpdateClubDisplayImageUrlsCommand from "./updateClubDisplayImageUrlsCommand";
 
 export const allCommands = () => {
   return [
@@ -45,6 +47,7 @@ export const allCommands = () => {
     updateClubCommands(),
     deleteClubCommands(),
     updateClubApplicationQuestionsCommands(),
+    updateClubDisplayImageUrlsCommands(),
     createMembershipTierCommands(),
     updateMembershipTierCommands(),
     deleteMembershipTierCommands(),
@@ -173,6 +176,19 @@ function updateClubApplicationQuestionsCommands() {
     (i) =>
       new UpdateClubApplicationQuestionsCommand(
         { applicationQuestions: i.applicationQuestions },
+        i.clubIdSelector
+      )
+  );
+}
+
+function updateClubDisplayImageUrlsCommands() {
+  return record({
+    clubIdSelector: itemSelector<number>(),
+    displayImageUrls: array(webUrl())
+  }).map(
+    (i) =>
+      new UpdateClubDisplayImageUrlsCommand(
+        { displayImageUrls: i.displayImageUrls },
         i.clubIdSelector
       )
   );
