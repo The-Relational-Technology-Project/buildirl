@@ -77,9 +77,9 @@ export default function ClubJoin() {
           </Text>
 
           <Group>
-            {r.data!.websiteURL && (
+            {r.data!.websiteUrl && (
               <ColorSchemeAwareActionIcon
-                onClick={() => window.open(`${r.data!.websiteURL}`)}
+                onClick={() => window.open(`${r.data!.websiteUrl}`)}
                 variant={"transparent"}
               >
                 <IconLink size={"md"} />
@@ -108,10 +108,10 @@ export default function ClubJoin() {
           clubPublicId={r.data!.publicId}
         />
 
-        {r.data!.eventCalendarURL && (
+        {r.data!.eventCalendarUrl && (
           <Button
             variant={"outline"}
-            onClick={() => window.open(r.data!.eventCalendarURL!)}
+            onClick={() => window.open(r.data!.eventCalendarUrl!)}
             size="md"
             mt={"md"}
             color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}

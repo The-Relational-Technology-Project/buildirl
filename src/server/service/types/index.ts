@@ -39,9 +39,9 @@ export type Club = {
   tagLine: string;
   description: string;
   owner: User;
-  websiteURL: Maybe<URL>;
+  websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
-  eventCalendarURL: Maybe<URL>;
+  eventCalendarUrl: Maybe<Url>;
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
   membershipTiers: MembershipTier[];
@@ -152,8 +152,8 @@ export const ClubPublicIdSchema = z
   .min(3, "Length must be >= 3 characters")
   .regex(CLUB_PUBLIC_ID_REGEX, "Invalid characters");
 
-export const URLSchema = z.string().url("Not a valid url");
-export type URL = z.infer<typeof URLSchema>;
+export const UrlSchema = z.string().url("Not a valid url");
+export type Url = z.infer<typeof UrlSchema>;
 
 const EmailSchema = z.string().email("Not a valid email");
 export type Email = z.infer<typeof EmailSchema>;
@@ -176,9 +176,9 @@ export const CreateClubInputSchema = z.object({
   publicId: ClubPublicIdSchema,
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
-  websiteURL: URLSchema.nullable(),
+  websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
-  eventCalendarURL: URLSchema.nullable()
+  eventCalendarUrl: UrlSchema.nullable()
 });
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
 
@@ -187,9 +187,9 @@ export const UpdateClubInputSchema = z.object({
   publicId: ClubPublicIdSchema,
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
-  websiteURL: URLSchema.nullable(),
+  websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
-  eventCalendarURL: URLSchema.nullable(),
+  eventCalendarUrl: UrlSchema.nullable(),
   // update-only fields
   theme: TemplateThemeSchema.nullable()
 });

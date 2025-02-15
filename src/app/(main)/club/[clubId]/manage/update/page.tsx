@@ -7,7 +7,7 @@ import {
   ClubTagLineSchema,
   InstagramHandleSchema,
   LongTextSchema,
-  URLSchema
+  UrlSchema
 } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
@@ -55,9 +55,9 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
-      websiteURL: club.websiteURL,
+      websiteUrl: club.websiteUrl,
       instagramHandle: club.instagramHandle,
-      eventCalendarURL: club.eventCalendarURL,
+      eventCalendarUrl: club.eventCalendarUrl,
       theme: club.theme
     },
 
@@ -68,10 +68,10 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       publicId: (v) => safeValidateSchema(ClubPublicIdSchema, v),
       name: (v) => safeValidateSchema(ClubNameSchema, v),
       tagLine: (v) => safeValidateSchema(ClubTagLineSchema, v),
-      websiteURL: (v) => safeValidateSchema(URLSchema.nullable(), v),
+      websiteUrl: (v) => safeValidateSchema(UrlSchema.nullable(), v),
       instagramHandle: (v) =>
         safeValidateSchema(InstagramHandleSchema.nullable(), v),
-      eventCalendarURL: (v) => safeValidateSchema(URLSchema.nullable(), v),
+      eventCalendarUrl: (v) => safeValidateSchema(UrlSchema.nullable(), v),
       theme: (v) => safeValidateSchema(TemplateThemeSchema.nullable(), v)
     }
   });
@@ -84,9 +84,9 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           name,
           tagLine,
           description,
-          websiteURL,
+          websiteUrl,
           instagramHandle,
-          eventCalendarURL,
+          eventCalendarUrl,
           theme
         }) => {
           await updateClub.mutateAsync({
@@ -96,10 +96,10 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
               name: name,
               tagLine: tagLine,
               description: description,
-              websiteURL: websiteURL === "" ? null : websiteURL,
+              websiteUrl: websiteUrl === "" ? null : websiteUrl,
               instagramHandle: instagramHandle === "" ? null : instagramHandle,
-              eventCalendarURL:
-                eventCalendarURL === "" ? null : eventCalendarURL,
+              eventCalendarUrl:
+                eventCalendarUrl === "" ? null : eventCalendarUrl,
               theme: theme
             }
           });
@@ -154,11 +154,11 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           </Title>
           <TextInput
             placeholder="Website link"
-            value={form.values.websiteURL ?? ""}
+            value={form.values.websiteUrl ?? ""}
             onChange={(event) =>
-              form.setFieldValue("websiteURL", event.currentTarget.value)
+              form.setFieldValue("websiteUrl", event.currentTarget.value)
             }
-            error={form.errors.websiteURL}
+            error={form.errors.websiteUrl}
           />
           <TextInput
             placeholder="Instagram tag"
@@ -170,11 +170,11 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           />
           <TextInput
             placeholder="Event calendar link (e.g., Luma)"
-            value={form.values.eventCalendarURL ?? ""}
+            value={form.values.eventCalendarUrl ?? ""}
             onChange={(event) =>
-              form.setFieldValue("eventCalendarURL", event.currentTarget.value)
+              form.setFieldValue("eventCalendarUrl", event.currentTarget.value)
             }
-            error={form.errors.eventCalendarURL}
+            error={form.errors.eventCalendarUrl}
           />
         </Stack>
 

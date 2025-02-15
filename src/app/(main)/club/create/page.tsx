@@ -51,9 +51,9 @@ function CreateClubForm(props: StackProps) {
           // default empty
           tagLine: "",
           description: "",
-          websiteURL: null,
+          websiteUrl: null,
           instagramHandle: null,
-          eventCalendarURL: null
+          eventCalendarUrl: null
         });
       })}
     >

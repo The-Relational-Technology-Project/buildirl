@@ -17,7 +17,7 @@ import {
   UpdateClubInput,
   UpdateMembershipTierInput,
   UpdateUserInput,
-  URLSchema,
+  UrlSchema,
   User,
   MembershipStatus,
   Email
@@ -63,9 +63,9 @@ export function createMainService(prisma: PrismaClient): MainService {
     owner: {
       select: USER_SELECT
     },
-    websiteURL: true,
+    websiteUrl: true,
     instagramHandle: true,
-    eventCalendarURL: true,
+    eventCalendarUrl: true,
     applicationQuestions: true,
     theme: true,
     membershipTiers: {
@@ -140,14 +140,14 @@ export function createMainService(prisma: PrismaClient): MainService {
       tagLine: r.tagLine,
       description: r.description,
       owner: r.owner,
-      websiteURL: parseAsZodType(r.websiteURL, URLSchema.nullable()),
+      websiteUrl: parseAsZodType(r.websiteUrl, UrlSchema.nullable()),
       instagramHandle: parseAsZodType(
         r.instagramHandle,
         InstagramHandleSchema.nullable()
       ),
-      eventCalendarURL: parseAsZodType(
-        r.eventCalendarURL,
-        URLSchema.nullable()
+      eventCalendarUrl: parseAsZodType(
+        r.eventCalendarUrl,
+        UrlSchema.nullable()
       ),
       applicationQuestions: parseAsZodType(
         r.applicationQuestions,

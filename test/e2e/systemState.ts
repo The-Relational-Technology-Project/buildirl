@@ -6,7 +6,7 @@ import {
   MembershipTier,
   UpdateClubInput,
   UpdateUserInput,
-  URL,
+  Url,
   UpdateClubApplicationQuestionsInput,
   type User,
   CreateMembershipTierInput,
@@ -30,9 +30,9 @@ type ClubState = {
   tagLine: string;
   description: string;
   ownerUserId: number;
-  websiteURL: Maybe<URL>;
+  websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
-  eventCalendarURL: Maybe<URL>;
+  eventCalendarUrl: Maybe<Url>;
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
   membershipTierIds: number[];
@@ -162,9 +162,9 @@ export class SystemState {
       tagLine: clubState.tagLine,
       description: clubState.description,
       owner: this.getUser(clubState.ownerUserId),
-      websiteURL: clubState.websiteURL,
+      websiteUrl: clubState.websiteUrl,
       instagramHandle: clubState.instagramHandle,
-      eventCalendarURL: clubState.eventCalendarURL,
+      eventCalendarUrl: clubState.eventCalendarUrl,
       applicationQuestions: clubState.applicationQuestions,
       theme: clubState.theme,
       membershipTiers: this.orderedByCost(

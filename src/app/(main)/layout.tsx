@@ -15,7 +15,7 @@ import {
 } from "~/client/components/HeaderBar";
 import { api } from "~/trpc/server";
 import { isUserAuthenticated } from "~/client/utils/auth";
-import { WithDefaultColorSchemeOnManualRouteChange } from "~/client/components/WithDefaultColorSchemeOnUrlChange";
+import { WithDefaultColorSchemeOnManualRouteChange } from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
 
 export default async function MainLayout({
   children

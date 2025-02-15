@@ -35,9 +35,9 @@ function createVerifiers() {
       tagLine: club.tagLine,
       description: club.description,
       owner: userWithoutCreatedAt(club.owner),
-      websiteURL: club.websiteURL,
+      websiteUrl: club.websiteUrl,
       instagramHandle: club.instagramHandle,
-      eventCalendarURL: club.eventCalendarURL,
+      eventCalendarUrl: club.eventCalendarUrl,
       applicationQuestions: club.applicationQuestions,
       theme: club.theme,
       membershipTiers: club.membershipTiers

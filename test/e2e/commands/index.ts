@@ -99,12 +99,12 @@ function createClubCommands() {
     publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
     tagLine: string(),
     description: string(),
-    websiteURL: option(webUrl(), { freq: 4 }),
+    websiteUrl: option(webUrl(), { freq: 4 }),
     instagramHandle: option(
       string().filter((s) => isZodType(s, InstagramHandleSchema)),
       { freq: 4 }
     ),
-    eventCalendarURL: option(webUrl(), { freq: 4 }),
+    eventCalendarUrl: option(webUrl(), { freq: 4 }),
     userIdSelector: itemSelector<number>()
   }).map(
     (i) =>
@@ -114,9 +114,9 @@ function createClubCommands() {
           publicId: i.publicId,
           tagLine: i.tagLine,
           description: i.description,
-          websiteURL: i.websiteURL,
+          websiteUrl: i.websiteUrl,
           instagramHandle: i.instagramHandle,
-          eventCalendarURL: i.eventCalendarURL
+          eventCalendarUrl: i.eventCalendarUrl
         },
         i.userIdSelector
       )
@@ -130,12 +130,12 @@ function updateClubCommands() {
     publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
     tagLine: string(),
     description: string(),
-    websiteURL: option(webUrl(), { freq: 4 }),
+    websiteUrl: option(webUrl(), { freq: 4 }),
     instagramHandle: option(
       string().filter((s) => isZodType(s, InstagramHandleSchema)),
       { freq: 4 }
     ),
-    eventCalendarURL: option(webUrl(), { freq: 4 }),
+    eventCalendarUrl: option(webUrl(), { freq: 4 }),
     theme: option(
       oneof(...Object.values(TEMPLATE_THEME_SELECTION).map(constant)),
       { freq: 4 }
@@ -148,9 +148,9 @@ function updateClubCommands() {
           publicId: i.publicId,
           tagLine: i.tagLine,
           description: i.description,
-          websiteURL: i.websiteURL,
+          websiteUrl: i.websiteUrl,
           instagramHandle: i.instagramHandle,
-          eventCalendarURL: i.eventCalendarURL,
+          eventCalendarUrl: i.eventCalendarUrl,
           theme: i.theme
         },
         i.clubIdSelector
