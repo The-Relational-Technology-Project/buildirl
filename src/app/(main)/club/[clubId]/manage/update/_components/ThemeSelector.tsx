@@ -2,7 +2,14 @@ import {
   TEMPLATE_THEME_SELECTION,
   TemplateTheme
 } from "~/client/theme/templates";
-import { Box, BoxProps, Center, Text, ThemeIcon } from "@mantine/core";
+import {
+  Box,
+  BoxProps,
+  Center,
+  Text,
+  ThemeIcon,
+  useMantineTheme
+} from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { Maybe } from "~/utils/types";
 import { IconCircleCheckFilled } from "@tabler/icons-react";
@@ -34,6 +41,8 @@ export function ThemeSelector({
   onChange,
   ...props
 }: ThemeSelectorProps & BoxProps) {
+  const mantineTheme = useMantineTheme();
+
   return (
     <Box {...props}>
       <Carousel
@@ -71,7 +80,7 @@ export function ThemeSelector({
                 backgroundImage: `url(/templates/background/${theme.backgroundFileName})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                color: theme.isDark ? "#ffffff" : "#000000",
+                color: theme.isDark ? mantineTheme.colors.dark[1] : "black",
                 fontFamily: theme.headingFontFamily,
                 border: "1px solid black",
                 position: "relative"
