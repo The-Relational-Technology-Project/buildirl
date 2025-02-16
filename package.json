@@ -26,6 +26,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@mantine/carousel": "^7.16.2",
     "@mantine/core": "^7.16.2",
+    "@mantine/dropzone": "^7.16.3",
     "@mantine/emotion": "^7.16.3",
     "@mantine/form": "^7.16.0",
     "@mantine/hooks": "^7.16.1",
