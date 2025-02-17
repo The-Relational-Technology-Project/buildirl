@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 // a bit hacky but logic to revert back to default color scheme from join flow (which has club custom theme)
 // does not capture the case when user manually enters URL. This hook captures and changes the colorScheme back
 // to default in this case
-export function WithDefaultColorSchemeOnManualRouteChange({
+export default function WithDefaultColorSchemeOnManualRouteChange({
   children
 }: {
   children: React.ReactNode;

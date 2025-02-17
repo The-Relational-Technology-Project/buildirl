@@ -35,7 +35,7 @@ type UpdateMembershipTierModalProps = {
   handleClose: () => void;
 };
 
-export function UpdateMembershipTierModal({
+export default function UpdateMembershipTierModal({
   club,
   membershipTier,
   isLastPublished,

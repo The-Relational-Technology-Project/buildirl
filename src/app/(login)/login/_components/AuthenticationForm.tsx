@@ -139,7 +139,7 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
   );
 }
 
-export function AuthenticationForm() {
+export default function AuthenticationForm() {
   const [type, toggle] = useToggle(["login", "otp"]);
   const [email, setEmail] = useState("");
   const supabase = createComponentClient();

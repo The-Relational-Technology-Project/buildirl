@@ -16,7 +16,7 @@ import { useForm } from "@mantine/form";
 import React from "react";
 import { safeValidateSchema } from "~/utils/zod";
 import { useRouter } from "next/navigation";
-import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
+import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 
 function CreateClubForm(props: StackProps) {
   const router = useRouter();

@@ -7,7 +7,7 @@ type AbsoluteCenterProps = {
   adjustForHeader?: boolean;
 };
 
-export function AbsoluteCenter({
+export default function AbsoluteCenter({
   children,
   adjustForHeader = false
 }: AbsoluteCenterProps) {

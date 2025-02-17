@@ -17,16 +17,16 @@ import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { IconListCheck } from "@tabler/icons-react";
-import { EmailLink } from "~/client/components/EmailLink";
+import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import { useMantineColorScheme, useMantineTheme } from "@mantine/core";
-import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
+import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
 type MembershipApplicationTableProps = {
   clubId: number;
 };
 
-export function MembershipApplicationTable({
+export default function MembershipApplicationTable({
   clubId
 }: MembershipApplicationTableProps) {
   const theme = useMantineTheme();

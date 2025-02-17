@@ -36,7 +36,7 @@ type ThemeSelectorProps = {
   onChange: (theme: Maybe<TemplateTheme>) => void;
 };
 
-export function ThemeSelector({
+export default function ThemeSelector({
   value,
   onChange,
   ...props

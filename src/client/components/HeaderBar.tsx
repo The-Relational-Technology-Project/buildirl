@@ -139,7 +139,7 @@ function ProfileMenu() {
   );
 }
 
-export function HeaderBar() {
+export default function HeaderBar() {
   return (
     <Flex
       h={HEADER_BAR_HEIGHT}

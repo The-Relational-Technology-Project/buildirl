@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { WithTemplateTheme } from "~/client/components/WithTemplateTheme";
+import WithTemplateTheme from "~/client/components/WithTemplateTheme";
 
 export default function JoinLayout({
   children

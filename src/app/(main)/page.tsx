@@ -8,7 +8,7 @@ import { storageClient } from "~/client/utils/storageClient";
 import type { Club } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import { Maybe } from "~/utils/types";
-import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
+import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 
 type ClubCardProps = {
   club: Club;

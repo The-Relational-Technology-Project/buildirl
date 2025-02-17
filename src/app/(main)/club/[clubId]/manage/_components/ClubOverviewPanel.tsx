@@ -16,14 +16,14 @@ import { IconCheck } from "@tabler/icons-react";
 import { logger, notifyError } from "~/client/logger";
 import createStorageClient from "~/client/utils/storageClient";
 import { useRouter } from "next/navigation";
-import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
-import { AlertMessage } from "~/client/components/AlertMessage";
+import MemberCountStatistic from "~/client/components/MemberCountStatistic";
+import AlertMessage from "~/client/components/AlertMessage";
 
 type ClubOverviewPanelProps = {
   club: Club;
 };
 
-export function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
+export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
   const storage = createStorageClient();
   const router = useRouter();
   const editButtonText = useMatches({ base: "Edit", sm: "Edit Club Page" });

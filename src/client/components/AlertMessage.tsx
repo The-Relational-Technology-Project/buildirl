@@ -5,7 +5,7 @@ import React from "react";
 type AlertMessageProps = {
   message: string;
 };
-export function AlertMessage({
+export default function AlertMessage({
   message,
   ...props
 }: AlertMessageProps & TextProps) {

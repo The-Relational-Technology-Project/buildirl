@@ -11,7 +11,7 @@ type ColorSchemeAwareActionIconProps = {
   children: React.ReactNode;
 };
 
-export function ColorSchemeAwareActionIcon({
+export default function ColorSchemeAwareActionIcon({
   onClick,
   children,
   ...props

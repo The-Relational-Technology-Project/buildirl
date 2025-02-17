@@ -14,18 +14,18 @@ import {
 import { IconPlus } from "@tabler/icons-react";
 import { Club, MembershipTier } from "~/server/service/types";
 import React from "react";
-import { AlertMessage } from "~/client/components/AlertMessage";
+import AlertMessage from "~/client/components/AlertMessage";
 import { useDisclosure } from "@mantine/hooks";
-import { CreateMembershipTierModal } from "~/app/(main)/club/[clubId]/manage/_components/CreateMembershipTierModal";
-import { UpdateMembershipTierModal } from "~/app/(main)/club/[clubId]/manage/_components/UpdateMembershipTierModal";
+import CreateMembershipTierModal from "~/app/(main)/club/[clubId]/manage/_components/CreateMembershipTierModal";
+import UpdateMembershipTierModal from "~/app/(main)/club/[clubId]/manage/_components/UpdateMembershipTierModal";
 import { Carousel } from "@mantine/carousel";
-import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
+import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
 type ManageMembershipsPanelProps = {
   club: Club;
 };
 
-export function ManageMembershipTiersPanel({
+export default function ManageMembershipTiersPanel({
   club
 }: ManageMembershipsPanelProps) {
   const [opened, { open, close }] = useDisclosure(false);

@@ -2,7 +2,7 @@
 
 import { Stack, Title, Button, Text, Image } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
-import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
+import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 
 export default function ApplicationCompleted() {
   const params = useParams<{ publicId: string }>();

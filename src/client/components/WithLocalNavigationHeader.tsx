@@ -3,7 +3,7 @@ import { HEADER_BAR_HEIGHT } from "~/client/components/HeaderBar";
 import { IconArrowLeft } from "@tabler/icons-react";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
+import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
 type WithLocalNavigationHeaderProps = {
   title?: string;
@@ -11,7 +11,7 @@ type WithLocalNavigationHeaderProps = {
   hidden?: boolean;
 };
 
-export function WithLocalNavigationHeader({
+export default function WithLocalNavigationHeader({
   children,
   hidden = false
 }: WithLocalNavigationHeaderProps) {

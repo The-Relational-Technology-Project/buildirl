@@ -14,7 +14,7 @@ import { safeValidateSchema } from "~/utils/zod";
 import { FirstNameSchema, LastNameSchema } from "~/server/service/types";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
-import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
+import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 
 function CreateUserForm(props: StackProps) {
   const router = useRouter();

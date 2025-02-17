@@ -27,7 +27,7 @@ type CreateMembershipTierModalProps = {
 
 const DEFAULT_COST_PER_MONTH_USD = 50;
 
-export function CreateMembershipTierModal({
+export default function CreateMembershipTierModal({
   club,
   opened,
   handleClose

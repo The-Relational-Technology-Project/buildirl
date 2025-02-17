@@ -1,10 +1,10 @@
 "use client";
 
-import { AuthenticationForm } from "~/app/(login)/login/_components/AuthenticationForm";
+import AuthenticationForm from "~/app/(login)/login/_components/AuthenticationForm";
 import { useEffect } from "react";
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { useRouter } from "next/navigation";
-import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
+import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 
 export default function Login() {
   const supabase = createComponentClient();

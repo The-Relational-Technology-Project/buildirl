@@ -5,10 +5,10 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
 import { Image } from "@mantine/core";
-import { AbsoluteCenter } from "~/client/components/AbsoluteCenter";
+import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 
 export default function Apply() {
   const params = useParams<{ publicId: string }>();

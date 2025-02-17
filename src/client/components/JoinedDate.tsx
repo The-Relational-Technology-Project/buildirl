@@ -1,14 +1,17 @@
-import { Group, GroupProps, Text, ThemeIcon } from "@mantine/core";
+import { Group, GroupProps, Text } from "@mantine/core";
 import { IconCalendarWeek } from "@tabler/icons-react";
 import { toDisplayMonth } from "~/client/utils";
 import React from "react";
-import { ColorSchemeAwareThemeIcon } from "~/client/components/ColorSchemeAwareThemeIcon";
+import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
 
 type JoinedDateProps = {
   date: Date;
 };
 
-export function JoinedDate({ date, ...props }: JoinedDateProps & GroupProps) {
+export default function JoinedDate({
+  date,
+  ...props
+}: JoinedDateProps & GroupProps) {
   return (
     <Group gap={6} {...props}>
       <ColorSchemeAwareThemeIcon

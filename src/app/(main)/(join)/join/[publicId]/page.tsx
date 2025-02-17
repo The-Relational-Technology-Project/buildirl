@@ -18,11 +18,11 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import { storageClient } from "~/client/utils/storageClient";
-import { MemberCountStatistic } from "~/client/components/MemberCountStatistic";
+import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
 import { membershipForClub } from "~/utils/types";
 import { isUserAuthenticated } from "~/client/utils/auth";
-import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
+import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
 export default function ClubJoin() {
   const theme = useMantineTheme();

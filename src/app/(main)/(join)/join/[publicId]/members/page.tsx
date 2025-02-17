@@ -8,7 +8,7 @@ import { storageClient } from "~/client/utils/storageClient";
 import { User } from "~/server/service/types";
 import { QueryError } from "~/client/utils/QueryError";
 import React from "react";
-import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 
 export default function ClubMembers() {
   const params = useParams<{ publicId: string }>();

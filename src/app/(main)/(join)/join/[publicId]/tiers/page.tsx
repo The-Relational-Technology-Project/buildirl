@@ -6,7 +6,7 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { MembershipTier } from "~/server/service/types";
-import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { Carousel } from "@mantine/carousel";
 
 export default function ClubTiers() {

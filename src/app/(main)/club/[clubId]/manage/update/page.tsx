@@ -27,9 +27,9 @@ import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
-import { ThemeSelector } from "~/app/(main)/club/[clubId]/manage/update/_components/ThemeSelector";
+import ThemeSelector from "~/app/(main)/club/[clubId]/manage/update/_components/ThemeSelector";
 import { TemplateThemeSchema } from "~/client/theme/templates";
 
 type UpdateClubFormProps = {

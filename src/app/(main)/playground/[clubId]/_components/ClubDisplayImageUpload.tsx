@@ -9,7 +9,9 @@ type ClubDisplayImageUploadProps = {
   club: Club;
 };
 
-export function ClubDisplayImageUpload({ club }: ClubDisplayImageUploadProps) {
+export default function ClubDisplayImageUpload({
+  club
+}: ClubDisplayImageUploadProps) {
   const utils = api.useUtils();
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
 

@@ -7,8 +7,8 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import React from "react";
-import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
-import { JoinedDate } from "~/client/components/JoinedDate";
+import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
+import JoinedDate from "~/client/components/JoinedDate";
 import { membershipForClub } from "~/utils/types";
 
 export default function ManageMembership() {

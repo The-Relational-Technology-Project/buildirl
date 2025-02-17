@@ -26,7 +26,7 @@ import {
 } from "~/server/service/types/form";
 import { Club } from "~/server/service/types";
 import { api } from "~/trpc/react";
-import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
+import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
 const QUESTION_TYPES = [
   { value: FormQuestionType.SHORT_TEXT, label: "Short Text" },
@@ -39,7 +39,7 @@ type ManageIntakePanelProps = {
   club: Club;
 };
 
-export function ManageIntakePanel({ club }: ManageIntakePanelProps) {
+export default function ManageIntakePanel({ club }: ManageIntakePanelProps) {
   const utils = api.useUtils();
 
   const updateClubApplicationQuestions =

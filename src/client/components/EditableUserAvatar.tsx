@@ -3,7 +3,6 @@ import { type Maybe } from "~/utils/types";
 import createStorageClient from "~/client/utils/storageClient";
 import { ActionIcon, Avatar, Box, FileInput } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
-import { ColorSchemeAwareActionIcon } from "~/client/components/ColorSchemeAwareActionIcon";
 
 type EditableUserAvatarProps = {
   userId: number;

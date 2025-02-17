@@ -9,7 +9,7 @@ type ClubAdminPanelProps = {
   clubId: number;
 };
 
-export function ClubAdminPanel({ clubId }: ClubAdminPanelProps) {
+export default function ClubAdminPanel({ clubId }: ClubAdminPanelProps) {
   const router = useRouter();
   const utils = api.useUtils();
 

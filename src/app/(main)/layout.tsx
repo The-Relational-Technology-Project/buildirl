@@ -8,14 +8,11 @@ import {
   Box,
   Center
 } from "@mantine/core";
-import {
-  HEADER_BAR_HEIGHT,
-  HeaderBar,
-  PAGE_WIDTH
-} from "~/client/components/HeaderBar";
+import { HEADER_BAR_HEIGHT, PAGE_WIDTH } from "~/client/components/HeaderBar";
+import HeaderBar from "~/client/components/HeaderBar";
 import { api } from "~/trpc/server";
 import { isUserAuthenticated } from "~/client/utils/auth";
-import { WithDefaultColorSchemeOnManualRouteChange } from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
+import WithDefaultColorSchemeOnManualRouteChange from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
 
 export default async function MainLayout({
   children

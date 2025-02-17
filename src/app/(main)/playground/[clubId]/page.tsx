@@ -1,12 +1,12 @@
 "use client";
 
-import { ClubDisplayImageGallery } from "~/app/(main)/playground/[clubId]/__components/ClubDisplayImageGallery";
+import ClubDisplayImageGallery from "~/app/(main)/playground/[clubId]/_components/ClubDisplayImageGallery";
 import { useParams } from "next/navigation";
 import { strictParseInt } from "~/utils";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { Stack, Title } from "@mantine/core";
-import { ClubDisplayImageUpload } from "~/app/(main)/playground/[clubId]/__components/ClubDisplayImageUpload";
+import ClubDisplayImageUpload from "~/app/(main)/playground/[clubId]/_components/ClubDisplayImageUpload";
 import { isLoaded } from "~/client/utils";
 
 export default function Playground() {

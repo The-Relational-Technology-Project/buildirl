@@ -3,13 +3,13 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { IconUsers } from "@tabler/icons-react";
-import { ColorSchemeAwareThemeIcon } from "~/client/components/ColorSchemeAwareThemeIcon";
+import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
 
 type MemberCountStatisticProps = {
   clubId: number;
 };
 
-export function MemberCountStatistic({
+export default function MemberCountStatistic({
   clubId,
   ...props
 }: MemberCountStatisticProps & GroupProps) {

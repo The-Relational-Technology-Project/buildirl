@@ -6,7 +6,7 @@ import {
 } from "@mantine/core";
 import React from "react";
 
-export function ColorSchemeAwareThemeIcon({
+export default function ColorSchemeAwareThemeIcon({
   children,
   ...props
 }: ThemeIconProps & {

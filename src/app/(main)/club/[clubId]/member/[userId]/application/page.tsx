@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { findOne, strictParseInt } from "~/utils";
-import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import React from "react";
 import {
   Box,

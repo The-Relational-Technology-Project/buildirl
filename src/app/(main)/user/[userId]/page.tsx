@@ -14,10 +14,10 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
-import { WithLocalNavigationHeader } from "~/client/components/WithLocalNavigationHeader";
+import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
 import { storageClient } from "~/client/utils/storageClient";
-import { JoinedDate } from "~/client/components/JoinedDate";
+import JoinedDate from "~/client/components/JoinedDate";
 
 type UserProfileProps = {
   userId: number;

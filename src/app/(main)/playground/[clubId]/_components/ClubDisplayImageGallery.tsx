@@ -5,7 +5,7 @@ type ClubDisplayImageGalleryProps = {
   club: Club;
 };
 
-export function ClubDisplayImageGallery({
+export default function ClubDisplayImageGallery({
   club
 }: ClubDisplayImageGalleryProps) {
   return (

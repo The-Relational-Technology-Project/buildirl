@@ -18,14 +18,16 @@ import { isLoaded, toDisplayDate } from "~/client/utils";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { EmailLink } from "~/client/components/EmailLink";
+import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 
 type ActiveMembershipTableProps = {
   clubId: number;
 };
 
-export function ActiveMembershipTable({ clubId }: ActiveMembershipTableProps) {
+export default function ActiveMembershipTable({
+  clubId
+}: ActiveMembershipTableProps) {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
 
