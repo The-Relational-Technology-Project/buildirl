@@ -20,9 +20,6 @@ export default function WithDefaultColorSchemeOnManualRouteChange({
     const previousPath = previousPathRef.current;
     const currentPath = pathname;
 
-    console.log("previous:" + previousPath);
-    console.log("current: " + currentPath);
-
     // this captures the case when browser is refreshed or url is
     // changed manually. In those cases, previousPath === currentPath
     if (

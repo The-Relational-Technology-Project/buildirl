@@ -12,8 +12,9 @@ export type StorageClient = {
   deleteClubDisplayImage(clubId: number, imageUrl: Url): Promise<void>;
 };
 
-const SUPABASE_PUBLIC_URL_REGEX =
-  /^https:\/\/([a-zA-Z0-9-]+\.)?supabase\.co\/storage\/v1\/object\/public\/(?<filePath>.+)$/;
+const IMAGE_BUCKET_PATH_REGEX =
+  // do not care about hostname, just care about end path
+  /\/storage\/v1\/object\/public\/images\/(?<relativeFilePath>.+)$/;
 
 /**
  * tRPC does not do a good job handling file uploads as it serializes everything into JSON,
@@ -122,16 +123,18 @@ export default function createStorageClient(): StorageClient {
     return publicUrl;
   }
 
-  function relativeFilePathFromPublicUrl(imageUrl: Url): Url {
-    const match = SUPABASE_PUBLIC_URL_REGEX.exec(imageUrl);
-    if (!match || !match.groups?.filePath) {
-      throw new Error("Url must be a valid Supabase storage public url");
+  function relativeFilePathFromImageBucketPath(imageUrl: Url): Url {
+    const match = IMAGE_BUCKET_PATH_REGEX.exec(imageUrl);
+    if (!match || !match.groups?.relativeFilePath) {
+      throw new Error(
+        `url ${imageUrl} must be a valid Supabase storage public url for \`images\` bucket`
+      );
     }
-    return match.groups.filePath;
+    return match.groups.relativeFilePath;
   }
 
   async function deleteClubDisplayImage(clubId: number, imageUrl: Url) {
-    const filePath = relativeFilePathFromPublicUrl(imageUrl);
+    const filePath = relativeFilePathFromImageBucketPath(imageUrl);
 
     const { error } = await supabaseClient.storage
       .from("images")
