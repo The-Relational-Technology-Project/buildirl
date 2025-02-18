@@ -31,6 +31,7 @@ import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHe
 import { strictParseInt } from "~/utils";
 import ThemeSelector from "~/app/(main)/club/[clubId]/manage/update/_components/ThemeSelector";
 import { TemplateThemeSchema } from "~/client/theme/templates";
+import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_components/ClubDisplayImageUpload";
 
 type UpdateClubFormProps = {
   club: Club;
@@ -148,10 +149,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           />
         </Stack>
 
-        <Stack gap={8}>
-          <Title order={6} mt={6}>
-            Links
-          </Title>
+        <Stack gap={8} mt={6}>
+          <Title order={6}>Links</Title>
           <TextInput
             placeholder="Website link"
             value={form.values.websiteUrl ?? ""}
@@ -178,10 +177,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           />
         </Stack>
 
-        <Stack gap={8}>
-          <Title order={6} mt={6}>
-            Share link
-          </Title>
+        <Stack gap={8} mt={6}>
+          <Title order={6}>Share link</Title>
           <Group gap={4}>
             <Text c={"dimmed"} size={"sm"}>
               buildirl.com/join/
@@ -198,15 +195,18 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           </Group>
         </Stack>
 
-        <Stack gap={8}>
-          <Title order={6} mt={6}>
-            Theme
-          </Title>
+        <Stack gap={8} mt={6}>
+          <Title order={6}>Theme</Title>
           <ThemeSelector
             value={form.values.theme}
             onChange={(theme) => form.setFieldValue("theme", theme)}
             mt={4}
           />
+        </Stack>
+
+        <Stack gap={8} mt={6}>
+          <Title order={6}>Showcase Images</Title>
+          <ClubImageUploader club={club} />
         </Stack>
 
         <Button

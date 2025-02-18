@@ -11,6 +11,18 @@ type EditableUserAvatarProps = {
 // 5 megabytes
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
+export function checkFileSize(file: File) {
+  // TODO more graceful error handling
+  if (file.size === 0) {
+    throw new Error(`image file ${file.name} was empty`);
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(
+      `image file upload cannot be greater than 5MB but was ${file.size} bytes`
+    );
+  }
+}
+
 export default function EditableUserAvatar({
   userId
 }: EditableUserAvatarProps) {
@@ -20,14 +32,9 @@ export default function EditableUserAvatar({
     if (!file) {
       return;
     }
-    // validations
-    // TODO more graceful error handling
-    if (file.size === 0) {
-      throw new Error("User profile image file was empty");
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error("User profile image file cannot be greater than 5MB");
-    }
+
+    checkFileSize(file);
+
     await storageClient.uploadUserProfileImage(userId, file);
     // force a full refresh of the page so all image references
     // can pick up new upload

@@ -23,6 +23,7 @@ import { Club } from "~/server/service/types";
 import { membershipForClub } from "~/utils/types";
 import { isUserAuthenticated } from "~/client/utils/auth";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 
 export default function ClubJoin() {
   const theme = useMantineTheme();
@@ -107,6 +108,8 @@ export default function ClubJoin() {
           clubId={r.data!.id}
           clubPublicId={r.data!.publicId}
         />
+
+        <ClubDisplayImageGallery club={r.data!} />
 
         {r.data!.eventCalendarUrl && (
           <Button

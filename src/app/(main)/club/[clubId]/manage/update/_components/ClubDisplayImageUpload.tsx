@@ -15,6 +15,7 @@ import { Club } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
 import { logger } from "~/client/logger";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import { checkFileSize } from "~/client/components/EditableUserAvatar";
 
 const MAX_DISPLAY_IMAGE_COUNT = 5;
 
@@ -39,6 +40,8 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
 
   const handleUpload = async (file: Maybe<File>) => {
     if (!file) return;
+
+    checkFileSize(file);
 
     try {
       const url = await storageClient.uploadClubDisplayImage(club.id, file);
@@ -87,7 +90,7 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
         disabled={uploadedImageUrls.length >= 5}
       />
 
-      <ScrollArea type="never" h={120}>
+      <ScrollArea type="never" h={160}>
         <Group w={"max-content"}>
           {Array.from({ length: MAX_DISPLAY_IMAGE_COUNT }).map((_, index) => {
             const url = uploadedImageUrls[index];
@@ -96,10 +99,10 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
             return (
               <Center
                 key={index}
+                w={150}
+                h={150}
                 style={{
                   position: "relative",
-                  width: 100,
-                  height: 100,
                   border: "1px dashed grey"
                 }}
               >

@@ -3,13 +3,11 @@ import { type Maybe } from "~/utils/types";
 import { ActionIcon, Box, BoxProps, FileInput, Image } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
 import createStorageClient from "~/client/utils/storageClient";
+import { checkFileSize } from "~/client/components/EditableUserAvatar";
 
 type EditableImageProps = {
   clubId: number;
 };
-
-// 5 megabytes
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export default function EditableClubImage({
   clubId,
@@ -21,14 +19,9 @@ export default function EditableClubImage({
     if (!file) {
       return;
     }
-    // validations
-    // TODO more graceful error handling
-    if (file.size === 0) {
-      throw new Error("Club profile image file was empty");
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error("Club profile image file cannot be greater than 5MB");
-    }
+
+    checkFileSize(file);
+
     await storageClient.uploadClubProfileImage(clubId, file);
     // force a full refresh of the page so all image references
     // can pick up new upload
