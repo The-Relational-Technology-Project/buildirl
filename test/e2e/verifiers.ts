@@ -87,7 +87,8 @@ function createVerifiers() {
       membershipTier: membership.membershipTier,
       status: membership.status,
       applicationResponses: membership.applicationResponses,
-      email: membership.email
+      email: membership.email,
+      isWelcomed: membership.isWelcomed
     };
   }
 

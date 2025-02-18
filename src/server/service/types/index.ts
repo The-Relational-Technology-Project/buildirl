@@ -60,6 +60,7 @@ export type Membership = {
   applicationResponses: FormResponses;
   // null if not shared
   email: Maybe<Email>;
+  isWelcomed: boolean;
   // this isn't exactly the join date as it is the date
   // the membership went into `PENDING` state
   // TODO refine
@@ -117,6 +118,7 @@ export type MainMutations = {
   approveMembershipApplication(membershipId: bigint): Promise<MutationResult>;
   declineMembershipApplication(membershipId: bigint): Promise<MutationResult>;
   deactivateMembership(membershipId: bigint): Promise<MutationResult>;
+  setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
 };
 
 const FIRST_NAME_REGEX = /^[a-zA-Z]+$/;

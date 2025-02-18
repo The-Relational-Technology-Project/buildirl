@@ -47,6 +47,7 @@ type MembershipState = {
   membershipTierId: number;
   status: MembershipStatus;
   applicationResponses: FormResponses;
+  isWelcomed: boolean;
 };
 
 type UserState = {
@@ -499,7 +500,8 @@ export class SystemState {
       membershipTier: this.getMembershipTier(membershipState.membershipTierId),
       status: membershipState.status,
       applicationResponses: membershipState.applicationResponses,
-      email: this.getUserEmail(membershipState.userId)
+      email: this.getUserEmail(membershipState.userId),
+      isWelcomed: membershipState.isWelcomed
     };
   }
 
@@ -568,7 +570,8 @@ export class SystemState {
       clubId: clubId,
       membershipTierId: membershipTierId,
       status: "PENDING",
-      applicationResponses: input.applicationResponses
+      applicationResponses: input.applicationResponses,
+      isWelcomed: false
     });
   }
 
@@ -623,6 +626,14 @@ export class SystemState {
     this.memberships.set(membershipId, {
       ...membershipState,
       status: "INACTIVE"
+    });
+  }
+
+  public setMembershipAsWelcomed(membershipId: bigint) {
+    const membershipState = this.getMembershipState(membershipId);
+    this.memberships.set(membershipId, {
+      ...membershipState,
+      isWelcomed: true
     });
   }
 }

@@ -91,6 +91,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     },
     status: true,
     applicationResponses: true,
+    isWelcomed: true,
     createdAt: true
   };
 
@@ -199,6 +200,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         FormResponsesSchema
       ),
       email: await userEmail(r.user.id),
+      isWelcomed: r.isWelcomed,
       createdAt: r.createdAt
     };
   }
@@ -1071,8 +1073,8 @@ export function createMainService(prisma: PrismaClient): MainService {
   async function approveMembershipApplication(
     membershipId: bigint
   ): Promise<MutationResult> {
+    await checkMembershipStatus(membershipId, "PENDING");
     try {
-      await checkMembershipStatus(membershipId, "PENDING");
       await prisma.membership.update({
         data: { status: "ACTIVE" },
         where: { id: membershipId }
@@ -1090,8 +1092,8 @@ export function createMainService(prisma: PrismaClient): MainService {
   async function declineMembershipApplication(
     membershipId: bigint
   ): Promise<MutationResult> {
+    await checkMembershipStatus(membershipId, "PENDING");
     try {
-      await checkMembershipStatus(membershipId, "PENDING");
       await prisma.membership.update({
         data: { status: "DECLINED" },
         where: { id: membershipId }
@@ -1109,8 +1111,8 @@ export function createMainService(prisma: PrismaClient): MainService {
   async function deactivateMembership(
     membershipId: bigint
   ): Promise<MutationResult> {
+    await checkMembershipStatus(membershipId, "ACTIVE");
     try {
-      await checkMembershipStatus(membershipId, "ACTIVE");
       await prisma.membership.update({
         data: { status: "INACTIVE" },
         where: { id: membershipId }
@@ -1120,6 +1122,25 @@ export function createMainService(prisma: PrismaClient): MainService {
     } catch (e) {
       logger.error(
         `failed to deactivate membership with id ${membershipId} with exception ${stringify(e)}`
+      );
+      throw e;
+    }
+  }
+
+  async function setMembershipAsWelcomed(
+    membershipId: bigint
+  ): Promise<MutationResult> {
+    await checkMembershipStatus(membershipId, "ACTIVE");
+    try {
+      await prisma.membership.update({
+        data: { isWelcomed: true },
+        where: { id: membershipId }
+      });
+      logger.info(`set membership as welcomed with id ${membershipId}`);
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        `failed to set membership as welcomed with id ${membershipId} with exception ${stringify(e)}`
       );
       throw e;
     }
@@ -1149,6 +1170,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     submitMembershipApplication,
     approveMembershipApplication,
     declineMembershipApplication,
-    deactivateMembership
+    deactivateMembership,
+    setMembershipAsWelcomed
   };
 }

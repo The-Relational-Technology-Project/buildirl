@@ -1,7 +1,6 @@
 import {
   Arbitrary,
   array,
-  boolean,
   constant,
   emailAddress,
   integer,
@@ -38,6 +37,7 @@ import UnpublishMembershipTierCommand from "./unpublishMembershipTierCommand";
 import DeleteClubCommand from "./deleteClubCommand";
 import { TEMPLATE_THEME_SELECTION } from "~/client/theme/templates";
 import UpdateClubDisplayImageUrlsCommand from "./updateClubDisplayImageUrlsCommand";
+import SetMembershipAsWelcomedCommand from "./setMembershipAsWelcomedCommand";
 
 export const allCommands = () => {
   return [
@@ -56,7 +56,8 @@ export const allCommands = () => {
     submitMembershipApplicationCommands(),
     approveMembershipApplicationCommands(),
     declineMembershipApplicationCommands(),
-    deactivateMembershipCommands()
+    deactivateMembershipCommands(),
+    setMembershipAsWelcomedCommands()
   ];
 };
 
@@ -303,4 +304,10 @@ function deactivateMembershipCommands() {
   return record({
     membershipIdSelector: itemSelector<bigint>()
   }).map((i) => new DeactivateMembershipCommand(i.membershipIdSelector));
+}
+
+function setMembershipAsWelcomedCommands() {
+  return record({
+    membershipIdSelector: itemSelector<bigint>()
+  }).map((i) => new SetMembershipAsWelcomedCommand(i.membershipIdSelector));
 }

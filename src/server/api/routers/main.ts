@@ -192,5 +192,11 @@ export const mainRouter = createTRPCRouter({
     .input(z.object({ membershipId: z.bigint() }))
     .mutation(({ ctx, input }) => {
       return ctx.service.deactivateMembership(input.membershipId);
+    }),
+
+  setMembershipAsWelcomed: securedProcedure
+    .input(z.object({ membershipId: z.bigint() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.service.setMembershipAsWelcomed(input.membershipId);
     })
 });
