@@ -97,6 +97,7 @@ model Membership {
   membershipTier       MembershipTier   @relation(fields: [membershipTierId], references: [id], onDelete: Cascade)
   applicationResponses Json             @map("application_responses")
   status               MembershipStatus
+  isWelcomed           Boolean          @default(false) @map("is_welcomed")
   createdAt            DateTime         @default(now()) @map("created_at")
   updatedAt            DateTime         @updatedAt @map("updated_at")
 
