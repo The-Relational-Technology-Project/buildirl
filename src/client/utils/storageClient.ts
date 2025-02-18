@@ -65,7 +65,7 @@ export default function createStorageClient(): StorageClient {
     return `club/${clubId}/profile`;
   }
 
-  // TODO selectively skip cache using local storage to persist skipCache state
+  // TODO selectively skip cache only on images that can be updated by user
   function userProfileImageUrl(userId: number) {
     const { data } = supabaseClient.storage
       .from("images")
@@ -77,6 +77,7 @@ export default function createStorageClient(): StorageClient {
     return parseAsZodType(`${data.publicUrl}?v=${timeStamp}`, UrlSchema);
   }
 
+  // TODO selectively skip cache only on images that can be updated by user
   function clubProfileImageUrl(clubId: number) {
     const { data } = supabaseClient.storage
       .from("images")

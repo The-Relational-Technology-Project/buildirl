@@ -58,7 +58,8 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.getClubStatistics(input.clubId);
     }),
 
-  userById: securedProcedure
+  // TODO this is public for share page, but is there a way to secure this
+  userById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(({ ctx, input }) => {
       return ctx.service.getUser(input.id);
