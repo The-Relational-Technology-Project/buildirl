@@ -15,6 +15,7 @@ import { FirstNameSchema, LastNameSchema } from "~/server/service/types";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
+import WithDefaultColorSchemeOnManualRouteChange from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
 
 function CreateUserForm(props: StackProps) {
   const router = useRouter();
@@ -82,14 +83,16 @@ function CreateUserForm(props: StackProps) {
 
 export default function Onboarding() {
   return (
-    <AbsoluteCenter>
-      <Paper p="xl" withBorder w={300}>
-        <Title order={4}>Welcome</Title>
-        <Text size={"md"} fw={300} mt={"xs"}>
-          Tell us more about yourself.
-        </Text>
-        <CreateUserForm mt="md" />
-      </Paper>
-    </AbsoluteCenter>
+    <WithDefaultColorSchemeOnManualRouteChange>
+      <AbsoluteCenter>
+        <Paper p="xl" withBorder w={300}>
+          <Title order={4}>Welcome</Title>
+          <Text size={"md"} fw={300} mt={"xs"}>
+            Tell us more about yourself.
+          </Text>
+          <CreateUserForm mt="md" />
+        </Paper>
+      </AbsoluteCenter>
+    </WithDefaultColorSchemeOnManualRouteChange>
   );
 }

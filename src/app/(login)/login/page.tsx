@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { useRouter } from "next/navigation";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
+import WithDefaultColorSchemeOnManualRouteChange from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
 
 export default function Login() {
   const supabase = createComponentClient();
@@ -23,8 +24,10 @@ export default function Login() {
   }, [supabase.auth, router]);
 
   return (
-    <AbsoluteCenter>
-      <AuthenticationForm />
-    </AbsoluteCenter>
+    <WithDefaultColorSchemeOnManualRouteChange>
+      <AbsoluteCenter>
+        <AuthenticationForm />
+      </AbsoluteCenter>
+    </WithDefaultColorSchemeOnManualRouteChange>
   );
 }

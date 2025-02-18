@@ -4,9 +4,14 @@ import React, { useEffect, useRef } from "react";
 import { useMantineColorScheme } from "@mantine/core";
 import { usePathname } from "next/navigation";
 
-// a bit hacky but logic to revert back to default color scheme from join flow (which has club custom theme)
-// does not capture the case when user manually enters URL. This hook captures and changes the colorScheme back
-// to default in this case
+/**
+ * A bit hacky but logic to revert back to default color scheme from join flow (which has club custom theme)
+ * does not capture the case when user manually enters URL. This hook captures and changes the colorScheme back
+ * to default in this case
+ *
+ * Note that this needs to wrap every route, but it is not at the root layout because we still want to get some SSR
+ * with the authenticated trpc prefetches
+ */
 export default function WithDefaultColorSchemeOnManualRouteChange({
   children
 }: {
