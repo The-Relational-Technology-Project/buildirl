@@ -47,3 +47,14 @@ export function membershipForClub(
 
   return clubMembership;
 }
+
+export function activeMembershipForClub(
+  memberships: Membership[],
+  clubId: number
+) {
+  const clubMembership = membershipForClub(memberships, clubId);
+  if (clubMembership?.status === "ACTIVE") {
+    return clubMembership;
+  }
+  return null;
+}

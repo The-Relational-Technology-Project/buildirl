@@ -10,7 +10,7 @@ import { storageClient } from "~/client/utils/storageClient";
 import { useEffect } from "react";
 import ClubImage from "~/client/components/ClubImage";
 import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
-import { membershipForClub } from "~/utils/types";
+import { activeMembershipForClub } from "~/utils/types";
 
 export default function Welcome() {
   const params = useParams<{ publicId: string }>();
@@ -48,8 +48,8 @@ export default function Welcome() {
   }
 
   // only active members can view this page
-  const membership = membershipForClub(m.data!, r.data!.id);
-  if (null === membership || membership.status != "ACTIVE") {
+  const membership = activeMembershipForClub(m.data!, r.data!.id);
+  if (null === membership) {
     throw new Error(`user is not an active member of club ${r.data!.id}`);
   }
 
