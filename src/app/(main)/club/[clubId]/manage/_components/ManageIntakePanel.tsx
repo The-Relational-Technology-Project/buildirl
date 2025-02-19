@@ -152,7 +152,7 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
   }
 
   return (
-    <Card withBorder pt={"sm"} pb="md" px="md">
+    <Card pt={"sm"} pb="md" px="md">
       <ColorSchemeAwareActionIcon
         onClick={onDelete}
         variant={"transparent"}
