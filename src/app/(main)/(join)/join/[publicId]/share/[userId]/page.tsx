@@ -8,7 +8,6 @@ import { Avatar, Button, Center, Group, Stack, Title } from "@mantine/core";
 import { storageClient } from "~/client/utils/storageClient";
 import ClubImage from "~/client/components/ClubImage";
 import { strictParseInt } from "~/utils";
-import { activeMembershipForClub } from "~/utils/types";
 
 export default function Share() {
   const params = useParams<{ publicId: string; userId: string }>();
@@ -18,7 +17,6 @@ export default function Share() {
 
   const r = api.main.clubByPublicId.useQuery({ publicId });
   const u = api.main.userById.useQuery({ id: userId });
-  const m = api.main.userMemberships.useQuery();
 
   QueryError.check({
     result: r,
@@ -30,22 +28,13 @@ export default function Share() {
     fieldName: "userById"
   });
 
-  QueryError.check({
-    result: m,
-    fieldName: "userMemberships"
-  });
-
-  if (!isAllLoaded([r, u, m])) {
+  if (!isAllLoaded([r, u])) {
     return null;
   }
 
-  // only active members can share this page
-  const membership = activeMembershipForClub(m.data!, r.data!.id);
-  if (null === membership) {
-    throw new Error(
-      `user ${u.data!.id} is not an active member of club ${r.data!.id}`
-    );
-  }
+  // TODO restrict share page only to active members. This requires creating a public procedure to
+  //  get club active membership status. We do not want to open up userMemberships endpoint broadly as
+  //  it contains sensitive data
 
   return (
     <Center>

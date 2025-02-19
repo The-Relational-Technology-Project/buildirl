@@ -20,7 +20,6 @@ export default function WithTemplateTheme({
   if (null === theme) {
     return children;
   }
-
   // set color scheme based on if theme `isDark`
   const { setColorScheme } = useMantineColorScheme();
   useEffect(() => {
