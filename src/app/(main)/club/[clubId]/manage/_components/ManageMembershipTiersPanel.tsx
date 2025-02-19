@@ -9,7 +9,8 @@ import {
   Button,
   Space,
   Box,
-  Tooltip
+  Tooltip,
+  Center
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { Club, MembershipTier } from "~/server/service/types";
@@ -38,7 +39,7 @@ export default function ManageMembershipTiersPanel({
   );
 
   return (
-    <Stack mt={"lg"} pb={"xl"}>
+    <Stack mt={"lg"} pb={"xl"} gap={"sm"}>
       <Title order={4}>Active Tiers</Title>
 
       <Carousel
@@ -48,7 +49,7 @@ export default function ManageMembershipTiersPanel({
         withControls={false}
       >
         {publishedTiers.map((t) => (
-          <Carousel.Slide key={t.id}>
+          <Carousel.Slide key={t.id} py={4}>
             <ManageMembershipTierCard
               club={club}
               membershipTier={t}
@@ -60,15 +61,14 @@ export default function ManageMembershipTiersPanel({
           </Carousel.Slide>
         ))}
 
-        <Carousel.Slide>
-          <ColorSchemeAwareActionIcon
-            variant="light"
-            onClick={open}
-            w={300}
-            h={400}
-          >
-            <IconPlus />
-          </ColorSchemeAwareActionIcon>
+        <Carousel.Slide py={4}>
+          <Paper w={300} h={400}>
+            <Center h={"100%"}>
+              <ColorSchemeAwareActionIcon variant="transparent" onClick={open}>
+                <IconPlus />
+              </ColorSchemeAwareActionIcon>
+            </Center>
+          </Paper>
         </Carousel.Slide>
       </Carousel>
 
@@ -79,10 +79,11 @@ export default function ManageMembershipTiersPanel({
       />
 
       {unpublishedTiers.length !== 0 && (
-        <Stack>
-          <Title order={4} mt="xl">
+        <Stack gap={"sm"}>
+          <Title order={4} mt="md">
             Inactive Tiers
           </Title>
+
           <Carousel
             slideSize="33.333333%"
             slideGap="md"
@@ -90,7 +91,7 @@ export default function ManageMembershipTiersPanel({
             withControls={false}
           >
             {unpublishedTiers.map((t) => (
-              <Carousel.Slide key={t.id}>
+              <Carousel.Slide key={t.id} p={4}>
                 <ManageMembershipTierCard
                   club={club}
                   membershipTier={t}
