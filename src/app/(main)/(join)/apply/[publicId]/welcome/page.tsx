@@ -10,24 +10,41 @@ import { storageClient } from "~/client/utils/storageClient";
 import { useEffect } from "react";
 import ClubImage from "~/client/components/ClubImage";
 import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
+import { membershipForClub } from "~/utils/types";
 
 export default function Welcome() {
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
   const router = useRouter();
 
-  const c = api.main.clubByPublicId.useQuery({ publicId });
+  const r = api.main.clubByPublicId.useQuery({ publicId });
   const u = api.main.user.useQuery();
+  const m = api.main.userMemberships.useQuery();
 
   QueryError.check({
-    result: c,
+    result: r,
     fieldName: "clubByPublicId"
   });
 
   QueryError.check({
     result: u,
-    fieldName: "currentUser"
+    fieldName: "user"
   });
+
+  QueryError.check({
+    result: m,
+    fieldName: "userMemberships"
+  });
+
+  if (!isAllLoaded([r, u, m])) {
+    return null;
+  }
+
+  // validate that user can view this celebration page
+  const membership = membershipForClub(m.data!, r.data!.id);
+  if (null === membership || membership.status != "ACTIVE") {
+    throw new Error(`user is not an active member of club ${r.data!.id}`);
+  }
 
   useEffect(() => {
     confetti({
@@ -38,52 +55,48 @@ export default function Welcome() {
   }, []);
 
   return (
-    isAllLoaded([c, u]) && (
-      <Center>
-        <Stack align="center" gap="xl" mt={"xl"}>
-          <Title order={2}>You've been approved!</Title>
+    <Center>
+      <Stack align="center" gap="xl" mt={"xl"}>
+        <Title order={2}>You've been approved!</Title>
 
-          <Group gap="xl">
-            <Avatar
-              size={120}
-              radius={90}
-              src={storageClient.userProfileImageUrl(c.data!.id)}
-            />
-            <ClubImage size={120} club={c.data!} />
-          </Group>
+        <Group gap="xl">
+          <Avatar
+            size={120}
+            radius={90}
+            src={storageClient.userProfileImageUrl(r.data!.id)}
+          />
+          <ClubImage size={120} club={r.data!} />
+        </Group>
 
-          <Stack gap={"sm"} align={"center"}>
-            <Title order={3}>Welcome {u.data!.firstName}!</Title>
-            <Title order={4} mt={"sm"}>
-              You Are Now a Member of
-            </Title>
-            <Title order={3}>{c.data!.name}</Title>
-          </Stack>
-
-          <Title order={3}>Celebrate Publicly!</Title>
-
-          <Stack gap="md" w={"100%"}>
-            <Button
-              size="lg"
-              radius="xl"
-              color="violet"
-              onClick={() =>
-                router.push(`/join/${publicId}/share/${u.data!.id}`)
-              }
-            >
-              Share
-            </Button>
-
-            <ColorSchemeAwareOutlineButton
-              size="lg"
-              radius="xl"
-              onClick={() => router.push(`/join/${publicId}`)}
-            >
-              Enter
-            </ColorSchemeAwareOutlineButton>
-          </Stack>
+        <Stack gap={"sm"} align={"center"}>
+          <Title order={3}>Welcome {u.data!.firstName}!</Title>
+          <Title order={4} mt={"sm"}>
+            You Are Now a Member of
+          </Title>
+          <Title order={3}>{r.data!.name}</Title>
         </Stack>
-      </Center>
-    )
+
+        <Title order={3}>Celebrate Publicly!</Title>
+
+        <Stack gap="md" w={"100%"}>
+          <Button
+            size="lg"
+            radius="xl"
+            color="violet"
+            onClick={() => router.push(`/join/${publicId}/share/${u.data!.id}`)}
+          >
+            Share
+          </Button>
+
+          <ColorSchemeAwareOutlineButton
+            size="lg"
+            radius="xl"
+            onClick={() => router.push(`/join/${publicId}`)}
+          >
+            Enter
+          </ColorSchemeAwareOutlineButton>
+        </Stack>
+      </Stack>
+    </Center>
   );
 }
