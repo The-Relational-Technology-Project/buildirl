@@ -21,6 +21,13 @@ export default function Welcome() {
   const u = api.main.user.useQuery();
   const m = api.main.userMemberships.useQuery();
 
+  const utils = api.useUtils();
+  const setMembershipAsWelcomed = api.main.setMembershipAsWelcomed.useMutation({
+    onSuccess: () => {
+      utils.main.userMemberships.invalidate();
+    }
+  });
+
   QueryError.check({
     result: r,
     fieldName: "clubByPublicId"
@@ -40,11 +47,21 @@ export default function Welcome() {
     return null;
   }
 
-  // validate that user can view this celebration page
+  // only active members can view this page
   const membership = membershipForClub(m.data!, r.data!.id);
   if (null === membership || membership.status != "ACTIVE") {
     throw new Error(`user is not an active member of club ${r.data!.id}`);
   }
+
+  // we mark membership `isWelcomed` here so that the user is only redirected
+  // to the welcome page once; they may still visit the page again with the direct link
+  useEffect(() => {
+    if (!membership.isWelcomed) {
+      void setMembershipAsWelcomed.mutate({
+        membershipId: membership.id
+      });
+    }
+  }, [membership]);
 
   useEffect(() => {
     confetti({
