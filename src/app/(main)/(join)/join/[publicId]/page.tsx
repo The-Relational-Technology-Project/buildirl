@@ -14,6 +14,7 @@ import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActi
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 import ClubImage from "~/client/components/ClubImage";
 import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
+import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/MemberCarousel";
 
 export default function ClubJoin() {
   const params = useParams<{ publicId: string }>();
@@ -99,12 +100,14 @@ export default function ClubJoin() {
 
       <JoinButton club={r.data!} />
 
+      <ClubDisplayImageGallery club={r.data!} />
+
       <ContributingMembersLink
         clubId={r.data!.id}
         clubPublicId={r.data!.publicId}
       />
 
-      <ClubDisplayImageGallery club={r.data!} />
+      <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
 
       {r.data!.eventCalendarUrl && (
         <ColorSchemeAwareOutlineButton
