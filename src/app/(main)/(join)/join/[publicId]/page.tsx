@@ -1,34 +1,22 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import {
-  Stack,
-  Title,
-  Text,
-  Group,
-  Button,
-  Image,
-  GroupProps,
-  useMantineColorScheme,
-  useMantineTheme
-} from "@mantine/core";
+import { Stack, Title, Text, Group, Button, GroupProps } from "@mantine/core";
 import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
-import { storageClient } from "~/client/utils/storageClient";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
 import { membershipForClub } from "~/utils/types";
 import { isUserAuthenticated } from "~/client/utils/auth";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
+import ClubImage from "~/client/components/ClubImage";
+import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
 
 export default function ClubJoin() {
-  const theme = useMantineTheme();
-  const { colorScheme } = useMantineColorScheme();
-
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
   const router = useRouter();
@@ -44,14 +32,7 @@ export default function ClubJoin() {
   return (
     isLoaded(r) && (
       <Stack p="sm" maw={PAGE_WIDTH} align={"center"} mt={"md"}>
-        <Image
-          src={storageClient.clubProfileImageUrl(r.data!.id)}
-          fallbackSrc="/images/club-profile-fallback.png"
-          h={250}
-          w={250}
-          radius={"md"}
-          alt={r.data!.name}
-        />
+        <ClubImage club={r.data!} size={250} />
         <Stack align={"center"} gap={8}>
           <Title
             order={1}
@@ -112,15 +93,13 @@ export default function ClubJoin() {
         <ClubDisplayImageGallery club={r.data!} />
 
         {r.data!.eventCalendarUrl && (
-          <Button
-            variant={"outline"}
+          <ColorSchemeAwareOutlineButton
             onClick={() => window.open(r.data!.eventCalendarUrl!)}
-            size="md"
+            size="lg"
             mt={"md"}
-            color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
           >
             Come to an event
-          </Button>
+          </ColorSchemeAwareOutlineButton>
         )}
 
         <Text mt={"lg"}>Powered by BuildIRL</Text>

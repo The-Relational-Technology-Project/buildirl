@@ -18,6 +18,7 @@ import createStorageClient from "~/client/utils/storageClient";
 import { useRouter } from "next/navigation";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import AlertMessage from "~/client/components/AlertMessage";
+import ClubImage from "~/client/components/ClubImage";
 
 type ClubOverviewPanelProps = {
   club: Club;
@@ -37,13 +38,7 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
           align={{ base: "center", md: "stretch" }}
           gap={40}
         >
-          <Image
-            radius="md"
-            w={{ base: 240, md: 300 }}
-            h={{ base: 240, md: 300 }}
-            src={storage.clubProfileImageUrl(club.id)}
-            fallbackSrc={"/images/club-profile-fallback.png"}
-          />
+          <ClubImage club={club} size={{ base: 240, md: 300 }} />
           <Stack justify={"space-between"} style={{ flex: 1 }}>
             <Stack gap={6}>
               <Title order={4}>Club Details</Title>

@@ -4,13 +4,15 @@ import { ActionIcon, Box, BoxProps, FileInput, Image } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
 import createStorageClient from "~/client/utils/storageClient";
 import { checkFileSize } from "~/client/components/EditableUserAvatar";
+import { Club } from "~/server/service/types";
+import ClubImage from "~/client/components/ClubImage";
 
 type EditableImageProps = {
-  clubId: number;
+  club: Club;
 };
 
 export default function EditableClubImage({
-  clubId,
+  club,
   ...props
 }: EditableImageProps & BoxProps) {
   const storageClient = createStorageClient();
@@ -22,7 +24,7 @@ export default function EditableClubImage({
 
     checkFileSize(file);
 
-    await storageClient.uploadClubProfileImage(clubId, file);
+    await storageClient.uploadClubProfileImage(club.id, file);
     // force a full refresh of the page so all image references
     // can pick up new upload
     window.location.reload();
@@ -30,14 +32,7 @@ export default function EditableClubImage({
 
   return (
     <Box w={180} h={180} p={8} style={{ position: "relative" }} {...props}>
-      <Image
-        radius="md"
-        w={"100%"}
-        h={"100%"}
-        src={storageClient.clubProfileImageUrl(clubId)}
-        fallbackSrc={"/images/club-profile-fallback.png"}
-        alt={"club profile"}
-      />
+      <ClubImage club={club} size={"100%"} />
       <FileInput
         accept="image/*"
         id={"club-profile-picture-input"}

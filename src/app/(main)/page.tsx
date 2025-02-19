@@ -4,11 +4,11 @@ import { Image, Text, Button, Stack, Title, Paper, Flex } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { isAllLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
-import { storageClient } from "~/client/utils/storageClient";
 import type { Club } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import { Maybe } from "~/utils/types";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
+import ClubImage from "~/client/components/ClubImage";
 
 type ClubCardProps = {
   club: Club;
@@ -73,14 +73,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
           </Flex>
         </Stack>
 
-        <Image
-          src={storageClient.clubProfileImageUrl(club.id)}
-          fallbackSrc="/images/club-profile-fallback.png"
-          h={120}
-          w={120}
-          radius={"md"}
-          alt={club.name}
-        />
+        <ClubImage club={club} size={120} />
       </Flex>
     </Paper>
   );

@@ -1,21 +1,15 @@
 "use client";
 
-import {
-  Stack,
-  Title,
-  Button,
-  Image,
-  Avatar,
-  Center,
-  Group
-} from "@mantine/core";
+import { Stack, Title, Button, Avatar, Group, Center } from "@mantine/core";
 import confetti from "canvas-confetti";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isAllLoaded, isLoaded } from "~/client/utils";
+import { isAllLoaded } from "~/client/utils";
 import { storageClient } from "~/client/utils/storageClient";
 import { useEffect } from "react";
+import ClubImage from "~/client/components/ClubImage";
+import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
 
 export default function Welcome() {
   const params = useParams<{ publicId: string }>();
@@ -45,36 +39,30 @@ export default function Welcome() {
 
   return (
     isAllLoaded([c, u]) && (
-      <Center h="100vh">
-        <Stack align="center" gap="xl" w={400}>
-          <Title order={1} fw={700}>
-            YOU'VE BEEN APPROVED!
-          </Title>
+      <Center>
+        <Stack align="center" gap="xl" mt={"xl"}>
+          <Title order={2}>You've been approved!</Title>
 
-          <Group gap="xl" align="center">
+          <Group gap="xl">
             <Avatar
               size={120}
-              radius={60}
+              radius={90}
               src={storageClient.userProfileImageUrl(c.data!.id)}
             />
-            <Image
-              src={storageClient.clubProfileImageUrl(u.data!.id)}
-              width={120}
-              height={120}
-              radius="md"
-              alt={c.data!.name}
-            />
+            <ClubImage size={120} club={c.data!} />
           </Group>
 
-          <Stack gap={5}>
+          <Stack gap={"sm"} align={"center"}>
             <Title order={3}>Welcome {u.data!.firstName}!</Title>
-            <Title order={4}>You Are Now A Member Of</Title>
-            <Title order={3}>{c.data!.name}!</Title>
+            <Title order={4} mt={"sm"}>
+              You Are Now a Member of
+            </Title>
+            <Title order={3}>{c.data!.name}</Title>
           </Stack>
 
           <Title order={3}>Celebrate Publicly!</Title>
 
-          <Stack gap="md" w="100%">
+          <Stack gap="md" w={"100%"}>
             <Button
               size="lg"
               radius="xl"
@@ -86,14 +74,13 @@ export default function Welcome() {
               Share
             </Button>
 
-            <Button
-              variant="outline"
+            <ColorSchemeAwareOutlineButton
               size="lg"
               radius="xl"
               onClick={() => router.push(`/join/${publicId}`)}
             >
               Enter
-            </Button>
+            </ColorSchemeAwareOutlineButton>
           </Stack>
         </Stack>
       </Center>

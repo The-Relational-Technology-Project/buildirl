@@ -109,7 +109,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
     >
       <Stack gap={16}>
         <EditableClubImage
-          clubId={club.id}
+          club={club}
           style={{
             alignSelf: "center",
             // necessary to not override
