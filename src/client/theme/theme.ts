@@ -1,6 +1,8 @@
 import { createTheme } from "@mantine/core";
 
 export const theme = createTheme({
+  fontFamily: "Manrope",
+  headings: { fontFamily: "Manrope" },
   components: {
     Button: {
       defaultProps: {
