@@ -71,6 +71,19 @@ export default function Welcome() {
     });
   }, []);
 
+  const onShare = () => {
+    const shareUrl = `${window.location.origin}/join/${publicId}/share/${u.data!.id}`;
+    if (navigator.share) {
+      void navigator.share({
+        title: `Join me at ${r.data!.name}!`,
+        text: `I just joined ${r.data!.name}! Come check it out!`,
+        url: shareUrl
+      });
+    } else {
+      window.open(shareUrl, "_blank");
+    }
+  };
+
   return (
     <Center>
       <Stack align="center" gap="xl" mt={"xl"}>
@@ -96,12 +109,7 @@ export default function Welcome() {
         <Title order={3}>Celebrate Publicly!</Title>
 
         <Stack gap="md" w={"100%"}>
-          <Button
-            size="lg"
-            radius="xl"
-            color="violet"
-            onClick={() => router.push(`/join/${publicId}/share/${u.data!.id}`)}
-          >
+          <Button size="lg" radius="xl" color="violet" onClick={onShare}>
             Share
           </Button>
 
