@@ -3,7 +3,8 @@ import "@mantine/notifications/styles.css";
 import "@mantine/carousel/styles.css";
 import "src/client/styles/globals.css";
 
-import { GeistSans } from "geist/font/sans";
+import { Manrope } from "next/font/google";
+
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
@@ -23,6 +24,8 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }]
 };
 
+const manrope = Manrope({ subsets: ["latin"] });
+
 export default function RootLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
@@ -31,7 +34,7 @@ export default function RootLayout({
       <head>
         <ColorSchemeScript defaultColorScheme={"light"} />
       </head>
-      <body className={GeistSans.className}>
+      <body className={manrope.className}>
         <TRPCReactProvider>
           <MantineProvider theme={theme} defaultColorScheme={"light"}>
             <HydrateClient>{children}</HydrateClient>

@@ -76,7 +76,6 @@ export default function Welcome() {
     if (navigator.share) {
       void navigator.share({
         title: `Join me at ${r.data!.name}!`,
-        text: `I just joined ${r.data!.name}! Come check it out!`,
         url: shareUrl
       });
     } else {
