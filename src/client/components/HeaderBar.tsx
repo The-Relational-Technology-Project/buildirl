@@ -8,7 +8,9 @@ import {
   Image,
   Menu,
   Avatar,
-  Box
+  Box,
+  useMantineTheme,
+  useMantineColorScheme
 } from "@mantine/core";
 
 export const HEADER_BAR_HEIGHT = 50;
@@ -23,6 +25,7 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { storageClient } from "~/client/utils/storageClient";
+import { useMounted } from "@mantine/hooks";
 
 type NavigationLinkProps = {
   label: string;
@@ -140,27 +143,36 @@ function ProfileMenu() {
 }
 
 export default function HeaderBar() {
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+  // this is required to avoid hydration error because the components are
+  // rendered conditionally on colorScheme
+  const isMounted = useMounted();
+
   return (
-    <Flex
-      h={HEADER_BAR_HEIGHT}
-      align={"center"}
-      justify={"center"}
-      w={"100vw"}
-      style={{
-        backgroundColor: "#e7e2ca",
-        borderBottom: "solid 1px black"
-      }}
-    >
-      <LogoIcon />
-      <Group justify="flex-start" w={{ base: undefined, md: PAGE_WIDTH }}>
-        <NavigationLink Icon={IconHome} label={"Clubs"} navigateTo={"/"} />
-        <NavigationLink
-          Icon={IconBrandSafari}
-          label={"Discover"}
-          navigateTo={"https://buildirl.com/clubs"}
-        />
-      </Group>
-      <ProfileMenu />
-    </Flex>
+    isMounted && (
+      <Flex
+        h={HEADER_BAR_HEIGHT}
+        align={"center"}
+        justify={"center"}
+        w={"100vw"}
+        style={{
+          backgroundColor:
+            colorScheme === "dark" ? theme.colors.dark[7] : "#e7e2ca",
+          borderBottom: `solid 1px ${colorScheme === "dark" ? theme.colors.dark[4] : "black"}`
+        }}
+      >
+        <LogoIcon />
+        <Group justify="flex-start" w={{ base: undefined, md: PAGE_WIDTH }}>
+          <NavigationLink Icon={IconHome} label={"Clubs"} navigateTo={"/"} />
+          <NavigationLink
+            Icon={IconBrandSafari}
+            label={"Discover"}
+            navigateTo={"https://buildirl.com/clubs"}
+          />
+        </Group>
+        <ProfileMenu />
+      </Flex>
+    )
   );
 }
