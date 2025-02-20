@@ -110,6 +110,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       <Stack gap={16}>
         <EditableClubImage
           club={club}
+          size={{ base: 180, md: 300 }}
           style={{
             alignSelf: "center",
             // necessary to not override
@@ -117,8 +118,6 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
             position: "relative"
           }}
         />
-
-        <Divider />
 
         <Stack gap={8} mt={4}>
           <TextInput
@@ -145,7 +144,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
               form.setFieldValue("description", event.currentTarget.value)
             }
             error={form.errors.description}
-            rows={3}
+            rows={6}
           />
         </Stack>
 
@@ -179,7 +178,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
         <Stack gap={8} mt={6}>
           <Title order={6}>Share link</Title>
-          <Group gap={4}>
+          <Group gap={4} wrap={"nowrap"}>
             <Text c={"dimmed"} size={"sm"}>
               buildirl.com/join/
             </Text>
@@ -238,7 +237,7 @@ export default function UpdateClub() {
   return (
     isLoaded(r) && (
       <WithLocalNavigationHeader>
-        <Stack px={{ base: 20, sm: 200 }} mb={"md"}>
+        <Stack px={{ base: 20, sm: 150 }} mb={"md"}>
           <UpdateClubForm club={r.data!} />
         </Stack>
       </WithLocalNavigationHeader>

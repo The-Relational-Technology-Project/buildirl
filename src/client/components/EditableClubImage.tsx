@@ -1,6 +1,13 @@
 import React from "react";
 import { type Maybe } from "~/utils/types";
-import { ActionIcon, Box, BoxProps, FileInput, Image } from "@mantine/core";
+import {
+  ActionIcon,
+  Box,
+  BoxProps,
+  FileInput,
+  Image,
+  StyleProp
+} from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
 import createStorageClient from "~/client/utils/storageClient";
 import { checkFileSize } from "~/client/components/EditableUserAvatar";
@@ -9,10 +16,12 @@ import ClubImage from "~/client/components/ClubImage";
 
 type EditableImageProps = {
   club: Club;
+  size: StyleProp<React.CSSProperties["width"]>;
 };
 
 export default function EditableClubImage({
   club,
+  size,
   ...props
 }: EditableImageProps & BoxProps) {
   const storageClient = createStorageClient();
@@ -31,7 +40,7 @@ export default function EditableClubImage({
   };
 
   return (
-    <Box w={180} h={180} p={8} style={{ position: "relative" }} {...props}>
+    <Box w={size} h={size} p={8} style={{ position: "relative" }} {...props}>
       <ClubImage club={club} size={"100%"} />
       <FileInput
         accept="image/*"

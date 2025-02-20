@@ -6,7 +6,8 @@ import {
   Box,
   Button,
   Center,
-  ScrollArea
+  ScrollArea,
+  useMatches
 } from "@mantine/core";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
@@ -24,6 +25,8 @@ interface ClubImageUploaderProps {
 }
 
 export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
+  const size = useMatches({ base: 120, md: 200 });
+
   const utils = api.useUtils();
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>(
     club.displayImageUrls
@@ -90,7 +93,7 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
         disabled={uploadedImageUrls.length >= 5}
       />
 
-      <ScrollArea type="never" h={160}>
+      <ScrollArea type="never" h={size + 10}>
         <Group w={"max-content"}>
           {Array.from({ length: MAX_DISPLAY_IMAGE_COUNT }).map((_, index) => {
             const url = uploadedImageUrls[index];
@@ -99,8 +102,8 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
             return (
               <Center
                 key={index}
-                w={150}
-                h={150}
+                w={size}
+                h={size}
                 style={{
                   position: "relative",
                   border: "1px dashed grey"

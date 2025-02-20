@@ -1,4 +1,4 @@
-import { Box, Stack, useMantineColorScheme } from "@mantine/core";
+import { Box, Stack } from "@mantine/core";
 import { HEADER_BAR_HEIGHT } from "~/client/components/HeaderBar";
 import { IconArrowLeft } from "@tabler/icons-react";
 import React from "react";
@@ -16,8 +16,6 @@ export default function WithLocalNavigationHeader({
   hidden = false
 }: WithLocalNavigationHeaderProps) {
   const router = useRouter();
-  const { colorScheme } = useMantineColorScheme();
-
   if (hidden) {
     return <Box mt={40}>{children}</Box>;
   }
