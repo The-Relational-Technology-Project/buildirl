@@ -106,20 +106,19 @@ export default function Home() {
         <Title order={1} mb={"md"}>
           Clubs
         </Title>
-        <Stack justify="center" align="center" gap={10} style={{ flex: 1 }}>
-          <Image
-            src="/images/home-icon.svg"
-            alt="home icon"
-            w={120}
-            style={{ filter: "invert(0.6)" }}
-          />
-          <Title order={3} c="dimmed" mt={"lg"}>
-            No clubs found
+        <Stack justify="center" align="center" gap={"xs"} style={{ flex: 1 }}>
+          <Image src="/images/home-icon.svg" alt="home icon" w={80} />
+          <Title order={3} mt={"lg"}>
+            You are not part of any clubs!
           </Title>
           <Text size={"md"} c={"dimmed"}>
-            Discover clubs or create one of your own.
+            Discover clubs or create one of your own
           </Text>
-          <Button onClick={() => router.push("/club/create")}>
+          <Button
+            onClick={() => router.push("/club/create")}
+            mt={"md"}
+            size={"lg"}
+          >
             Create club
           </Button>
         </Stack>
@@ -129,7 +128,7 @@ export default function Home() {
 
   return (
     <Stack mt={"xl"}>
-      <Title order={1} mb={"md"}>
+      <Title order={1} mb={"sm"}>
         Clubs
       </Title>
       {r
