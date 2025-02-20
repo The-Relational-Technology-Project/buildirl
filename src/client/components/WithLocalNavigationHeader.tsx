@@ -1,9 +1,50 @@
-import { Box, Stack } from "@mantine/core";
+import {
+  Box,
+  BoxProps,
+  Stack,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { HEADER_BAR_HEIGHT } from "~/client/components/HeaderBar";
-import { IconArrowLeft } from "@tabler/icons-react";
 import React from "react";
 import { useRouter } from "next/navigation";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import { IconChevronLeft } from "@tabler/icons-react";
+import { useMounted } from "@mantine/hooks";
+
+type NavigationButtonProps = {
+  onClick: () => void;
+  icon: React.ReactNode;
+};
+
+export function NavigationButton({
+  onClick,
+  icon,
+  ...props
+}: NavigationButtonProps & BoxProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const mounted = useMounted();
+
+  return (
+    mounted && (
+      <Box
+        bg={colorScheme === "dark" ? theme.colors.dark[7] : "white"}
+        w={30}
+        h={30}
+        style={{
+          border: `1px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,
+          boxShadow: `2px 2px 0px ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`
+        }}
+        {...props}
+      >
+        <ColorSchemeAwareActionIcon onClick={onClick} variant="transparent">
+          {icon}
+        </ColorSchemeAwareActionIcon>
+      </Box>
+    )
+  );
+}
 
 type WithLocalNavigationHeaderProps = {
   title?: string;
@@ -28,13 +69,11 @@ export default function WithLocalNavigationHeader({
         pb={4}
         style={{ zIndex: 100, background: "transparent" }}
       >
-        <ColorSchemeAwareActionIcon
+        <NavigationButton
           onClick={() => router.back()}
-          variant="transparent"
+          icon={<IconChevronLeft />}
           mt={"lg"}
-        >
-          <IconArrowLeft />
-        </ColorSchemeAwareActionIcon>
+        />
       </Box>
 
       <Box mt={`calc(${HEADER_BAR_HEIGHT}px + 20px)`}>{children}</Box>
