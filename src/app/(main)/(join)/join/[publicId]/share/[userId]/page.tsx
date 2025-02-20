@@ -45,7 +45,7 @@ export default function Share() {
           <Avatar
             size={120}
             radius={90}
-            src={storageClient.userProfileImageUrl(r.data!.id)}
+            src={storageClient.userProfileImageUrl(u.data!.id)}
           />
           <ClubImage size={120} club={r.data!} />
         </Group>
