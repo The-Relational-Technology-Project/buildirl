@@ -147,8 +147,8 @@ export default function HeaderBar() {
       justify={"center"}
       w={"100vw"}
       style={{
-        backgroundColor: "transparent",
-        borderBottom: "solid 1px #808080"
+        backgroundColor: "#e7e2ca",
+        borderBottom: "solid 1px black"
       }}
     >
       <LogoIcon />
