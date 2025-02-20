@@ -3,7 +3,6 @@ import {
   Button,
   Flex,
   Group,
-  Image,
   Paper,
   Stack,
   Text,
@@ -14,7 +13,6 @@ import React from "react";
 import { notifications } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";
 import { logger, notifyError } from "~/client/logger";
-import createStorageClient from "~/client/utils/storageClient";
 import { useRouter } from "next/navigation";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import AlertMessage from "~/client/components/AlertMessage";
@@ -25,7 +23,6 @@ type ClubOverviewPanelProps = {
 };
 
 export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
-  const storage = createStorageClient();
   const router = useRouter();
   const editButtonText = useMatches({ base: "Edit", sm: "Edit Club Page" });
 

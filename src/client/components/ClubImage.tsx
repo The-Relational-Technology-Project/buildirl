@@ -2,9 +2,10 @@ import { Club } from "~/server/service/types";
 import {
   ImageProps,
   Image,
-  StyleProp,
   useMantineColorScheme,
-  useMantineTheme
+  useMantineTheme,
+  Box,
+  StyleProp
 } from "@mantine/core";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
@@ -22,22 +23,25 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
 
   return (
     mounted && (
-      <Image
-        src={storageClient.clubProfileImageUrl(club.id)}
-        fallbackSrc="/images/club-profile-fallback.png"
-        h={size}
-        w={size}
-        alt={club.name}
-        styles={{
-          root: {
-            borderBottomLeftRadius: 10,
-            borderBottomRightRadius: 10,
-            borderTopLeftRadius: "100%",
-            borderTopRightRadius: "100%",
-            border: `2px solid ${colorScheme === "dark" ? theme.colors.gray[3] : "black"}`
-          }
-        }}
-      />
+      <Box h={size} w={size}>
+        <Image
+          src={storageClient.clubProfileImageUrl(club.id)}
+          fallbackSrc="/images/club-profile-fallback.png"
+          h={"100%"}
+          w={"100%"}
+          fit={"cover"}
+          alt={club.name}
+          styles={{
+            root: {
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
+              borderTopLeftRadius: "100%",
+              borderTopRightRadius: "100%",
+              border: `2px solid ${colorScheme === "dark" ? theme.colors.gray[3] : "black"}`
+            }
+          }}
+        />
+      </Box>
     )
   );
 }
