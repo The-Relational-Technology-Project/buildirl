@@ -45,6 +45,16 @@ export const theme = createTheme({
           }
         }
       }
+    },
+    Textarea: {
+      defaultProps: {
+        styles: {
+          input: {
+            border: "1px solid black",
+            borderRadius: 0
+          }
+        }
+      }
     }
   }
 });

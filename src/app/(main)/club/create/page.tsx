@@ -70,7 +70,7 @@ function CreateClubForm(props: StackProps) {
         <Title order={6} mt={4}>
           Choose a share link.
         </Title>
-        <Group gap={4}>
+        <Group gap={4} wrap={"nowrap"}>
           <Text c={"dimmed"} size={"sm"}>
             buildirl.com/join/
           </Text>
@@ -102,7 +102,7 @@ function CreateClubForm(props: StackProps) {
 export default function CreateClub() {
   return (
     <AbsoluteCenter adjustForHeader>
-      <Paper p="xl" withBorder w={300}>
+      <Paper p="xl" withBorder w={{ base: 300, md: 400 }}>
         <Title order={4}>Create a club</Title>
         <CreateClubForm mt={"md"} />
       </Paper>
