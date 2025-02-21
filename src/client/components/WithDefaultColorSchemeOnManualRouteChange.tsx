@@ -12,8 +12,8 @@ import { usePathname } from "next/navigation";
  * Note that this needs to wrap every route, but it is not at the root layout because we still want to get some SSR
  * with the authenticated trpc prefetches
  *
- * TODO this still behaves wierdly with multiple tabs as color scheme is global across tabs. We will need to address by
- *  either supporting a more cohesive dark mode (e.g., some hardcoded 'black' and background colors need to be dark mode aware)
+ * TODO this does not play well with multiple tabs as color scheme is global across tabs. We can mitigate this by
+ *  either supporting a more cohesive dark mode (e.g., hardcoded color and background need to be dark mode aware)
  *  or not leveraging dark mode for dark custom templates. Both aren't perfect!
  */
 export default function WithDefaultColorSchemeOnManualRouteChange({
