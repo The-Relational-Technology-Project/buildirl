@@ -24,7 +24,7 @@ type ClubOverviewPanelProps = {
 
 export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
   const router = useRouter();
-  const editButtonText = useMatches({ base: "Edit", sm: "Edit Club Page" });
+  const editButtonText = useMatches({ base: "Edit", md: "Edit Club Page" });
 
   return (
     <Stack>

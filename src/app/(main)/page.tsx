@@ -1,6 +1,15 @@
 "use client";
 
-import { Image, Text, Button, Stack, Title, Paper, Flex } from "@mantine/core";
+import {
+  Image,
+  Text,
+  Button,
+  Stack,
+  Title,
+  Paper,
+  Flex,
+  useMatches
+} from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { isAllLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
@@ -18,6 +27,11 @@ type ClubCardProps = {
 };
 
 function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
+  const manageMembershipText = useMatches({
+    base: "Membership",
+    md: "Manage Membership"
+  });
+
   // defensive check
   if (!isOwned && null === membershipId) {
     throw new Error("require membershipId for unowned club");
@@ -59,7 +73,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
             </Button>
             {isOwned ? (
               <Button onClick={() => router.push(`/club/${club.id}/manage`)}>
-                Manage club
+                Edit Club
               </Button>
             ) : (
               <Button
@@ -67,7 +81,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
                   router.push(`/club/${club.id}/manage-membership`)
                 }
               >
-                Manage membership
+                {manageMembershipText}
               </Button>
             )}
           </Flex>
@@ -127,7 +141,7 @@ export default function Home() {
   }
 
   return (
-    <Stack mt={"xl"}>
+    <Stack my={"xl"}>
       <Title order={1} mb={"sm"}>
         Clubs
       </Title>
