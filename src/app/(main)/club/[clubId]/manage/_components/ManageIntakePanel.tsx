@@ -76,7 +76,7 @@ export default function ManageIntakePanel({ club }: ManageIntakePanelProps) {
   };
 
   return (
-    <Box p="xl">
+    <Box py={"xl"}>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack>

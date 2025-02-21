@@ -39,7 +39,7 @@ export default function ManageMembershipTiersPanel({
   );
 
   return (
-    <Stack mt={"lg"} pb={"xl"} gap={"sm"}>
+    <Stack py={"lg"} pb={"xl"} gap={"sm"}>
       <Title order={4}>Active Tiers</Title>
 
       <Carousel

@@ -55,6 +55,20 @@ export const theme = createTheme({
           }
         }
       }
+    },
+    Tabs: {
+      defaultProps: {
+        color: "black",
+        styles: {
+          // TODO in mobile view, the bottom divider of the list doesn't
+          //  extend when scrolling. It's been too tricky to figure out for now
+          list: {
+            scrollbarWidth: "none",
+            overflowX: "auto",
+            flexWrap: "nowrap"
+          }
+        }
+      }
     }
   }
 });
