@@ -47,9 +47,9 @@ export default function ManageMembership() {
   return (
     <WithLocalNavigationHeader>
       <Stack>
-        <Title order={3}>Your membership to {membership.club.name}</Title>
+        <Title order={3}>Your Membership to {membership.club.name}</Title>
         <Paper p={"xl"} withBorder>
-          <Title order={4}>Membership details</Title>
+          <Title order={4}>Membership Details</Title>
 
           <JoinedDate date={membership.createdAt} mt={8} />
 
@@ -58,20 +58,28 @@ export default function ManageMembership() {
             <Text size={"sm"} c={"dimmed"}>
               {membership.membershipTier.name}
             </Text>
+            {membership.membershipTier.benefitDescription !== "" && (
+              <>
+                <Title order={5} mt={"sm"}>
+                  Your Benefits
+                </Title>
+                <Text size={"sm"} c={"dimmed"}>
+                  {membership.membershipTier.benefitDescription}
+                </Text>
+              </>
+            )}
+            {membership.membershipTier.contributionDescription !== "" && (
+              <>
+                <Title order={5} mt={"sm"}>
+                  Your Contributions
+                </Title>
+                <Text size={"sm"} c={"dimmed"}>
+                  {membership.membershipTier.contributionDescription}
+                </Text>
+              </>
+            )}
             <Title order={5} mt={"sm"}>
-              Your benefits
-            </Title>
-            <Text size={"sm"} c={"dimmed"}>
-              {membership.membershipTier.benefitDescription}
-            </Text>
-            <Title order={5} mt={"sm"}>
-              Your contributions
-            </Title>
-            <Text size={"sm"} c={"dimmed"}>
-              {membership.membershipTier.contributionDescription}
-            </Text>
-            <Title order={5} mt={"sm"}>
-              Costs
+              Cost
             </Title>
             <Text
               size={"sm"}
