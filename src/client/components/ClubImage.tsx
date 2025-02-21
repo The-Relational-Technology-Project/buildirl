@@ -11,6 +11,31 @@ import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { useMounted } from "@mantine/hooks";
 
+export type DefaultClubImageProps = {
+  size: StyleProp<React.CSSProperties["width"]>;
+};
+
+export function DefaultClubImage({ size }: DefaultClubImageProps) {
+  return (
+    <Box w={size} h={size}>
+      <Image
+        h={"100%"}
+        w={"100%"}
+        src={"images/rising-sun.png"}
+        fit={"cover"}
+        alt={"rising sun door"}
+        style={{
+          borderBottomLeftRadius: 10,
+          borderBottomRightRadius: 10,
+          borderTopLeftRadius: "100%",
+          borderTopRightRadius: "100%",
+          border: `2px solid black`
+        }}
+      ></Image>
+    </Box>
+  );
+}
+
 export type ClubImageProps = {
   club: Club;
   size: StyleProp<React.CSSProperties["width"]>;
@@ -26,7 +51,7 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
       <Box h={size} w={size}>
         <Image
           src={storageClient.clubProfileImageUrl(club.id)}
-          fallbackSrc="/images/club-profile-fallback.png"
+          fallbackSrc="/images/rising-sun.png"
           h={"100%"}
           w={"100%"}
           fit={"cover"}

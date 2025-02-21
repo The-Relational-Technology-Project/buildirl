@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Image,
   Text,
   Button,
   Stack,
@@ -17,7 +16,7 @@ import type { Club } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import { Maybe } from "~/utils/types";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
-import ClubImage from "~/client/components/ClubImage";
+import ClubImage, { DefaultClubImage } from "~/client/components/ClubImage";
 
 type ClubCardProps = {
   club: Club;
@@ -121,7 +120,7 @@ export default function Home() {
           Clubs
         </Title>
         <Stack justify="center" align="center" gap={"xs"} style={{ flex: 1 }}>
-          <Image src="/images/home-icon.svg" alt="home icon" w={80} />
+          <DefaultClubImage size={150} />
           <Title order={3} mt={"lg"}>
             You are not part of any clubs!
           </Title>
