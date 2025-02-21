@@ -42,7 +42,7 @@ export default function Share() {
         <Title order={2}>I'm a Proud Member!</Title>
 
         <Group gap="xl">
-          <UserAvatar size={120} user={u.data!} />
+          <UserAvatar size={"lg"} user={u.data!} />
           <ClubImage size={120} club={r.data!} />
         </Group>
 

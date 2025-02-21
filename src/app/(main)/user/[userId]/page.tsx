@@ -27,7 +27,7 @@ function UserProfile({ userId }: UserProfileProps) {
     isLoaded(r) && (
       <Stack w={600}>
         <Group align={"flex-start"} gap={"lg"}>
-          <UserAvatar size={"xl"} user={r.data!} />
+          <UserAvatar size={"md"} user={r.data!} />
           <Stack gap={4}>
             <Title order={3} fw={500} pt={10}>
               {r.data!.firstName} {r.data!.lastName}

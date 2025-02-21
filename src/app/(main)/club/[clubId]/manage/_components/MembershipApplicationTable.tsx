@@ -12,7 +12,6 @@ import {
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded, toDisplayDate } from "~/client/utils";
-import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { IconListCheck } from "@tabler/icons-react";
@@ -73,7 +72,7 @@ export default function MembershipApplicationTable({
         style={{ cursor: "pointer" }}
       >
         <Group gap={4} wrap="nowrap">
-          <UserAvatar size="md" user={m.user} />
+          <UserAvatar size={"sm"} user={m.user} />
           <Text
             size={"sm"}
             style={{ textWrap: "nowrap" }}

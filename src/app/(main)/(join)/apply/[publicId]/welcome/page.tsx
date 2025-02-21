@@ -89,7 +89,7 @@ export default function Welcome() {
         <Title order={2}>You've been approved!</Title>
 
         <Group gap="xl">
-          <UserAvatar size={120} user={u.data!} />
+          <UserAvatar size={"lg"} user={u.data!} />
           <ClubImage size={120} club={r.data!} />
         </Group>
 

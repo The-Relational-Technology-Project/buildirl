@@ -77,7 +77,7 @@ function MemberListItem({ member, isLastItem }: MemberListItemProps) {
       style={{ cursor: "pointer" }}
     >
       <Group>
-        <UserAvatar size="md" user={member} />
+        <UserAvatar size={"md"} user={member} />
         <Text>{member.firstName}</Text>
       </Group>
       {isLastItem && <Divider />}

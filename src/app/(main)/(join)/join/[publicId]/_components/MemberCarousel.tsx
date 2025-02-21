@@ -7,7 +7,7 @@ import { Carousel } from "@mantine/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import React from "react";
 import { IconStarFilled } from "@tabler/icons-react";
-import UserAvatar from "~/client/components/UserAvatar";
+import UserAvatar, { UserImage } from "~/client/components/UserAvatar";
 
 type MemberCarouselProps = {
   clubId: number;
@@ -59,13 +59,11 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
                   <IconStarFilled />
                 </ThemeIcon>
               )}
-              <UserAvatar
+              <UserImage
                 h={{ base: 200, md: 300 }}
                 w={slideWidth}
-                radius="sm"
+                radius={"sm"}
                 user={m}
-                // clear the default border
-                style={{ border: undefined }}
               />
               <Text size="md" fw={500}>
                 {m.firstName}

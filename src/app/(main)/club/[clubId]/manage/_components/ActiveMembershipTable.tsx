@@ -60,7 +60,7 @@ export default function ActiveMembershipTable({
         style={{ cursor: "pointer" }}
       >
         <Group gap={"sm"} wrap={"nowrap"}>
-          <UserAvatar size="md" user={m.user} />
+          <UserAvatar size={"sm"} user={m.user} />
           <Text
             size={"sm"}
             style={{ textWrap: "nowrap" }}

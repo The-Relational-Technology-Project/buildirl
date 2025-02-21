@@ -96,9 +96,8 @@ function ProfileMenu() {
           <Menu.Target>
             <UserAvatar
               user={r.data!}
-              size="md"
+              size={"sm"}
               style={{
-                border: "1px solid grey",
                 cursor: "pointer",
                 position: "fixed",
                 top: 8,

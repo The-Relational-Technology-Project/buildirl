@@ -26,8 +26,7 @@ export function checkFileSize(file: File) {
 }
 
 export default function EditableUserAvatar({
-  user,
-  size
+  user
 }: EditableUserAvatarProps & AvatarProps) {
   const storageClient = createStorageClient();
 
@@ -45,8 +44,8 @@ export default function EditableUserAvatar({
   };
 
   return (
-    <Box w={size} h={size} style={{ position: "relative" }}>
-      <UserAvatar user={user} size={size} />
+    <Box w={120} h={120} style={{ position: "relative" }}>
+      <UserAvatar user={user} size={"md"} />
       <FileInput
         accept="image/*"
         id={"profile-picture-input"}
@@ -61,7 +60,7 @@ export default function EditableUserAvatar({
         size="sm"
         color={"black"}
         aria-label="Upload Profile Picture"
-        style={{ position: "absolute", right: 6, bottom: 0 }}
+        style={{ position: "absolute", right: 8, bottom: 2 }}
       >
         <IconArrowUp />
       </ActionIcon>
