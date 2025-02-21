@@ -31,7 +31,7 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
   const allMembers = [owner, ...r.data!.map((m) => m.user)];
 
   const autoplay = Autoplay({ delay: 2000, stopOnInteraction: false });
-  const slideWidth = { base: 150, md: 225 };
+  const slideWidth = { base: 150, md: 250 };
 
   return (
     <Box w={"100%"}>

@@ -55,7 +55,12 @@ export default function ClubJoin() {
   }
 
   return (
-    <Stack p="sm" maw={PAGE_WIDTH} align={"center"} mt={"md"}>
+    <Stack
+      py="xl"
+      px={{ base: "sm", md: 150 }}
+      maw={PAGE_WIDTH}
+      align={"center"}
+    >
       <ClubImage club={r.data!} size={250} />
       <Stack align={"center"} gap={8}>
         <Title
