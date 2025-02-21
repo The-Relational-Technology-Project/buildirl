@@ -9,7 +9,9 @@ import {
   Menu,
   Box,
   useMantineTheme,
-  useMantineColorScheme
+  useMantineColorScheme,
+  BoxProps,
+  ImageProps
 } from "@mantine/core";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -65,21 +67,11 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
   );
 }
 
-function LogoIcon() {
-  return (
-    <Image
-      src={"/images/logo-icon.svg"}
-      w={15}
-      h={20}
-      style={{
-        position: "fixed",
-        left: 20
-      }}
-    />
-  );
+function LogoIcon({ ...props }: ImageProps) {
+  return <Image src={"/images/logo-icon.svg"} w={15} h={20} {...props} />;
 }
 
-function ProfileMenu() {
+function ProfileMenu({ ...props }: BoxProps) {
   const router = useRouter();
   const r = api.main.user.useQuery();
 
@@ -91,17 +83,14 @@ function ProfileMenu() {
   const supabase = createComponentClient();
   return (
     isLoaded(r) && (
-      <Box>
+      <Box {...props}>
         <Menu position="bottom-end" shadow="md">
           <Menu.Target>
             <UserAvatar
               user={r.data!}
               size={"sm"}
               style={{
-                cursor: "pointer",
-                position: "fixed",
-                top: 8,
-                right: 10
+                cursor: "pointer"
               }}
             />
           </Menu.Target>
@@ -155,12 +144,18 @@ export default function HeaderBar() {
         justify={"center"}
         w={"100vw"}
         style={{
+          position: "relative",
           backgroundColor:
             colorScheme === "dark" ? theme.colors.dark[7] : "#e7e2ca",
           borderBottom: `solid 1px ${colorScheme === "dark" ? theme.colors.dark[4] : "black"}`
         }}
       >
-        <LogoIcon />
+        <LogoIcon
+          style={{
+            position: "absolute",
+            left: 10
+          }}
+        />
         <Group justify="flex-start" w={{ base: undefined, md: PAGE_WIDTH }}>
           <NavigationLink Icon={IconHome} label={"Clubs"} navigateTo={"/"} />
           <NavigationLink
@@ -169,7 +164,10 @@ export default function HeaderBar() {
             navigateTo={"https://buildirl.com/clubs"}
           />
         </Group>
-        <ProfileMenu />
+        <ProfileMenu
+          pos={"fixed"}
+          style={{ position: "absolute", right: 10 }}
+        />
       </Flex>
     )
   );
