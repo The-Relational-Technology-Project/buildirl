@@ -75,6 +75,7 @@ export default function UpdateMembershipTierModal({
       opened={opened}
       onClose={handleClose}
       padding={"xl"}
+      yOffset={100}
       title={
         <Text size={"xl"} fw={700}>
           Update Tier
@@ -105,8 +106,8 @@ export default function UpdateMembershipTierModal({
 
           <Textarea
             defaultValue={form.values.contributionDescription}
-            placeholder="Describe the contributions expected of members in this tier."
-            minRows={3}
+            placeholder="Describe the contributions expected of members in this tier"
+            rows={5}
             onChange={(e) =>
               form.setFieldValue(
                 "contributionDescription",
@@ -118,7 +119,8 @@ export default function UpdateMembershipTierModal({
 
           <Textarea
             defaultValue={form.values.benefitDescription}
-            placeholder="Describe the benefits members in this tier can expect."
+            placeholder="Describe the benefits members in this tier can expect"
+            rows={5}
             onChange={(e) =>
               form.setFieldValue("benefitDescription", e.currentTarget.value)
             }

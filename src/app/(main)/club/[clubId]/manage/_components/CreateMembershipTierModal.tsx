@@ -64,6 +64,7 @@ export default function CreateMembershipTierModal({
       opened={opened}
       onClose={handleClose}
       padding={"xl"}
+      yOffset={100}
       title={
         <Text size={"xl"} fw={700}>
           Create Tier
@@ -93,8 +94,8 @@ export default function CreateMembershipTierModal({
           />
 
           <Textarea
-            placeholder="Describe the contributions expected of members in this tier."
-            minRows={3}
+            placeholder="Describe the contributions expected of members in this tier"
+            rows={5}
             onChange={(e) =>
               form.setFieldValue(
                 "contributionDescription",
@@ -106,6 +107,7 @@ export default function CreateMembershipTierModal({
 
           <Textarea
             placeholder="Describe the benefits members in this tier can expect."
+            rows={5}
             onChange={(e) =>
               form.setFieldValue("benefitDescription", e.currentTarget.value)
             }
