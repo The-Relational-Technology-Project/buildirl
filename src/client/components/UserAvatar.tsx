@@ -70,7 +70,7 @@ export default function UserAvatar({
           fit={"cover"}
           alt={`${user.firstName} ${user.lastName}`}
           style={{
-            border: `${size === "sm" ? 1 : 2}px solid ${colorScheme === "dark" ? theme.colors.gray[3] : "black"}`
+            border: `${size === "sm" ? 1 : 2}px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`
           }}
         />
       </Box>
