@@ -15,6 +15,7 @@ import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_compon
 import ClubImage from "~/client/components/ClubImage";
 import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
 import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/MemberCarousel";
+import { useEffect } from "react";
 
 export default function ClubJoin() {
   const params = useParams<{ publicId: string }>();
@@ -35,15 +36,21 @@ export default function ClubJoin() {
     fieldName: "userMemberships"
   });
 
-  if (!isAllLoaded([r, m])) {
-    return null;
-  }
-
   // redirect user to the welcome page if it is their first time on the join page
   // after being accepted!
-  const membership = activeMembershipForClub(m.data!, r.data!.id);
-  if (membership !== null && !membership.isWelcomed) {
-    router.push(`/apply/${publicId}/welcome`);
+  useEffect(() => {
+    // cannot put this after isAllLoaded because useEffect must not be
+    // conditionally instantiated
+    if (!isLoaded(m)) {
+      return;
+    }
+    const membership = activeMembershipForClub(m.data!, r.data!.id);
+    if (membership !== null && !membership.isWelcomed) {
+      router.push(`/apply/${publicId}/welcome`);
+    }
+  }, [m]);
+
+  if (!isAllLoaded([r, m])) {
     return null;
   }
 
