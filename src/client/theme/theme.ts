@@ -88,6 +88,26 @@ export const theme = createTheme({
           }
         }
       }
+    },
+    Modal: {
+      defaultProps: {
+        styles: {
+          content: {
+            border: "1px solid black",
+            borderRadius: 0
+          }
+        }
+      }
+    },
+    Menu: {
+      defaultProps: {
+        styles: {
+          dropdown: {
+            border: "1px solid black", 
+            borderRadius: 0
+          }
+        }
+      }
     }
   }
 });
