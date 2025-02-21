@@ -58,10 +58,13 @@ export const theme = createTheme({
     },
     Tabs: {
       defaultProps: {
-        color: "black",
+        color: "#e7e2ca",
+        variant: "pills",
+        autoContrast: true,
         styles: {
-          // TODO in mobile view, the bottom divider of the list doesn't
-          //  extend when scrolling. It's been too tricky to figure out for now
+          tab: {
+            borderRadius: 0
+          },
           list: {
             scrollbarWidth: "none",
             overflowX: "auto",

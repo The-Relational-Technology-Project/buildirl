@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "~/trpc/react";
-import { Stack, Tabs, Title } from "@mantine/core";
+import { Divider, Stack, Tabs, Title } from "@mantine/core";
 import React from "react";
 import { useParams } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
@@ -38,6 +38,8 @@ export default function ManageClub() {
             <Tabs.Tab value={"intake"}>Intake</Tabs.Tab>
             <Tabs.Tab value={"admin"}>Admin</Tabs.Tab>
           </Tabs.List>
+
+          <Divider />
 
           <Tabs.Panel value={"overview"}>
             <ClubOverviewPanel club={r.data!} />

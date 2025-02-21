@@ -10,7 +10,8 @@ import {
   Tabs,
   Textarea,
   Button,
-  Flex
+  Flex,
+  Divider
 } from "@mantine/core";
 import { LongTextSchema, User } from "~/server/service/types";
 import { useForm } from "@mantine/form";
@@ -120,6 +121,8 @@ export default function Settings() {
           <Tabs.Tab value={"account"}>Account</Tabs.Tab>
           <Tabs.Tab value={"payment"}>Payment</Tabs.Tab>
         </Tabs.List>
+
+        <Divider />
 
         <Tabs.Panel value={"account"}>
           <AccountPanel />
