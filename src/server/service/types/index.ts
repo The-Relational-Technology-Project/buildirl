@@ -172,7 +172,8 @@ export type InstagramHandle = z.infer<typeof InstagramHandleSchema>;
 
 export const ClubNameSchema = z
   .string()
-  .min(3, "Length must be >= 3 characters");
+  .min(3, "Length must be >= 3 characters")
+  .max(64, "Length must be >= 64 characters");
 
 export const ClubTagLineSchema = z
   .string()

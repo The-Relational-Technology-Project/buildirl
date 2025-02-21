@@ -7,7 +7,10 @@ import {
   Title,
   Paper,
   Flex,
-  useMatches
+  useMatches,
+  Space,
+  Box,
+  TitleOrder
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { isAllLoaded } from "~/client/utils";
@@ -17,6 +20,8 @@ import { api } from "~/trpc/react";
 import { Maybe } from "~/utils/types";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import ClubImage, { DefaultClubImage } from "~/client/components/ClubImage";
+import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
+import { IconChevronRight } from "@tabler/icons-react";
 
 type ClubCardProps = {
   club: Club;
@@ -26,73 +31,100 @@ type ClubCardProps = {
 };
 
 function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
-  const manageMembershipText = useMatches({
-    base: "Membership",
-    md: "Manage Membership"
-  });
-
   // defensive check
   if (!isOwned && null === membershipId) {
     throw new Error("require membershipId for unowned club");
   }
 
+  const isMobile = useMatches({ base: true, md: false });
+  const editMembershipText = useMatches({
+    base: "Membership",
+    md: "Manage Membership"
+  });
+  const chevronSize = useMatches({ base: 16, md: 32 });
+  const titleOrder = useMatches<TitleOrder>({ base: 6, md: 4 });
+  const buttonSize = useMatches({ base: "xs", md: "md" });
+
   const router = useRouter();
 
   return (
-    <Paper p="lg" withBorder>
+    <Paper
+      p={{ base: "md", md: "lg" }}
+      withBorder
+      h={{ base: 120, md: 200 }}
+      onClick={(e) => {
+        // don't navigate if clicking on child buttons
+        if ((e.target as HTMLElement).closest("button")) {
+          e.stopPropagation();
+          return;
+        }
+        router.push(`/join/${club.publicId}`);
+      }}
+    >
       <Flex
-        direction={{ base: "column-reverse", xs: "row" }}
-        justify="space-between"
-        align={{ base: "center", xs: "stretch" }}
-        gap={"md"}
+        direction={"row"}
+        h={"100%"}
+        justify="flex-start"
+        align={"center"}
+        gap={{ base: 0, md: "md" }}
       >
-        <Stack justify="space-between">
+        <ClubImage club={club} size={{ base: 80, md: 120 }} />
+
+        <Stack h={"100%"} justify="space-between" ml={{ base: "md", md: "xl" }}>
           <Stack gap={6}>
-            <Title order={4}>{club.name}</Title>
+            <Title order={titleOrder} lineClamp={1}>
+              {club.name}
+            </Title>
 
-            <MemberCountStatistic clubId={club.id} />
-
-            <Text
-              size="sm"
-              c="dimmed"
-              lineClamp={3}
-              maw={400}
-              style={{ wordWrap: "break-word" }}
-            >
-              {club.tagLine}
-            </Text>
+            {!isMobile && (
+              <>
+                <MemberCountStatistic clubId={club.id} />
+                <Text
+                  size="sm"
+                  c="dimmed"
+                  lineClamp={2}
+                  style={{ wordWrap: "break-word" }}
+                >
+                  {club.tagLine}
+                </Text>
+              </>
+            )}
           </Stack>
 
-          <Flex gap={"md"} justify={{ base: "center", xs: "flex-start" }}>
-            <Button
-              variant="light"
-              onClick={() => router.push(`/join/${club.publicId}`)}
-            >
-              View club
-            </Button>
+          <Box>
             {isOwned ? (
-              <Button onClick={() => router.push(`/club/${club.id}/manage`)}>
+              <Button
+                size={buttonSize}
+                onClick={() => router.push(`/club/${club.id}/manage`)}
+              >
                 Edit Club
               </Button>
             ) : (
               <Button
+                size={buttonSize}
                 onClick={() =>
                   router.push(`/club/${club.id}/manage-membership`)
                 }
               >
-                {manageMembershipText}
+                {editMembershipText}
               </Button>
             )}
-          </Flex>
+          </Box>
         </Stack>
 
-        <ClubImage club={club} size={120} />
+        <Space style={{ flex: 1 }} />
+
+        <ColorSchemeAwareThemeIcon variant={"transparent"}>
+          <IconChevronRight size={chevronSize} />
+        </ColorSchemeAwareThemeIcon>
       </Flex>
     </Paper>
   );
 }
 
 export default function Home() {
+  const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
+
   const r = api.main.userOwnedClubs.useQuery();
   const m = api.main.userMemberships.useQuery();
   const router = useRouter();
@@ -116,7 +148,7 @@ export default function Home() {
   if (r.data!.length === 0 && activeMemberships.length === 0) {
     return (
       <Stack mt={"xl"} justify="center" style={{ minHeight: "60vh" }}>
-        <Title order={1} mb={"md"}>
+        <Title order={titleOrder} mb={"md"}>
           Clubs
         </Title>
         <Stack justify="center" align="center" gap={"xs"} style={{ flex: 1 }}>
@@ -141,7 +173,7 @@ export default function Home() {
 
   return (
     <Stack my={"xl"}>
-      <Title order={1} mb={"sm"}>
+      <Title order={titleOrder} mb={"sm"}>
         Clubs
       </Title>
       {r

@@ -48,7 +48,14 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
 
   return (
     mounted && (
-      <Box h={size} w={size}>
+      <Box
+        h={size}
+        w={size}
+        style={{
+          // prevents image from shrinking
+          flexShrink: 0
+        }}
+      >
         <Image
           src={storageClient.clubProfileImageUrl(club.id)}
           fallbackSrc="/images/rising-sun.png"
