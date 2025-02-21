@@ -2,17 +2,12 @@ import { TemplateTheme } from "~/client/theme/templates";
 import React, { useEffect } from "react";
 import { Maybe } from "~/utils/types";
 import { Box, useMantineColorScheme } from "@mantine/core";
-import { Global } from "@mantine/emotion";
 
 type WithTemplateThemeProps = {
   children: React.ReactNode;
   theme: Maybe<TemplateTheme>;
 };
 
-// TODO we use emotion because it's simple way to modify the global.css
-//  However, usage of emotion is tech debt because of performance and robust concerns with SSR.
-//  in addition, they do not play well and are overriden by postcss mixins which we will need
-//  to support dark mode. @mantine/emotion is also deprecated as of V7
 export default function WithTemplateTheme({
   children,
   theme
@@ -31,16 +26,20 @@ export default function WithTemplateTheme({
   }, [theme]);
 
   return (
-    <Box>
-      <Global
-        styles={{
-          body: {
-            backgroundImage: theme.backgroundFileName
-              ? `url(/templates/background/${theme.backgroundFileName})`
-              : undefined,
-            backgroundSize: "cover",
-            backgroundPosition: "center"
-          }
+    <Box pos="relative" w={"100%"} h={"100%"}>
+      <Box
+        w={"100%"}
+        h={"100%"}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          zIndex: -999,
+          backgroundImage: theme.backgroundFileName
+            ? `url(/templates/background/${theme.backgroundFileName})`
+            : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center"
         }}
       />
       {children}

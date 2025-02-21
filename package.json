@@ -22,11 +22,9 @@
     "format-check": "yarn prettier --check ."
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
     "@hookform/resolvers": "^3.10.0",
     "@mantine/carousel": "^7.16.2",
     "@mantine/core": "^7.16.2",
-    "@mantine/emotion": "^7.16.3",
     "@mantine/form": "^7.16.0",
     "@mantine/hooks": "^7.16.1",
     "@mantine/notifications": "^7.16.1",
