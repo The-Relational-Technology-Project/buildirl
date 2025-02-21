@@ -87,6 +87,7 @@ export default function MembershipApplicationTable({
       <Table.Td>{m.membershipTier.name}</Table.Td>
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
+
       <Table.Td>
         {m.email === null ? null : <EmailLink email={m.email} />}
       </Table.Td>

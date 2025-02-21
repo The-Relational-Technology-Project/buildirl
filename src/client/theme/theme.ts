@@ -56,6 +56,22 @@ export const theme = createTheme({
         }
       }
     },
+    Checkbox: {
+      defaultProps: {
+        color: "black",
+        styles: {
+          input: { 
+            border: "1px solid black", 
+            borderRadius: 0,
+          }
+        }
+      }
+    },
+    Radio: {
+      defaultProps: {
+        color: "black",
+      }
+    },
     Tabs: {
       defaultProps: {
         color: "#e7e2ca",

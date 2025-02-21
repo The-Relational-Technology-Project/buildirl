@@ -18,7 +18,7 @@ import {
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isLoaded } from "~/client/utils";
+import { isAllLoaded } from "~/client/utils";
 import { FormQuestionType, FormResponse } from "~/server/service/types/form";
 
 interface ApplicationResponsesSectionProps {
@@ -32,17 +32,25 @@ function ApplicationResponsesSection({
   ...props
 }: ApplicationResponsesSectionProps & PaperProps) {
   const r = api.main.membershipApplicationsForClub.useQuery({ clubId });
+  const m = api.main.activeMembershipsForClub.useQuery({ clubId });
 
   QueryError.check({
     result: r,
     fieldName: "membershipApplicationsForClub"
   });
+  QueryError.check({
+    result: m,
+    fieldName: "activeMembershipsForClub"
+  });
 
-  if (!isLoaded(r)) {
+  if (!isAllLoaded([r, m])) {
     return null;
   }
 
-  const userApplication = findOne(r.data!, (m) => m.user.id === userId);
+  const userMembership = findOne(
+    [...r.data!, ...m.data!],
+    (m) => m.user.id === userId
+  );
 
   const renderResponse = (response: FormResponse) => {
     switch (response.type) {
@@ -66,7 +74,13 @@ function ApplicationResponsesSection({
         return (
           <Radio.Group label={response.question} value={response.response}>
             {response.metadata.choices.map((choice, index) => (
-              <Radio key={index} value={choice} label={choice} disabled />
+              <Radio
+                key={index}
+                value={choice}
+                label={choice}
+                pt={"xs"}
+                disabled
+              />
             ))}
           </Radio.Group>
         );
@@ -74,7 +88,13 @@ function ApplicationResponsesSection({
         return (
           <Checkbox.Group label={response.question} value={response.response}>
             {response.metadata.choices.map((choice, index) => (
-              <Checkbox key={index} value={choice} label={choice} disabled />
+              <Checkbox
+                key={index}
+                value={choice}
+                label={choice}
+                pt={"xs"}
+                disabled
+              />
             ))}
           </Checkbox.Group>
         );
@@ -85,19 +105,18 @@ function ApplicationResponsesSection({
 
   return (
     <Paper withBorder p={"lg"} {...props}>
-      <Stack>
-        <Title order={4}>Application Responses</Title>
-        {userApplication.applicationResponses.responses.length === 0 ? (
+      <Title order={4}>Application Responses</Title>
+
+      <Stack gap={"lg"} mt={"sm"}>
+        {userMembership.applicationResponses.responses.length === 0 ? (
           <Text mt={5} size={"sm"} c={"dimmed"}>
             No responses were given. This is likely because you had no intake
             questions.
           </Text>
         ) : (
-          userApplication.applicationResponses.responses.map(
+          userMembership.applicationResponses.responses.map(
             (response, index) => (
-              <Box key={index} mb={20}>
-                {renderResponse(response)}
-              </Box>
+              <Box key={index}>{renderResponse(response)}</Box>
             )
           )
         )}

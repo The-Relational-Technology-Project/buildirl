@@ -20,6 +20,8 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
+import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import { IconListCheck } from "@tabler/icons-react";
 
 type ActiveMembershipTableProps = {
   clubId: number;
@@ -57,7 +59,7 @@ export default function ActiveMembershipTable({
         onClick={() => router.push(`/user/${m.user.id}?back=true`)}
         style={{ cursor: "pointer" }}
       >
-        <Group gap={4} wrap={"nowrap"}>
+        <Group gap={"sm"} wrap={"nowrap"}>
           <Avatar
             size="md"
             radius="xl"
@@ -72,8 +74,19 @@ export default function ActiveMembershipTable({
       <Table.Td>{m.membershipTier.name}</Table.Td>
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
+
       <Table.Td>
         {m.email === null ? null : <EmailLink email={m.email} />}
+      </Table.Td>
+      <Table.Td>
+        <ColorSchemeAwareActionIcon
+          onClick={() =>
+            router.push(`/club/${clubId}/member/${m.user.id}/application`)
+          }
+          variant={"transparent"}
+        >
+          <IconListCheck size={16} />
+        </ColorSchemeAwareActionIcon>
       </Table.Td>
 
       <Table.Td>
@@ -118,6 +131,8 @@ export default function ActiveMembershipTable({
                 <Table.Th>Contribution</Table.Th>
                 <Table.Th>Date Joined</Table.Th>
                 {/*Email*/}
+                <Table.Th />
+                {/* Application Questions */}
                 <Table.Th />
                 <Table.Th>Action</Table.Th>
               </Table.Tr>

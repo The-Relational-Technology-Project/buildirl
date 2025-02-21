@@ -40,6 +40,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.getClubByPublicId(input.publicId);
     }),
 
+  // TODO! this needs to be secured and usage in public pages need to be reworked
   activeMembershipsForClub: publicProcedure
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
