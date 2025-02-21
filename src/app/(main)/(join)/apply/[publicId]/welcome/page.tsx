@@ -1,16 +1,16 @@
 "use client";
 
-import { Stack, Title, Button, Avatar, Group, Center } from "@mantine/core";
+import { Stack, Title, Button, Group, Center } from "@mantine/core";
 import confetti from "canvas-confetti";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
-import { storageClient } from "~/client/utils/storageClient";
 import { useEffect } from "react";
 import ClubImage from "~/client/components/ClubImage";
 import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
 import { activeMembershipForClub } from "~/utils/types";
+import UserAvatar from "~/client/components/UserAvatar";
 
 export default function Welcome() {
   const params = useParams<{ publicId: string }>();
@@ -89,11 +89,7 @@ export default function Welcome() {
         <Title order={2}>You've been approved!</Title>
 
         <Group gap="xl">
-          <Avatar
-            size={120}
-            radius={90}
-            src={storageClient.userProfileImageUrl(u.data!.id)}
-          />
+          <UserAvatar size={120} user={u.data!} />
           <ClubImage size={120} club={r.data!} />
         </Group>
 

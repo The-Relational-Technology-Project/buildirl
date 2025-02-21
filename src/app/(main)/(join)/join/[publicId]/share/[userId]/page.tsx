@@ -4,10 +4,10 @@ import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
-import { Avatar, Button, Center, Group, Stack, Title } from "@mantine/core";
-import { storageClient } from "~/client/utils/storageClient";
+import { Button, Center, Group, Stack, Title } from "@mantine/core";
 import ClubImage from "~/client/components/ClubImage";
 import { strictParseInt } from "~/utils";
+import UserAvatar from "~/client/components/UserAvatar";
 
 export default function Share() {
   const params = useParams<{ publicId: string; userId: string }>();
@@ -42,11 +42,7 @@ export default function Share() {
         <Title order={2}>I'm a Proud Member!</Title>
 
         <Group gap="xl">
-          <Avatar
-            size={120}
-            radius={90}
-            src={storageClient.userProfileImageUrl(u.data!.id)}
-          />
+          <UserAvatar size={120} user={u.data!} />
           <ClubImage size={120} club={r.data!} />
         </Group>
 

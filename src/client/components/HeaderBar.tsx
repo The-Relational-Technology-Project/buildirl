@@ -7,15 +7,10 @@ import {
   ThemeIcon,
   Image,
   Menu,
-  Avatar,
   Box,
   useMantineTheme,
   useMantineColorScheme
 } from "@mantine/core";
-
-export const HEADER_BAR_HEIGHT = 50;
-export const PAGE_WIDTH = 800;
-
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
@@ -24,8 +19,11 @@ import { createComponentClient } from "~/utils/supabase/auth/client";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { storageClient } from "~/client/utils/storageClient";
 import { useMounted } from "@mantine/hooks";
+import UserAvatar from "~/client/components/UserAvatar";
+
+export const HEADER_BAR_HEIGHT = 50;
+export const PAGE_WIDTH = 800;
 
 type NavigationLinkProps = {
   label: string;
@@ -96,10 +94,11 @@ function ProfileMenu() {
       <Box>
         <Menu position="bottom-end" shadow="md">
           <Menu.Target>
-            <Avatar
-              src={storageClient.userProfileImageUrl(r.data!.id)}
+            <UserAvatar
+              user={r.data!}
               size="md"
               style={{
+                border: "1px solid gray",
                 cursor: "pointer",
                 position: "fixed",
                 top: 8,
@@ -147,10 +146,10 @@ export default function HeaderBar() {
   const { colorScheme } = useMantineColorScheme();
   // this is required to avoid hydration error because the components are
   // rendered conditionally on colorScheme
-  const isMounted = useMounted();
+  const mounted = useMounted();
 
   return (
-    isMounted && (
+    mounted && (
       <Flex
         h={HEADER_BAR_HEIGHT}
         align={"center"}

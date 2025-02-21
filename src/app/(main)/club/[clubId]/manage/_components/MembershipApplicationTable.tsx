@@ -6,7 +6,6 @@ import {
   Stack,
   Table,
   Text,
-  Avatar,
   Title,
   Box
 } from "@mantine/core";
@@ -21,6 +20,7 @@ import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import { useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import UserAvatar from "~/client/components/UserAvatar";
 
 type MembershipApplicationTableProps = {
   clubId: number;
@@ -73,11 +73,7 @@ export default function MembershipApplicationTable({
         style={{ cursor: "pointer" }}
       >
         <Group gap={4} wrap="nowrap">
-          <Avatar
-            size="md"
-            radius="xl"
-            src={storageClient.userProfileImageUrl(m.user.id)}
-          />
+          <UserAvatar size="md" user={m.user} />
           <Text
             size={"sm"}
             style={{ textWrap: "nowrap" }}

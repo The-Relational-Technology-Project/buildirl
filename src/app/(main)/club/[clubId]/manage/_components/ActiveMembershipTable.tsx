@@ -6,7 +6,6 @@ import {
   Stack,
   Table,
   Text,
-  Avatar,
   Title,
   Box,
   useMantineColorScheme,
@@ -22,6 +21,7 @@ import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { IconListCheck } from "@tabler/icons-react";
+import UserAvatar from "~/client/components/UserAvatar";
 
 type ActiveMembershipTableProps = {
   clubId: number;
@@ -60,11 +60,7 @@ export default function ActiveMembershipTable({
         style={{ cursor: "pointer" }}
       >
         <Group gap={"sm"} wrap={"nowrap"}>
-          <Avatar
-            size="md"
-            radius="xl"
-            src={storageClient.userProfileImageUrl(m.user.id)}
-          />
+          <UserAvatar size="md" user={m.user} />
           <Text
             size={"sm"}
             style={{ textWrap: "nowrap" }}

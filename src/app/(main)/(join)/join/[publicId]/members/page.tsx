@@ -1,14 +1,14 @@
 "use client";
 
-import { Stack, Avatar, Group, Text, Divider } from "@mantine/core";
+import { Stack, Group, Text, Divider } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
 import { useParams, useRouter } from "next/navigation";
-import { storageClient } from "~/client/utils/storageClient";
 import { User } from "~/server/service/types";
 import { QueryError } from "~/client/utils/QueryError";
 import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
+import UserAvatar from "~/client/components/UserAvatar";
 
 export default function ClubMembers() {
   const params = useParams<{ publicId: string }>();
@@ -77,11 +77,7 @@ function MemberListItem({ member, isLastItem }: MemberListItemProps) {
       style={{ cursor: "pointer" }}
     >
       <Group>
-        <Avatar
-          size="md"
-          radius="xl"
-          src={storageClient.userProfileImageUrl(member.id)}
-        />
+        <UserAvatar size="md" user={member} />
         <Text>{member.firstName}</Text>
       </Group>
       {isLastItem && <Divider />}

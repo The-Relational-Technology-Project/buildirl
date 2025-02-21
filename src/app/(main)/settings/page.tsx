@@ -103,7 +103,7 @@ function AccountPanel() {
           <UpdateUserForm user={r.data!} />
           <Stack gap={"xs"}>
             <Title order={6}>Profile Picture</Title>
-            <EditableUserAvatar userId={r.data!.id} />
+            <EditableUserAvatar size={100} user={r.data!} />
           </Stack>
         </Flex>
       </Stack>

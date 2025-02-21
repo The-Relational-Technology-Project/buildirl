@@ -2,12 +2,12 @@ import { User } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { Avatar, Box, Stack, Text, ThemeIcon } from "@mantine/core";
+import { Box, Stack, Text, ThemeIcon } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
-import { storageClient } from "~/client/utils/storageClient";
 import Autoplay from "embla-carousel-autoplay";
 import React from "react";
 import { IconStarFilled } from "@tabler/icons-react";
+import UserAvatar from "~/client/components/UserAvatar";
 
 type MemberCarouselProps = {
   clubId: number;
@@ -59,11 +59,13 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
                   <IconStarFilled />
                 </ThemeIcon>
               )}
-              <Avatar
+              <UserAvatar
                 h={{ base: 200, md: 300 }}
                 w={slideWidth}
                 radius="sm"
-                src={storageClient.userProfileImageUrl(m.id)}
+                user={m}
+                // clear the default border
+                style={{ border: undefined }}
               />
               <Text size="md" fw={500}>
                 {m.firstName}
