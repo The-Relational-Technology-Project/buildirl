@@ -1,5 +1,5 @@
 body {
-    @mixins light {
+    @mixin light {
         background: #faf8e4;
     }
     margin: 0;

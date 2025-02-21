@@ -98,7 +98,7 @@ function ProfileMenu() {
               user={r.data!}
               size="md"
               style={{
-                border: "1px solid gray",
+                border: "1px solid grey",
                 cursor: "pointer",
                 position: "fixed",
                 top: 8,
