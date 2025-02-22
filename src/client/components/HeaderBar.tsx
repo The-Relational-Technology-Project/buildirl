@@ -48,7 +48,7 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
             <ThemeIcon
               size={"xs"}
               variant={"transparent"}
-              c={
+              color={
                 currentPath === navigateTo
                   ? colorScheme === "dark"
                     ? theme.colors.dark[1]

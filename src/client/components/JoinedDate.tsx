@@ -16,7 +16,7 @@ export default function JoinedDate({
     <Group gap={6} {...props}>
       <ColorSchemeAwareThemeIcon
         size={"xs"}
-        c={"dimmed"}
+        color={"dimmed"}
         style={{
           backgroundColor: "transparent"
         }}

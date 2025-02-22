@@ -24,7 +24,7 @@ export default function ColorSchemeAwareActionIcon({
     <ActionIcon
       onClick={onClick}
       {...props}
-      c={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
+      color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
     >
       {children}
     </ActionIcon>

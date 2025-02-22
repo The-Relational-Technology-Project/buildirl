@@ -18,7 +18,7 @@ export default function ColorSchemeAwareThemeIcon({
   return (
     <ThemeIcon
       {...props}
-      c={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
+      color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
     >
       {children}
     </ThemeIcon>
