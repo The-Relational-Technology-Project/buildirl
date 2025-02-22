@@ -60,16 +60,16 @@ export const theme = createTheme({
       defaultProps: {
         color: "black",
         styles: {
-          input: { 
-            border: "1px solid black", 
-            borderRadius: 0,
+          input: {
+            border: "1px solid black",
+            borderRadius: 0
           }
         }
       }
     },
     Radio: {
       defaultProps: {
-        color: "black",
+        color: "black"
       }
     },
     Tabs: {
@@ -94,7 +94,7 @@ export const theme = createTheme({
         styles: {
           content: {
             border: "1px solid black",
-            borderRadius: 0
+            borderRadius: 4
           }
         }
       }
@@ -103,8 +103,8 @@ export const theme = createTheme({
       defaultProps: {
         styles: {
           dropdown: {
-            border: "1px solid black", 
-            borderRadius: 0
+            border: "1px solid black",
+            borderRadius: 4
           }
         }
       }
