@@ -78,15 +78,15 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
 
             {!isMobile && (
               <>
-                <MemberCountStatistic clubId={club.id} />
                 <Text
                   size="sm"
-                  c="dimmed"
                   lineClamp={2}
+                  c={"dimmed"}
                   style={{ wordWrap: "break-word" }}
                 >
                   {club.tagLine}
                 </Text>
+                <MemberCountStatistic clubId={club.id} />
               </>
             )}
           </Stack>

@@ -83,8 +83,6 @@ export default function ClubJoin() {
           {r.data!.name}
         </Title>
 
-        <MemberCountStatistic clubId={r.data!.id} />
-
         <Text ta={"center"}>{r.data!.tagLine}</Text>
 
         <Text
@@ -95,6 +93,8 @@ export default function ClubJoin() {
         >
           {"Read more >"}
         </Text>
+
+        <MemberCountStatistic clubId={r.data!.id} />
 
         <Group>
           {r.data!.websiteUrl && (
