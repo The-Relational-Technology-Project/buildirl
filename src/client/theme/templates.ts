@@ -7,19 +7,15 @@ export const TemplateThemeSchema = z.object({
 });
 export type TemplateTheme = z.infer<typeof TemplateThemeSchema>;
 
-const WHITE_FLOWER: TemplateTheme = {
-  headingFontFamily: "Brush Script MT, cursive",
-  backgroundFileName: "white-flower.jpg",
-  isDark: false
-};
-
-const PURPLE_SWIRL: TemplateTheme = {
-  headingFontFamily: "Georgia, serif",
-  backgroundFileName: "purple-swirl.jpg",
-  isDark: true
-};
-
 export const TEMPLATE_THEME_SELECTION = {
-  "White Flower": WHITE_FLOWER,
-  "Purple Swirl": PURPLE_SWIRL
+  Flora: {
+    headingFontFamily: "Moon Dance",
+    backgroundFileName: "flora.jpg",
+    isDark: false
+  },
+  Seren: {
+    headingFontFamily: "Funnel Display",
+    backgroundFileName: "seren.jpg",
+    isDark: true
+  }
 };

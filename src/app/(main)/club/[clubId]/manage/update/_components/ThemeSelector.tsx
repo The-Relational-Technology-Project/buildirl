@@ -8,6 +8,7 @@ import {
   Center,
   Text,
   ThemeIcon,
+  Title,
   useMantineTheme,
   useMatches
 } from "@mantine/core";
@@ -43,7 +44,7 @@ export default function ThemeSelector({
   ...props
 }: ThemeSelectorProps & BoxProps) {
   const size = useMatches({ base: 100, md: 150 });
-  const textSize = useMatches({ base: "sm", md: "md" });
+  const textSize = useMatches({ base: "lg", md: "xl" });
   const mantineTheme = useMantineTheme();
 
   return (
@@ -84,14 +85,19 @@ export default function ThemeSelector({
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 color: theme.isDark ? mantineTheme.colors.dark[1] : "black",
-                fontFamily: theme.headingFontFamily,
                 border: "1px solid black",
                 position: "relative"
               }}
             >
-              <Text size={textSize} style={{ textAlign: "center" }}>
+              <Title
+                size={textSize}
+                style={{
+                  textAlign: "center",
+                  fontFamily: theme.headingFontFamily
+                }}
+              >
                 {themeName}
-              </Text>
+              </Title>
               {value?.backgroundFileName === theme.backgroundFileName && (
                 <CheckIcon />
               )}

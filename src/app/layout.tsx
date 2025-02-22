@@ -33,6 +33,20 @@ export default function RootLayout({
     <html lang="en" {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript defaultColorScheme={"light"} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        {/**
+            Some optimization can be made here with self-hosted fonts and selective loading
+            https://nextjs.org/docs/pages/building-your-application/optimizing/fonts
+         */}
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin={"anonymous"}
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Moon+Dance&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <meta
         name="viewport"
