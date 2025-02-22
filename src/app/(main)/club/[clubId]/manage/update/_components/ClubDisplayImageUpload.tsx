@@ -7,7 +7,8 @@ import {
   Button,
   Center,
   ScrollArea,
-  useMatches
+  useMatches,
+  ActionIcon
 } from "@mantine/core";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
@@ -15,7 +16,6 @@ import { storageClient } from "~/client/utils/storageClient";
 import { Club } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
 import { logger } from "~/client/logger";
-import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { checkFileSize } from "~/client/components/EditableUserAvatar";
 
 const MAX_DISPLAY_IMAGE_COUNT = 5;
@@ -111,27 +111,21 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
               >
                 {url ? (
                   <>
-                    <Image
-                      src={url}
-                      w={"100%"}
-                      h={"100%"}
-                      style={{
-                        objectFit: "cover"
-                      }}
-                    />
-                    <ColorSchemeAwareActionIcon
+                    <Image src={url} w={"100%"} h={"100%"} fit="cover" />
+                    <ActionIcon
                       style={{
                         position: "absolute",
                         bottom: -5,
                         right: -5,
                         borderRadius: 90
                       }}
+                      variant={"filled"}
                       color={"red.5"}
                       size={"sm"}
                       onClick={() => handleDelete(url)}
                     >
                       <IconTrash color={"white"} size={16} />
-                    </ColorSchemeAwareActionIcon>
+                    </ActionIcon>
                   </>
                 ) : isLeftmostEmptySlot ? (
                   <Button
