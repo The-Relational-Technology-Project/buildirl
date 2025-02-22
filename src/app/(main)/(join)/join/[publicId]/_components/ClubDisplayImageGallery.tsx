@@ -1,12 +1,4 @@
-import {
-  Group,
-  ScrollArea,
-  Image,
-  Center,
-  Box,
-  useMatches,
-  Paper
-} from "@mantine/core";
+import { Group, ScrollArea, Image, useMatches, Paper } from "@mantine/core";
 import { Club } from "~/server/service/types";
 
 type ClubDisplayImageGalleryProps = {

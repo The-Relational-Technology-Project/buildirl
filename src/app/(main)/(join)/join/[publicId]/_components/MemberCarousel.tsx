@@ -2,7 +2,7 @@ import { User } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { Box, Stack, Text, ThemeIcon } from "@mantine/core";
+import { Box, Paper, Stack, Text, ThemeIcon } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import React from "react";
@@ -51,20 +51,23 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
                   variant="filled"
                   color="yellow.5"
                   pos="absolute"
-                  top={0}
-                  right={0}
+                  top={2}
+                  right={2}
+                  radius={"xs"}
                   p={4}
                   style={{ zIndex: 100 }}
                 >
                   <IconStarFilled />
                 </ThemeIcon>
               )}
-              <UserImage
-                h={{ base: 200, md: 300 }}
-                w={slideWidth}
-                radius={"sm"}
-                user={m}
-              />
+              <Paper>
+                <UserImage
+                  h={{ base: 200, md: 300 }}
+                  w={slideWidth}
+                  radius={"xs"}
+                  user={m}
+                />
+              </Paper>
               <Text size="md" fw={500}>
                 {m.firstName}
               </Text>

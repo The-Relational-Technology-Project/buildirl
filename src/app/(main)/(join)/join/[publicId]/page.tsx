@@ -19,9 +19,7 @@ import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
 import { activeMembershipForClub, membershipForClub } from "~/utils/types";
-import ColorSchemeAwareActionIcon, {
-  ActionIconBox
-} from "~/client/components/ColorSchemeAwareActionIcon";
+import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 import ClubImage from "~/client/components/ClubImage";
 import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
