@@ -1,17 +1,19 @@
 import { Button, ButtonProps } from "@mantine/core";
 import { useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import React from "react";
+import { IconArrowUpRight } from "@tabler/icons-react";
 
-type ColorSchemeAwareOutlineButtonProps = {
+type SecondaryButtonProps = {
   onClick: () => void;
   children: React.ReactNode;
 };
 
-export default function ColorSchemeAwareOutlineButton({
+// color scheme aware outline button
+export default function SecondaryButton({
   children,
   onClick,
   ...props
-}: ColorSchemeAwareOutlineButtonProps & ButtonProps) {
+}: SecondaryButtonProps & ButtonProps) {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
 
@@ -19,10 +21,12 @@ export default function ColorSchemeAwareOutlineButton({
     <Button
       variant={"outline"}
       onClick={onClick}
+      rightSection={<IconArrowUpRight />}
+      size={"xl"}
       style={{
         border: "2px solid",
         borderRadius: 360,
-        boxShadow: "2px 2px 0px"
+        boxShadow: "4px 4px 0px"
       }}
       color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
       {...props}

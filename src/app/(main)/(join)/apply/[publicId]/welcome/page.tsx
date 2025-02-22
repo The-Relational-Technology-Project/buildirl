@@ -8,7 +8,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { useEffect } from "react";
 import ClubImage from "~/client/components/ClubImage";
-import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
+import SecondaryButton from "~/client/components/SecondaryButton";
 import { activeMembershipForClub } from "~/utils/types";
 import UserAvatar from "~/client/components/UserAvatar";
 
@@ -108,13 +108,9 @@ export default function Welcome() {
             Share
           </Button>
 
-          <ColorSchemeAwareOutlineButton
-            size="lg"
-            radius="xl"
-            onClick={() => router.push(`/join/${publicId}`)}
-          >
+          <SecondaryButton onClick={() => router.push(`/join/${publicId}`)}>
             Enter
-          </ColorSchemeAwareOutlineButton>
+          </SecondaryButton>
         </Stack>
       </Stack>
     </Center>

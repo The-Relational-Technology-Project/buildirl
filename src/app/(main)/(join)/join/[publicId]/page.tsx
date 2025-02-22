@@ -23,9 +23,10 @@ import { activeMembershipForClub, membershipForClub } from "~/utils/types";
 import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 import ClubImage from "~/client/components/ClubImage";
-import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
+import SecondaryButton from "~/client/components/SecondaryButton";
 import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/MemberCarousel";
 import React, { useEffect } from "react";
+import PrimaryButton from "~/client/components/PrimaryButton";
 
 export default function ClubJoin() {
   const taglineTextSize = useMatches({ base: "sm", md: "md" });
@@ -78,7 +79,7 @@ export default function ClubJoin() {
     >
       <ClubImage club={r.data!} size={{ base: 200, md: 300 }} />
 
-      <Stack align={"center"} gap={0}>
+      <Stack align={"center"} gap={0} mb={8}>
         <Title
           fz={{ base: 36, md: 48 }}
           style={{
@@ -141,13 +142,12 @@ export default function ClubJoin() {
       <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
 
       {r.data!.eventCalendarUrl && (
-        <ColorSchemeAwareOutlineButton
+        <SecondaryButton
           onClick={() => window.open(r.data!.eventCalendarUrl!)}
-          size="lg"
           mt={"md"}
         >
           Come to an event
-        </ColorSchemeAwareOutlineButton>
+        </SecondaryButton>
       )}
 
       <Text mt={48}>Powered by BuildIRL</Text>
@@ -220,37 +220,28 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
   switch (membership?.status) {
     case "PENDING":
       return (
-        <Button
-          color={"violet"}
-          radius={90}
+        <PrimaryButton
           onClick={() => router.push(`/apply/${club.publicId}/completed`)}
-          size="lg"
         >
           Pending Approval
-        </Button>
+        </PrimaryButton>
       );
     case "ACTIVE":
       return (
-        <Button
-          color={"violet"}
-          radius={90}
+        <PrimaryButton
           onClick={() => router.push(`/club/${club.id}/manage-membership`)}
-          size="lg"
         >
           Manage Membership
-        </Button>
+        </PrimaryButton>
       );
     // no membership, declined, or deactivated
     default:
       return (
-        <Button
-          color={"violet"}
-          radius={90}
+        <PrimaryButton
           onClick={() => router.push(`/join/${club.publicId}/tiers`)}
-          size="lg"
         >
           Join as Member
-        </Button>
+        </PrimaryButton>
       );
   }
 }
@@ -258,13 +249,8 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
 function DefaultJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
   return (
-    <Button
-      color={"violet"}
-      radius={90}
-      onClick={() => router.push(`/join/${club.publicId}/tiers`)}
-      size="lg"
-    >
+    <PrimaryButton onClick={() => router.push(`/join/${club.publicId}/tiers`)}>
       Join as Member
-    </Button>
+    </PrimaryButton>
   );
 }
