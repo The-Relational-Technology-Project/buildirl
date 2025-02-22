@@ -1,7 +1,14 @@
 "use client";
 
 import { api } from "~/trpc/react";
-import { Divider, Stack, Tabs, Title } from "@mantine/core";
+import {
+  Divider,
+  Stack,
+  Tabs,
+  Title,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import React from "react";
 import { useParams } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
@@ -13,8 +20,13 @@ import { strictParseInt } from "~/utils";
 import MembershipApplicationTable from "~/app/(main)/club/[clubId]/manage/_components/MembershipApplicationTable";
 import ActiveMembershipTable from "~/app/(main)/club/[clubId]/manage/_components/ActiveMembershipTable";
 import ManageIntakePanel from "~/app/(main)/club/[clubId]/manage/_components/ManageIntakePanel";
+import { useMounted } from "@mantine/hooks";
 
 export default function ManageClub() {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const mounted = useMounted();
+
   const params = useParams<{ clubId: string }>();
   const clubId = strictParseInt(params.clubId);
 
@@ -26,11 +38,16 @@ export default function ManageClub() {
   });
 
   return (
+    mounted &&
     isLoaded(r) && (
       <Stack pt={"xl"}>
         <Title order={2}>{r.data!.name}</Title>
 
-        <Tabs defaultValue={"overview"}>
+        <Tabs
+          // hacky but how we support dark mode with defaults
+          color={colorScheme === "dark" ? theme.colors.dark[4] : undefined}
+          defaultValue={"overview"}
+        >
           <Tabs.List>
             <Tabs.Tab value={"overview"}>Club Overview</Tabs.Tab>
             <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>

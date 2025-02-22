@@ -11,13 +11,16 @@ import {
   Textarea,
   Button,
   Flex,
-  Divider
+  Divider,
+  useMantineColorScheme,
+  useMantineTheme
 } from "@mantine/core";
 import { LongTextSchema, User } from "~/server/service/types";
 import { useForm } from "@mantine/form";
 import React from "react";
 import EditableUserAvatar from "~/client/components/EditableUserAvatar";
 import { safeValidateSchema } from "~/utils/zod";
+import { useMounted } from "@mantine/hooks";
 
 type UserFormProps = {
   user: User;
@@ -112,25 +115,35 @@ function AccountPanel() {
 }
 
 export default function Settings() {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const mounted = useMounted();
+
   return (
-    <Stack pt={"xl"}>
-      <Title order={2}>Settings</Title>
+    mounted && (
+      <Stack pt={"xl"}>
+        <Title order={2}>Settings</Title>
 
-      <Tabs defaultValue={"account"}>
-        <Tabs.List>
-          <Tabs.Tab value={"account"}>Account</Tabs.Tab>
-          <Tabs.Tab value={"payment"}>Payment</Tabs.Tab>
-        </Tabs.List>
+        <Tabs
+          // hacky but how we support dark mode with defaults
+          color={colorScheme === "dark" ? theme.colors.dark[4] : undefined}
+          defaultValue={"account"}
+        >
+          <Tabs.List>
+            <Tabs.Tab value={"account"}>Account</Tabs.Tab>
+            <Tabs.Tab value={"payment"}>Payment</Tabs.Tab>
+          </Tabs.List>
 
-        <Divider />
+          <Divider />
 
-        <Tabs.Panel value={"account"}>
-          <AccountPanel />
-        </Tabs.Panel>
-        <Tabs.Panel value={"payment"}>
-          <></>
-        </Tabs.Panel>
-      </Tabs>
-    </Stack>
+          <Tabs.Panel value={"account"}>
+            <AccountPanel />
+          </Tabs.Panel>
+          <Tabs.Panel value={"payment"}>
+            <></>
+          </Tabs.Panel>
+        </Tabs>
+      </Stack>
+    )
   );
 }

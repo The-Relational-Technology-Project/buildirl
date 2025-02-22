@@ -74,6 +74,7 @@ export const theme = createTheme({
     },
     Tabs: {
       defaultProps: {
+        // this looks off in dark mode
         color: "#e7e2ca",
         variant: "pills",
         autoContrast: true,
