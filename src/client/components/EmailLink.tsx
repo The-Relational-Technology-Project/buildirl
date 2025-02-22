@@ -10,7 +10,7 @@ type EmailLinkProp = {
 export default function EmailLink({ email }: EmailLinkProp) {
   return (
     <Anchor href={`mailto:${email}`}>
-      <ColorSchemeAwareThemeIcon variant={"transparent"}>
+      <ColorSchemeAwareThemeIcon>
         <IconMail size={16} />
       </ColorSchemeAwareThemeIcon>
     </Anchor>

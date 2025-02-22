@@ -91,7 +91,6 @@ export default function ManageMembership() {
         <Stack w={"100%"} align={"center"} mt={"md"}>
           <Button
             w={150}
-            variant={"filled"}
             color={"orange"}
             onClick={async () =>
               await deactivateMembership.mutateAsync({

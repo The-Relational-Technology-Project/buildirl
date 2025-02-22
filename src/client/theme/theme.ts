@@ -108,6 +108,16 @@ export const theme = createTheme({
           }
         }
       }
+    },
+    ActionIcon: {
+      defaultProps: {
+        variant: "transparent"
+      }
+    },
+    ThemeIcon: {
+      defaultProps: {
+        variant: "transparent"
+      }
     }
   }
 });

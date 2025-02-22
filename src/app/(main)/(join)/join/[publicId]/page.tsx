@@ -15,7 +15,7 @@ import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_compon
 import ClubImage from "~/client/components/ClubImage";
 import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
 import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/MemberCarousel";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 export default function ClubJoin() {
   const params = useParams<{ publicId: string }>();
@@ -91,7 +91,6 @@ export default function ClubJoin() {
           {r.data!.websiteUrl && (
             <ColorSchemeAwareActionIcon
               onClick={() => window.open(`${r.data!.websiteUrl}`)}
-              variant={"transparent"}
             >
               <IconLink size={"md"} />
             </ColorSchemeAwareActionIcon>
@@ -102,7 +101,6 @@ export default function ClubJoin() {
               onClick={() =>
                 window.open(`https://instagram.com/${r.data!.instagramHandle}`)
               }
-              variant={"transparent"}
             >
               <IconBrandInstagram size={"md"} />
             </ColorSchemeAwareActionIcon>
@@ -203,7 +201,6 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     case "PENDING":
       return (
         <Button
-          variant={"filled"}
           color={"violet"}
           radius={90}
           onClick={() => router.push(`/apply/${club.publicId}/completed`)}
@@ -215,7 +212,6 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     case "ACTIVE":
       return (
         <Button
-          variant={"filled"}
           color={"violet"}
           radius={90}
           onClick={() => router.push(`/club/${club.id}/manage-membership`)}
@@ -228,7 +224,6 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     default:
       return (
         <Button
-          variant={"filled"}
           color={"violet"}
           radius={90}
           onClick={() => router.push(`/join/${club.publicId}/tiers`)}
@@ -244,7 +239,6 @@ function DefaultJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
   return (
     <Button
-      variant={"filled"}
       color={"violet"}
       radius={90}
       onClick={() => router.push(`/join/${club.publicId}/tiers`)}

@@ -155,7 +155,6 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
     <Card pt={"sm"} pb="md" px="md">
       <ColorSchemeAwareActionIcon
         onClick={onDelete}
-        variant={"transparent"}
         style={{ alignSelf: "flex-end" }}
       >
         <IconX size={16} />
@@ -221,7 +220,6 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
                           placeholder={`Choice ${choiceIndex + 1}`}
                         />
                         <ColorSchemeAwareActionIcon
-                          variant={"transparent"}
                           onClick={() => {
                             const updatedChoices = field.value.filter(
                               (_, i) => i !== choiceIndex

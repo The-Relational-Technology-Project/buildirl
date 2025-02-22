@@ -114,7 +114,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
 
         <Space style={{ flex: 1 }} />
 
-        <ColorSchemeAwareThemeIcon variant={"transparent"}>
+        <ColorSchemeAwareThemeIcon>
           <IconChevronRight size={chevronSize} />
         </ColorSchemeAwareThemeIcon>
       </Flex>

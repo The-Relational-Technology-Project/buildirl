@@ -11,7 +11,7 @@ export default function AlertMessage({
 }: AlertMessageProps & TextProps) {
   return (
     <Group gap={4}>
-      <ThemeIcon color={"orange.5"} variant={"transparent"} size={"xs"}>
+      <ThemeIcon color={"orange.5"} size={"xs"}>
         <IconAlertTriangle />
       </ThemeIcon>
       <Text c={"orange.5"} {...props}>

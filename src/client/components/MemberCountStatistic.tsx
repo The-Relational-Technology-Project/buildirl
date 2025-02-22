@@ -23,7 +23,7 @@ export default function MemberCountStatistic({
   return (
     isLoaded(r) && (
       <Group gap={4} {...props}>
-        <ColorSchemeAwareThemeIcon size={"xs"} variant={"transparent"}>
+        <ColorSchemeAwareThemeIcon size={"xs"}>
           <IconUsers />
         </ColorSchemeAwareThemeIcon>
         <Text size={"sm"} fw={400}>

@@ -42,7 +42,6 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
         <Group style={{ gap: 4 }}>
           <ThemeIcon
             size={"xs"}
-            variant={"transparent"}
             c={currentPath === navigateTo ? "black" : "dimmed"}
             style={{
               backgroundColor: "transparent",

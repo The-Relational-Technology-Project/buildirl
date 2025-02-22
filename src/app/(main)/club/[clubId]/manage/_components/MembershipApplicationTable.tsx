@@ -91,7 +91,6 @@ export default function MembershipApplicationTable({
           onClick={() =>
             router.push(`/club/${clubId}/member/${m.user.id}/application`)
           }
-          variant={"transparent"}
         >
           <IconListCheck size={16} />
         </ColorSchemeAwareActionIcon>
