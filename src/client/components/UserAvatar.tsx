@@ -54,26 +54,22 @@ export default function UserAvatar({
   ...props
 }: UserAvatarProps & BoxProps) {
   const { colorScheme } = useMantineColorScheme();
-  const theme = useMantineTheme();
-  const mounted = useMounted();
   const sizeNumber = getSizeNumber(size);
 
   return (
-    mounted && (
-      <Box h={sizeNumber} w={sizeNumber} {...props}>
-        <Image
-          src={storageClient.userProfileImageUrl(user.id)}
-          fallbackSrc={"/images/smile.jpg"}
-          h={"100%"}
-          w={"100%"}
-          radius={"100%"}
-          fit={"cover"}
-          alt={`${user.firstName} ${user.lastName}`}
-          style={{
-            border: `${size === "sm" ? 1 : 2}px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`
-          }}
-        />
-      </Box>
-    )
+    <Box h={sizeNumber} w={sizeNumber} {...props}>
+      <Image
+        src={storageClient.userProfileImageUrl(user.id)}
+        fallbackSrc={"/images/smile.jpg"}
+        h={"100%"}
+        w={"100%"}
+        radius={"100%"}
+        fit={"cover"}
+        alt={`${user.firstName} ${user.lastName}`}
+        style={{
+          border: `${size === "sm" ? 1 : 2}px solid`
+        }}
+      />
+    </Box>
   );
 }

@@ -13,16 +13,16 @@ export const theme = createTheme({
     Paper: {
       defaultProps: {
         style: {
-          border: "2px solid black",
-          boxShadow: "4px 4px 0px black"
+          border: "2px solid",
+          boxShadow: "4px 4px 0px"
         }
       }
     },
     Card: {
       defaultProps: {
         style: {
-          border: "2px solid black",
-          boxShadow: "4px 4px 0px black"
+          border: "2px solid",
+          boxShadow: "4px 4px 0px"
         }
       }
     },
@@ -30,7 +30,7 @@ export const theme = createTheme({
       defaultProps: {
         styles: {
           input: {
-            border: "1px solid black",
+            border: "1px solid",
             borderRadius: 0
           }
         }
@@ -40,7 +40,7 @@ export const theme = createTheme({
       defaultProps: {
         styles: {
           input: {
-            border: "1px solid black",
+            border: "1px solid",
             borderRadius: 0
           }
         }
@@ -50,7 +50,7 @@ export const theme = createTheme({
       defaultProps: {
         styles: {
           input: {
-            border: "1px solid black",
+            border: "1px solid",
             borderRadius: 0
           }
         }
@@ -61,7 +61,7 @@ export const theme = createTheme({
         color: "black",
         styles: {
           input: {
-            border: "1px solid black",
+            border: "1px solid",
             borderRadius: 0
           }
         }
@@ -93,7 +93,7 @@ export const theme = createTheme({
       defaultProps: {
         styles: {
           content: {
-            border: "1px solid black",
+            border: "1px solid",
             borderRadius: 4
           }
         }
@@ -103,7 +103,7 @@ export const theme = createTheme({
       defaultProps: {
         styles: {
           dropdown: {
-            border: "1px solid black",
+            border: "1px solid",
             borderRadius: 4
           }
         }

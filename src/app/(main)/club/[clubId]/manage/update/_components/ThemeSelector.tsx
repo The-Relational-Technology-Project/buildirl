@@ -9,12 +9,14 @@ import {
   Text,
   ThemeIcon,
   Title,
+  useMantineColorScheme,
   useMantineTheme,
   useMatches
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { Maybe } from "~/utils/types";
 import { IconCircleCheckFilled } from "@tabler/icons-react";
+import { useMounted } from "@mantine/hooks";
 
 function CheckIcon() {
   return (
@@ -46,65 +48,71 @@ export default function ThemeSelector({
   const size = useMatches({ base: 100, md: 150 });
   const textSize = useMatches({ base: "lg", md: "xl" });
   const mantineTheme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+  const mounted = useMounted();
 
   return (
-    <Box {...props}>
-      <Carousel
-        slideSize={size}
-        slideGap={"md"}
-        align="start"
-        withControls={false}
-      >
-        <Carousel.Slide key={"none"}>
-          <Center
-            onClick={() => onChange(null)}
-            p={16}
-            w={size}
-            h={size}
-            style={{
-              cursor: "pointer",
-              border: "1px solid black",
-              position: "relative"
-            }}
-          >
-            <Text>Default</Text>
-            {value === null && <CheckIcon />}
-          </Center>
-        </Carousel.Slide>
-
-        {Object.entries(TEMPLATE_THEME_SELECTION).map(([themeName, theme]) => (
-          <Carousel.Slide key={themeName}>
+    mounted && (
+      <Box {...props}>
+        <Carousel
+          slideSize={size}
+          slideGap={"md"}
+          align="start"
+          withControls={false}
+        >
+          <Carousel.Slide key={"none"}>
             <Center
-              onClick={() => onChange(theme)}
+              onClick={() => onChange(null)}
               p={16}
               w={size}
               h={size}
               style={{
                 cursor: "pointer",
-                backgroundImage: `url(/templates/background/${theme.backgroundFileName})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                color: theme.isDark ? mantineTheme.colors.dark[1] : "black",
-                border: "1px solid black",
+                border: "1px solid",
                 position: "relative"
               }}
             >
-              <Title
-                size={textSize}
-                style={{
-                  textAlign: "center",
-                  fontFamily: theme.headingFontFamily
-                }}
-              >
-                {themeName}
-              </Title>
-              {value?.backgroundFileName === theme.backgroundFileName && (
-                <CheckIcon />
-              )}
+              <Text>Default</Text>
+              {value === null && <CheckIcon />}
             </Center>
           </Carousel.Slide>
-        ))}
-      </Carousel>
-    </Box>
+
+          {Object.entries(TEMPLATE_THEME_SELECTION).map(
+            ([themeName, theme]) => (
+              <Carousel.Slide key={themeName}>
+                <Center
+                  onClick={() => onChange(theme)}
+                  p={16}
+                  w={size}
+                  h={size}
+                  style={{
+                    cursor: "pointer",
+                    backgroundImage: `url(/templates/background/${theme.backgroundFileName})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    color: theme.isDark ? mantineTheme.colors.dark[1] : "black",
+                    border: `1px solid ${colorScheme === "dark" ? mantineTheme.colors.dark[1] : "black"}`,
+                    position: "relative"
+                  }}
+                >
+                  <Title
+                    size={textSize}
+                    style={{
+                      textAlign: "center",
+                      fontFamily: theme.headingFontFamily
+                    }}
+                  >
+                    {themeName}
+                  </Title>
+                  {value?.backgroundFileName === theme.backgroundFileName && (
+                    <CheckIcon />
+                  )}
+                </Center>
+              </Carousel.Slide>
+            )
+          )}
+        </Carousel>
+      </Box>
+    )
   );
 }

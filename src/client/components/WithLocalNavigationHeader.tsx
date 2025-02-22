@@ -24,25 +24,21 @@ export function NavigationButton({
 }: NavigationButtonProps & BoxProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
-  const mounted = useMounted();
-
   return (
-    mounted && (
-      <Box
-        bg={colorScheme === "dark" ? theme.colors.dark[7] : "white"}
-        w={30}
-        h={30}
-        style={{
-          border: `1px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,
-          boxShadow: `2px 2px 0px ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`
-        }}
-        {...props}
-      >
-        <ColorSchemeAwareActionIcon onClick={onClick} variant="transparent">
-          {icon}
-        </ColorSchemeAwareActionIcon>
-      </Box>
-    )
+    <Box
+      bg={colorScheme === "dark" ? theme.colors.dark[7] : "white"}
+      w={30}
+      h={30}
+      style={{
+        border: "1px solid",
+        boxShadow: "2px 2px 0px"
+      }}
+      {...props}
+    >
+      <ColorSchemeAwareActionIcon onClick={onClick} variant="transparent">
+        {icon}
+      </ColorSchemeAwareActionIcon>
+    </Box>
   );
 }
 

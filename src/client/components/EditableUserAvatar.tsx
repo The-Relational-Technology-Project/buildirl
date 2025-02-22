@@ -45,7 +45,7 @@ export default function EditableUserAvatar({
 
   return (
     <Box w={120} h={120} style={{ position: "relative" }}>
-      <UserAvatar user={user} size={"md"} />
+      <UserAvatar user={user} size={"lg"} />
       <FileInput
         accept="image/*"
         id={"profile-picture-input"}

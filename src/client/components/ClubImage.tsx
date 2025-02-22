@@ -29,7 +29,7 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
           borderBottomRightRadius: 10,
           borderTopLeftRadius: "100%",
           borderTopRightRadius: "100%",
-          border: `2px solid black`
+          border: "2px solid"
         }}
       ></Image>
     </Box>
@@ -42,38 +42,32 @@ export type ClubImageProps = {
 };
 
 export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
-  const { colorScheme } = useMantineColorScheme();
-  const theme = useMantineTheme();
-  const mounted = useMounted();
-
   return (
-    mounted && (
-      <Box
-        h={size}
-        w={size}
-        style={{
-          // prevents image from shrinking
-          flexShrink: 0
+    <Box
+      h={size}
+      w={size}
+      style={{
+        // prevents image from shrinking
+        flexShrink: 0
+      }}
+    >
+      <Image
+        src={storageClient.clubProfileImageUrl(club.id)}
+        fallbackSrc="/images/rising-sun.png"
+        h={"100%"}
+        w={"100%"}
+        fit={"cover"}
+        alt={club.name}
+        styles={{
+          root: {
+            borderBottomLeftRadius: 10,
+            borderBottomRightRadius: 10,
+            borderTopLeftRadius: "100%",
+            borderTopRightRadius: "100%",
+            border: "2px solid"
+          }
         }}
-      >
-        <Image
-          src={storageClient.clubProfileImageUrl(club.id)}
-          fallbackSrc="/images/rising-sun.png"
-          h={"100%"}
-          w={"100%"}
-          fit={"cover"}
-          alt={club.name}
-          styles={{
-            root: {
-              borderBottomLeftRadius: 10,
-              borderBottomRightRadius: 10,
-              borderTopLeftRadius: "100%",
-              borderTopRightRadius: "100%",
-              border: `2px solid ${colorScheme === "dark" ? theme.colors.gray[3] : "black"}`
-            }
-          }}
-        />
-      </Box>
-    )
+      />
+    </Box>
   );
 }
