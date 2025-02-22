@@ -19,6 +19,11 @@ export default function ColorSchemeAwareOutlineButton({
     <Button
       variant={"outline"}
       onClick={onClick}
+      style={{
+        border: "2px solid",
+        borderRadius: 360,
+        boxShadow: "2px 2px 0px"
+      }}
       color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
       {...props}
     >

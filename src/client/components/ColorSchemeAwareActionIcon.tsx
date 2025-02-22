@@ -41,14 +41,11 @@ export function ActionIconBox({
   icon,
   ...props
 }: ActionIconBoxProps & ActionIconProps) {
-  const theme = useMantineTheme();
-  const { colorScheme } = useMantineColorScheme();
-
   return (
     <ColorSchemeAwareActionIcon
       onClick={onClick}
       style={{
-        border: `2px solid ${colorScheme === "dark" ? theme.colors.dark[4] : "black"}`,
+        border: `2px solid`,
         borderRadius: 0
       }}
       {...props}
