@@ -34,35 +34,47 @@ type NavigationLinkProps = {
 };
 
 function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const mounted = useMounted();
+
   const currentPath = usePathname();
 
   return (
-    <Group mr={"xxs"}>
-      <Link href={navigateTo} style={{ textDecoration: "none" }}>
-        <Group style={{ gap: 4 }}>
-          <ThemeIcon
-            size={"xs"}
-            c={currentPath === navigateTo ? "black" : "dimmed"}
-            style={{
-              backgroundColor: "transparent",
-              "&:hover": { color: "black" }
-            }}
-          >
-            <Icon />
-          </ThemeIcon>
-          <Text
-            c={currentPath === navigateTo ? "black" : "dimmed"}
-            size={"sm"}
-            fw={500}
-            style={{
-              "&:hover": { color: "black" }
-            }}
-          >
-            {label}
-          </Text>
-        </Group>
-      </Link>
-    </Group>
+    mounted && (
+      <Group mr={"xxs"}>
+        <Link href={navigateTo} style={{ textDecoration: "none" }}>
+          <Group style={{ gap: 4 }}>
+            <ThemeIcon
+              size={"xs"}
+              variant={"transparent"}
+              c={
+                currentPath === navigateTo
+                  ? colorScheme === "dark"
+                    ? theme.colors.dark[1]
+                    : "black"
+                  : "dimmed"
+              }
+            >
+              <Icon />
+            </ThemeIcon>
+            <Text
+              c={
+                currentPath === navigateTo
+                  ? colorScheme === "dark"
+                    ? theme.colors.dark[1]
+                    : "black"
+                  : "dimmed"
+              }
+              size={"sm"}
+              fw={500}
+            >
+              {label}
+            </Text>
+          </Group>
+        </Link>
+      </Group>
+    )
   );
 }
 
