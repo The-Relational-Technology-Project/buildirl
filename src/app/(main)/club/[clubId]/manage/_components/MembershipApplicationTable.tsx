@@ -127,13 +127,13 @@ export default function MembershipApplicationTable({
 
   return (
     <Stack mt={"lg"} gap={0}>
-      <Box px={4}>
+      <Stack px={4} gap={4}>
         <Title order={4}>Pending Applications</Title>
         <Group gap={4}>
           <Text fw={"bold"} size={"sm"}>{`${r.data!.length}`}</Text>
-          <Text size={"sm"}>new applications!</Text>
+          <Text size={"sm"}>new applications</Text>
         </Group>
-      </Box>
+      </Stack>
       <Paper mt={"sm"} px={"md"} py={"sm"} withBorder>
         <ScrollArea h={300}>
           <Table miw={{ base: undefined, md: `calc(${PAGE_WIDTH} - 100px)` }}>
