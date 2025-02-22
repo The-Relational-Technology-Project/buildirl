@@ -1,7 +1,16 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { Stack, Title, Text, Group, Button, GroupProps } from "@mantine/core";
+import {
+  Stack,
+  Title,
+  Text,
+  Group,
+  Button,
+  GroupProps,
+  Paper,
+  Box
+} from "@mantine/core";
 import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -10,7 +19,9 @@ import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
 import { activeMembershipForClub, membershipForClub } from "~/utils/types";
-import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import ColorSchemeAwareActionIcon, {
+  ActionIconBox
+} from "~/client/components/ColorSchemeAwareActionIcon";
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 import ClubImage from "~/client/components/ClubImage";
 import ColorSchemeAwareOutlineButton from "~/client/components/ColorSchemeAwareOutlineButton";
@@ -89,21 +100,21 @@ export default function ClubJoin() {
 
         <Group>
           {r.data!.websiteUrl && (
-            <ColorSchemeAwareActionIcon
+            <ActionIconBox
               onClick={() => window.open(`${r.data!.websiteUrl}`)}
-            >
-              <IconLink size={"md"} />
-            </ColorSchemeAwareActionIcon>
+              icon={<IconLink />}
+              size={"lg"}
+            />
           )}
 
           {r.data!.instagramHandle && (
-            <ColorSchemeAwareActionIcon
+            <ActionIconBox
               onClick={() =>
                 window.open(`https://instagram.com/${r.data!.instagramHandle}`)
               }
-            >
-              <IconBrandInstagram size={"md"} />
-            </ColorSchemeAwareActionIcon>
+              icon={<IconBrandInstagram />}
+              size={"lg"}
+            />
           )}
         </Group>
       </Stack>

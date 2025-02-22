@@ -5,6 +5,7 @@ import {
   useMantineTheme
 } from "@mantine/core";
 import React from "react";
+import { IconLink } from "@tabler/icons-react";
 
 type ColorSchemeAwareActionIconProps = {
   onClick: () => void;
@@ -27,5 +28,32 @@ export default function ColorSchemeAwareActionIcon({
     >
       {children}
     </ActionIcon>
+  );
+}
+
+type ActionIconBoxProps = {
+  onClick: () => void;
+  icon: React.ReactNode;
+};
+
+export function ActionIconBox({
+  onClick,
+  icon,
+  ...props
+}: ActionIconBoxProps & ActionIconProps) {
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+
+  return (
+    <ColorSchemeAwareActionIcon
+      onClick={onClick}
+      style={{
+        border: `2px solid ${colorScheme === "dark" ? theme.colors.dark[4] : "black"}`,
+        borderRadius: 0
+      }}
+      {...props}
+    >
+      {icon}
+    </ColorSchemeAwareActionIcon>
   );
 }
