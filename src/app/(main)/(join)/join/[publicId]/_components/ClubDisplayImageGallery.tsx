@@ -1,4 +1,11 @@
-import { Group, ScrollArea, Image, useMatches, Paper } from "@mantine/core";
+import {
+  Group,
+  ScrollArea,
+  Image,
+  useMatches,
+  Paper,
+  GroupProps
+} from "@mantine/core";
 import { Club } from "~/server/service/types";
 
 type ClubDisplayImageGalleryProps = {
@@ -6,13 +13,14 @@ type ClubDisplayImageGalleryProps = {
 };
 
 export default function ClubDisplayImageGallery({
-  club
-}: ClubDisplayImageGalleryProps) {
+  club,
+  ...props
+}: ClubDisplayImageGalleryProps & GroupProps) {
   const size = useMatches({ base: 150, md: 250 });
 
   return (
     club.displayImageUrls.length !== 0 && (
-      <Group w={"100%"} justify={"center"}>
+      <Group w={"100%"} justify={"center"} {...props}>
         <ScrollArea type="never" h={size + 10}>
           <Group w={"max-content"} px={4}>
             {club?.displayImageUrls.map((url, index) => (

@@ -9,7 +9,8 @@ import {
   Button,
   GroupProps,
   Paper,
-  Box
+  Box,
+  useMatches
 } from "@mantine/core";
 import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
@@ -27,6 +28,9 @@ import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/Memb
 import React, { useEffect } from "react";
 
 export default function ClubJoin() {
+  const taglineTextSize = useMatches({ base: "sm", md: "md" });
+  const aboutLinkTextSize = useMatches({ base: "xs", md: "sm" });
+
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
   const router = useRouter();
@@ -65,16 +69,18 @@ export default function ClubJoin() {
 
   return (
     <Stack
-      py="xl"
+      pt="xl"
+      pb={"lg"}
       px={{ base: "sm", md: 150 }}
       maw={PAGE_WIDTH}
       align={"center"}
+      gap={"lg"}
     >
-      <ClubImage club={r.data!} size={250} />
-      <Stack align={"center"} gap={8}>
+      <ClubImage club={r.data!} size={{ base: 200, md: 300 }} />
+
+      <Stack align={"center"} gap={0}>
         <Title
-          order={1}
-          fw={400}
+          fz={{ base: 36, md: 48 }}
           style={{
             // we only want to apply this theme font family to this heading not all headings
             fontFamily: r.data!.theme?.headingFontFamily ?? "inherit"
@@ -83,43 +89,49 @@ export default function ClubJoin() {
           {r.data!.name}
         </Title>
 
-        <Text ta={"center"}>{r.data!.tagLine}</Text>
+        <Stack align={"center"} gap={8}>
+          <Text ta={"center"} size={taglineTextSize}>
+            {r.data!.tagLine}
+          </Text>
 
-        <Text
-          td={"underline"}
-          style={{ cursor: "pointer", fontStyle: "underlined" }}
-          onClick={() => router.push(`/join/${publicId}/about`)}
-          size="sm"
-        >
-          {"Read more >"}
-        </Text>
+          <Text
+            td={"underline"}
+            style={{ cursor: "pointer", fontStyle: "underlined" }}
+            onClick={() => router.push(`/join/${publicId}/about`)}
+            size={aboutLinkTextSize}
+          >
+            {"Read more >"}
+          </Text>
 
-        <MemberCountStatistic clubId={r.data!.id} />
+          <MemberCountStatistic clubId={r.data!.id} />
 
-        <Group>
-          {r.data!.websiteUrl && (
-            <ActionIconBox
-              onClick={() => window.open(`${r.data!.websiteUrl}`)}
-              icon={<IconLink />}
-              size={"lg"}
-            />
-          )}
+          <Group>
+            {r.data!.websiteUrl && (
+              <ActionIconBox
+                onClick={() => window.open(`${r.data!.websiteUrl}`)}
+                icon={<IconLink />}
+                size={"lg"}
+              />
+            )}
 
-          {r.data!.instagramHandle && (
-            <ActionIconBox
-              onClick={() =>
-                window.open(`https://instagram.com/${r.data!.instagramHandle}`)
-              }
-              icon={<IconBrandInstagram />}
-              size={"lg"}
-            />
-          )}
-        </Group>
+            {r.data!.instagramHandle && (
+              <ActionIconBox
+                onClick={() =>
+                  window.open(
+                    `https://instagram.com/${r.data!.instagramHandle}`
+                  )
+                }
+                icon={<IconBrandInstagram />}
+                size={"lg"}
+              />
+            )}
+          </Group>
+        </Stack>
       </Stack>
 
       <JoinButton club={r.data!} />
 
-      <ClubDisplayImageGallery club={r.data!} />
+      <ClubDisplayImageGallery club={r.data!} mt={"xs"} />
 
       <ContributingMembersLink
         clubId={r.data!.id}
@@ -138,7 +150,7 @@ export default function ClubJoin() {
         </ColorSchemeAwareOutlineButton>
       )}
 
-      <Text mt={"lg"}>Powered by BuildIRL</Text>
+      <Text mt={48}>Powered by BuildIRL</Text>
     </Stack>
   );
 }
@@ -154,6 +166,7 @@ function ContributingMembersLink({
 }: ContributingMembersLinkProps & GroupProps) {
   const router = useRouter();
   const r = api.main.clubStatistics.useQuery({ clubId: clubId });
+  const memberCountTextSize = useMatches({ base: "sm", md: "md" });
 
   QueryError.check({
     result: r,
@@ -162,14 +175,12 @@ function ContributingMembersLink({
 
   return (
     isLoaded(r) && (
-      <Stack align={"center"} gap={"xs"}>
-        <Title fw={400} order={2}>
-          We are the club
-        </Title>
+      <Stack align={"center"} gap={4}>
+        <Title fz={{ base: 24, md: 30 }}>We are the club</Title>
         <Text
           style={{ cursor: "pointer" }}
           onClick={() => router.push(`/join/${clubPublicId}/members`)}
-          size="sm"
+          size={memberCountTextSize}
         >
           {`${r.data!.memberCount} contributing member${r.data!.memberCount > 1 ? "s" : ""} >`}
         </Text>
