@@ -14,7 +14,7 @@ export default function ClubDisplayImageGallery({
         <ScrollArea type="never" h={160}>
           <Group w={"max-content"}>
             {club?.displayImageUrls.map((url, index) => (
-              <Center key={index} style={{ border: "2px black solid" }}>
+              <Center key={index} style={{ border: "2px black" }}>
                 <Image src={url} h={150} w={150} />
               </Center>
             ))}
