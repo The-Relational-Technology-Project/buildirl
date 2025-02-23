@@ -162,9 +162,7 @@ export function ManageMembershipTierCard({
                   size={"sm"}
                 />
               ) : (
-                <Text size={"sm"} c="dimmed">
-                  {membershipTier.benefitDescription}
-                </Text>
+                <Text size={"sm"}>{membershipTier.benefitDescription}</Text>
               )}
             </Box>
 
@@ -177,7 +175,7 @@ export function ManageMembershipTierCard({
                     size={"sm"}
                   />
                 ) : (
-                  <Text size={"sm"} c="dimmed">
+                  <Text size={"sm"}>
                     {membershipTier.contributionDescription}
                   </Text>
                 )}

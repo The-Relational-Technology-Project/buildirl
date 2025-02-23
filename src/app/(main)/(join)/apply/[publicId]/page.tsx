@@ -35,9 +35,7 @@ export default function Apply() {
 
               <DefaultClubImage size={120} />
 
-              <Text c="dimmed" ta="center">
-                Let's See If We're A Fit!
-              </Text>
+              <Text ta="center">Let's See If We're A Fit!</Text>
 
               <Button
                 variant="filled"

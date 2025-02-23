@@ -16,16 +16,13 @@ export default function JoinedDate({
     <Group gap={6} {...props}>
       <ColorSchemeAwareThemeIcon
         size={"xs"}
-        color={"dimmed"}
         style={{
           backgroundColor: "transparent"
         }}
       >
         <IconCalendarWeek />
       </ColorSchemeAwareThemeIcon>
-      <Text c={"dimmed"} size={"sm"}>
-        Joined {toDisplayMonth(date)}
-      </Text>
+      <Text size={"sm"}>Joined {toDisplayMonth(date)}</Text>
     </Group>
   );
 }

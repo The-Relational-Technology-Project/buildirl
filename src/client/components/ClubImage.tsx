@@ -21,7 +21,7 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
       <Image
         h={"100%"}
         w={"100%"}
-        src={"images/rising-sun.png"}
+        src={"/images/rising-sun.png"}
         fit={"cover"}
         alt={"rising sun door"}
         style={{

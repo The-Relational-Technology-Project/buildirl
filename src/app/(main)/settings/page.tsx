@@ -99,9 +99,7 @@ function AccountPanel() {
     isLoaded(r) && (
       <Stack mt={"lg"} gap={4}>
         <Title order={4}>Your Profile</Title>
-        <Text size={"md"} c={"dimmed"}>
-          Choose how you are displayed to other members.
-        </Text>
+        <Text size={"md"}>Choose how you are displayed to other members.</Text>
         <Flex justify={"flex-start"} direction={"row"} gap={"xl"}>
           <UpdateUserForm user={r.data!} />
           <Stack gap={"xs"}>

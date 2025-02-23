@@ -23,9 +23,7 @@ export default function ClubAbout() {
     isLoaded(r) && (
       <WithLocalNavigationHeader>
         <Title order={4}>{r.data!.name}</Title>
-        <Text size={"md"} c={"dimmed"}>
-          {r.data!.description}
-        </Text>
+        <Text size={"md"}>{r.data!.description}</Text>
         <ClubStatistics clubId={r.data!.id} mt={"xl"} />
       </WithLocalNavigationHeader>
     )

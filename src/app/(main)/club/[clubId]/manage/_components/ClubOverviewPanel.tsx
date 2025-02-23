@@ -42,7 +42,7 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
               <Title order={5} mt={6}>
                 Name
               </Title>
-              <Text c={"dimmed"}>{club.name}</Text>
+              <Text>{club.name}</Text>
 
               <Title order={5}>Tagline</Title>
               {club.tagLine === "" ? (
@@ -50,7 +50,7 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
                   message={"Please enter tagline and other basic information."}
                 />
               ) : (
-                <Text c={"dimmed"}>{club.tagLine}</Text>
+                <Text>{club.tagLine}</Text>
               )}
 
               <MemberCountStatistic clubId={club.id} mt={"sm"} />

@@ -71,9 +71,7 @@ function CreateClubForm(props: StackProps) {
           Choose a share link.
         </Title>
         <Group gap={4} wrap={"nowrap"}>
-          <Text c={"dimmed"} size={"sm"}>
-            buildirl.com/join/
-          </Text>
+          <Text size={"sm"}>buildirl.com/join/</Text>
           <TextInput
             required
             placeholder="club-tag"

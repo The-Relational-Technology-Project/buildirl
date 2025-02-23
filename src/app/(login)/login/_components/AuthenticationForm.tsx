@@ -126,9 +126,9 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
           {"Login"}
         </Button>
         <Anchor
+          c={"dimmed"}
           component="button"
           type="button"
-          c="dimmed"
           onClick={toggle}
           size="xs"
         >

@@ -12,7 +12,7 @@ export default function ApplicationCompleted() {
     <AbsoluteCenter adjustForHeader>
       <Stack align="center" gap={"xs"}>
         <Title order={3}>Thank you for applying!</Title>
-        <Text c="dimmed">Your application is being reviewed.</Text>
+        <Text>Your application is being reviewed.</Text>
 
         <Image
           src={"/images/books.png"}

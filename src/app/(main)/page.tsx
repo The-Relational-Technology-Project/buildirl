@@ -80,7 +80,6 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
                 <Text
                   size="sm"
                   lineClamp={2}
-                  c={"dimmed"}
                   style={{ wordWrap: "break-word" }}
                 >
                   {club.tagLine}
@@ -155,9 +154,7 @@ export default function Home() {
           <Title order={3} mt={"lg"}>
             You are not part of any clubs!
           </Title>
-          <Text size={"md"} c={"dimmed"}>
-            Discover clubs or create one of your own
-          </Text>
+          <Text size={"md"}>Discover clubs or create one of your own</Text>
           <Button
             onClick={() => router.push("/club/create")}
             mt={"md"}
@@ -190,7 +187,7 @@ export default function Home() {
             membershipId={m.id}
           />
         ))}
-      <Text size={"sm"} c={"dimmed"} style={{ alignSelf: "center" }} mt={10}>
+      <Text size={"sm"} style={{ alignSelf: "center" }} mt={10}>
         Discover more clubs to join or{" "}
         <a href="/club/create" style={{ color: "inherit" }}>
           create

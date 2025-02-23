@@ -47,7 +47,7 @@ function ShareEmailQuestion({
   return (
     <Stack>
       <Text fw={500}>Share your email</Text>
-      <Text c="dimmed" size="sm">
+      <Text size="sm">
         This will allow club managers to reach out to you with more information
         on getting involved with the club.
       </Text>

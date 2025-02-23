@@ -109,7 +109,7 @@ function ApplicationResponsesSection({
 
       <Stack gap={"lg"} mt={"sm"}>
         {userMembership.applicationResponses.responses.length === 0 ? (
-          <Text mt={5} size={"sm"} c={"dimmed"}>
+          <Text mt={5} size={"sm"}>
             No responses were given. This is likely because you had no intake
             questions.
           </Text>

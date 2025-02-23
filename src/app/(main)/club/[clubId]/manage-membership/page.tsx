@@ -55,15 +55,13 @@ export default function ManageMembership() {
 
           <Stack gap={2} mt={"md"}>
             <Title order={5}>Name</Title>
-            <Text size={"sm"} c={"dimmed"}>
-              {membership.membershipTier.name}
-            </Text>
+            <Text size={"sm"}>{membership.membershipTier.name}</Text>
             {membership.membershipTier.benefitDescription !== "" && (
               <>
                 <Title order={5} mt={"sm"}>
                   Your Benefits
                 </Title>
-                <Text size={"sm"} c={"dimmed"}>
+                <Text size={"sm"}>
                   {membership.membershipTier.benefitDescription}
                 </Text>
               </>
@@ -73,7 +71,7 @@ export default function ManageMembership() {
                 <Title order={5} mt={"sm"}>
                   Your Contributions
                 </Title>
-                <Text size={"sm"} c={"dimmed"}>
+                <Text size={"sm"}>
                   {membership.membershipTier.contributionDescription}
                 </Text>
               </>
@@ -83,7 +81,6 @@ export default function ManageMembership() {
             </Title>
             <Text
               size={"sm"}
-              c={"dimmed"}
             >{`$${membership.membershipTier.costPerMonthInUSD}.00/month`}</Text>
           </Stack>
         </Paper>
@@ -100,12 +97,7 @@ export default function ManageMembership() {
           >
             Leave Club
           </Button>
-          <Text
-            c={"dimmed"}
-            size={"sm"}
-            w={300}
-            style={{ textAlign: "center" }}
-          >
+          <Text size={"sm"} w={300} style={{ textAlign: "center" }}>
             Your membership will be canceled. Re-joining will require a
             re-application.
           </Text>
