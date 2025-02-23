@@ -284,7 +284,7 @@ function ApplicationForm({
         <Stepper.Step key={applicationQuestions.questions.length + 1} />
       </Stepper>
 
-      <Paper p={"xl"} mt={"xl"} withBorder>
+      <Paper p={"xl"} mt={"xl"}>
         {activeStep < applicationQuestions.questions.length ? (
           <Stack gap={4}>
             {renderQuestion(

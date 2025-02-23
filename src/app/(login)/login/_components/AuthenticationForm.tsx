@@ -145,7 +145,7 @@ export default function AuthenticationForm() {
   const supabase = createComponentClient();
 
   return (
-    <Paper p="xl" withBorder w={300}>
+    <Paper p="xl" w={300}>
       <Group justify="center">
         <Image src={"/images/logo.svg"} h={40} />
       </Group>

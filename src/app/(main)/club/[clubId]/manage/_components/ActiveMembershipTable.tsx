@@ -109,7 +109,7 @@ export default function ActiveMembershipTable({
           <Text size={"sm"}>members</Text>
         </Group>
       </Stack>
-      <Paper mt={"sm"} px={"md"} py={"sm"} withBorder>
+      <Paper mt={"sm"} px={"md"} py={"sm"}>
         <ScrollArea h={300}>
           <Table miw={{ base: undefined, md: `calc(${PAGE_WIDTH} - 100px)` }}>
             <Table.Thead

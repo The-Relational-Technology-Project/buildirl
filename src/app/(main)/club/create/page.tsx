@@ -102,7 +102,7 @@ function CreateClubForm(props: StackProps) {
 export default function CreateClub() {
   return (
     <AbsoluteCenter adjustForHeader>
-      <Paper p="xl" withBorder w={{ base: 300, md: 400 }}>
+      <Paper p="xl" w={{ base: 300, md: 400 }}>
         <Title order={4}>Create a club</Title>
         <CreateClubForm mt={"md"} />
       </Paper>

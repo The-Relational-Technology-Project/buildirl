@@ -85,7 +85,7 @@ export default function Onboarding() {
   return (
     <WithDefaultColorSchemeOnManualRouteChange>
       <AbsoluteCenter>
-        <Paper p="xl" withBorder w={300}>
+        <Paper p="xl" w={300}>
           <Title order={4}>Welcome</Title>
           <Text size={"md"} fw={300} mt={"xs"}>
             Tell us more about yourself.

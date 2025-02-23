@@ -48,7 +48,7 @@ export default function ManageMembership() {
     <WithLocalNavigationHeader>
       <Stack>
         <Title order={3}>Your Membership to {membership.club.name}</Title>
-        <Paper p={"xl"} withBorder>
+        <Paper p={"xl"}>
           <Title order={4}>Membership Details</Title>
 
           <JoinedDate date={membership.createdAt} mt={8} />

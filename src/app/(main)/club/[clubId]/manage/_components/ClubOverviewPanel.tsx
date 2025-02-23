@@ -28,7 +28,7 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
 
   return (
     <Stack>
-      <Paper p="xl" withBorder mt={"lg"}>
+      <Paper p="xl" mt={"lg"}>
         <Flex
           direction={{ base: "column", md: "row" }}
           justify={"flex-start"}

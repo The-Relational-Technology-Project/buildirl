@@ -29,7 +29,7 @@ export default function Apply() {
     isLoaded(r) && (
       <WithLocalNavigationHeader>
         <AbsoluteCenter adjustForHeader>
-          <Paper w={400} h={400} p={"xl"} withBorder>
+          <Paper w={400} h={400} p={"xl"}>
             <Stack align="center" gap="xl">
               <Title order={2}>You Rock!</Title>
 

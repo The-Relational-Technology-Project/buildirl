@@ -50,7 +50,6 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
   return (
     <Paper
       p={{ base: "md", md: "xl" }}
-      withBorder
       h={{ base: 120, md: 220 }}
       onClick={(e) => {
         // don't navigate if clicking on child buttons
