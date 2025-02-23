@@ -36,13 +36,14 @@ export function UserImage({
 
 type UserAvatarProps = {
   user: User;
-  size: "sm" | "md" | "lg";
+  size: "sm" | "md" | "lg" | "xl";
 };
 
-function getSizeNumber(size: "sm" | "md" | "lg") {
+function getSizeNumber(size: "sm" | "md" | "lg" | "xl") {
   if (size === "sm") return 36;
   if (size === "md") return 100;
   if (size === "lg") return 120;
+  if (size === "xl") return 180;
   throw new Error(`Invalid size: ${size}`);
 }
 

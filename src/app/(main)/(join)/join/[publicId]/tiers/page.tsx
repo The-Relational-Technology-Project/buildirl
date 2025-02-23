@@ -52,7 +52,7 @@ export default function ClubTiers() {
       <WithLocalNavigationHeader>
         <Stack gap={titleAndCardGap}>
           <Stack align={"center"} gap={6}>
-            <Title order={titleOrder}>Be a Joiner.</Title>
+            <Title order={titleOrder}>BE A JOINER.</Title>
             <Text size={"lg"} ta="center">
               Become a contributing member.
             </Text>

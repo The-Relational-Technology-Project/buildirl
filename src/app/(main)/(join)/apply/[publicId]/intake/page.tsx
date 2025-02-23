@@ -286,8 +286,7 @@ function ApplicationForm({
           styles={{
             separator: {
               border: "none",
-              // covers gap
-              marginLeft: -1,
+              marginLeft: 0,
               marginRight: 0,
               height: 20
             },

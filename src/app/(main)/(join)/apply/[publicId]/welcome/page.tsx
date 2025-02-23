@@ -91,11 +91,11 @@ export default function Welcome() {
   };
 
   return (
-    <Center pt={30}>
+    <Center pt={50}>
       <Stack align="center" gap="xl" mt={"xl"}>
-        <Title order={2}>You've been approved!</Title>
+        <Title order={2}>YOU'VE BEEN APPROVED!</Title>
 
-        <Group gap="xl">
+        <Group>
           <UserAvatar size={"lg"} user={u.data!} />
           <ClubImage size={120} club={r.data!} />
         </Group>
