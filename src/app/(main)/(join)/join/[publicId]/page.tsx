@@ -143,6 +143,7 @@ export default function ClubJoin() {
 
       {r.data!.eventCalendarUrl && (
         <SecondaryButton
+          includeIcon
           onClick={() => window.open(r.data!.eventCalendarUrl!)}
           mt={"md"}
         >
@@ -219,10 +220,11 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
 
   switch (membership?.status) {
     case "PENDING":
-      return <PrimaryButton disabled>Pending Approval</PrimaryButton>;
+      return <PrimaryButton disabled>Pending Approval...</PrimaryButton>;
     case "ACTIVE":
       return (
         <PrimaryButton
+          includeIcon
           onClick={() => router.push(`/club/${club.id}/manage-membership`)}
         >
           Manage Membership
@@ -232,6 +234,7 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     default:
       return (
         <PrimaryButton
+          includeIcon
           onClick={() => router.push(`/join/${club.publicId}/tiers`)}
         >
           Join as Member

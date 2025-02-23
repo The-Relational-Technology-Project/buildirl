@@ -52,8 +52,9 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
         alt={club.name}
         styles={{
           root: {
-            borderBottomLeftRadius: 10,
-            borderBottomRightRadius: 10,
+            // defined as percentage so shape is maintained during scaling
+            borderBottomLeftRadius: "10%",
+            borderBottomRightRadius: "10%",
             borderTopLeftRadius: "100%",
             borderTopRightRadius: "100%",
             border: "2px solid"

@@ -142,7 +142,6 @@ function MembershipTierCard({
             <PrimaryButton
               size={"md"}
               color={"#b2b9da"}
-              hideIcon
               onClick={() =>
                 router.push(
                   `/apply/${clubPublicId}?membershipTierId=${membershipTier.id}`

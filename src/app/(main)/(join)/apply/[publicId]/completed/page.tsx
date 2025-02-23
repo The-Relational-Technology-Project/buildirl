@@ -1,38 +1,48 @@
 "use client";
 
-import { Stack, Title, Button, Text, Image, Center } from "@mantine/core";
+import { Stack, Title, Text, Center } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
+import ClubImage from "~/client/components/ClubImage";
+import { api } from "~/trpc/react";
+import { QueryError } from "~/client/utils/QueryError";
+import { isLoaded } from "~/client/utils";
+import SecondaryButton from "~/client/components/SecondaryButton";
 
 export default function ApplicationCompleted() {
   const params = useParams<{ publicId: string }>();
   const router = useRouter();
 
+  const r = api.main.clubByPublicId.useQuery({
+    publicId: params.publicId
+  });
+  QueryError.check({
+    result: r,
+    fieldName: "clubByPublicId"
+  });
+
   return (
-    <Center pt={80} px={40}>
-      <Stack align="center" gap={"xs"}>
-        <Title order={3}>Thank you for applying!</Title>
-        <Text>Your application is being reviewed.</Text>
+    isLoaded(r) && (
+      <Center pt={80} px={{ base: undefined, md: 200 }}>
+        <Stack align="center" gap={"lg"}>
+          <Title order={2}>Thank you for applying!</Title>
+          <Text ta={"center"}>
+            Your application will be reviewed. This club generally responds in
+            2-3 days. Please check back here.
+          </Text>
 
-        <Image
-          src={"/images/books.png"}
-          h={120}
-          w={120}
-          alt={"books"}
-          mt={"lg"}
-        />
+          <ClubImage club={r.data!} size={180} />
 
-        <Button
-          variant="filled"
-          color="black"
-          size="lg"
-          mt={"xl"}
-          onClick={() => {
-            router.push(`/join/${params.publicId}/`);
-          }}
-        >
-          Back
-        </Button>
-      </Stack>
-    </Center>
+          <SecondaryButton
+            size="lg"
+            mt={"lg"}
+            onClick={() => {
+              router.push(`/join/${params.publicId}/`);
+            }}
+          >
+            Return Home
+          </SecondaryButton>
+        </Stack>
+      </Center>
+    )
   );
 }

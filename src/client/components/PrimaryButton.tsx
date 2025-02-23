@@ -6,7 +6,7 @@ import { useMounted } from "@mantine/hooks";
 
 type PrimaryButtonProps = {
   children: React.ReactNode;
-  hideIcon?: boolean;
+  includeIcon?: boolean;
   onClick?: (e: React.MouseEvent) => void;
   type?: "submit" | "reset" | "button";
 };
@@ -15,7 +15,7 @@ export default function PrimaryButton({
   children,
   // default no-op
   onClick = () => {},
-  hideIcon = false,
+  includeIcon = false,
   type,
   ...props
 }: PrimaryButtonProps & ButtonProps) {
@@ -29,7 +29,7 @@ export default function PrimaryButton({
         type={type}
         variant={"filled"}
         onClick={onClick}
-        rightSection={!hideIcon && <IconArrowUpRight />}
+        rightSection={includeIcon && <IconArrowUpRight />}
         size={"xl"}
         style={{
           border: `2px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,

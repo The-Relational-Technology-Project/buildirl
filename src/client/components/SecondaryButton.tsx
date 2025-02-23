@@ -6,14 +6,14 @@ import { IconArrowUpRight } from "@tabler/icons-react";
 type SecondaryButtonProps = {
   onClick: () => void;
   children: React.ReactNode;
-  hideIcon?: boolean;
+  includeIcon?: boolean;
 };
 
 // color scheme aware outline button
 export default function SecondaryButton({
   children,
   onClick,
-  hideIcon = false,
+  includeIcon = false,
   ...props
 }: SecondaryButtonProps & ButtonProps) {
   const theme = useMantineTheme();
@@ -23,7 +23,7 @@ export default function SecondaryButton({
     <Button
       variant={"outline"}
       onClick={onClick}
-      rightSection={!hideIcon && <IconArrowUpRight />}
+      rightSection={includeIcon && <IconArrowUpRight />}
       size={"xl"}
       style={{
         border: "2px solid",

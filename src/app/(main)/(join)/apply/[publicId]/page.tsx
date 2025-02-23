@@ -10,7 +10,6 @@ import { strictParseInt } from "~/utils";
 import { DefaultClubImage } from "~/client/components/ClubImage";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import React from "react";
-import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 
 export default function Apply() {
   const params = useParams<{ publicId: string }>();
@@ -49,7 +48,6 @@ export default function Apply() {
                   `/apply/${r.data!.publicId}/intake?membershipTierId=${membershipTierId}`
                 );
               }}
-              hideIcon
             >
               Let's Go!
             </PrimaryButton>
