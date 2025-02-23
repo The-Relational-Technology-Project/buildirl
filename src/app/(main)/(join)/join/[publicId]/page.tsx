@@ -6,10 +6,7 @@ import {
   Title,
   Text,
   Group,
-  Button,
   GroupProps,
-  Paper,
-  Box,
   useMatches
 } from "@mantine/core";
 import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
@@ -28,14 +25,16 @@ import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/Memb
 import React, { useEffect } from "react";
 import PrimaryButton from "~/client/components/PrimaryButton";
 
-export default function ClubJoin() {
-  const taglineTextSize = useMatches({ base: "sm", md: "md" });
-  const aboutLinkTextSize = useMatches({ base: "xs", md: "sm" });
+type WithRedirectToWelcomePageProps = {
+  publicId: string;
+};
 
-  const params = useParams<{ publicId: string }>();
-  const publicId = params.publicId;
+// this is extracted into subcomponent so it can be conditionally rendered
+// only if user is authenticated
+function WithRedirectToWelcomePage({
+  publicId
+}: WithRedirectToWelcomePageProps) {
   const router = useRouter();
-
   const r = api.main.clubByPublicId.useQuery({
     publicId
   });
@@ -45,6 +44,7 @@ export default function ClubJoin() {
     result: r,
     fieldName: "clubByPublicId"
   });
+
   QueryError.check({
     result: m,
     fieldName: "userMemberships"
@@ -64,95 +64,122 @@ export default function ClubJoin() {
     }
   }, [m, r]);
 
-  if (!isAllLoaded([r, m])) {
-    return null;
-  }
+  // no-op; just for the effect
+  return null;
+}
+
+export default function ClubJoin() {
+  const taglineTextSize = useMatches({ base: "sm", md: "md" });
+  const aboutLinkTextSize = useMatches({ base: "xs", md: "sm" });
+
+  const params = useParams<{ publicId: string }>();
+  const publicId = params.publicId;
+  const router = useRouter();
+
+  const r = api.main.clubByPublicId.useQuery({
+    publicId
+  });
+  const s = api.main.isUserAuthenticated.useQuery();
+
+  QueryError.check({
+    result: r,
+    fieldName: "clubByPublicId"
+  });
+  QueryError.check({
+    result: s,
+    fieldName: "isUserAuthenticated"
+  });
 
   return (
-    <Stack
-      pt="xl"
-      pb={"lg"}
-      px={{ base: "sm", md: 150 }}
-      maw={PAGE_WIDTH}
-      align={"center"}
-      gap={"lg"}
-    >
-      <ClubImage club={r.data!} size={{ base: 200, md: 300 }} />
-
-      <Stack align={"center"} gap={0} mb={8}>
-        <Title
-          fz={{ base: 36, md: 48 }}
-          style={{
-            // we only want to apply this theme font family to this heading not all headings
-            fontFamily: r.data!.theme?.headingFontFamily ?? "inherit"
-          }}
+    isAllLoaded([r, s]) && (
+      <>
+        {s.data! && <WithRedirectToWelcomePage publicId={publicId} />}
+        <Stack
+          pt="xl"
+          pb={"lg"}
+          px={{ base: "sm", md: 150 }}
+          maw={PAGE_WIDTH}
+          align={"center"}
+          gap={"lg"}
         >
-          {r.data!.name}
-        </Title>
+          <ClubImage club={r.data!} size={{ base: 200, md: 300 }} />
 
-        <Stack align={"center"} gap={8}>
-          <Text ta={"center"} size={taglineTextSize}>
-            {r.data!.tagLine}
-          </Text>
+          <Stack align={"center"} gap={0} mb={8}>
+            <Title
+              fz={{ base: 36, md: 48 }}
+              style={{
+                // we only want to apply this theme font family to this heading not all headings
+                fontFamily: r.data!.theme?.headingFontFamily ?? "inherit"
+              }}
+            >
+              {r.data!.name}
+            </Title>
 
-          <Text
-            td={"underline"}
-            style={{ cursor: "pointer", fontStyle: "underlined" }}
-            onClick={() => router.push(`/join/${publicId}/about`)}
-            size={aboutLinkTextSize}
-          >
-            {"Read more >"}
-          </Text>
+            <Stack align={"center"} gap={8}>
+              <Text ta={"center"} size={taglineTextSize}>
+                {r.data!.tagLine}
+              </Text>
 
-          <MemberCountStatistic clubId={r.data!.id} />
+              <Text
+                td={"underline"}
+                style={{ cursor: "pointer", fontStyle: "underlined" }}
+                onClick={() => router.push(`/join/${publicId}/about`)}
+                size={aboutLinkTextSize}
+              >
+                {"Read more >"}
+              </Text>
 
-          <Group>
-            {r.data!.websiteUrl && (
-              <ActionIconBox
-                onClick={() => window.open(`${r.data!.websiteUrl}`)}
-                icon={<IconLink />}
-                size={"lg"}
-              />
-            )}
+              <MemberCountStatistic clubId={r.data!.id} />
 
-            {r.data!.instagramHandle && (
-              <ActionIconBox
-                onClick={() =>
-                  window.open(
-                    `https://instagram.com/${r.data!.instagramHandle}`
-                  )
-                }
-                icon={<IconBrandInstagram />}
-                size={"lg"}
-              />
-            )}
-          </Group>
+              <Group>
+                {r.data!.websiteUrl && (
+                  <ActionIconBox
+                    onClick={() => window.open(`${r.data!.websiteUrl}`)}
+                    icon={<IconLink />}
+                    size={"lg"}
+                  />
+                )}
+
+                {r.data!.instagramHandle && (
+                  <ActionIconBox
+                    onClick={() =>
+                      window.open(
+                        `https://instagram.com/${r.data!.instagramHandle}`
+                      )
+                    }
+                    icon={<IconBrandInstagram />}
+                    size={"lg"}
+                  />
+                )}
+              </Group>
+            </Stack>
+          </Stack>
+
+          <JoinButton club={r.data!} />
+
+          <ClubDisplayImageGallery club={r.data!} mt={"xs"} />
+
+          <ContributingMembersLink
+            clubId={r.data!.id}
+            clubPublicId={r.data!.publicId}
+          />
+
+          <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
+
+          {r.data!.eventCalendarUrl && (
+            <SecondaryButton
+              includeIcon
+              onClick={() => window.open(r.data!.eventCalendarUrl!)}
+              mt={"md"}
+            >
+              Come to an event
+            </SecondaryButton>
+          )}
+
+          <Text mt={48}>Powered by BuildIRL</Text>
         </Stack>
-      </Stack>
-
-      <JoinButton club={r.data!} />
-
-      <ClubDisplayImageGallery club={r.data!} mt={"xs"} />
-
-      <ContributingMembersLink
-        clubId={r.data!.id}
-        clubPublicId={r.data!.publicId}
-      />
-
-      <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
-
-      {r.data!.eventCalendarUrl && (
-        <SecondaryButton
-          includeIcon
-          onClick={() => window.open(r.data!.eventCalendarUrl!)}
-          mt={"md"}
-        >
-          Come to an event
-        </SecondaryButton>
-      )}
-
-      <Text mt={48}>Powered by BuildIRL</Text>
-    </Stack>
+      </>
+    )
   );
 }
 
@@ -197,7 +224,7 @@ type JoinButtonProps = {
 function JoinButton({ ...props }: JoinButtonProps) {
   const r = api.main.isUserAuthenticated.useQuery();
 
-  QueryError.checkNullable({
+  QueryError.check({
     result: r,
     fieldName: "isUserAuthenticated"
   });
@@ -220,15 +247,10 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
 
   switch (membership?.status) {
     case "PENDING":
-      return (
-        <PrimaryButton size={"xl"} disabled>
-          Pending Approval...
-        </PrimaryButton>
-      );
+      return <PrimaryButton disabled>Pending Approval...</PrimaryButton>;
     case "ACTIVE":
       return (
         <PrimaryButton
-          size={"xl"}
           includeIcon
           onClick={() => router.push(`/club/${club.id}/manage-membership`)}
         >
@@ -239,7 +261,6 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     default:
       return (
         <PrimaryButton
-          size={"xl"}
           includeIcon
           onClick={() => router.push(`/join/${club.publicId}/tiers`)}
         >
@@ -252,10 +273,7 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
 function DefaultJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
   return (
-    <PrimaryButton
-      size={"xl"}
-      onClick={() => router.push(`/join/${club.publicId}/tiers`)}
-    >
+    <PrimaryButton onClick={() => router.push(`/join/${club.publicId}/tiers`)}>
       Join as Member
     </PrimaryButton>
   );

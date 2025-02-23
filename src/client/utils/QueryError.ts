@@ -31,7 +31,9 @@ export class QueryError extends Error {
   private static isNull(
     result: UseTRPCQueryResult<unknown, TRPCClientErrorLike<any>>
   ) {
-    return !result.isLoading && !result.data;
+    return (
+      !result.isLoading && (result.data === null || result.data === undefined)
+    );
   }
 
   static check({ result, fieldName, params }: CheckInput): void {

@@ -993,8 +993,7 @@ export function createMainService(prisma: PrismaClient): MainService {
           userId: userId,
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          status: "PENDING",
-          isWelcomed: false
+          status: "PENDING"
         },
         select: {
           id: true
@@ -1022,7 +1021,9 @@ export function createMainService(prisma: PrismaClient): MainService {
         data: {
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          status: "PENDING"
+          status: "PENDING",
+          // reset welcome status
+          isWelcomed: false
         },
         where: {
           id: membershipId

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Button,
   Checkbox,
   CheckboxGroup,
   Group,
@@ -286,7 +285,9 @@ function ApplicationForm({
           styles={{
             separator: {
               border: "none",
-              marginLeft: 0,
+              // this covers gap; but it also covers the left border by 1px
+              // ¯\_(ツ)_/¯ it's what we get for being hacky/lazy to create this bar
+              marginLeft: -1,
               marginRight: 0,
               height: 20
             },

@@ -25,7 +25,9 @@ export default function ApplicationCompleted() {
     isLoaded(r) && (
       <Center pt={80} px={{ base: undefined, md: 200 }}>
         <Stack align="center" gap={"lg"}>
-          <Title order={2}>THANK YOU FOR APPLYING!</Title>
+          <Title order={2} ta={"center"}>
+            THANK YOU FOR APPLYING!
+          </Title>
           <Text ta={"center"}>
             Your application will be reviewed. This club generally responds in
             2-3 days. Please check back here.

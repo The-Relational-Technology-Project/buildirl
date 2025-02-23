@@ -96,7 +96,7 @@ export default function Welcome() {
   return (
     <Center pt={50}>
       <Stack align="center" gap="xl" mt={"xl"}>
-        <Title order={2} style={{ textAlign: "center" }}>
+        <Title order={2} ta={"center"}>
           YOU'VE BEEN APPROVED!
         </Title>
 
