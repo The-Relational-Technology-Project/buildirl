@@ -78,7 +78,7 @@ export default function ClubTiers() {
                 : undefined
             }
             // shifts the indicator down
-            pb={60}
+            pb={{ base: 60, md: 0 }}
           >
             {publishedTiers.map((t) => (
               <Carousel.Slide key={t.id} py={4}>
@@ -89,6 +89,15 @@ export default function ClubTiers() {
               </Carousel.Slide>
             ))}
           </Carousel>
+
+          <Text
+            size={"sm"}
+            style={{ alignSelf: "center", textAlign: "center" }}
+            c={"dimmed"}
+            mb={20}
+          >
+            You will only be charged if you are approved as a member.
+          </Text>
         </Stack>
       </WithLocalNavigationHeader>
     )
