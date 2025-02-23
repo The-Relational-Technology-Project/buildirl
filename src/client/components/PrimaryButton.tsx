@@ -34,7 +34,7 @@ export default function PrimaryButton({
         variant={"filled"}
         onClick={onClick}
         rightSection={includeIcon && <IconArrowUpRight />}
-        size={"xl"}
+        size={"lg"}
         style={{
           border: `2px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,
           borderRadius: 360,

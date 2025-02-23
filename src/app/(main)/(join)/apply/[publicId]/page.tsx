@@ -42,7 +42,6 @@ export default function Apply() {
             </Title>
 
             <PrimaryButton
-              size="lg"
               w={BUTTON_STANDARD_WIDTH}
               mt={"md"}
               onClick={() => {

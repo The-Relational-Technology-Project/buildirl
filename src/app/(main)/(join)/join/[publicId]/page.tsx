@@ -220,10 +220,15 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
 
   switch (membership?.status) {
     case "PENDING":
-      return <PrimaryButton disabled>Pending Approval...</PrimaryButton>;
+      return (
+        <PrimaryButton size={"xl"} disabled>
+          Pending Approval...
+        </PrimaryButton>
+      );
     case "ACTIVE":
       return (
         <PrimaryButton
+          size={"xl"}
           includeIcon
           onClick={() => router.push(`/club/${club.id}/manage-membership`)}
         >
@@ -234,6 +239,7 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     default:
       return (
         <PrimaryButton
+          size={"xl"}
           includeIcon
           onClick={() => router.push(`/join/${club.publicId}/tiers`)}
         >
@@ -246,7 +252,10 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
 function DefaultJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
   return (
-    <PrimaryButton onClick={() => router.push(`/join/${club.publicId}/tiers`)}>
+    <PrimaryButton
+      size={"xl"}
+      onClick={() => router.push(`/join/${club.publicId}/tiers`)}
+    >
       Join as Member
     </PrimaryButton>
   );

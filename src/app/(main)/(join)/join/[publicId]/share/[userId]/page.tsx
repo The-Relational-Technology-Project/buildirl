@@ -8,6 +8,9 @@ import { Button, Center, Group, Stack, Title } from "@mantine/core";
 import ClubImage from "~/client/components/ClubImage";
 import { strictParseInt } from "~/utils";
 import UserAvatar from "~/client/components/UserAvatar";
+import PrimaryButton, {
+  BUTTON_STANDARD_WIDTH
+} from "~/client/components/PrimaryButton";
 
 export default function Share() {
   const params = useParams<{ publicId: string; userId: string }>();
@@ -53,14 +56,12 @@ export default function Share() {
           <Title order={3}>{r.data!.name}</Title>
         </Stack>
 
-        <Button
-          size="lg"
-          radius="xl"
-          color="violet"
+        <PrimaryButton
           onClick={() => router.push(`/join/${publicId}`)}
+          w={BUTTON_STANDARD_WIDTH}
         >
           Join Me
-        </Button>
+        </PrimaryButton>
       </Stack>
     </Center>
   );

@@ -11,6 +11,7 @@ import ClubImage from "~/client/components/ClubImage";
 import SecondaryButton from "~/client/components/SecondaryButton";
 import { activeMembershipForClub } from "~/utils/types";
 import UserAvatar from "~/client/components/UserAvatar";
+import PrimaryButton from "~/client/components/PrimaryButton";
 
 export default function Welcome() {
   const params = useParams<{ publicId: string }>();
@@ -110,9 +111,7 @@ export default function Welcome() {
         <Title order={3}>Celebrate Publicly!</Title>
 
         <Stack gap="md" w={"100%"}>
-          <Button size="lg" radius="xl" color="violet" onClick={onShare}>
-            Share
-          </Button>
+          <PrimaryButton onClick={onShare}>Share</PrimaryButton>
 
           <SecondaryButton onClick={() => router.push(`/join/${publicId}`)}>
             Enter

@@ -34,7 +34,6 @@ export default function ApplicationCompleted() {
           <ClubImage club={r.data!} size={180} />
 
           <SecondaryButton
-            size="lg"
             mt={"lg"}
             w={BUTTON_STANDARD_WIDTH}
             onClick={() => {
