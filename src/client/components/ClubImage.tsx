@@ -1,15 +1,7 @@
 import { Club } from "~/server/service/types";
-import {
-  ImageProps,
-  Image,
-  useMantineColorScheme,
-  useMantineTheme,
-  Box,
-  StyleProp
-} from "@mantine/core";
+import { ImageProps, Image, Box, StyleProp } from "@mantine/core";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
-import { useMounted } from "@mantine/hooks";
 
 export type DefaultClubImageProps = {
   size: StyleProp<React.CSSProperties["width"]>;

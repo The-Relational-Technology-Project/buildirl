@@ -2,14 +2,12 @@ import {
   Image,
   Box,
   useMantineColorScheme,
-  useMantineTheme,
   BoxProps,
   MantineRadius
 } from "@mantine/core";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { User } from "~/server/service/types";
-import { useMounted } from "@mantine/hooks";
 
 export type UserImageProps = {
   user: User;

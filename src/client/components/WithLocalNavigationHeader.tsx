@@ -10,7 +10,6 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { IconChevronLeft } from "@tabler/icons-react";
-import { useMounted } from "@mantine/hooks";
 
 type NavigationButtonProps = {
   onClick: () => void;
