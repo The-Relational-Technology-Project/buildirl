@@ -5,7 +5,7 @@ import confetti from "canvas-confetti";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isAllLoaded } from "~/client/utils";
+import { isAllLoaded, isLoaded } from "~/client/utils";
 import { useEffect } from "react";
 import ClubImage from "~/client/components/ClubImage";
 import SecondaryButton from "~/client/components/SecondaryButton";
@@ -43,6 +43,30 @@ export default function Welcome() {
     fieldName: "userMemberships"
   });
 
+  // we mark membership `isWelcomed` here so that the user is only redirected
+  // to the welcome page once; they may still visit the page again with the direct link
+  useEffect(() => {
+    // cannot put this after isAllLoaded because useEffect must not be
+    // conditionally instantiated
+    if (!isAllLoaded([m, r])) {
+      return;
+    }
+    const membership = activeMembershipForClub(m.data!, r.data!.id);
+    if (membership !== null && !membership.isWelcomed) {
+      void setMembershipAsWelcomed.mutate({
+        membershipId: membership.id
+      });
+    }
+  }, [m, r]);
+
+  useEffect(() => {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }, []);
+
   if (!isAllLoaded([r, u, m])) {
     return null;
   }
@@ -52,24 +76,6 @@ export default function Welcome() {
   if (null === membership) {
     throw new Error(`user is not an active member of club ${r.data!.id}`);
   }
-
-  // we mark membership `isWelcomed` here so that the user is only redirected
-  // to the welcome page once; they may still visit the page again with the direct link
-  useEffect(() => {
-    if (!membership.isWelcomed) {
-      void setMembershipAsWelcomed.mutate({
-        membershipId: membership.id
-      });
-    }
-  }, [membership]);
-
-  useEffect(() => {
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-  }, []);
 
   const onShare = () => {
     const shareUrl = `${window.location.origin}/join/${publicId}/share/${u.data!.id}`;
