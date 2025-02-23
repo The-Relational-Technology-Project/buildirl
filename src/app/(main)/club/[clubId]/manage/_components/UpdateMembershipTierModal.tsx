@@ -105,8 +105,18 @@ export default function UpdateMembershipTierModal({
           />
 
           <Textarea
+            defaultValue={form.values.benefitDescription}
+            placeholder="Describe the benefits members in this tier can expect."
+            rows={5}
+            onChange={(e) =>
+              form.setFieldValue("benefitDescription", e.currentTarget.value)
+            }
+            error={form.errors.benefitDescription}
+          />
+
+          <Textarea
             defaultValue={form.values.contributionDescription}
-            placeholder="Describe the contributions expected of members in this tier"
+            placeholder="Describe the contributions expected of members in this tier."
             rows={5}
             onChange={(e) =>
               form.setFieldValue(
@@ -115,16 +125,6 @@ export default function UpdateMembershipTierModal({
               )
             }
             error={form.errors.contributionDescription}
-          />
-
-          <Textarea
-            defaultValue={form.values.benefitDescription}
-            placeholder="Describe the benefits members in this tier can expect"
-            rows={5}
-            onChange={(e) =>
-              form.setFieldValue("benefitDescription", e.currentTarget.value)
-            }
-            error={form.errors.benefitDescription}
           />
 
           {!isDefaultFreeTier(membershipTier) && (

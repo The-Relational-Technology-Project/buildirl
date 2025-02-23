@@ -12,6 +12,7 @@ export const theme = createTheme({
     },
     Paper: {
       defaultProps: {
+        withBorder: true,
         style: {
           border: "2px solid",
           boxShadow: "4px 4px 0px"

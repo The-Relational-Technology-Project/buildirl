@@ -94,7 +94,16 @@ export default function CreateMembershipTierModal({
           />
 
           <Textarea
-            placeholder="Describe the contributions expected of members in this tier"
+            placeholder="Describe the benefits members in this tier can expect."
+            rows={5}
+            onChange={(e) =>
+              form.setFieldValue("benefitDescription", e.currentTarget.value)
+            }
+            error={form.errors.benefitDescription}
+          />
+
+          <Textarea
+            placeholder="Describe the contributions expected of members in this tier."
             rows={5}
             onChange={(e) =>
               form.setFieldValue(
@@ -103,15 +112,6 @@ export default function CreateMembershipTierModal({
               )
             }
             error={form.errors.contributionDescription}
-          />
-
-          <Textarea
-            placeholder="Describe the benefits members in this tier can expect."
-            rows={5}
-            onChange={(e) =>
-              form.setFieldValue("benefitDescription", e.currentTarget.value)
-            }
-            error={form.errors.benefitDescription}
           />
 
           <Title order={6}>Monthly Cost</Title>

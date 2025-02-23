@@ -1,6 +1,16 @@
 "use client";
 
-import { Stack, Title, Text, Button, Card, Space, Box } from "@mantine/core";
+import {
+  Stack,
+  Title,
+  Text,
+  Space,
+  Box,
+  Paper,
+  useMatches,
+  useMantineColorScheme,
+  TitleOrder
+} from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -8,8 +18,16 @@ import { isLoaded } from "~/client/utils";
 import { MembershipTier } from "~/server/service/types";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { Carousel } from "@mantine/carousel";
+import { useMounted } from "@mantine/hooks";
+import PrimaryButton from "~/client/components/PrimaryButton";
 
 export default function ClubTiers() {
+  const isMobile = useMatches({ base: true, md: false });
+  const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
+  const titleAndCardGap = useMatches({ base: "lg", md: "xl" });
+  const { colorScheme } = useMantineColorScheme();
+  const mounted = useMounted();
+
   const params = useParams<{ publicId: string }>();
 
   const r = api.main.clubByPublicId.useQuery({
@@ -21,14 +39,22 @@ export default function ClubTiers() {
     fieldName: "clubByPublicId"
   });
 
+  if (!isLoaded(r)) {
+    return null;
+  }
+
+  const publishedTiers = r.data!.membershipTiers.filter(
+    (t) => t.status === "PUBLISHED"
+  );
+
   return (
-    isLoaded(r) && (
+    mounted && (
       <WithLocalNavigationHeader>
-        <Stack gap={"xl"}>
-          <Stack align={"center"} gap={"xs"}>
-            <Title order={2}>BE A JOINER.</Title>
-            <Text c="dimmed" ta="center">
-              Become a contributing member
+        <Stack gap={titleAndCardGap}>
+          <Stack align={"center"} gap={6}>
+            <Title order={titleOrder}>Be a Joiner.</Title>
+            <Text size={"lg"} ta="center">
+              Become a contributing member.
             </Text>
           </Stack>
 
@@ -37,17 +63,31 @@ export default function ClubTiers() {
             slideGap="md"
             align="center"
             withControls={false}
+            // we need indicators for mobile because
+            // the next and previous card are not visible
+            withIndicators={isMobile && publishedTiers.length > 1}
+            styles={
+              isMobile && publishedTiers.length > 1
+                ? {
+                    indicator: {
+                      backgroundColor: `${colorScheme === "dark" ? "white" : "black"}`,
+                      width: 8,
+                      height: 8
+                    }
+                  }
+                : undefined
+            }
+            // shifts the indicator down
+            pb={60}
           >
-            {r
-              .data!.membershipTiers.filter((t) => t.status === "PUBLISHED")
-              .map((t) => (
-                <Carousel.Slide key={t.id}>
-                  <MembershipTierCard
-                    membershipTier={t}
-                    clubPublicId={params.publicId}
-                  />
-                </Carousel.Slide>
-              ))}
+            {publishedTiers.map((t) => (
+              <Carousel.Slide key={t.id} py={4}>
+                <MembershipTierCard
+                  membershipTier={t}
+                  clubPublicId={params.publicId}
+                />
+              </Carousel.Slide>
+            ))}
           </Carousel>
         </Stack>
       </WithLocalNavigationHeader>
@@ -66,24 +106,24 @@ function MembershipTierCard({
 }: MembershipTierCardProps) {
   const router = useRouter();
   return (
-    <Card key={membershipTier.id} w={300} h={500} p={"xl"} withBorder>
+    <Paper key={membershipTier.id} h={400} w={300} p={"lg"}>
       <Stack h={"100%"} gap={10}>
         <Title order={3}>{membershipTier.name}</Title>
 
         <Stack style={{ overflowY: "auto" }}>
           {membershipTier.benefitDescription !== "" && (
-            <Stack gap={0}>
+            <Stack gap={4}>
               <Title order={6}>Our member experience</Title>
-              <Box mih={70}>
+              <Box mih={72}>
                 <Text size="sm">{membershipTier.benefitDescription}</Text>
               </Box>
             </Stack>
           )}
 
           {membershipTier.contributionDescription !== "" && (
-            <Stack gap={0}>
+            <Stack gap={4}>
               <Title order={6}>Your contribution is key!</Title>
-              <Box mih={70}>
+              <Box mih={72}>
                 <Text size="sm">{membershipTier.contributionDescription}</Text>
               </Box>
             </Stack>
@@ -93,23 +133,27 @@ function MembershipTierCard({
         <Space flex={1} />
 
         <Stack>
-          <Text size="xl" fw={500}>
-            ${membershipTier.costPerMonthInUSD} / month
+          <Text size="lg" fw={500}>
+            {/* It is intentional to omit dollar sign here as $ sign causes anxiety for consumers */}
+            {membershipTier.costPerMonthInUSD} / month
           </Text>
 
-          <Button
-            variant="filled"
-            color={"violet"}
-            onClick={() =>
-              router.push(
-                `/apply/${clubPublicId}?membershipTierId=${membershipTier.id}`
-              )
-            }
-          >
-            Apply to Join
-          </Button>
+          <Box style={{ alignSelf: "center" }}>
+            <PrimaryButton
+              size={"md"}
+              color={"#b2b9da"}
+              hideIcon
+              onClick={() =>
+                router.push(
+                  `/apply/${clubPublicId}?membershipTierId=${membershipTier.id}`
+                )
+              }
+            >
+              Apply to Join
+            </PrimaryButton>
+          </Box>
         </Stack>
       </Stack>
-    </Card>
+    </Paper>
   );
 }

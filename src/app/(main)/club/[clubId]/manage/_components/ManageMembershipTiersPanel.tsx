@@ -138,7 +138,7 @@ export function ManageMembershipTierCard({
   });
 
   return (
-    <Paper key={membershipTier.id} p="md" withBorder h={400} w={300}>
+    <Paper key={membershipTier.id} px="lg" py="md" h={400} w={300}>
       <Stack h="100%" gap={4}>
         <Box style={{ alignSelf: "flex-end" }}>
           {membershipTier.status === "PUBLISHED" ? (
@@ -154,22 +154,6 @@ export function ManageMembershipTierCard({
 
         <Stack style={{ overflowY: "auto" }}>
           <Stack gap={4}>
-            <Title order={6}>Contributions</Title>
-            <Box mih={60}>
-              {membershipTier.contributionDescription === "" ? (
-                <AlertMessage
-                  message={"Please update contribution details."}
-                  size={"sm"}
-                />
-              ) : (
-                <Text size={"sm"} c="dimmed">
-                  {membershipTier.contributionDescription}
-                </Text>
-              )}
-            </Box>
-          </Stack>
-
-          <Stack gap={4} mt={4}>
             <Title order={6}>Benefits</Title>
             <Box mih={60}>
               {membershipTier.benefitDescription === "" ? (
@@ -183,6 +167,22 @@ export function ManageMembershipTierCard({
                 </Text>
               )}
             </Box>
+
+            <Stack gap={4} mt={4}>
+              <Title order={6}>Contributions</Title>
+              <Box mih={60}>
+                {membershipTier.contributionDescription === "" ? (
+                  <AlertMessage
+                    message={"Please update contribution details."}
+                    size={"sm"}
+                  />
+                ) : (
+                  <Text size={"sm"} c="dimmed">
+                    {membershipTier.contributionDescription}
+                  </Text>
+                )}
+              </Box>
+            </Stack>
           </Stack>
         </Stack>
 

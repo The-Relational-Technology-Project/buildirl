@@ -7,11 +7,13 @@ import { useMounted } from "@mantine/hooks";
 type PrimaryButtonProps = {
   onClick: () => void;
   children: React.ReactNode;
+  hideIcon?: boolean;
 };
 
 export default function PrimaryButton({
   children,
   onClick,
+  hideIcon = false,
   ...props
 }: PrimaryButtonProps & ButtonProps) {
   const { colorScheme } = useMantineColorScheme();
@@ -23,7 +25,7 @@ export default function PrimaryButton({
       <Button
         variant={"filled"}
         onClick={onClick}
-        rightSection={<IconArrowUpRight />}
+        rightSection={hideIcon ? undefined : <IconArrowUpRight />}
         size={"xl"}
         style={{
           border: `1px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,
