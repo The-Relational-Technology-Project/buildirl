@@ -1,17 +1,20 @@
 "use client";
 
-import { Stack, Title, Button, Group, Center } from "@mantine/core";
+import { Stack, Title, Center, Image, Box } from "@mantine/core";
 import confetti from "canvas-confetti";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isAllLoaded, isLoaded } from "~/client/utils";
+import { isAllLoaded } from "~/client/utils";
 import { useEffect } from "react";
 import ClubImage from "~/client/components/ClubImage";
 import SecondaryButton from "~/client/components/SecondaryButton";
 import { activeMembershipForClub } from "~/utils/types";
 import UserAvatar from "~/client/components/UserAvatar";
-import PrimaryButton from "~/client/components/PrimaryButton";
+import PrimaryButton, {
+  BUTTON_STANDARD_WIDTH
+} from "~/client/components/PrimaryButton";
+import UserClubHandshake from "~/client/components/UserClubHandshake";
 
 export default function Welcome() {
   const params = useParams<{ publicId: string }>();
@@ -93,27 +96,37 @@ export default function Welcome() {
   return (
     <Center pt={50}>
       <Stack align="center" gap="xl" mt={"xl"}>
-        <Title order={2}>YOU'VE BEEN APPROVED!</Title>
+        <Title order={2} style={{ textAlign: "center" }}>
+          YOU'VE BEEN APPROVED!
+        </Title>
 
-        <Group>
-          <UserAvatar size={"lg"} user={u.data!} />
-          <ClubImage size={120} club={r.data!} />
-        </Group>
+        <UserClubHandshake user={u.data!} club={r.data!} />
 
         <Stack gap={"sm"} align={"center"}>
-          <Title order={3}>Welcome {u.data!.firstName}!</Title>
-          <Title order={4} mt={"sm"}>
-            You Are Now a Member of
+          <Title order={3} fw={400} style={{ textAlign: "center" }}>
+            Welcome {u.data!.firstName}!
           </Title>
-          <Title order={3}>{r.data!.name}</Title>
+          <Title order={3} fw={400}>
+            You Are Now a Member Of
+          </Title>
+          <Title order={3} style={{ textAlign: "center" }}>
+            {r.data!.name}!
+          </Title>
         </Stack>
 
-        <Title order={3}>Celebrate Publicly!</Title>
+        <Title order={3} fw={400}>
+          Celebrate Publicly!
+        </Title>
 
-        <Stack gap="md" w={"100%"}>
-          <PrimaryButton onClick={onShare}>Share</PrimaryButton>
+        <Stack align="center" gap="md" w={"100%"}>
+          <PrimaryButton w={BUTTON_STANDARD_WIDTH} onClick={onShare}>
+            Share
+          </PrimaryButton>
 
-          <SecondaryButton onClick={() => router.push(`/join/${publicId}`)}>
+          <SecondaryButton
+            w={BUTTON_STANDARD_WIDTH}
+            onClick={() => router.push(`/join/${publicId}`)}
+          >
             Enter
           </SecondaryButton>
         </Stack>
