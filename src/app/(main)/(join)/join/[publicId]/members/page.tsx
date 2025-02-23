@@ -52,7 +52,7 @@ function MemberList({ clubId, owner }: MemberListProps) {
   const allMembers = [owner, ...r.data!.map((m) => m.user)];
 
   return (
-    <Stack>
+    <Stack px={{ base: 0, md: "xl" }}>
       {allMembers.map((m, i) => (
         <MemberListItem
           key={m.id}
@@ -77,7 +77,7 @@ function MemberListItem({ member, isLastItem }: MemberListItemProps) {
       style={{ cursor: "pointer" }}
     >
       <Group>
-        <UserAvatar size={"md"} user={member} />
+        <UserAvatar size={"sm"} user={member} />
         <Text>{member.firstName}</Text>
       </Group>
       {isLastItem && <Divider />}

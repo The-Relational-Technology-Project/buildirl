@@ -52,18 +52,18 @@ function ClubStatistics({
     isLoaded(r) && (
       <Stack gap={4} {...props}>
         <Group gap={4}>
-          <Text size={"sm"} fw={700}>
+          <Text size={"md"} fw={700}>
             {r.data!.memberCount}
           </Text>
           <Text
-            size={"sm"}
+            size={"md"}
           >{`active member${r.data!.memberCount > 1 ? "s" : ""}`}</Text>
         </Group>
         <Group gap={4}>
-          <Text size={"sm"} fw={700}>
+          <Text size={"md"} fw={700}>
             {r.data!.pendingMembershipApplications}
           </Text>
-          <Text size={"sm"}>applied</Text>
+          <Text size={"md"}>applied</Text>
         </Group>
       </Stack>
     )
