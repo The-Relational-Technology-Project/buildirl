@@ -8,7 +8,9 @@ import { isLoaded } from "~/client/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
 import { DefaultClubImage } from "~/client/components/ClubImage";
-import PrimaryButton from "~/client/components/PrimaryButton";
+import PrimaryButton, {
+  BUTTON_STANDARD_WIDTH
+} from "~/client/components/PrimaryButton";
 import React from "react";
 
 export default function Apply() {
@@ -41,7 +43,7 @@ export default function Apply() {
 
             <PrimaryButton
               size="lg"
-              w={200}
+              w={BUTTON_STANDARD_WIDTH}
               mt={"md"}
               onClick={() => {
                 router.push(

@@ -7,6 +7,7 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import SecondaryButton from "~/client/components/SecondaryButton";
+import { BUTTON_STANDARD_WIDTH } from "~/client/components/PrimaryButton";
 
 export default function ApplicationCompleted() {
   const params = useParams<{ publicId: string }>();
@@ -35,6 +36,7 @@ export default function ApplicationCompleted() {
           <SecondaryButton
             size="lg"
             mt={"lg"}
+            w={BUTTON_STANDARD_WIDTH}
             onClick={() => {
               router.push(`/join/${params.publicId}/`);
             }}

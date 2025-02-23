@@ -4,6 +4,10 @@ import React from "react";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import { useMounted } from "@mantine/hooks";
 
+// for consistency on button sizes on join flow
+// TODO is this the best way to define and reuse this?
+export const BUTTON_STANDARD_WIDTH = 200;
+
 type PrimaryButtonProps = {
   children: React.ReactNode;
   includeIcon?: boolean;
