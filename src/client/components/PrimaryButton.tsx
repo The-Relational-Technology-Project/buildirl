@@ -26,7 +26,7 @@ export default function PrimaryButton({
       <Button
         variant={"filled"}
         onClick={onClick}
-        rightSection={hideIcon ? undefined : <IconArrowUpRight />}
+        rightSection={!hideIcon && <IconArrowUpRight />}
         size={"xl"}
         style={{
           border: `1px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,

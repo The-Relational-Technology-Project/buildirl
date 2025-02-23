@@ -1,14 +1,16 @@
 "use client";
 
-import { Stack, Title, Text, Button, Paper } from "@mantine/core";
+import { Stack, Title, Center, useMatches } from "@mantine/core";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
-import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import { DefaultClubImage } from "~/client/components/ClubImage";
+import PrimaryButton from "~/client/components/PrimaryButton";
+import React from "react";
+import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 
 export default function Apply() {
   const params = useParams<{ publicId: string }>();
@@ -28,30 +30,31 @@ export default function Apply() {
   return (
     isLoaded(r) && (
       <WithLocalNavigationHeader>
-        <AbsoluteCenter adjustForHeader>
-          <Paper w={400} h={400} p={"xl"}>
-            <Stack align="center" gap="xl">
-              <Title order={2}>You Rock!</Title>
+        <Center pt={30} px={40}>
+          <Stack align="center" gap="lg">
+            <Title order={1}>You Rock!</Title>
 
-              <DefaultClubImage size={120} />
+            <DefaultClubImage size={180} />
 
-              <Text ta="center">Let's See If We're A Fit!</Text>
+            <Title order={2} fw={500} ta="center">
+              Let's See If We're A Fit!
+            </Title>
 
-              <Button
-                variant="filled"
-                color="violet"
-                size="lg"
-                onClick={() => {
-                  router.push(
-                    `/apply/${r.data!.publicId}/intake?membershipTierId=${membershipTierId}`
-                  );
-                }}
-              >
-                Let's Go
-              </Button>
-            </Stack>
-          </Paper>
-        </AbsoluteCenter>
+            <PrimaryButton
+              size="lg"
+              w={200}
+              mt={"md"}
+              onClick={() => {
+                router.push(
+                  `/apply/${r.data!.publicId}/intake?membershipTierId=${membershipTierId}`
+                );
+              }}
+              hideIcon
+            >
+              Let's Go!
+            </PrimaryButton>
+          </Stack>
+        </Center>
       </WithLocalNavigationHeader>
     )
   );

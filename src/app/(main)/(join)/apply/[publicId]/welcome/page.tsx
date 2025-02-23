@@ -84,7 +84,7 @@ export default function Welcome() {
   };
 
   return (
-    <Center>
+    <Center pt={30}>
       <Stack align="center" gap="xl" mt={"xl"}>
         <Title order={2}>You've been approved!</Title>
 
