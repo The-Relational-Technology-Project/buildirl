@@ -127,7 +127,8 @@ type QuestionPanelProps = {
 };
 
 function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
-  const { watch, setValue, control } = useFormContext<FormQuestions>();
+  const { watch, setValue, control, clearErrors } =
+    useFormContext<FormQuestions>();
   const questionType = watch(`questions.${index}.type`);
 
   const resetMetadataOnTypeChange = (newType: FormQuestionType) => {
@@ -225,6 +226,10 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
                               (_, i) => i !== choiceIndex
                             );
                             field.onChange(updatedChoices);
+                            // clear error for the deleted choice if any
+                            clearErrors(
+                              `questions.${index}.metadata.choices.${choiceIndex}`
+                            );
                           }}
                         >
                           <IconX size={16} />
