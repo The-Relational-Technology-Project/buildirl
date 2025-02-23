@@ -5,14 +5,15 @@ import { IconArrowUpRight } from "@tabler/icons-react";
 import { useMounted } from "@mantine/hooks";
 
 type PrimaryButtonProps = {
-  onClick: () => void;
+  onClick?: () => void;
   children: React.ReactNode;
   hideIcon?: boolean;
 };
 
 export default function PrimaryButton({
   children,
-  onClick,
+  // default no-op
+  onClick = () => {},
   hideIcon = false,
   ...props
 }: PrimaryButtonProps & ButtonProps) {

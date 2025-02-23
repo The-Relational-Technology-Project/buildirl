@@ -219,13 +219,7 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
 
   switch (membership?.status) {
     case "PENDING":
-      return (
-        <PrimaryButton
-          onClick={() => router.push(`/apply/${club.publicId}/completed`)}
-        >
-          Pending Approval
-        </PrimaryButton>
-      );
+      return <PrimaryButton disabled>Pending Approval</PrimaryButton>;
     case "ACTIVE":
       return (
         <PrimaryButton
