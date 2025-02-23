@@ -11,6 +11,7 @@ import UserAvatar from "~/client/components/UserAvatar";
 import PrimaryButton, {
   BUTTON_STANDARD_WIDTH
 } from "~/client/components/PrimaryButton";
+import UserClubHandshake from "~/client/components/UserClubHandshake";
 
 export default function Share() {
   const params = useParams<{ publicId: string; userId: string }>();
@@ -40,20 +41,17 @@ export default function Share() {
   //  it contains sensitive data
 
   return (
-    <Center>
+    <Center pt={50}>
       <Stack align="center" gap="xl" mt={"xl"}>
-        <Title order={2}>I'm a Proud Member!</Title>
+        <Title order={2}>I'M A PROUD JOINER!</Title>
 
-        <Group gap="xl">
-          <UserAvatar size={"lg"} user={u.data!} />
-          <ClubImage size={120} club={r.data!} />
-        </Group>
+        <UserClubHandshake user={u.data!} club={r.data!} />
 
         <Stack gap={"sm"} align={"center"}>
-          <Title order={4} mt={"sm"}>
-            I am a Member of
+          <Title order={3} mt={"sm"} fw={400}>
+            I Am a Member Of
           </Title>
-          <Title order={3}>{r.data!.name}</Title>
+          <Title order={3}>{r.data!.name}!</Title>
         </Stack>
 
         <PrimaryButton
