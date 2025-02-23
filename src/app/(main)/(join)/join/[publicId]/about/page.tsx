@@ -22,9 +22,11 @@ export default function ClubAbout() {
   return (
     isLoaded(r) && (
       <WithLocalNavigationHeader>
-        <Title order={4}>{r.data!.name}</Title>
-        <Text size={"md"}>{r.data!.description}</Text>
-        <ClubStatistics clubId={r.data!.id} mt={"xl"} />
+        <Stack px={{ base: 0, md: "xl" }}>
+          <Title order={3}>{r.data!.name}</Title>
+          <Text size={"md"}>{r.data!.description}</Text>
+          <ClubStatistics clubId={r.data!.id} mt={{ base: "sm", md: "xl" }} />
+        </Stack>
       </WithLocalNavigationHeader>
     )
   );
@@ -50,7 +52,7 @@ function ClubStatistics({
     isLoaded(r) && (
       <Stack gap={4} {...props}>
         <Group gap={4}>
-          <Text size={"sm"} fw={500}>
+          <Text size={"sm"} fw={700}>
             {r.data!.memberCount}
           </Text>
           <Text
@@ -58,7 +60,7 @@ function ClubStatistics({
           >{`active member${r.data!.memberCount > 1 ? "s" : ""}`}</Text>
         </Group>
         <Group gap={4}>
-          <Text size={"sm"} fw={500}>
+          <Text size={"sm"} fw={700}>
             {r.data!.pendingMembershipApplications}
           </Text>
           <Text size={"sm"}>applied</Text>
