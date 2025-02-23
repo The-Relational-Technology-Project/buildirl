@@ -993,7 +993,8 @@ export function createMainService(prisma: PrismaClient): MainService {
           userId: userId,
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          status: "PENDING"
+          status: "PENDING",
+          isWelcomed: false
         },
         select: {
           id: true

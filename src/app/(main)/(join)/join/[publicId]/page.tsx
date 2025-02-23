@@ -55,14 +55,14 @@ export default function ClubJoin() {
   useEffect(() => {
     // cannot put this after isAllLoaded because useEffect must not be
     // conditionally instantiated
-    if (!isLoaded(m)) {
+    if (!isAllLoaded([m, r])) {
       return;
     }
     const membership = activeMembershipForClub(m.data!, r.data!.id);
     if (membership !== null && !membership.isWelcomed) {
       router.push(`/apply/${publicId}/welcome`);
     }
-  }, [m]);
+  }, [m, r]);
 
   if (!isAllLoaded([r, m])) {
     return null;
