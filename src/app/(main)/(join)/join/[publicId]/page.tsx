@@ -273,7 +273,10 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
 function DefaultJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
   return (
-    <PrimaryButton onClick={() => router.push(`/join/${club.publicId}/tiers`)}>
+    <PrimaryButton
+      includeIcon
+      onClick={() => router.push(`/join/${club.publicId}/tiers`)}
+    >
       Join as Member
     </PrimaryButton>
   );
