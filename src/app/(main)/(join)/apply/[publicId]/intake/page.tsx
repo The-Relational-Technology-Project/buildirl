@@ -4,12 +4,9 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Box,
   Button,
-  Center,
   Checkbox,
   CheckboxGroup,
-  Flex,
   Group,
   Paper,
   Radio,
@@ -19,7 +16,8 @@ import {
   Switch,
   Text,
   Textarea,
-  TextInput
+  TextInput,
+  Title
 } from "@mantine/core";
 import {
   FormQuestion,
@@ -34,6 +32,8 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
+import PrimaryButton from "~/client/components/PrimaryButton";
+import SecondaryButton from "~/client/components/SecondaryButton";
 
 type ShareEmailQuestionProp = {
   shareEmail: boolean;
@@ -52,6 +52,7 @@ function ShareEmailQuestion({
         on getting involved with the club.
       </Text>
       <Switch
+        color={"#7a63cb"}
         checked={shareEmail}
         onChange={(event) => setShareEmail(event.currentTarget.checked)}
         label="Acknowledge"
@@ -77,7 +78,7 @@ export default function IntakePage() {
 
   return (
     isLoaded(r) && (
-      <Stack pt={"xl"} px={{ base: undefined, md: 150 }}>
+      <Stack pt={"xl"} px={{ base: undefined, md: 180 }}>
         <ApplicationForm
           applicationQuestions={r.data!.applicationQuestions}
           membershipTierId={membershipTierId}
@@ -189,7 +190,6 @@ function ApplicationForm({
             render={({ field }) => (
               <TextInput
                 key={index}
-                label={question.question}
                 placeholder={"Enter your response"}
                 {...field}
                 onBlur={field.onBlur}
@@ -206,9 +206,9 @@ function ApplicationForm({
             render={({ field }) => (
               <Textarea
                 key={index}
-                label={question.question}
                 placeholder={"Enter your response"}
                 {...field}
+                rows={8}
                 onBlur={field.onBlur}
               />
             )}
@@ -222,7 +222,6 @@ function ApplicationForm({
             control={control}
             render={({ field }) => (
               <RadioGroup
-                label={question.question}
                 value={
                   field.value === null ? null : assertAsString(field.value)
                 }
@@ -232,7 +231,13 @@ function ApplicationForm({
                 onBlur={field.onBlur}
               >
                 {question.metadata?.choices.map((choice) => (
-                  <Radio key={choice} value={choice} label={choice} pt={"xs"} />
+                  <Radio
+                    key={choice}
+                    value={choice}
+                    label={choice}
+                    pt={"xs"}
+                    color={"#7a63cb"}
+                  />
                 ))}
               </RadioGroup>
             )}
@@ -246,7 +251,6 @@ function ApplicationForm({
             control={control}
             render={({ field }) => (
               <CheckboxGroup
-                label={question.question}
                 value={assertAsStringArray(field.value)}
                 onChange={(values) => {
                   field.onChange(values);
@@ -258,6 +262,7 @@ function ApplicationForm({
                     key={choice}
                     value={choice}
                     label={choice}
+                    color={"#7a63cb"}
                     pt={"xs"}
                   />
                 ))}
@@ -272,21 +277,40 @@ function ApplicationForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stepper
-        size="xs"
-        color="violet"
-        active={activeStep}
-        hidden={totalQuestions === 1}
-      >
-        {applicationQuestions.questions.map((_, index) => (
-          <Stepper.Step key={index} />
-        ))}
-        <Stepper.Step key={applicationQuestions.questions.length + 1} />
-      </Stepper>
+      <Paper>
+        <Stepper
+          color="#7a63cb"
+          active={activeStep}
+          hidden={totalQuestions === 1}
+          // hacky way to get the stepper to look like a bar!
+          styles={{
+            separator: {
+              border: "none",
+              // covers gap
+              marginLeft: -1,
+              marginRight: 0,
+              height: 20
+            },
+            stepIcon: {
+              display: "none"
+            }
+          }}
+        >
+          {applicationQuestions.questions.map((_, index) => (
+            <Stepper.Step key={index} />
+          ))}
+          <Stepper.Step key={applicationQuestions.questions.length + 1} />
+          {/* hacky but we want the stepper to not be filled on the last question */}
+          <Stepper.Step key={applicationQuestions.questions.length + 2} />
+        </Stepper>
+      </Paper>
 
       <Paper p={"xl"} mt={"xl"}>
         {activeStep < applicationQuestions.questions.length ? (
           <Stack gap={4}>
+            <Title order={4} c={"#7a63cb"} mb={"md"}>
+              {applicationQuestions.questions[activeStep]!.question}
+            </Title>
             {renderQuestion(
               applicationQuestions.questions[activeStep]!,
               activeStep
@@ -306,20 +330,30 @@ function ApplicationForm({
 
         <Group mt="xl" justify={"center"}>
           {activeStep > 0 && (
-            <Button variant="default" onClick={prevStep}>
+            <SecondaryButton size={"sm"} hideIcon onClick={prevStep}>
               Back
-            </Button>
+            </SecondaryButton>
           )}
           {activeStep === totalQuestions - 1 ? (
             // for now, this is hardcoded assuming share email
             // is always the last question
-            <Button type="submit" disabled={!shareEmail}>
+            <PrimaryButton
+              type="submit"
+              size={"sm"}
+              hideIcon
+              disabled={!shareEmail}
+            >
               Submit
-            </Button>
+            </PrimaryButton>
           ) : (
-            <Button onClick={nextStep} disabled={!isCurrentStepValid()}>
+            <PrimaryButton
+              hideIcon
+              size={"sm"}
+              onClick={nextStep}
+              disabled={!isCurrentStepValid()}
+            >
               Next
-            </Button>
+            </PrimaryButton>
           )}
         </Group>
       </Paper>

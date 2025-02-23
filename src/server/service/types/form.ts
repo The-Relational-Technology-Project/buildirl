@@ -13,7 +13,7 @@ const BaseFormQuestionSchema = z.object({
   question: z
     .string()
     .min(10, "Length must be >= 10")
-    .max(300, "Length must be <= 300"),
+    .max(200, "Length must be <= 200"),
   type: FormQuestionTypeSchema
 });
 

@@ -5,9 +5,10 @@ import { IconArrowUpRight } from "@tabler/icons-react";
 import { useMounted } from "@mantine/hooks";
 
 type PrimaryButtonProps = {
-  onClick?: () => void;
   children: React.ReactNode;
   hideIcon?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
+  type?: "submit" | "reset" | "button";
 };
 
 export default function PrimaryButton({
@@ -15,6 +16,7 @@ export default function PrimaryButton({
   // default no-op
   onClick = () => {},
   hideIcon = false,
+  type,
   ...props
 }: PrimaryButtonProps & ButtonProps) {
   const { colorScheme } = useMantineColorScheme();
@@ -24,16 +26,17 @@ export default function PrimaryButton({
   return (
     mounted && (
       <Button
+        type={type}
         variant={"filled"}
         onClick={onClick}
         rightSection={!hideIcon && <IconArrowUpRight />}
         size={"xl"}
         style={{
-          border: `1px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,
+          border: `2px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,
           borderRadius: 360,
           boxShadow: `4px 4px 0px ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`
         }}
-        color={"#7A63CB"}
+        color={"#7a63cb"}
         {...props}
       >
         {children}
