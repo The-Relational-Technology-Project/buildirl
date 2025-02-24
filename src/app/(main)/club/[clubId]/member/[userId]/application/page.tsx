@@ -104,7 +104,7 @@ function ApplicationResponsesSection({
   };
 
   return (
-    <Paper p={"lg"} {...props}>
+    <Paper p={"xl"} {...props}>
       <Title order={4}>Application Responses</Title>
 
       <Stack gap={"lg"} mt={"sm"}>

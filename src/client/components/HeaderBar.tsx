@@ -108,8 +108,8 @@ function ProfileMenu({ ...props }: BoxProps) {
 
           <Menu.Dropdown>
             <Text
-              pl={"sm"}
               size={"sm"}
+              px={"sm"}
               fw={500}
               onClick={() => router.push(`/user/${r.data!.id}`)}
               style={{ cursor: "pointer" }}

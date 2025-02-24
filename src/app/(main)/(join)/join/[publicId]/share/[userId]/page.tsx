@@ -4,10 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
-import { Button, Center, Group, Stack, Title } from "@mantine/core";
-import ClubImage from "~/client/components/ClubImage";
+import { Center, Stack, Title } from "@mantine/core";
 import { strictParseInt } from "~/utils";
-import UserAvatar from "~/client/components/UserAvatar";
 import PrimaryButton, {
   BUTTON_STANDARD_WIDTH
 } from "~/client/components/PrimaryButton";

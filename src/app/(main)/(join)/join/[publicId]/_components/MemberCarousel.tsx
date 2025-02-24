@@ -7,7 +7,7 @@ import { Carousel } from "@mantine/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import React from "react";
 import { IconStarFilled } from "@tabler/icons-react";
-import UserAvatar, { UserImage } from "~/client/components/UserAvatar";
+import { UserImage } from "~/client/components/UserAvatar";
 
 type MemberCarouselProps = {
   clubId: number;
