@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Stack,
   Title,
@@ -35,6 +35,9 @@ function WithRedirectToWelcomePage({
   publicId
 }: WithRedirectToWelcomePageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromWelcome = searchParams.get('fromWelcome') === 'true';
+
   const r = api.main.clubByPublicId.useQuery({
     publicId
   });
@@ -58,11 +61,15 @@ function WithRedirectToWelcomePage({
     if (!isAllLoaded([m, r])) {
       return;
     }
+    // do not redirect if user is coming from the welcome page
+    if (fromWelcome) {
+      return;
+    }
     const membership = activeMembershipForClub(m.data!, r.data!.id);
     if (membership !== null && !membership.isWelcomed) {
       router.push(`/apply/${publicId}/welcome`);
     }
-  }, [m, r]);
+  }, [m, r, fromWelcome]);
 
   // no-op; just for the effect
   return null;

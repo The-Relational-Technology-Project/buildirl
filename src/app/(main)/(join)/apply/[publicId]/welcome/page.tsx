@@ -112,7 +112,10 @@ export default function Welcome() {
               await setMembershipAsWelcomed.mutateAsync({
                 membershipId: membership!.id
               });
-              router.push(`/join/${publicId}`);
+              // this is necessary because the mutation takes a bit to reflect
+              // in the query, so we need this bit to ensure the user is not 
+              // redirected back here after clicking this
+              router.push(`/join/${publicId}?fromWelcome=true`);
             }}
           >
             Enter
