@@ -1,4 +1,3 @@
-
 # BuildIRL
 This is the tech platform for [BuildIRL](https://www.buildirl.com/) (est., 2025)! We will supercharge the next generation
 of local community builders!
@@ -12,7 +11,7 @@ of local community builders!
 ## Technologies
 
 - [Next.js](https://nextjs.org)
-- [ChakraUI](https://v2.chakra-ui.com/getting-started)
+- [MantineUI](https://ui.mantine.dev/)
 - [tRPC](https://trpc.io)
 - [Prisma](https://prisma.io)
 - [Supabase](https://supabase.com/docs)
@@ -24,7 +23,7 @@ First time users can use the commands in the [justfile](justfile) in order to ru
 1. `just setup` for first time set-up of local database and dependencies
 2. `just db-start` and `just start` to begin local instance. See output for the localport (defaults to localhost:3000)
 
-### Local authentication
+### Local Authentication
 Authentication requires OTP sent to your email. When running locally, you will not receive an email. Instead you can retrieve 
 the messages with Inbucket which is accessible at localhost:54324.
 
@@ -54,6 +53,31 @@ the time your code is divergent from main.
 Other optional readings that help inform the development practices are:
 1. [Modern Software Development by Dave Farley](https://www.amazon.com/Modern-Software-Engineering-Discipline-Development/dp/0137314914)
 2. [DORA metrics](https://cloud.google.com/blog/products/devops-sre/using-the-four-keys-to-measure-your-devops-performance)
+
+## AI Development Workflow
+
+We encourage leveraging AI tools in our development practices. It is a way we can achieve scale as a lean team.
+We use cursor as code co-pilot. A list of cursor rules is in the code base in .cursor/rules. Adding to it 
+also as a way to document code practices for our team.
+
+### Tips
+
+Getting the best results from AI tool use requires a combination of good prompts, managing context, and understanding the 
+optimal level at which to iterate with the AI ([guide video](https://www.youtube.com/watch?v=uwA3MMYBfAQ)), and trial
+and error. 
+
+Some use cases which it performs well in are:
+- design brainstorming
+- initial template setup (e.g., especially for UI design)
+- implementing feature when there are many good examples in the codebase already 
+- debugging if you are able to effectively manage the context
+
+### Caveats
+
+We use AI as a tool to empower human-in-the-loop development not to replace it. Above all we must follow good code development 
+practices as described above sections. All code must be reviewed and understood by the committer and held to the same code quality 
+and standards as human written code. In addition, your understanding of the code must be maintained. Not doing so adds to technical 
+and knowledge debt which will slow down development in the long-term.
 
 ## Deployments
 
