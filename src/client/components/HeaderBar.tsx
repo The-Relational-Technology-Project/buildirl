@@ -157,7 +157,7 @@ export default function HeaderBar() {
         style={{
           position: "relative",
           backgroundColor:
-            colorScheme === "dark" ? theme.colors.dark[7] : "#e7e2ca",
+            colorScheme === "dark" ? theme.colors.dark[7] : "beige",
           borderBottom: `solid 1px ${colorScheme === "dark" ? theme.colors.dark[4] : "black"}`
         }}
       >

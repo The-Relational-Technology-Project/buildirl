@@ -51,7 +51,7 @@ function ShareEmailQuestion({
         on getting involved with the club.
       </Text>
       <Switch
-        color={"#7a63cb"}
+        color={"lilac"}
         checked={shareEmail}
         onChange={(event) => setShareEmail(event.currentTarget.checked)}
         label="Acknowledge"
@@ -235,7 +235,7 @@ function ApplicationForm({
                     value={choice}
                     label={choice}
                     pt={"xs"}
-                    color={"#7a63cb"}
+                    color={"lilac"}
                   />
                 ))}
               </RadioGroup>
@@ -261,7 +261,7 @@ function ApplicationForm({
                     key={choice}
                     value={choice}
                     label={choice}
-                    color={"#7a63cb"}
+                    color={"lilac"}
                     pt={"xs"}
                   />
                 ))}
@@ -278,7 +278,7 @@ function ApplicationForm({
     <form onSubmit={handleSubmit(onSubmit)}>
       <Paper>
         <Stepper
-          color="#7a63cb"
+          color="lilac"
           active={activeStep}
           hidden={totalQuestions === 1}
           // hacky way to get the stepper to look like a bar!
@@ -308,7 +308,7 @@ function ApplicationForm({
       <Paper p={"xl"} mt={"xl"}>
         {activeStep < applicationQuestions.questions.length ? (
           <Stack gap={4}>
-            <Title order={4} c={"#7a63cb"} mb={"md"}>
+            <Title order={4} c={"lilac"} mb={"md"}>
               {applicationQuestions.questions[activeStep]!.question}
             </Title>
             {renderQuestion(

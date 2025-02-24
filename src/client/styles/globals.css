@@ -1,6 +1,6 @@
 body {
     @mixin light {
-        background: #faf8e4;
+        background: var(--mantine-color-beige-4);
     }
     margin: 0;
 }

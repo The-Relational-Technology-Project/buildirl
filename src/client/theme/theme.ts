@@ -1,6 +1,44 @@
 import { createTheme } from "@mantine/core";
 
 export const theme = createTheme({
+  colors: {
+    beige: [
+      "#fffdf2",
+      "#fdfbeb",
+      "#fcf9e4",
+      "#faf7dd",
+      "#faf8e4",
+      "#f1efd7",
+      "#e7e2ca",
+      "#ddd8bd",
+      "#d3ceb0",
+      "#c9c4a3"
+    ],
+    lilac: [
+      "#f2eeff",
+      "#e5e0ff",
+      "#d7d0ff",
+      "#c3b7ff",
+      "#af9eff",
+      "#9b85ff",
+      "#7a63cb",
+      "#6850b7",
+      "#563da3",
+      "#442a8f"
+    ],
+    cerulean: [
+      "#f5f7ff",
+      "#e8ebff",
+      "#dbe0ff",
+      "#ced4ff",
+      "#c1c7f2",
+      "#b4bce5",
+      "#b2b9da",
+      "#9da3c4",
+      "#888eae",
+      "#737998"
+    ]
+  },
   fontFamily: "Manrope",
   headings: { fontFamily: "Manrope" },
   components: {
@@ -75,8 +113,8 @@ export const theme = createTheme({
     },
     Tabs: {
       defaultProps: {
-        // this looks off in dark mode
-        color: "#e7e2ca",
+        // this looks off in dark mode, we override to fix this
+        color: "beige",
         variant: "pills",
         autoContrast: true,
         styles: {

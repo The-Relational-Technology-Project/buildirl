@@ -40,7 +40,7 @@ export default function PrimaryButton({
           borderRadius: 360,
           boxShadow: `4px 4px 0px ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`
         }}
-        color={"#7a63cb"}
+        color={"lilac"}
         {...props}
       >
         {children}
