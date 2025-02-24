@@ -10,7 +10,7 @@ import {
   useMantineTheme
 } from "@mantine/core";
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import ClubOverviewPanel from "~/app/(main)/club/[clubId]/manage/_components/ClubOverviewPanel";
@@ -27,8 +27,11 @@ export default function ManageClub() {
   const theme = useMantineTheme();
   const mounted = useMounted();
 
+  const router = useRouter();
   const params = useParams<{ clubId: string }>();
   const clubId = strictParseInt(params.clubId);
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") ?? "overview";
 
   const r = api.main.club.useQuery({ id: clubId });
 
@@ -46,7 +49,11 @@ export default function ManageClub() {
         <Tabs
           // hacky but how we support dark mode with defaults
           color={colorScheme === "dark" ? theme.colors.dark[4] : undefined}
-          defaultValue={"overview"}
+          value={activeTab}
+          onChange={(value) => {
+            // change url without scrolling page to top
+            router.push(`?tab=${value}`, { scroll: false });
+          }}
         >
           <Tabs.List>
             <Tabs.Tab value={"overview"}>Club Overview</Tabs.Tab>
