@@ -91,7 +91,7 @@ async function copyToClipboard(clubPublicId: string): Promise<void> {
       autoClose: 3000
     });
   } catch (e) {
-    logger.error("error while copying to clipboard: " + e);
+    logger.error(e, "failed to copy to clipboard");
     notifyError();
   }
 }

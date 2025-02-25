@@ -31,7 +31,7 @@ export default async function handler(
       token_hash
     });
     if (error) {
-      logger.error(error);
+      logger.error(error, "failed to verify otp");
     } else {
       next = stringOrFirstString(queryParams.next) ?? "/";
     }

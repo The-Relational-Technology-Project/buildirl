@@ -56,10 +56,8 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
         clubId: club.id,
         input: { displayImageUrls: updatedUrls }
       });
-    } catch (error) {
-      logger.error(
-        `failed to upload club display image ${file.name} with exception ${error}`
-      );
+    } catch (e) {
+      logger.error(e, `failed to upload club display image ${file.name}`);
     }
   };
 
@@ -74,10 +72,8 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
         clubId: club.id,
         input: { displayImageUrls: updatedUrls }
       });
-    } catch (error) {
-      logger.error(
-        `failed to upload club display image ${url} with exception ${error}`
-      );
+    } catch (e) {
+      logger.error(e, `failed to upload club display image ${url}`);
     }
   };
 
