@@ -33,7 +33,11 @@ class ErrorBoundary extends React.Component<
       return (
         <AbsoluteCenter adjustForHeader={this.props.adjustForHeader}>
           <Stack align="center" maw={500}>
-            <Image w={150} src={"/images/robot.svg"} alt={"robot"} />
+            <Image
+              w={{ base: 100, md: 150 }}
+              src={"/images/robot.svg"}
+              alt={"robot"}
+            />
             <Text size={"lg"} fw={500}>
               Uh oh! Something went wrong!
             </Text>
