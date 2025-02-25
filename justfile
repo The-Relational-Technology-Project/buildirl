@@ -14,9 +14,9 @@ db-start:
 db-stop:
 	supabase stop --backup
 
-# update migrations and remote db specified in .env.POSTGRES_URL
-# from schema.prisma definition
-# TODO setup .dotenv https://www.prisma.io/docs/orm/more/development-environment/environment-variables/using-multiple-env-files
+# update and create new migrations from schema.prisma definition using .env.local database
+# once created, these migrations will be run with prisma migrate deploy in test and prod as part
+# of CI flow
 db-migrate:
     prisma migrate dev
 
