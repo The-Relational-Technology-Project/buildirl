@@ -106,9 +106,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`queried user with id ${id} with result ${stringify(user)}`);
       return user;
     } catch (e) {
-      logger.error(
-        `failed to query user with id ${id} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query user with id ${id}`);
       throw e;
     }
   }
@@ -179,9 +177,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return clubs;
     } catch (e) {
-      logger.error(
-        `failed to query owned clubs for user with userId ${userId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query owned clubs for user with userId ${userId}`);
       throw e;
     }
   }
@@ -215,9 +211,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`queried user email for user with id ${userId}`);
       return userSettings.email;
     } catch (e) {
-      logger.error(
-        `failed to query user email for user with id ${userId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query user email for user with id ${userId}`);
       throw e;
     }
   }
@@ -238,9 +232,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return memberships;
     } catch (e) {
-      logger.error(
-        `failed to query memberships for user with userId ${userId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query memberships for user with userId ${userId}`);
       throw e;
     }
   }
@@ -259,9 +251,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return club;
     } catch (e) {
-      logger.error(
-        `failed to query club with publicId ${publicId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query club with publicId ${publicId}`);
       throw e;
     }
   }
@@ -276,9 +266,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`queried club with id ${id} with result ${stringify(club)}`);
       return club;
     } catch (e) {
-      logger.error(
-        `failed to query club with id ${id} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query club with id ${id}`);
       throw e;
     }
   }
@@ -304,9 +292,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return memberships;
     } catch (e) {
-      logger.error(
-        `failed to query memberships for club with clubId ${clubId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query memberships for club with clubId ${clubId}`);
       throw e;
     }
   }
@@ -332,9 +318,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return memberships;
     } catch (e) {
-      logger.error(
-        `failed to query pending memberships for club with clubId ${clubId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query pending memberships for club with clubId ${clubId}`);
       throw e;
     }
   }
@@ -367,9 +351,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return statistics;
     } catch (e) {
-      logger.error(
-        `failed to query club statistics for club with clubId ${clubId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query club statistics for club with clubId ${clubId}`);
       throw e;
     }
   }
@@ -408,9 +390,7 @@ export function createMainService(prisma: PrismaClient): MainService {
 
       return { createdEntityId: id };
     } catch (e) {
-      logger.error(
-        `failed to create user from input ${stringify(input)} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to create user from input ${stringify(input)}`);
       throw e;
     }
   }
@@ -426,9 +406,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       });
       logger.info(`created user setting for user with id ${userId}`);
     } catch (e) {
-      logger.error(
-        `failed to create user setting for user with id ${userId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to create user setting for user with id ${userId}`);
       throw e;
     }
   }
@@ -447,9 +425,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`updated user with id ${id} from input ${stringify(input)}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to update user with id ${id} from input ${stringify(input)} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to update user with id ${id} from input ${stringify(input)}`);
       throw e;
     }
   }
@@ -490,9 +466,7 @@ export function createMainService(prisma: PrismaClient): MainService {
 
       return { createdEntityId: id };
     } catch (e) {
-      logger.error(
-        `failed to create club from input ${stringify(input)} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to create club from input ${stringify(input)}`);
       throw e;
     }
   }
@@ -511,9 +485,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`updated club with id ${id} from input ${stringify(input)}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to update club with id ${id} from input ${stringify(input)} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to update club with id ${id} from input ${stringify(input)}`);
       throw e;
     }
   }
@@ -532,9 +504,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to update club display image urls for club with clubId ${clubId} from input ${stringify(input)} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to update club display image urls for club with clubId ${clubId} from input ${stringify(input)}`);
       throw e;
     }
   }
@@ -553,9 +523,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return memberCount > 0;
     } catch (e) {
-      logger.error(
-        `failed to query all membership count for club with clubId ${clubId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query all membership count for club with clubId ${clubId}`);
       throw e;
     }
   }
@@ -572,9 +540,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`deleted club with id ${id}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to delete club with id ${id} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to delete club with id ${id}`);
       throw e;
     }
   }
@@ -595,9 +561,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to update club application questions for club with clubId ${clubId} from input ${stringify(input)} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to update club application questions for club with clubId ${clubId} from input ${stringify(input)}`);
       throw e;
     }
   }
@@ -624,9 +588,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return { createdEntityId: id };
     } catch (e) {
-      logger.error(
-        `failed to create membership tier from input ${stringify(input)} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to create membership tier from input ${stringify(input)}`);
       throw e;
     }
   }
@@ -665,9 +627,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return count > 0;
     } catch (e) {
-      logger.error(
-        `failed to query membership count for membership tier with id ${membershipTierId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query membership count for membership tier with id ${membershipTierId}`);
       throw e;
     }
   }
@@ -694,9 +654,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       // this is definition of free tier, manually created tiers cannot be 0 cost
       return result.costPerMonthInUSD.toNumber() === 0;
     } catch (e) {
-      logger.error(
-        `failed to check if membership tier with id ${membershipTierId} is free tier with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to check if membership tier with id ${membershipTierId} is free tier`);
       throw e;
     }
   }
@@ -752,9 +710,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to update membership tier with id ${id} from input ${stringify(input)} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to update membership tier with id ${id} from input ${stringify(input)}`);
       throw e;
     }
   }
@@ -774,9 +730,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`deleted membership tier with id ${id}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to delete membership tier with id ${id} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to delete membership tier with id ${id}`);
       throw e;
     }
   }
@@ -796,9 +750,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return r.status === "PUBLISHED";
     } catch (e) {
-      logger.error(
-        `failed to query status for membership tier with id ${membershipTierId}`
-      );
+      logger.error(e, `failed to query status for membership tier with id ${membershipTierId}`);
       throw e;
     }
   }
@@ -817,9 +769,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`published membership tier with id ${id}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to publish membership tier with id ${id} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to publish membership tier with id ${id}`);
       throw e;
     }
   }
@@ -837,9 +787,7 @@ export function createMainService(prisma: PrismaClient): MainService {
         allPublishedMembershipTiers[0]!.id === membershipTierId
       );
     } catch (e) {
-      logger.error(
-        `failed to query all published membership tiers with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query all published membership tiers`);
       throw e;
     }
   }
@@ -863,9 +811,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`unpublished membership tier with id ${id}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to unpublish membership tier with id ${id} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to unpublish membership tier with id ${id}`);
       throw e;
     }
   }
@@ -881,9 +827,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return club.ownerUserId;
     } catch (e) {
-      logger.error(
-        `failed to query owner userId for club with clubId ${clubId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query owner userId for club with clubId ${clubId}`);
       throw e;
     }
   }
@@ -901,9 +845,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return membershipTier.clubId;
     } catch (e) {
-      logger.error(
-        `failed to query clubId for membership tier with membershipTierId ${membershipTierId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query clubId for membership tier with membershipTierId ${membershipTierId}`);
       throw e;
     }
   }
@@ -1004,9 +946,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return { createdEntityId: id };
     } catch (e) {
-      logger.error(
-        `failed to create pending membership from input ${stringify(input)} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to create pending membership from input ${stringify(input)}`);
       throw e;
     }
   }
@@ -1034,9 +974,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return { createdEntityId: id };
     } catch (e) {
-      logger.error(
-        `failed to update membership to pending membership from input ${stringify(input)} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to update membership to pending membership from input ${stringify(input)}`);
       throw e;
     }
   }
@@ -1053,9 +991,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       );
       return membership.status;
     } catch (e) {
-      logger.error(
-        `failed to query membership status for membership with id ${membershipId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to query membership status for membership with id ${membershipId}`);
       throw e;
     }
   }
@@ -1084,9 +1020,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`approved membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to approve membership with id ${membershipId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to approve membership with id ${membershipId}`);
       throw e;
     }
   }
@@ -1103,9 +1037,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`declined membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to decline membership with id ${membershipId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to decline membership with id ${membershipId}`);
       throw e;
     }
   }
@@ -1122,9 +1054,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`deactivated membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to deactivate membership with id ${membershipId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to deactivate membership with id ${membershipId}`);
       throw e;
     }
   }
@@ -1141,9 +1071,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(`set membership as welcomed with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(
-        `failed to set membership as welcomed with id ${membershipId} with exception ${stringify(e)}`
-      );
+      logger.error(e, `failed to set membership as welcomed with id ${membershipId}`);
       throw e;
     }
   }
