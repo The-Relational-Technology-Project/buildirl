@@ -34,3 +34,9 @@ stop:
 
 generate-prisma:
     prisma generate
+
+# This merges *all* changes from testing branch into main branch. Because vercel automatically deploys prod on main branch
+# updates, this effectively deploys from testing to production environment. If you need more granular deploy of prior commits,
+# you should not use this but create a pull request into main
+deploy-prod:
+    git stash && git checkout main && git merge testing && git push origin main && git checkout testing && git stash pop
