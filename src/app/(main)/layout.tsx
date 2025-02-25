@@ -13,6 +13,7 @@ import HeaderBar from "~/client/components/HeaderBar";
 import { api } from "~/trpc/server";
 import { isUserAuthenticated } from "~/client/utils/auth";
 import WithDefaultColorSchemeOnManualRouteChange from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
+import ErrorBoundary from "~/client/components/ErrorBoundary";
 
 export default async function MainLayout({
   children
@@ -41,7 +42,9 @@ function AuthenticatedLayout({ children }: LayoutProps) {
       <AppShellMain h={"100%"}>
         <WithDefaultColorSchemeOnManualRouteChange>
           <Center>
-            <Box w={{ base: "80vw", md: PAGE_WIDTH }}>{children}</Box>
+            <Box w={{ base: "80vw", md: PAGE_WIDTH }}>
+              <ErrorBoundary adjustForHeader>{children}</ErrorBoundary>
+            </Box>
           </Center>
         </WithDefaultColorSchemeOnManualRouteChange>
       </AppShellMain>
@@ -55,7 +58,9 @@ function PublicLayout({ children }: LayoutProps) {
       <AppShellMain h={"100%"}>
         <WithDefaultColorSchemeOnManualRouteChange>
           <Center>
-            <Box w={{ base: "80vw", md: PAGE_WIDTH }}>{children}</Box>
+            <Box w={{ base: "80vw", md: PAGE_WIDTH }}>
+              <ErrorBoundary>{children}</ErrorBoundary>
+            </Box>
           </Center>
         </WithDefaultColorSchemeOnManualRouteChange>
       </AppShellMain>

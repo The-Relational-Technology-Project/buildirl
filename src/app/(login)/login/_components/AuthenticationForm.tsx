@@ -52,7 +52,7 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
       setEmail(values.email);
       toggle();
     } catch (e) {
-      logger.error("Failed to send OTP:");
+      logger.error(e, "failed to send OTP");
     }
   };
 
@@ -104,7 +104,7 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
 
       if (error) throw error;
     } catch (e) {
-      logger.error(`Failed to verify OTP with exception ${e}`);
+      logger.error(e, `failed to verify OTP`);
     }
   };
 
