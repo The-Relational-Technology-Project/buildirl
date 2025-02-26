@@ -50,7 +50,7 @@ the time your code is divergent from main.
 
 ### CI Workflow
 1. Run PBT in `system.test.ts` on any backend changes locally before deployment
-2. Merge and push code into `testing` branch which is deployed automatically to the [testing environment](https://buildirl-env-testing-buildirl.vercel.app/)
+2. Merge and push code into `testing` branch which is deployed automatically to the [testing environment](https://buildirl-git-testing-buildirl.vercel.app/)
 3. To deploy prod, run `just deploy-prod` which merges `origin/testing` into `origin/main`. Updates to the `main` branch is automatically 
 deployed to the [production environment](https://platform.buildirl.com/).
 
