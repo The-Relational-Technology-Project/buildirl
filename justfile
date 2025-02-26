@@ -35,7 +35,7 @@ stop:
 generate-prisma:
     prisma generate
 
-# This merges *all* changes from remote testing branch into remote main branch. Because vercel automatically deploys prod
+# This merges *all* changes from remote testing branch into remote main branch. Because Vercel automatically deploys prod
 # on main branch updates, this effectively deploys current testing to production environment. If you need more granular
 # deploy of prior commits, you should not use this but create a pull request into main.
 #
