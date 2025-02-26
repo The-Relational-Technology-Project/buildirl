@@ -16,7 +16,7 @@ import { storageClient } from "~/client/utils/storageClient";
 import { Club } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
 import { logger } from "~/client/logger";
-import { checkFileSize } from "~/client/components/EditableUserAvatar";
+import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
 
 const MAX_DISPLAY_IMAGE_COUNT = 5;
 
@@ -44,7 +44,9 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
   const handleUpload = async (file: Maybe<File>) => {
     if (!file) return;
 
-    checkFileSize(file);
+    if (!isFileSizeValid(file)) {
+      return;
+    }
 
     try {
       const url = await storageClient.uploadClubDisplayImage(club.id, file);

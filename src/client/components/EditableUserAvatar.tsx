@@ -5,24 +5,30 @@ import { ActionIcon, AvatarProps, Box, FileInput } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
 import { User } from "~/server/service/types";
 import UserAvatar from "~/client/components/UserAvatar";
+import { logger, notifyError } from "~/client/logger";
 
 type EditableUserAvatarProps = {
   user: User;
 };
 
-// 5 megabytes
+// 2 megabytes
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
-export function checkFileSize(file: File) {
-  // TODO more graceful error handling
+// returns whether the file size is valid
+export function isFileSizeValid(file: File): boolean {
   if (file.size === 0) {
-    throw new Error(`image file ${file.name} was empty`);
+    logger.error(`image file ${file.name} was empty`);
+    notifyError("Uploaded image was empty!");
+    return false;
   }
   if (file.size > MAX_FILE_SIZE) {
-    throw new Error(
-      `image file upload cannot be greater than 2MB but was ${file.size} bytes`
+    logger.error(
+      `image file upload cannot be greater than 2MBs but was ${file.size / (1024 * 1024)}MBs`
     );
+    notifyError("Uploaded file cannot be greater than 2MBs!");
+    return false;
   }
+  return true;
 }
 
 export default function EditableUserAvatar({
@@ -35,7 +41,9 @@ export default function EditableUserAvatar({
       return;
     }
 
-    checkFileSize(file);
+    if (!isFileSizeValid(file)) {
+      return;
+    }
 
     await storageClient.uploadUserProfileImage(user.id, file);
     // force a full refresh of the page so all image references

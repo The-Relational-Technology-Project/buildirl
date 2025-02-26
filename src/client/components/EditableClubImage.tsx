@@ -3,7 +3,7 @@ import { type Maybe } from "~/utils/types";
 import { ActionIcon, Box, BoxProps, FileInput, StyleProp } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
 import createStorageClient from "~/client/utils/storageClient";
-import { checkFileSize } from "~/client/components/EditableUserAvatar";
+import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
 import { Club } from "~/server/service/types";
 import ClubImage from "~/client/components/ClubImage";
 
@@ -24,7 +24,9 @@ export default function EditableClubImage({
       return;
     }
 
-    checkFileSize(file);
+    if (!isFileSizeValid(file)) {
+      return;
+    }
 
     await storageClient.uploadClubProfileImage(club.id, file);
     // force a full refresh of the page so all image references

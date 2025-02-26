@@ -92,6 +92,6 @@ async function copyToClipboard(clubPublicId: string): Promise<void> {
     });
   } catch (e) {
     logger.error(e, "failed to copy to clipboard");
-    notifyError();
+    notifyError("Failed to copy share link to clipboard.");
   }
 }

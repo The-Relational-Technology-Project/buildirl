@@ -4,10 +4,12 @@ import { IconExclamationCircle } from "@tabler/icons-react";
 
 export const logger = rootLogger.child({ module: "client" });
 
-export function notifyError() {
+export function notifyError(
+  userFriendlyMessage: string = "There was an error."
+) {
   showNotification({
     title: "Error",
-    message: "See logs for more details.",
+    message: userFriendlyMessage,
     color: "red",
     icon: <IconExclamationCircle size={"1.1rem"} />,
     autoClose: 3000
