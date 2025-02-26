@@ -15,7 +15,7 @@ import { api } from "~/trpc/react";
 import { storageClient } from "~/client/utils/storageClient";
 import { Club } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
-import { logger } from "~/client/logger";
+import { logger, notifyError } from "~/client/logger";
 import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
 
 const MAX_DISPLAY_IMAGE_COUNT = 5;
@@ -60,6 +60,10 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
       });
     } catch (e) {
       logger.error(e, `failed to upload club display image ${file.name}`);
+      notifyError(
+        "Failed to upload club display image. Please ensure image is not a duplicate."
+      );
+      return;
     }
   };
 
@@ -75,7 +79,8 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
         input: { displayImageUrls: updatedUrls }
       });
     } catch (e) {
-      logger.error(e, `failed to upload club display image ${url}`);
+      logger.error(e, `failed to delete club display image ${url}`);
+      notifyError("Failed to delete club display image.");
     }
   };
 

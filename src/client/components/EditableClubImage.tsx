@@ -6,6 +6,7 @@ import createStorageClient from "~/client/utils/storageClient";
 import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
 import { Club } from "~/server/service/types";
 import ClubImage from "~/client/components/ClubImage";
+import { logger, notifyError } from "~/client/logger";
 
 type EditableClubImageProps = {
   club: Club;
@@ -28,7 +29,14 @@ export default function EditableClubImage({
       return;
     }
 
-    await storageClient.uploadClubProfileImage(club.id, file);
+    try {
+      await storageClient.uploadClubProfileImage(club.id, file);
+    } catch (e) {
+      logger.error(e, "failed to upload club profile image");
+      notifyError("Failed to upload club profile image.");
+      return;
+    }
+
     // force a full refresh of the page so all image references
     // can pick up new upload
     window.location.reload();

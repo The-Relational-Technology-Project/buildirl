@@ -45,7 +45,13 @@ export default function EditableUserAvatar({
       return;
     }
 
-    await storageClient.uploadUserProfileImage(user.id, file);
+    try {
+      await storageClient.uploadUserProfileImage(user.id, file);
+    } catch (e) {
+      logger.error(e, "failed to upload user profile image");
+      notifyError("Failed to upload user profile image.");
+      return;
+    }
     // force a full refresh of the page so all image references
     // can pick up new upload
     window.location.reload();

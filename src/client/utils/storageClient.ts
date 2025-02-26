@@ -34,9 +34,11 @@ export default function createStorageClient(): StorageClient {
       });
     logger.info(`uploaded profile image for user with id ${userId}`);
     if (error) {
-      throw new Error(
-        `failed to upload profile image for user with id ${userId} with exception ${error.message}`
+      logger.error(
+        error,
+        `failed to upload profile image for user with id ${userId}`
       );
+      throw error;
     }
   }
 
@@ -51,9 +53,11 @@ export default function createStorageClient(): StorageClient {
       });
     logger.info(`uploaded profile image for club with id ${clubId}`);
     if (error) {
-      throw new Error(
-        `failed to upload profile image for club with id ${clubId} with exception ${error.message}`
+      logger.error(
+        error,
+        `failed to upload profile image for club with id ${clubId}`
       );
+      throw error;
     }
   }
 
@@ -106,9 +110,11 @@ export default function createStorageClient(): StorageClient {
       });
 
     if (error) {
-      throw new Error(
-        `failed to upload display image for club with id ${clubId} with exception ${error.message}`
+      logger.error(
+        error,
+        `failed to upload display image for club with id ${clubId}`
       );
+      throw error;
     }
 
     const { data } = supabaseClient.storage
@@ -142,9 +148,11 @@ export default function createStorageClient(): StorageClient {
       .remove([filePath]);
 
     if (error) {
-      throw new Error(
-        `failed to delete display image for club with id ${clubId} with exception ${error.message}`
+      logger.error(
+        error,
+        `failed to delete display image for club with id ${clubId}`
       );
+      throw error;
     }
 
     logger.info(`deleted display image for club with id ${clubId}`);
