@@ -130,18 +130,22 @@ export default function createStorageClient(): StorageClient {
     return publicUrl;
   }
 
-  function relativeFilePathFromImageBucketPath(imageUrl: Url): Url {
+  function decodedRelativeFilePathFromEncodedImageBucketPath(
+    imageUrl: Url
+  ): Url {
     const match = IMAGE_BUCKET_PATH_REGEX.exec(imageUrl);
     if (!match || !match.groups?.relativeFilePath) {
       throw new Error(
         `url ${imageUrl} must be a valid Supabase storage public url for \`images\` bucket`
       );
     }
-    return match.groups.relativeFilePath;
+    // we need to decode the path to interface with storage layer
+    return decodeURIComponent(match.groups.relativeFilePath);
   }
 
   async function deleteClubDisplayImage(clubId: number, imageUrl: Url) {
-    const filePath = relativeFilePathFromImageBucketPath(imageUrl);
+    const filePath =
+      decodedRelativeFilePathFromEncodedImageBucketPath(imageUrl);
 
     const { error } = await supabaseClient.storage
       .from("images")
