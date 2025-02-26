@@ -6,7 +6,7 @@ of local community builders!
 - [Slack](https://www.buildirl.slack.com)
 - [GitLab](https://gitlab.com/smallworld/buildirl)
 - [Vercel](https://vercel.com/asmallworld/buildirl)
-- [Supabase](https://supabase.com/dashboard/project/raoharfnfnkuyabregez)
+- [Supabase](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce)
 
 ## Technologies
 
@@ -47,6 +47,17 @@ coverage on:
 We use [trunk-based development](https://trunkbaseddevelopment.com/) as our integration strategy. In conjunction with
 TDD and smaller commits, this allows for increased iteration speed. We emphasize taking smaller faster steps and reducing
 the time your code is divergent from main.
+
+### CI Workflow
+1. Run PBT in `system.test.ts` on any backend changes locally before deployment
+2. Merge and push code into `testing` branch which is deployed automatically to the [testing environment](https://buildirl-env-testing-buildirl.vercel.app/)
+3. To deploy prod, run `just deploy-prod` which merges `origin/testing` into `origin/main`. Updates to the `main` branch is automatically 
+deployed to the [production environment](https://platform.buildirl.com/).
+
+### DB Migrations
+1. Apply migrations first locally using `just db-migrate`. This creates migration files (in `prisma/migrations/`) from `schema.prisma` changes
+2. Vercel deployments into testing and production environment automatically applies the generated migration files to the [testing](https://supabase.com/dashboard/project/raoharfnfnkuyabregez) 
+and [production](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce) databases respectively
 
 ## Other Readings
 
