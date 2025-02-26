@@ -43,9 +43,6 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
 
   const handleSubmit = async (values: { email: string }) => {
     try {
-      // works for both return and first sign-up, user will get sign-in code directly as we disabled
-      // confirm email flow. It is not necessary since code confirmation confirms this implicitly
-      // https://www.reddit.com/r/Supabase/comments/1dti2ks/trying_to_implement_magic_link_sign_up_but/
       const { error } = await supabase.auth.signInWithOtp({
         email: values.email
       });
@@ -75,6 +72,15 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
         <Button type="submit" mt="sm">
           {"Send code"}
         </Button>
+        <Anchor
+          c={"dimmed"}
+          component="button"
+          type="button"
+          onClick={toggle}
+          size="xs"
+        >
+          Received code?
+        </Anchor>
       </Stack>
     </form>
   );
@@ -99,27 +105,15 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
 
   const handleSubmit = async (values: { code: string }) => {
     try {
-      // Try to verify with both magiclink and signup_confirmation types
-      // This handles both first-time users and returning users
-      const { error: magicLinkError } = await supabase.auth.verifyOtp({
+      const { error } = await supabase.auth.verifyOtp({
         email,
         token: values.code,
         type: "magiclink"
       });
 
-      if (magicLinkError) {
-        // If magiclink fails, try signup confirmation
-        const { error: signUpError } = await supabase.auth.verifyOtp({
-          email,
-          token: values.code,
-          type: "signup"
-        });
-
-        if (signUpError) throw signUpError;
-      }
+      if (error) throw error;
     } catch (e) {
       logger.error(e, `failed to verify OTP`);
-      form.setFieldError("code", "Invalid code");
     }
   };
 
