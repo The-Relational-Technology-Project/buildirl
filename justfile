@@ -41,6 +41,6 @@ generate-prisma:
 #
 # Notes:
 # - *IMPORTANT* This will clear all local main changes not in origin/main. You should not have changes here in this workflow!
-# - This will not work if there are committed changes on your current branch. It will also place you back in testing branch.
+# - This will not work if there are uncommitted changes on your current branch. Please stash these before running the command.
 deploy-prod:
-    git stash && git fetch origin && git checkout main && git reset --hard origin/main && git merge origin/testing && git push origin main && git checkout - && git stash pop
+    git fetch origin && git checkout main && git reset --hard origin/main && git merge origin/testing && git push origin main && git checkout -
