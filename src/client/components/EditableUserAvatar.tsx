@@ -18,14 +18,14 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024;
 export function isFileSizeValid(file: File): boolean {
   if (file.size === 0) {
     logger.error(`image file ${file.name} was empty`);
-    notifyError("Uploaded image was empty!");
+    notifyError("Uploaded image was empty.");
     return false;
   }
   if (file.size > MAX_FILE_SIZE) {
     logger.error(
-      `image file upload cannot be greater than 2MBs but was ${file.size / (1024 * 1024)}MBs`
+      `image file upload cannot be greater than 2 MB but was ${file.size / (1024 * 1024)} MB`
     );
-    notifyError("Uploaded file cannot be greater than 2MBs!");
+    notifyError("Uploaded image cannot be greater than 2 MB.");
     return false;
   }
   return true;
