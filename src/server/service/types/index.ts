@@ -17,7 +17,10 @@ export type MainQueries = {
   // all memberships, regardless of status
   getUserMemberships(userId: number): Promise<Membership[]>;
   getClubByPublicId(publicId: string): Promise<Club>;
-  getActiveMembershipsForClub(clubId: number): Promise<Membership[]>;
+  getActiveMembershipsForClub(
+    clubId: number,
+    includeEmail: boolean
+  ): Promise<Membership[]>;
   getMembershipApplicationsForClub(clubId: number): Promise<Membership[]>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   // entities
@@ -58,7 +61,8 @@ export type Membership = {
   membershipTier: MembershipTier;
   status: MembershipStatus;
   applicationResponses: FormResponses;
-  // null if not shared
+  // null unless includeEmail is set explicitly to true (gated by RLS to only club owners)
+  // null if user has no set email
   email: Maybe<Email>;
   isWelcomed: boolean;
   // this isn't exactly the join date as it is the date

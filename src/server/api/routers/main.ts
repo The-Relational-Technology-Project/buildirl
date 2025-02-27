@@ -40,11 +40,19 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.getClubByPublicId(input.publicId);
     }),
 
-  // TODO! this needs to be secured and usage in public pages need to be reworked
   activeMembershipsForClub: publicProcedure
-    .input(z.object({ clubId: z.number() }))
+    .input(
+      z.object({
+        clubId: z.number(),
+        // this is secured by RLS to only owner of the club
+        includeEmail: z.boolean().default(false)
+      })
+    )
     .query(({ ctx, input }) => {
-      return ctx.service.getActiveMembershipsForClub(input.clubId);
+      return ctx.service.getActiveMembershipsForClub(
+        input.clubId,
+        input.includeEmail
+      );
     }),
 
   membershipApplicationsForClub: securedProcedure

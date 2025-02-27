@@ -7,14 +7,12 @@ import {
   Table,
   Text,
   Title,
-  Box,
   useMantineColorScheme,
   useMantineTheme
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded, toDisplayDate } from "~/client/utils";
-import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { useRouter } from "next/navigation";
 import EmailLink from "~/client/components/EmailLink";
@@ -38,11 +36,17 @@ export default function ActiveMembershipTable({
   const utils = api.useUtils();
   const deactivateMembership = api.main.deactivateMembership.useMutation({
     onSuccess: async () => {
-      await utils.main.activeMembershipsForClub.invalidate({ clubId: clubId });
+      await utils.main.activeMembershipsForClub.invalidate({
+        clubId: clubId,
+        includeEmail: true
+      });
     }
   });
 
-  const r = api.main.activeMembershipsForClub.useQuery({ clubId: clubId });
+  const r = api.main.activeMembershipsForClub.useQuery({
+    clubId: clubId,
+    includeEmail: true
+  });
 
   QueryError.check({
     result: r,

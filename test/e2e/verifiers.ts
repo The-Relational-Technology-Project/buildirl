@@ -97,10 +97,10 @@ function createVerifiers() {
     r: MainService,
     m: SystemState
   ) {
-    const memberships = await r.getActiveMembershipsForClub(clubId);
+    const memberships = await r.getActiveMembershipsForClub(clubId, true);
     expect(
       orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
-    ).toEqual(orderByBigIntId(m.getActiveMembershipsForClub(clubId)));
+    ).toEqual(orderByBigIntId(m.getActiveMembershipsForClub(clubId, true)));
   }
 
   async function verifyMembershipApplicationsForClub(

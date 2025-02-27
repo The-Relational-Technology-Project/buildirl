@@ -491,7 +491,8 @@ export class SystemState {
   }
 
   public membershipStateToMembership(
-    membershipState: MembershipState
+    membershipState: MembershipState,
+    includeEmail: boolean = false
   ): OmitRecursively<Membership, "createdAt"> {
     return {
       id: membershipState.id,
@@ -500,7 +501,7 @@ export class SystemState {
       membershipTier: this.getMembershipTier(membershipState.membershipTierId),
       status: membershipState.status,
       applicationResponses: membershipState.applicationResponses,
-      email: this.getUserEmail(membershipState.userId),
+      email: includeEmail ? this.getUserEmail(membershipState.userId) : null,
       isWelcomed: membershipState.isWelcomed
     };
   }
@@ -511,12 +512,13 @@ export class SystemState {
   }
 
   public getActiveMembershipsForClub(
-    clubId: number
+    clubId: number,
+    includeEmail: boolean
   ): OmitRecursively<Membership, "createdAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.clubId === clubId)
       .filter((m) => m.status === "ACTIVE")
-      .map((m) => this.membershipStateToMembership(m));
+      .map((m) => this.membershipStateToMembership(m, includeEmail));
   }
 
   public getMembershipApplicationsForClub(
@@ -525,7 +527,7 @@ export class SystemState {
     return Array.from(this.memberships.values())
       .filter((m) => m.clubId === clubId)
       .filter((m) => m.status === "PENDING")
-      .map((m) => this.membershipStateToMembership(m));
+      .map((m) => this.membershipStateToMembership(m, true));
   }
 
   private membershipCountWithStatus(
@@ -553,7 +555,7 @@ export class SystemState {
   ): OmitRecursively<Membership, "createdAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.userId === userId)
-      .map((m) => this.membershipStateToMembership(m));
+      .map((m) => this.membershipStateToMembership(m, false));
   }
 
   public submitMembershipApplication(
