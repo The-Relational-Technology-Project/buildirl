@@ -21,11 +21,11 @@ of local community builders!
 
 First time users can use the commands in the [justfile](justfile) in order to run the application locally.
 1. `just setup` for first time set-up of local database and dependencies
-2. `just db-start` and `just start` to begin local instance. See output for the localport (defaults to localhost:3000)
+2. `just db-start` and `just start` to begin local instance. See output for the localport (defaults to `localhost:3000`)
 
 ### Local Authentication
 Authentication requires OTP sent to your email. When running locally, you will not receive an email. Instead you can retrieve 
-the messages with Inbucket which is accessible at localhost:54324.
+the messages with Inbucket which is accessible at `localhost:54324`.
 
 ## Testing
 
@@ -65,8 +65,8 @@ process for updating them is:
 1. When a table is added via prisma migration, it is by default not secured via RLS. It is important to immediately apply RLS to it as close to possible as the migration
 is applied. Every time a new bucket or folder is added, it also needs to have RLS rules defined. When a field is added to a table, we must also do an audit to see how 
 it affects RLS rules and make appropriate updates.
-2. Up-to-date RLS rules are version-controlled in `/prisma/rls.sql` file. Define these rules after you've made schema.prisma changes but before you have applied migration.
-3. Apply the changes manually via the supabase management console locally (via supabase studio @ localhost:54323), 
+2. Up-to-date RLS rules are version-controlled in `prisma/rls.sql` file. Define these rules after you've made schema.prisma changes but before you have applied migration.
+3. Apply the changes manually via the supabase management console locally (via supabase studio @ `localhost:54323`), 
 in test ([database](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), [bucket](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies)), 
 and prod ([database](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies), [bucket](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies))
 as soon as the migrations is created
