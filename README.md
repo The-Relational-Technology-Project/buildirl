@@ -59,6 +59,18 @@ deployed to the [production environment](https://platform.buildirl.com/).
 2. Vercel deployments into testing and production environment automatically applies the generated migration files to the [testing](https://supabase.com/dashboard/project/raoharfnfnkuyabregez) 
 and [production](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce) databases respectively
 
+### Row-Level Security
+The source of truth for fine-grained user-based authorization rules is in Postgres RLS rules (although more broad-based authorization on authenticated users is in the trpc layer). The
+process for updating them is:
+1. When a table is added via prisma migration, it is by default not secured via RLS. It is important to immediately apply RLS to it as close to possible as the migration
+is applied. Every time a new bucket or folder is added, it also needs to have RLS rules defined. When a field is added to a table, we must also do an audit to see how 
+it affects RLS rules and make appropriate updates.
+2. Up-to-date RLS rules are version-controlled in `/prisma/rls.sql` file. Define these rules after you've made schema.prisma changes but before you have applied migration.
+3. Apply the changes manually via the supabase management console locally (via supabase studio @ localhost:54323), 
+in test ([database](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), [bucket](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies)), 
+and prod ([database](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies), [bucket](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies))
+as soon as the migrations is created
+
 ## Other Readings
 
 Other optional readings that help inform the development practices are:
