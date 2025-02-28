@@ -28,7 +28,7 @@ enum MembershipTierStatus {
 model User {
   id          Int           @id @default(autoincrement())
   // internal-only
-  authUserId  String?       @unique @map("auth_user_id") @db.Uuid
+  authUserId  String        @unique @map("auth_user_id") @db.Uuid
   firstName   String        @map("first_name")
   lastName    String        @map("last_name")
   description String
