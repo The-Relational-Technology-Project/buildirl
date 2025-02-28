@@ -74,6 +74,7 @@ model Club {
   updatedAt            DateTime         @updatedAt @map("updated_at")
 
   @@index([ownerUserId])
+  @@index([publicId])
   @@map("club")
 }
 
