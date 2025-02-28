@@ -61,7 +61,7 @@ AS PERMISSIVE
 FOR SELECT
 TO authenticated
 USING (
-  EXISTS (SELECT 1 FROM "user" WHERE id = user_id AND auth_user_id = (SELECT auth.uid()))
+  user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 -- TODO this is more permissive than it needs to be across fields
@@ -86,7 +86,7 @@ AS PERMISSIVE
 FOR UPDATE
 TO authenticated
 USING (
-  EXISTS (SELECT 1 FROM "user" WHERE id = user_id AND auth_user_id = (SELECT auth.uid()))
+  user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Users can insert their own settings"
@@ -95,7 +95,7 @@ AS PERMISSIVE
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  EXISTS (SELECT 1 FROM "user" WHERE id = user_id AND auth_user_id = (SELECT auth.uid()))
+  user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Public can view clubs"
