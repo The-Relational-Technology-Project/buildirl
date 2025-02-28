@@ -61,14 +61,13 @@ AS PERMISSIVE
 FOR SELECT
 TO authenticated
 USING (
-  user_id IN (
-    SELECT m.user_id 
+  EXISTS (
+    SELECT 1 
     FROM "membership" m
     JOIN "membership_tier" mt ON mt.id = m.membership_tier_id
     JOIN "club" c ON c.id = mt.club_id
-    WHERE c.owner_user_id = (
-      SELECT id FROM "user" WHERE auth_user_id = auth.uid()
-    )
+    WHERE m.user_id = user_settings.user_id
+    AND c.owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
   )
 );
 
@@ -195,8 +194,9 @@ FOR UPDATE
 TO authenticated
 USING (
   EXISTS (
-    SELECT 1 FROM "membership_tier" mt
-    JOIN "club" c ON mt.club_id = c.id
+    SELECT 1 
+    FROM "membership_tier" mt
+    JOIN "club" c ON c.id = mt.club_id
     WHERE mt.id = membership_tier_id
     AND c.owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
   )
