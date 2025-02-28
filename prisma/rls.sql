@@ -97,10 +97,19 @@ FOR SELECT
 TO public
 USING (true);
 
-CREATE POLICY "Club owners can update and delete their own clubs"
+CREATE POLICY "Club owners can update their own clubs"
 ON "public"."club"
 AS PERMISSIVE
-FOR UPDATE, DELETE
+FOR UPDATE
+TO authenticated
+USING (
+  owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+);
+
+CREATE POLICY "Club owners can delete their own clubs"
+ON "public"."club"
+AS PERMISSIVE
+FOR DELETE
 TO authenticated
 USING (
   owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
@@ -122,10 +131,23 @@ FOR SELECT
 TO public
 USING (true);
 
-CREATE POLICY "Club owners can update and delete membership tiers"
+CREATE POLICY "Club owners can update membership tiers"
 ON "public"."membership_tier"
 AS PERMISSIVE
-FOR UPDATE, DELETE
+FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM "club" 
+    WHERE id = club_id 
+    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  )
+);
+
+CREATE POLICY "Club owners can delete membership tiers"
+ON "public"."membership_tier"
+AS PERMISSIVE
+FOR DELETE
 TO authenticated
 USING (
   EXISTS (
@@ -157,10 +179,10 @@ TO public
 USING (true);
 
 -- TODO this is more permissive than it needs to be across fields
-CREATE POLICY "Users and club owners can update and memberships"
+CREATE POLICY "Users and club owners can update memberships"
 ON "public"."membership"
 AS PERMISSIVE
-FOR UPDATE, DELETE
+FOR UPDATE
 TO authenticated
 USING (
   user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
@@ -171,6 +193,15 @@ USING (
     WHERE mt.id = membership_tier_id
     AND c.owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
   )
+);
+
+CREATE POLICY "Users can delete memberships"
+ON "public"."membership"
+AS PERMISSIVE
+FOR DELETE
+TO authenticated
+USING (
+  user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
 );
 
 CREATE POLICY "Users can create their own memberships"
