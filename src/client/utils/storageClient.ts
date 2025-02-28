@@ -19,6 +19,9 @@ const IMAGE_BUCKET_PATH_REGEX =
 /**
  * tRPC does not do a good job handling file uploads as it serializes everything into JSON,
  * so we circumvent it and use this direct client for upload mutations
+ *
+ * TODO this is the only reason we need to expose the supabase public anon key, if we can move this to server
+ *  we can increase security
  */
 export default function createStorageClient(): StorageClient {
   const supabaseClient = createComponentClient();

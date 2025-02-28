@@ -9,6 +9,8 @@
    Prod Bucket: https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies
 
    Follow the guide here for performance optimizations: https://supabase.com/docs/guides/auth/row-level-security
+
+  TODO possibly automate this process via prisma and an idempotent script
  */
 
 -- Enable RLS on all tables to protect all tables from unauthenticated access via supabase public anon key
