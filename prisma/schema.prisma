@@ -38,6 +38,8 @@ model User {
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
+  // for rls look-ups
+  @@index([authUserId])
   @@map("user")
 }
 
@@ -48,6 +50,7 @@ model UserSettings {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([userId])
   @@map("user_settings")
 }
 
@@ -70,6 +73,7 @@ model Club {
   createdAt            DateTime         @default(now()) @map("created_at")
   updatedAt            DateTime         @updatedAt @map("updated_at")
 
+  @@index([ownerUserId])
   @@map("club")
 }
 
@@ -86,6 +90,7 @@ model MembershipTier {
   createdAt               DateTime             @default(now()) @map("created_at")
   updatedAt               DateTime             @updatedAt @map("updated_at")
 
+  @@index([clubId])
   @@map("membership_tier")
 }
 
@@ -102,5 +107,7 @@ model Membership {
   updatedAt            DateTime         @updatedAt @map("updated_at")
 
   @@unique([userId, membershipTierId])
+  @@index([userId])
+  @@index([membershipTierId])
   @@map("membership")
 }
