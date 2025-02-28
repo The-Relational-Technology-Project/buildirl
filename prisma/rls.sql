@@ -289,10 +289,9 @@ TO authenticated
 WITH CHECK (
   bucket_id = 'images' AND
   (storage.foldername(name))[1] = 'club' AND
-  EXISTS (
-    SELECT 1 FROM "club"
-    WHERE id::text = (storage.foldername(name))[2]
-    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
+  (storage.foldername(name))[2] IN (
+    SELECT id::text FROM "club"
+    WHERE owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
 
@@ -304,10 +303,9 @@ TO authenticated
 USING (
   bucket_id = 'images' AND
   (storage.foldername(name))[1] = 'club' AND
-  EXISTS (
-    SELECT 1 FROM "club"
-    WHERE id::text = (storage.foldername(name))[2]
-    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
+  (storage.foldername(name))[2] IN (
+    SELECT id::text FROM "club"
+    WHERE owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
 
@@ -319,9 +317,8 @@ TO authenticated
 USING (
   bucket_id = 'images' AND
   (storage.foldername(name))[1] = 'club' AND
-  EXISTS (
-    SELECT 1 FROM "club"
-    WHERE id::text = (storage.foldername(name))[2]
-    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
+  (storage.foldername(name))[2] IN (
+    SELECT id::text FROM "club"
+    WHERE owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
