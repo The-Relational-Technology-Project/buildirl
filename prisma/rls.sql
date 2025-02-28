@@ -26,7 +26,7 @@ ALTER TABLE "public"."_prisma_migrations" ENABLE ROW LEVEL SECURITY;
  DATABASE POLICIES
 */
 
--- Technically these SELECT RLS policies are overriden by the fact that the images bucket is public
+-- Technically these SELECT RLS policies are overridden by the fact that the images bucket is public
 -- but we include them here to track our precise intention
 -- TODO should we restrict this at the bucket level in the future?
 
