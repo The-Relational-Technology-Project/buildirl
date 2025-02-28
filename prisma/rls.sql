@@ -1,10 +1,14 @@
-/* Tables created through prisma (schema.prisma) are by default not secured by RLS
+/* 
+  Tables created through prisma (schema.prisma) are by default not secured by RLS
+
    RLS policies must be defined and updated in version control here and applied manually after schema migration
    via the supabase console:
    Test DB: https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies
    Test Bucket: https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies
    Prod DB: https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies
    Prod Bucket: https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies
+
+   Follow the guide here for performance optimizations: https://supabase.com/docs/guides/auth/row-level-security
  */
 
 -- Enable RLS on all tables to protect all tables from unauthenticated access via supabase public anon key
@@ -37,7 +41,7 @@ ON "public"."user"
 AS PERMISSIVE
 FOR UPDATE
 TO authenticated
-USING (auth.uid() = auth_user_id);
+USING ((SELECT auth.uid()) = auth_user_id);
 
 CREATE POLICY "Authenticated users can insert if not already in table"
 ON "public"."user"
@@ -45,8 +49,8 @@ AS PERMISSIVE
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  auth.uid() = auth_user_id
-  AND NOT EXISTS (SELECT 1 FROM "user" WHERE auth_user_id = auth.uid())
+  (SELECT auth.uid()) = auth_user_id
+  AND NOT EXISTS (SELECT 1 FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Users can view their own settings"
@@ -55,7 +59,7 @@ AS PERMISSIVE
 FOR SELECT
 TO authenticated
 USING (
-  EXISTS (SELECT 1 FROM "user" WHERE id = user_id AND auth_user_id = auth.uid())
+  EXISTS (SELECT 1 FROM "user" WHERE id = user_id AND auth_user_id = (SELECT auth.uid()))
 );
 
 -- TODO this is more permissive than it needs to be across fields
@@ -65,13 +69,12 @@ AS PERMISSIVE
 FOR SELECT
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1 
+  user_id IN (
+    SELECT m.user_id 
     FROM "membership" m
     JOIN "membership_tier" mt ON mt.id = m.membership_tier_id
     JOIN "club" c ON c.id = mt.club_id
-    WHERE m.user_id = user_settings.user_id
-    AND c.owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+    WHERE c.owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
 
@@ -81,7 +84,7 @@ AS PERMISSIVE
 FOR UPDATE
 TO authenticated
 USING (
-  EXISTS (SELECT 1 FROM "user" WHERE id = user_id AND auth_user_id = auth.uid())
+  EXISTS (SELECT 1 FROM "user" WHERE id = user_id AND auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Users can insert their own settings"
@@ -90,7 +93,7 @@ AS PERMISSIVE
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  EXISTS (SELECT 1 FROM "user" WHERE id = user_id AND auth_user_id = auth.uid())
+  EXISTS (SELECT 1 FROM "user" WHERE id = user_id AND auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Public can view clubs"
@@ -106,7 +109,7 @@ AS PERMISSIVE
 FOR UPDATE
 TO authenticated
 USING (
-  owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Club owners can delete their own clubs"
@@ -115,7 +118,7 @@ AS PERMISSIVE
 FOR DELETE
 TO authenticated
 USING (
-  owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Users can create clubs they own"
@@ -124,7 +127,7 @@ AS PERMISSIVE
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Public can view membership tiers"
@@ -140,10 +143,9 @@ AS PERMISSIVE
 FOR UPDATE
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1 FROM "club" 
-    WHERE id = club_id 
-    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  club_id IN (
+    SELECT id FROM "club" 
+    WHERE owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
 
@@ -153,10 +155,9 @@ AS PERMISSIVE
 FOR DELETE
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1 FROM "club" 
-    WHERE id = club_id 
-    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  club_id IN (
+    SELECT id FROM "club" 
+    WHERE owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
 
@@ -166,10 +167,9 @@ AS PERMISSIVE
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM "club" 
-    WHERE id = club_id 
-    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  club_id IN (
+    SELECT id FROM "club" 
+    WHERE owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
 
@@ -187,7 +187,7 @@ AS PERMISSIVE
 FOR UPDATE
 TO authenticated
 USING (
-  user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 -- TODO this is more permissive than it needs to be across fields
@@ -197,12 +197,11 @@ AS PERMISSIVE
 FOR UPDATE
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1 
+  membership_tier_id IN (
+    SELECT mt.id 
     FROM "membership_tier" mt
     JOIN "club" c ON c.id = mt.club_id
-    WHERE mt.id = membership_tier_id
-    AND c.owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+    WHERE c.owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
 
@@ -212,7 +211,7 @@ AS PERMISSIVE
 FOR DELETE
 TO authenticated
 USING (
-  user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Users can create their own memberships"
@@ -221,7 +220,7 @@ AS PERMISSIVE
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 /*
@@ -257,7 +256,7 @@ TO authenticated
 WITH CHECK (
   bucket_id = 'images' AND
   (storage.foldername(name))[1] = 'user' AND
-  (storage.foldername(name))[2] = (SELECT id::text FROM "user" WHERE auth_user_id = auth.uid())
+  (storage.foldername(name))[2] = (SELECT id::text FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Users can update their own profile images"
@@ -268,7 +267,7 @@ TO authenticated
 USING (
   bucket_id = 'images' AND
   (storage.foldername(name))[1] = 'user' AND
-  (storage.foldername(name))[2] = (SELECT id::text FROM "user" WHERE auth_user_id = auth.uid())
+  (storage.foldername(name))[2] = (SELECT id::text FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Users can delete their own profile images"
@@ -279,7 +278,7 @@ TO authenticated
 USING (
   bucket_id = 'images' AND
   (storage.foldername(name))[1] = 'user' AND
-  (storage.foldername(name))[2] = (SELECT id::text FROM "user" WHERE auth_user_id = auth.uid())
+  (storage.foldername(name))[2] = (SELECT id::text FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
 );
 
 CREATE POLICY "Club owners can upload images to their club"
@@ -293,7 +292,7 @@ WITH CHECK (
   EXISTS (
     SELECT 1 FROM "club"
     WHERE id::text = (storage.foldername(name))[2]
-    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
 
@@ -308,7 +307,7 @@ USING (
   EXISTS (
     SELECT 1 FROM "club"
     WHERE id::text = (storage.foldername(name))[2]
-    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
 
@@ -323,6 +322,6 @@ USING (
   EXISTS (
     SELECT 1 FROM "club"
     WHERE id::text = (storage.foldername(name))[2]
-    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = (SELECT auth.uid()))
   )
 );
