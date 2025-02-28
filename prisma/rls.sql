@@ -178,15 +178,22 @@ FOR SELECT
 TO public
 USING (true);
 
--- TODO this is more permissive than it needs to be across fields
-CREATE POLICY "Users and club owners can update memberships"
+CREATE POLICY "Users can update their own memberships"
 ON "public"."membership"
 AS PERMISSIVE
 FOR UPDATE
 TO authenticated
 USING (
   user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
-  OR
+);
+
+-- TODO this is more permissive than it needs to be across fields
+CREATE POLICY "Club owners can update memberships in their clubs"
+ON "public"."membership"
+AS PERMISSIVE
+FOR UPDATE
+TO authenticated
+USING (
   EXISTS (
     SELECT 1 FROM "membership_tier" mt
     JOIN "club" c ON mt.club_id = c.id
