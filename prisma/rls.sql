@@ -20,6 +20,10 @@ ALTER TABLE "public"."_prisma_migrations" ENABLE ROW LEVEL SECURITY;
  DATABASE POLICIES
 */
 
+-- Technically these SELECT RLS policies are overriden by the fact that the images bucket is public
+-- but we include them here to track our precise intention
+-- TODO should we restrict this at the bucket level in the future?
+
 -- TODO this is more permissive than it needs to be across fields
 CREATE POLICY "Public can view users"
 ON "public"."user"
@@ -218,4 +222,107 @@ FOR INSERT
 TO authenticated
 WITH CHECK (
   user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+);
+
+/*
+ STORAGE POLICIES
+*/
+
+CREATE POLICY "Public can view club images"
+ON storage.objects 
+AS PERMISSIVE
+FOR SELECT
+TO public
+USING (
+  bucket_id = 'images' AND
+  (storage.foldername(name))[1] = 'club'
+);
+
+-- TODO should we restrict this in the future?
+CREATE POLICY "Public can view user images"
+ON storage.objects 
+AS PERMISSIVE
+FOR SELECT
+TO public
+USING (
+  bucket_id = 'images' AND
+  (storage.foldername(name))[1] = 'user'
+);
+
+CREATE POLICY "Users can upload their own profile images"
+ON storage.objects 
+AS PERMISSIVE
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'images' AND
+  (storage.foldername(name))[1] = 'user' AND
+  (storage.foldername(name))[2] = (SELECT id::text FROM "user" WHERE auth_user_id = auth.uid())
+);
+
+CREATE POLICY "Users can update their own profile images"
+ON storage.objects 
+AS PERMISSIVE
+FOR UPDATE
+TO authenticated
+USING (
+  bucket_id = 'images' AND
+  (storage.foldername(name))[1] = 'user' AND
+  (storage.foldername(name))[2] = (SELECT id::text FROM "user" WHERE auth_user_id = auth.uid())
+);
+
+CREATE POLICY "Users can delete their own profile images"
+ON storage.objects 
+AS PERMISSIVE
+FOR DELETE
+TO authenticated
+USING (
+  bucket_id = 'images' AND
+  (storage.foldername(name))[1] = 'user' AND
+  (storage.foldername(name))[2] = (SELECT id::text FROM "user" WHERE auth_user_id = auth.uid())
+);
+
+CREATE POLICY "Club owners can upload images to their club"
+ON storage.objects 
+AS PERMISSIVE
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'images' AND
+  (storage.foldername(name))[1] = 'club' AND
+  EXISTS (
+    SELECT 1 FROM "club"
+    WHERE id::text = (storage.foldername(name))[2]
+    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  )
+);
+
+CREATE POLICY "Club owners can update images for their club"
+ON storage.objects 
+AS PERMISSIVE
+FOR UPDATE
+TO authenticated
+USING (
+  bucket_id = 'images' AND
+  (storage.foldername(name))[1] = 'club' AND
+  EXISTS (
+    SELECT 1 FROM "club"
+    WHERE id::text = (storage.foldername(name))[2]
+    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  )
+);
+
+CREATE POLICY "Club owners can delete images from their club"
+ON storage.objects 
+AS PERMISSIVE
+FOR DELETE
+TO authenticated
+USING (
+  bucket_id = 'images' AND
+  (storage.foldername(name))[1] = 'club' AND
+  EXISTS (
+    SELECT 1 FROM "club"
+    WHERE id::text = (storage.foldername(name))[2]
+    AND owner_user_id = (SELECT id FROM "user" WHERE auth_user_id = auth.uid())
+  )
 );
