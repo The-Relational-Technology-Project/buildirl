@@ -16,6 +16,9 @@ import { Maybe } from "~/utils/types";
 import { createMainService } from "~/server/service/service";
 import { logger } from "~/client/logger";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { defineAbilityFor } from "~/server/api/authz/abilities";
+import { AppAction, AppSubject } from "~/server/api/authz/types";
+import { MongoAbility } from "@casl/ability";
 
 /**
  * 1. CONTEXT
@@ -37,17 +40,18 @@ export const createTRPCContext = async (opts: {
   return {
     service: createMainService(prisma),
     user: user,
-    headers: opts.headers
+    headers: opts.headers,
+    ability: null as Maybe<MongoAbility<[AppAction, AppSubject]>>
   };
 };
 
-type UserContext = {
-  userId: Maybe<number>;
+export type AuthUser = {
   authUserId: string;
   authEmail: Maybe<string>;
+  userId: Maybe<number>;
 };
 
-async function authUser(supabase: SupabaseClient): Promise<Maybe<UserContext>> {
+async function authUser(supabase: SupabaseClient): Promise<Maybe<AuthUser>> {
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -140,24 +144,29 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 /**
  * AUTHORIZATION
  *
- * Middleware that ensures that all requests are in context of an authorized user session
+ * Middleware that ensures that all requests are in context of an authenticated user session
+ * and provides an additional Casl {@link MongoAbility} object which can be used for
+ * more granular authorization on RBAC/ABAC gated entities
  */
-const withAuthorization = t.middleware(({ ctx, next }) => {
+const withAuthorization = t.middleware(async ({ ctx, next }) => {
   if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
+  const ability = await defineAbilityFor(ctx.user, prisma);
   return next({
     ctx: {
       ...ctx,
       // infers that `user` and `userId` is non-nullable to downstream resolvers
-      user: { ...ctx.user, userId: ctx.user.userId! }
+      user: { ...ctx.user, userId: ctx.user.userId! },
+      ability: ability
     }
   });
 });
 
 /**
  * This is the base piece you use to build secured queries and mutations on your tRPC API. It guarantees that
- * a user is authorized, and you can access user context
+ * a user is authorized, you can access user context, and gives you CASL {@link MongoAbility} object
+ * for more granular authorization on RBAC/ABAC gated entities
  */
 export const securedProcedure = t.procedure
   .use(timingMiddleware)

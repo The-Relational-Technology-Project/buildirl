@@ -6,8 +6,7 @@ import {
   Stack,
   Table,
   Text,
-  Title,
-  Box
+  Title
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -17,7 +16,6 @@ import { useRouter } from "next/navigation";
 import { IconListCheck } from "@tabler/icons-react";
 import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
-import { useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import UserAvatar from "~/client/components/UserAvatar";
 
@@ -28,9 +26,6 @@ type MembershipApplicationTableProps = {
 export default function MembershipApplicationTable({
   clubId
 }: MembershipApplicationTableProps) {
-  const theme = useMantineTheme();
-  const { colorScheme } = useMantineColorScheme();
-
   const router = useRouter();
 
   const utils = api.useUtils();

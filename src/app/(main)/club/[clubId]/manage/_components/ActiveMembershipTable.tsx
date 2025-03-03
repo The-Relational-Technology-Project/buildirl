@@ -36,16 +36,14 @@ export default function ActiveMembershipTable({
   const utils = api.useUtils();
   const deactivateMembership = api.main.deactivateMembership.useMutation({
     onSuccess: async () => {
-      await utils.main.activeMembershipsForClub.invalidate({
-        clubId: clubId,
-        includeEmail: true
+      await utils.main.activeMembershipsForClubWithEmail.invalidate({
+        clubId: clubId
       });
     }
   });
 
-  const r = api.main.activeMembershipsForClub.useQuery({
-    clubId: clubId,
-    includeEmail: true
+  const r = api.main.activeMembershipsForClubWithEmail.useQuery({
+    clubId: clubId
   });
 
   QueryError.check({
