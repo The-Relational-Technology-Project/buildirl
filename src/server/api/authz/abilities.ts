@@ -17,8 +17,8 @@ export async function defineAbilityFor(
   prisma: PrismaClient,
   subject: AppSubject
 ): Promise<MongoAbility<[AppAction, AppSubject]>> {
-  const { can, build } = new AbilityBuilder(() =>
-    createMongoAbility<[AppAction, AppSubject]>()
+  const { can, build } = new AbilityBuilder((r, o) =>
+    createMongoAbility<[AppAction, AppSubject]>(r, o)
   );
 
   // TODO are there fields on membership (e.g., applicationResponses) restricted to just club managers
@@ -45,7 +45,7 @@ export async function defineAbilityFor(
       const membershipIdsForOwnedClubs =
         await getMembershipIdsToClubsOwnedByUser(prisma, userId);
       can("manage", "Membership", {
-        id: [...membershipIds, ...membershipIdsForOwnedClubs]
+        id: { $in: [...membershipIds, ...membershipIdsForOwnedClubs] }
       });
       break;
     case "MembershipTier":
