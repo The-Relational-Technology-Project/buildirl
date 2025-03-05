@@ -7,9 +7,11 @@ import {
 import { AuthUser } from "~/server/api/trpc";
 import { AppAction, AppSubject } from "~/server/api/authz/types";
 
-// TODO can we optimize so these prisma queries are called only
-//  when mutation requires it? Or should we persist it in JWT?
-
+/**
+ * We define the RBAC/ABAC gated entities and operations here. We are by-default permissive
+ * unless the entity requires higher user-based privileges in which case we define the abilities here
+ * and the subjects and actions in authz/types.ts
+ */
 export async function defineAbilityFor(
   user: AuthUser,
   prisma: PrismaClient,
@@ -19,8 +21,8 @@ export async function defineAbilityFor(
     createMongoAbility<[AppAction, AppSubject]>()
   );
 
-  // TODO restrict reads of applicationResponses to just club manager
-  // TODO are there read-only fields on User restricted to user managers?
+  // TODO are there fields on membership (e.g., applicationResponses) restricted to just club managers
+  // TODO are there fields on User restricted to the user managers only?
 
   const userId = user.userId;
   if (null === userId) {

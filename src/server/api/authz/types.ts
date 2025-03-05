@@ -1,9 +1,3 @@
-/**
- * We define the RBAC/ABAC gated entities and operations here. We are by-default permissive
- * unless the entity requires higher user-based privileges in which case we define the operations here
- * and the abilities in {@file abilities.ts}
- */
-
 export type AppAction = "manage";
 
 export type AppSubject = keyof AppSubjects | AppSubjects[keyof AppSubjects];

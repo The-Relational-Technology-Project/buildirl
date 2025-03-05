@@ -16,6 +16,7 @@ of local community builders!
 - [Prisma](https://prisma.io)
 - [Supabase](https://supabase.com/docs)
 - [Supabase Auth](https://supabase.com/docs/guides/auth)
+- [CASL](https://casl.js.org/v6/en/guide/intro)
 
 ## Running Locally
 
@@ -42,6 +43,24 @@ coverage on:
 2. Failures and exception messages (under `ERROR` level)
 3. Additional metadata (e.g., input and response objects) or warnings that might be useful
 
+## Authorization
+The source of truth for RBAC/ABAC authorization rules is in CASL abilities applied at trpc layer for API access and Postgres RLS rules
+for storage objects.
+
+### API
+1. When a table is added via prisma migration, it is by default not secured via RLS. This means supabase UI clients can access them freely.
+It is important to immediately enable RLS to it as close to possible as the migration is applied in version control (`prisma.rls.sql`), locally (via supabase studio @ `localhost:54323`),
+[test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).
+2. RBAC/ABAC authorization on protected entities are defined via CASL abilities and applied as checks in the trpc layer. Every addition
+or change to an API must be audited to see if there are any necessary RBAC/ABAC authorization needed. By default our endpoints are open
+to all authenticated users (secured procedures), the public (public procedures), unless explicitly secured.
+
+### Storage
+Supabase RLS is the source-of-truth for storage authorization. When new folder or bucket is created, it is important to add to storage
+RLS rules version controlled in (`prisma/rls.sql`) and apply the changes manually via the supabase management console locally 
+(via supabase studio @ `localhost:54323`), [test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and
+[prod](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies).
+
 ## Integration
 
 We use [trunk-based development](https://trunkbaseddevelopment.com/) as our integration strategy. In conjunction with
@@ -58,18 +77,8 @@ deployed to the [production environment](https://platform.buildirl.com/).
 1. Apply migrations first locally using `just db-migrate`. This creates migration files (in `prisma/migrations/`) from `schema.prisma` changes
 2. Vercel deployments into testing and production environment automatically applies the generated migration files to the [testing](https://supabase.com/dashboard/project/raoharfnfnkuyabregez) 
 and [production](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce) databases respectively
-
-### Row-Level Security
-The source of truth for fine-grained user-based authorization rules is in Postgres RLS rules (although more broad-based authorization on authenticated users is in the trpc layer). The
-process for updating them is:
-1. When a table is added via prisma migration, it is by default not secured via RLS. It is important to immediately apply RLS to it as close to possible as the migration
-is applied. Every time a new bucket or folder is added, it also needs to have RLS rules defined. When a field is added to a table, we must also do an audit to see how 
-it affects RLS rules and make appropriate updates.
-2. Up-to-date RLS rules are version-controlled in `prisma/rls.sql` file. Define these rules after you've made schema.prisma changes but before you have applied migration.
-3. Apply the changes manually via the supabase management console locally (via supabase studio @ `localhost:54323`), 
-in test ([database](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), [bucket](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies)), 
-and prod ([database](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies), [bucket](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies))
-as soon as the migrations is created
+3. Newly created tables need to be secured in all environments by turning on RLS (see Authorization section). It is ideal to do this
+as closely to when the table creation migration is applied.
 
 ## Other Readings
 
