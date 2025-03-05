@@ -12,7 +12,8 @@ import { AppAction, AppSubject } from "~/server/api/authz/types";
 
 export async function defineAbilityFor(
   user: AuthUser,
-  prisma: PrismaClient
+  prisma: PrismaClient,
+  subject: AppSubject
 ): Promise<MongoAbility<[AppAction, AppSubject]>> {
   const { can, build } = new AbilityBuilder(() =>
     createMongoAbility<[AppAction, AppSubject]>()
@@ -23,30 +24,37 @@ export async function defineAbilityFor(
 
   const userId = user.userId;
   if (null === userId) {
-    // no additional permissive
+    // not onboarded, no additional permissions
     return build();
   }
 
-  // USER RULES
-
-  can("manage", "User", { id: userId });
-  const membershipIds = await getMembershipIdsForUser(prisma, userId);
-  can("manage", "Membership", { id: membershipIds });
-
-  // CLUB OWNER RULES
-
-  const ownedClubIds = await getOwnedClubIds(prisma, userId);
-  if (ownedClubIds.length > 0) {
-    can("manage", "Club", { id: { $in: ownedClubIds } });
-
-    const membershipTierIds = await getMembershipTierIdsForClubs(
-      prisma,
-      ownedClubIds
-    );
-    can("manage", "MembershipTier", { id: { $in: membershipTierIds } });
-
-    const membershipIds = await getMembershipIdsForClubs(prisma, ownedClubIds);
-    can("manage", "Membership", { id: { $in: membershipIds } });
+  // We use this switch, so we can query only for specific subjects
+  // as a performance optimization
+  switch (subject) {
+    case "User":
+      can("manage", "User", { id: userId });
+      break;
+    case "Club":
+      const ownedClubIds = await getOwnedClubIds(prisma, userId);
+      can("manage", "Club", { id: { $in: ownedClubIds } });
+      break;
+    case "Membership":
+      const membershipIds = await getMembershipIdsForUser(prisma, userId);
+      const membershipIdsForOwnedClubs =
+        await getMembershipIdsToClubsOwnedByUser(prisma, userId);
+      can("manage", "Membership", {
+        id: [...membershipIds, ...membershipIdsForOwnedClubs]
+      });
+      break;
+    case "MembershipTier":
+      const membershipTierIds = await getMembershipTierIdsForClubsOwnedByUser(
+        prisma,
+        userId
+      );
+      can("manage", "MembershipTier", { id: { $in: membershipTierIds } });
+      break;
+    default:
+      throw new Error(`unrecognized subject type ${subject}`);
   }
 
   return build();
@@ -67,13 +75,13 @@ async function getOwnedClubIds(
   return clubs.map((club) => club.id);
 }
 
-async function getMembershipTierIdsForClubs(
+async function getMembershipTierIdsForClubsOwnedByUser(
   prisma: PrismaClient,
-  clubIds: number[]
+  userId: number
 ): Promise<number[]> {
   const tiers = await prisma.membershipTier.findMany({
     where: {
-      clubId: { in: clubIds }
+      club: { ownerUserId: userId }
     },
     select: { id: true }
   });
@@ -81,14 +89,16 @@ async function getMembershipTierIdsForClubs(
   return tiers.map((t) => t.id);
 }
 
-async function getMembershipIdsForClubs(
+async function getMembershipIdsToClubsOwnedByUser(
   prisma: PrismaClient,
-  clubIds: number[]
+  userId: number
 ): Promise<bigint[]> {
   const memberships = await prisma.membership.findMany({
     where: {
       membershipTier: {
-        clubId: { in: clubIds }
+        club: {
+          ownerUserId: userId
+        }
       }
     },
     select: { id: true }

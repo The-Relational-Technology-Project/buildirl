@@ -145,32 +145,37 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * AUTHORIZATION
  *
  * Middleware that ensures that all requests are in context of an authenticated user session
- * and provides an additional Casl {@link MongoAbility} object which can be used for
- * more granular authorization on RBAC/ABAC gated entities
+ * and optionally add additional CASL {@link MongoAbility} object which can be used for
+ * more granular RBAC/ABAC on gated entities {@link AppSubjects}
  */
 const withAuthorization = t.middleware(async ({ ctx, next }) => {
   if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  const ability = await defineAbilityFor(ctx.user, prisma);
   return next({
     ctx: {
       ...ctx,
       // infers that `user` and `userId` is non-nullable to downstream resolvers
-      user: { ...ctx.user, userId: ctx.user.userId! },
-      ability: ability
+      user: { ...ctx.user, userId: ctx.user.userId! }
     }
   });
 });
 
-/**
- * This is the base piece you use to build secured queries and mutations on your tRPC API. It guarantees that
- * a user is authorized, you can access user context, and gives you CASL {@link MongoAbility} object
- * for more granular authorization on RBAC/ABAC gated entities
- */
-export const securedProcedure = t.procedure
-  .use(timingMiddleware)
-  .use(withAuthorization);
+const withAbilityFor = (subject: AppSubject) =>
+  t.middleware(async ({ ctx, next }) => {
+    if (!ctx.user) {
+      throw new Error(
+        "withAbility middleware can only be used after withAuthorization which ensures user"
+      );
+    }
+    const ability = await defineAbilityFor(ctx.user, prisma, subject);
+    return next({
+      ctx: {
+        ...ctx,
+        ability: ability
+      }
+    });
+  });
 
 /**
  * This is the base piece you use to build public queries and mutations on your tRPC API. It does not
@@ -178,3 +183,17 @@ export const securedProcedure = t.procedure
  * are logged in
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+
+/**
+ * This is the procedure to build secured queries and mutations on your tRPC API. It guarantees that
+ * a user is authorized, you can access user context
+ */
+export const securedProcedure = publicProcedure.use(withAuthorization);
+
+/**
+ * This is the higher-level function which gives you procedure that in addition to {@link securedProcedure}
+ * gives you CASL abilities on the subject which you can use to enforce granular RBAC/ABAC authorization
+ */
+export const securedProcedureWithAbilityFor = (subject: AppSubject) => {
+  return securedProcedure.use(withAbilityFor(subject));
+};

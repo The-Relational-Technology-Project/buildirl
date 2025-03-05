@@ -3,7 +3,8 @@ import { z } from "zod";
 import {
   createTRPCRouter,
   publicProcedure,
-  securedProcedure
+  securedProcedure,
+  securedProcedureWithAbilityFor
 } from "~/server/api/trpc";
 import {
   CreateClubInputSchema,
@@ -51,7 +52,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.getActiveMembershipsForClub(input.clubId, false);
     }),
 
-  activeMembershipsForClubWithEmail: securedProcedure
+  activeMembershipsForClubWithEmail: securedProcedureWithAbilityFor("Club")
     .input(
       z.object({
         clubId: z.number()
@@ -63,7 +64,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.getActiveMembershipsForClub(input.clubId, true);
     }),
 
-  membershipApplicationsForClub: securedProcedure
+  membershipApplicationsForClub: securedProcedureWithAbilityFor("Club")
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
       ctx.ability.can("manage", subject("Club", { id: input.clubId }));
@@ -98,7 +99,7 @@ export const mainRouter = createTRPCRouter({
       );
     }),
 
-  updateUser: securedProcedure
+  updateUser: securedProcedureWithAbilityFor("User")
     .input(z.object({ id: z.number(), input: UpdateUserInputSchema }))
     .mutation(({ ctx, input }) => {
       ctx.ability.can("manage", subject("User", { id: input.id }));
@@ -111,21 +112,21 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.createClub(input, ctx.user.userId);
     }),
 
-  updateClub: securedProcedure
+  updateClub: securedProcedureWithAbilityFor("Club")
     .input(z.object({ id: z.number(), input: UpdateClubInputSchema }))
     .mutation(({ ctx, input }) => {
       ctx.ability.can("manage", subject("Club", { id: input.id }));
       return ctx.service.updateClub(input.id, input.input);
     }),
 
-  deleteClub: securedProcedure
+  deleteClub: securedProcedureWithAbilityFor("Club")
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input }) => {
       ctx.ability.can("manage", subject("Club", { id: input.id }));
       return ctx.service.deleteClub(input.id);
     }),
 
-  updateClubApplicationQuestions: securedProcedure
+  updateClubApplicationQuestions: securedProcedureWithAbilityFor("Club")
     .input(
       z.object({
         clubId: z.number(),
@@ -140,7 +141,7 @@ export const mainRouter = createTRPCRouter({
       );
     }),
 
-  updateClubDisplayImageUrls: securedProcedure
+  updateClubDisplayImageUrls: securedProcedureWithAbilityFor("Club")
     .input(
       z.object({
         clubId: z.number(),
@@ -152,7 +153,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.updateClubDisplayImageUrls(input.clubId, input.input);
     }),
 
-  createMembershipTier: securedProcedure
+  createMembershipTier: securedProcedureWithAbilityFor("Club")
     .input(
       z.object({ clubId: z.number(), input: CreateMembershipTierInputSchema })
     )
@@ -161,7 +162,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.createMembershipTier(input.clubId, input.input);
     }),
 
-  updateMembershipTier: securedProcedure
+  updateMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
     .input(
       z.object({
         id: z.number(),
@@ -173,21 +174,21 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.updateMembershipTier(input.id, input.input);
     }),
 
-  deleteMembershipTier: securedProcedure
+  deleteMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input }) => {
       ctx.ability.can("manage", subject("MembershipTier", { id: input.id }));
       return ctx.service.deleteMembershipTier(input.id);
     }),
 
-  publishMembershipTier: securedProcedure
+  publishMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input }) => {
       ctx.ability.can("manage", subject("MembershipTier", { id: input.id }));
       return ctx.service.publishMembershipTier(input.id);
     }),
 
-  unpublishMembershipTier: securedProcedure
+  unpublishMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input }) => {
       ctx.ability.can("manage", subject("MembershipTier", { id: input.id }));
@@ -209,7 +210,7 @@ export const mainRouter = createTRPCRouter({
       );
     }),
 
-  approveMembershipApplication: securedProcedure
+  approveMembershipApplication: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: z.bigint() }))
     .mutation(({ ctx, input }) => {
       ctx.ability.can(
@@ -219,7 +220,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.approveMembershipApplication(input.membershipId);
     }),
 
-  declineMembershipApplication: securedProcedure
+  declineMembershipApplication: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: z.bigint() }))
     .mutation(({ ctx, input }) => {
       ctx.ability.can(
@@ -229,7 +230,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.declineMembershipApplication(input.membershipId);
     }),
 
-  deactivateMembership: securedProcedure
+  deactivateMembership: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: z.bigint() }))
     .mutation(({ ctx, input }) => {
       ctx.ability.can(
@@ -239,7 +240,7 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.deactivateMembership(input.membershipId);
     }),
 
-  setMembershipAsWelcomed: securedProcedure
+  setMembershipAsWelcomed: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: z.bigint() }))
     .mutation(({ ctx, input }) => {
       ctx.ability.can(
