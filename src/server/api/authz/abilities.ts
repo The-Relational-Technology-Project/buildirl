@@ -30,8 +30,8 @@ export async function defineAbilityFor(
     return build();
   }
 
-  // We use this switch, so we can query only for specific subjects
-  // as a performance optimization
+  // We use this switch as an optimization, we selectively query only
+  // for specific subjects
   switch (subject) {
     case "User":
       can("manage", "User", { id: userId });
