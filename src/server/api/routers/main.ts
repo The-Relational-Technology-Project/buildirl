@@ -18,6 +18,7 @@ import {
   UpdateUserInputSchema
 } from "~/server/service/types";
 import { subject } from "@casl/ability";
+import { TRPCError } from "@trpc/server";
 
 export const mainRouter = createTRPCRouter({
   user: securedProcedure.query(({ ctx }) => {
@@ -60,14 +61,18 @@ export const mainRouter = createTRPCRouter({
     )
     .query(({ ctx, input }) => {
       // only club managers can read emails
-      ctx.ability.can("manage", subject("Club", { id: input.clubId }));
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.getActiveMembershipsForClub(input.clubId, true);
     }),
 
   membershipApplicationsForClub: securedProcedureWithAbilityFor("Club")
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("Club", { id: input.clubId }));
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.getMembershipApplicationsForClub(input.clubId);
     }),
 
@@ -102,7 +107,9 @@ export const mainRouter = createTRPCRouter({
   updateUser: securedProcedureWithAbilityFor("User")
     .input(z.object({ id: z.number(), input: UpdateUserInputSchema }))
     .mutation(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("User", { id: input.id }));
+      if (!ctx.ability.can("manage", subject("User", { id: input.id }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.updateUser(input.id, input.input);
     }),
 
@@ -115,14 +122,18 @@ export const mainRouter = createTRPCRouter({
   updateClub: securedProcedureWithAbilityFor("Club")
     .input(z.object({ id: z.number(), input: UpdateClubInputSchema }))
     .mutation(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("Club", { id: input.id }));
+      if (!ctx.ability.can("manage", subject("Club", { id: input.id }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.updateClub(input.id, input.input);
     }),
 
   deleteClub: securedProcedureWithAbilityFor("Club")
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("Club", { id: input.id }));
+      if (!ctx.ability.can("manage", subject("Club", { id: input.id }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.deleteClub(input.id);
     }),
 
@@ -134,7 +145,9 @@ export const mainRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("Club", { id: input.clubId }));
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.updateClubApplicationQuestions(
         input.clubId,
         input.input
@@ -149,7 +162,9 @@ export const mainRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("Club", { id: input.clubId }));
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.updateClubDisplayImageUrls(input.clubId, input.input);
     }),
 
@@ -158,7 +173,9 @@ export const mainRouter = createTRPCRouter({
       z.object({ clubId: z.number(), input: CreateMembershipTierInputSchema })
     )
     .mutation(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("Club", { id: input.clubId }));
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.createMembershipTier(input.clubId, input.input);
     }),
 
@@ -170,28 +187,44 @@ export const mainRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("MembershipTier", { id: input.id }));
+      if (
+        !ctx.ability.can("manage", subject("MembershipTier", { id: input.id }))
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.updateMembershipTier(input.id, input.input);
     }),
 
   deleteMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("MembershipTier", { id: input.id }));
+      if (
+        !ctx.ability.can("manage", subject("MembershipTier", { id: input.id }))
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.deleteMembershipTier(input.id);
     }),
 
   publishMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("MembershipTier", { id: input.id }));
+      if (
+        !ctx.ability.can("manage", subject("MembershipTier", { id: input.id }))
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.publishMembershipTier(input.id);
     }),
 
   unpublishMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input }) => {
-      ctx.ability.can("manage", subject("MembershipTier", { id: input.id }));
+      if (
+        !ctx.ability.can("manage", subject("MembershipTier", { id: input.id }))
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.unpublishMembershipTier(input.id);
     }),
 
@@ -213,40 +246,56 @@ export const mainRouter = createTRPCRouter({
   approveMembershipApplication: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: z.bigint() }))
     .mutation(({ ctx, input }) => {
-      ctx.ability.can(
-        "manage",
-        subject("Membership", { id: input.membershipId })
-      );
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: input.membershipId })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.approveMembershipApplication(input.membershipId);
     }),
 
   declineMembershipApplication: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: z.bigint() }))
     .mutation(({ ctx, input }) => {
-      ctx.ability.can(
-        "manage",
-        subject("Membership", { id: input.membershipId })
-      );
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: input.membershipId })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.declineMembershipApplication(input.membershipId);
     }),
 
   deactivateMembership: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: z.bigint() }))
     .mutation(({ ctx, input }) => {
-      ctx.ability.can(
-        "manage",
-        subject("Membership", { id: input.membershipId })
-      );
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: input.membershipId })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.deactivateMembership(input.membershipId);
     }),
 
   setMembershipAsWelcomed: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: z.bigint() }))
     .mutation(({ ctx, input }) => {
-      ctx.ability.can(
-        "manage",
-        subject("Membership", { id: input.membershipId })
-      );
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: input.membershipId })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.setMembershipAsWelcomed(input.membershipId);
     })
 });
