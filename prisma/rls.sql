@@ -21,7 +21,16 @@ ALTER TABLE "public"."membership" ENABLE ROW LEVEL SECURITY;
 -- This table has no defined RLS policies that allows access but the postgres user bypasses RLS
 ALTER TABLE "public"."_prisma_migrations" ENABLE ROW LEVEL SECURITY;
 
--- No RLS policies, tables are restrictive to all clients. Backend prisma uses a connection which by-passes all RLS.
+-- This is used for middleware onboarding status check
+CREATE POLICY "Users can view their own data"
+    ON "public"."user"
+    AS PERMISSIVE
+    FOR SELECT
+    TO authenticated
+    USING ((SELECT auth.uid()) = auth_user_id);
+
+
+-- No other RLS policies, tables are restrictive to all clients. Backend prisma uses a connection which by-passes all RLS.
 -- Database authorization is at the trpc level in abilities.ts and trpc routers
 
 /*
