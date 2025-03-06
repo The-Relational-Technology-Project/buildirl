@@ -55,6 +55,18 @@ export default function ActiveMembershipTable({
     return null;
   }
 
+  const handleDeactivateMembership = (membershipId: bigint) => {
+    if (
+      window.confirm(
+        "Are you sure you want to cancel this membership? This action cannot be undone."
+      )
+    ) {
+      deactivateMembership.mutateAsync({
+        membershipId: membershipId
+      });
+    }
+  };
+
   const rows = r.data!.map((m) => (
     <Table.Tr key={m.id}>
       <Table.Td
@@ -90,11 +102,7 @@ export default function ActiveMembershipTable({
         <Button
           color={"red"}
           size={"xs"}
-          onClick={async () =>
-            await deactivateMembership.mutateAsync({
-              membershipId: m.id
-            })
-          }
+          onClick={() => handleDeactivateMembership(m.id)}
         >
           Cancel
         </Button>

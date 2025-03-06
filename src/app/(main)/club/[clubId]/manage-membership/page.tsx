@@ -44,6 +44,18 @@ export default function ManageMembership() {
     return null;
   }
 
+  const handleDeactivateMembership = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to leave this club? You will need to reapply if you want to join again."
+      )
+    ) {
+      deactivateMembership.mutateAsync({
+        membershipId: membership.id
+      });
+    }
+  };
+
   return (
     <WithLocalNavigationHeader>
       <Stack>
@@ -89,11 +101,7 @@ export default function ManageMembership() {
           <Button
             w={150}
             color={"orange"}
-            onClick={async () =>
-              await deactivateMembership.mutateAsync({
-                membershipId: membership.id
-              })
-            }
+            onClick={handleDeactivateMembership}
           >
             Leave Club
           </Button>
