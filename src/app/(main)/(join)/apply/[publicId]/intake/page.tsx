@@ -128,7 +128,7 @@ function ApplicationForm({
         defaultResponse(question)
       )
     },
-    mode: "onBlur"
+    mode: "onChange"
   });
 
   function defaultResponse(question: FormQuestion): FormResponse {
@@ -174,10 +174,6 @@ function ApplicationForm({
   };
   const prevStep = () =>
     setActiveStep((current) => (current > 0 ? current - 1 : current));
-
-  const isCurrentStepValid = () => {
-    return !errors.responses?.[activeStep]?.response;
-  };
 
   const renderQuestion = (question: FormQuestion, index: number) => {
     switch (question.type) {
@@ -342,11 +338,7 @@ function ApplicationForm({
               Submit
             </PrimaryButton>
           ) : (
-            <PrimaryButton
-              size={"sm"}
-              onClick={nextStep}
-              disabled={!isCurrentStepValid()}
-            >
+            <PrimaryButton size={"sm"} onClick={nextStep}>
               Next
             </PrimaryButton>
           )}
