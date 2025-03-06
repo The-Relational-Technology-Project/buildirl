@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { type Maybe } from "~/utils/types";
 import { ActionIcon, Box, BoxProps, FileInput, StyleProp } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
@@ -19,6 +19,7 @@ export default function EditableClubImage({
   ...props
 }: EditableClubImageProps & BoxProps) {
   const storageClient = createStorageClient();
+  const [imageVersion, setImageVersion] = useState(0);
 
   const handleFileUpload = async (file: Maybe<File>) => {
     if (!file) {
@@ -31,20 +32,17 @@ export default function EditableClubImage({
 
     try {
       await storageClient.uploadClubProfileImage(club.id, file);
+      // increment version to force re-render with new image URL
+      setImageVersion((prev) => prev + 1);
     } catch (e) {
       logger.error(e, "failed to upload club profile image");
       notifyError("Failed to upload club profile image.");
-      return;
     }
-
-    // force a full refresh of the page so all image references
-    // can pick up new upload
-    window.location.reload();
   };
 
   return (
     <Box w={size} h={size} p={8} style={{ position: "relative" }} {...props}>
-      <ClubImage club={club} size={"100%"} />
+      <ClubImage club={club} size={"100%"} key={imageVersion} />
       <FileInput
         accept="image/*"
         id={"club-profile-picture-input"}
