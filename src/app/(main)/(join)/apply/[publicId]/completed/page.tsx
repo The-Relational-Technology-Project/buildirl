@@ -29,8 +29,8 @@ export default function ApplicationCompleted() {
             THANK YOU FOR APPLYING!
           </Title>
           <Text ta={"center"}>
-            Your application will be reviewed. This club generally responds in
-            2-3 days. Please check back here.
+            Your application will be reviewed as soon as possible. Please check
+            back here.
           </Text>
 
           <ClubImage club={r.data!} size={180} />
