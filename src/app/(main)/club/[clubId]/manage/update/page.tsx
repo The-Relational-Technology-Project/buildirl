@@ -55,9 +55,9 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
-      websiteUrl: club.websiteUrl,
-      instagramHandle: club.instagramHandle,
-      eventCalendarUrl: club.eventCalendarUrl,
+      websiteUrl: club.websiteUrl ?? "",
+      instagramHandle: club.instagramHandle ?? "",
+      eventCalendarUrl: club.eventCalendarUrl ?? "",
       theme: club.theme
     },
 
@@ -68,10 +68,15 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       publicId: (v) => safeValidateSchema(ClubPublicIdSchema, v),
       name: (v) => safeValidateSchema(ClubNameSchema, v),
       tagLine: (v) => safeValidateSchema(ClubTagLineSchema, v),
-      websiteUrl: (v) => safeValidateSchema(UrlSchema.nullable(), v),
+      websiteUrl: (v) =>
+        safeValidateSchema(UrlSchema.nullable(), v === "" ? null : v),
       instagramHandle: (v) =>
-        safeValidateSchema(InstagramHandleSchema.nullable(), v),
-      eventCalendarUrl: (v) => safeValidateSchema(UrlSchema.nullable(), v),
+        safeValidateSchema(
+          InstagramHandleSchema.nullable(),
+          v === "" ? null : v
+        ),
+      eventCalendarUrl: (v) =>
+        safeValidateSchema(UrlSchema.nullable(), v === "" ? null : v),
       theme: (v) => safeValidateSchema(TemplateThemeSchema.nullable(), v)
     }
   });
@@ -122,27 +127,18 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           <TextInput
             required
             placeholder="Club name"
-            value={form.values.name}
-            onChange={(event) =>
-              form.setFieldValue("name", event.currentTarget.value)
-            }
-            error={form.errors.name}
+            key={form.key("name")}
+            {...form.getInputProps("name")}
           />
           <TextInput
             placeholder="Tag line"
-            value={form.values.tagLine}
-            onChange={(event) =>
-              form.setFieldValue("tagLine", event.currentTarget.value)
-            }
-            error={form.errors.tagLine}
+            key={form.key("tagLine")}
+            {...form.getInputProps("tagLine")}
           />
           <Textarea
             placeholder="About your club"
-            value={form.values.description}
-            onChange={(event) =>
-              form.setFieldValue("description", event.currentTarget.value)
-            }
-            error={form.errors.description}
+            key={form.key("description")}
+            {...form.getInputProps("description")}
             rows={6}
           />
         </Stack>
@@ -151,27 +147,18 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           <Title order={6}>Links</Title>
           <TextInput
             placeholder="Website link"
-            value={form.values.websiteUrl ?? ""}
-            onChange={(event) =>
-              form.setFieldValue("websiteUrl", event.currentTarget.value)
-            }
-            error={form.errors.websiteUrl}
+            key={form.key("websiteUrl")}
+            {...form.getInputProps("websiteUrl")}
           />
           <TextInput
             placeholder="Instagram tag"
-            value={form.values.instagramHandle ?? ""}
-            onChange={(event) =>
-              form.setFieldValue("instagramHandle", event.currentTarget.value)
-            }
-            error={form.errors.instagramHandle}
+            key={form.key("instagramHandle")}
+            {...form.getInputProps("instagramHandle")}
           />
           <TextInput
             placeholder="Event calendar link (e.g., Luma)"
-            value={form.values.eventCalendarUrl ?? ""}
-            onChange={(event) =>
-              form.setFieldValue("eventCalendarUrl", event.currentTarget.value)
-            }
-            error={form.errors.eventCalendarUrl}
+            key={form.key("eventCalendarUrl")}
+            {...form.getInputProps("eventCalendarUrl")}
           />
         </Stack>
 
@@ -182,11 +169,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
             <TextInput
               required
               placeholder="club-tag"
-              value={form.values.publicId}
-              onChange={(event) =>
-                form.setFieldValue("publicId", event.currentTarget.value)
-              }
-              error={form.errors.publicId}
+              key={form.key("publicId")}
+              {...form.getInputProps("publicId")}
             />
           </Group>
         </Stack>
