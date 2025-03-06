@@ -163,7 +163,9 @@ export const ClubPublicIdSchema = z
   .min(3, "Length must be >= 3 characters")
   .regex(CLUB_PUBLIC_ID_REGEX, "Invalid characters");
 
-export const UrlSchema = z.string().url("Not a valid url");
+export const UrlSchema = z
+  .string()
+  .url("Not a valid url (tip: did you forget http(s) prefix?)");
 export type Url = z.infer<typeof UrlSchema>;
 
 const EmailSchema = z.string().email("Not a valid email");
