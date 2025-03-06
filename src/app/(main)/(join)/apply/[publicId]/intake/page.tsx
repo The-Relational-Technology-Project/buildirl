@@ -33,6 +33,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import SecondaryButton from "~/client/components/SecondaryButton";
+import HideablePaper from "~/client/components/HideablePaper";
 
 type ShareEmailQuestionProp = {
   shareEmail: boolean;
@@ -276,7 +277,7 @@ function ApplicationForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Paper>
+      <HideablePaper hidden={totalQuestions === 1}>
         <Stepper
           color="lilac"
           active={activeStep}
@@ -303,7 +304,7 @@ function ApplicationForm({
           {/* hacky but we want the stepper to not be filled on the last question */}
           <Stepper.Step key={applicationQuestions.questions.length + 2} />
         </Stepper>
-      </Paper>
+      </HideablePaper>
 
       <Paper p={"xl"} mt={"xl"}>
         {activeStep < applicationQuestions.questions.length ? (
