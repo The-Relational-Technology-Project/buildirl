@@ -12,7 +12,7 @@ const FormQuestionTypeSchema = z.nativeEnum(FormQuestionType);
 const BaseFormQuestionSchema = z.object({
   question: z
     .string()
-    .min(10, "Length must be >= 10")
+    .min(3, "Length must be >= 3")
     .max(200, "Length must be <= 200"),
   type: FormQuestionTypeSchema
 });
@@ -32,7 +32,9 @@ const LongTextQuestionSchema = BaseFormQuestionSchema.extend({
 });
 
 const SelectQuestionMetadataSchema = z.object({
-  choices: z.array(z.string().min(3)).min(2, "At least two choice is required")
+  choices: z
+    .array(z.string().min(2, "Length must be >= 2"))
+    .min(2, "At least two choice is required")
 });
 
 const SingleSelectQuestionSchema = BaseFormQuestionSchema.extend({
@@ -68,18 +70,18 @@ export const FormResponseSchema = z.discriminatedUnion("type", [
   LongTextQuestionSchema.extend({
     response: z
       .string()
-      .min(10, "Length must be >= 10")
+      .min(3, "Length must be >= 3")
       .max(1000, "Length must be <= 1000")
   }),
   MultiSelectQuestionSchema.extend({
     // no validation that the selection is one of the choices
     response: z
-      .array(z.string().min(3))
+      .array(z.string().min(2))
       .min(1, "At least one choice must be selected.")
   }),
   SingleSelectQuestionSchema.extend({
     // no validation that the selection is one of the choices
-    response: z.string().min(3)
+    response: z.string().min(2)
   })
 ]);
 export type FormResponse = z.infer<typeof FormResponseSchema>;
