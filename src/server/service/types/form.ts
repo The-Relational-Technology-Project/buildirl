@@ -35,6 +35,10 @@ const SelectQuestionMetadataSchema = z.object({
   choices: z
     .array(z.string().min(2, "Length must be >= 2"))
     .min(2, "At least two choice is required")
+    .refine(
+      (choices) => new Set(choices).size === choices.length,
+      "Choices must be distinct"
+    )
 });
 
 const SingleSelectQuestionSchema = BaseFormQuestionSchema.extend({
