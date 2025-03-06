@@ -36,7 +36,7 @@ function WithRedirectToWelcomePage({
 }: WithRedirectToWelcomePageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const fromWelcome = searchParams.get('fromWelcome') === 'true';
+  const fromWelcome = searchParams.get("fromWelcome") === "true";
 
   const r = api.main.clubByPublicId.useQuery({
     publicId
@@ -116,7 +116,8 @@ export default function ClubJoin() {
               fz={{ base: 36, md: 48 }}
               style={{
                 // we only want to apply this theme font family to this heading not all headings
-                fontFamily: r.data!.theme?.headingFontFamily ?? "inherit"
+                fontFamily: r.data!.theme?.headingFontFamily ?? "inherit",
+                textAlign: "center"
               }}
             >
               {r.data!.name}
