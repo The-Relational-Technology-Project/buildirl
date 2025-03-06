@@ -120,7 +120,7 @@ function ApplicationForm({
   const {
     handleSubmit,
     control,
-    formState: { errors }
+    formState: { errors, touchedFields, dirtyFields }
   } = useForm<FormResponses>({
     resolver: zodResolver(FormResponsesSchema),
     defaultValues: {
@@ -174,6 +174,16 @@ function ApplicationForm({
   };
   const prevStep = () =>
     setActiveStep((current) => (current > 0 ? current - 1 : current));
+
+  const isCurrentQuestionValid = () => {
+    // question is valid only if validation has run after touch/change
+    // and there are no errors
+    const isValidated =
+      touchedFields.responses?.[activeStep]?.response ||
+      dirtyFields.responses?.[activeStep]?.response;
+    const hasErrors = !!errors.responses?.[activeStep]?.response;
+    return isValidated && !hasErrors;
+  };
 
   const renderQuestion = (question: FormQuestion, index: number) => {
     switch (question.type) {
@@ -338,7 +348,11 @@ function ApplicationForm({
               Submit
             </PrimaryButton>
           ) : (
-            <PrimaryButton size={"sm"} onClick={nextStep}>
+            <PrimaryButton
+              size={"sm"}
+              onClick={nextStep}
+              disabled={!isCurrentQuestionValid()}
+            >
               Next
             </PrimaryButton>
           )}
