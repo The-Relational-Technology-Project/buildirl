@@ -24,8 +24,12 @@ export default function ClubAbout() {
       <WithLocalNavigationHeader>
         <Stack px={{ base: 0, md: "xl" }}>
           <Title order={3}>{r.data!.name}</Title>
-          <Text size={"md"}>{r.data!.description}</Text>
-          <ClubStatistics clubId={r.data!.id} mt={{ base: "sm", md: "xl" }} />
+          {r.data!.description.length > 0 && (
+            <Text size={"md"} mb={{ base: "sm", md: "lg" }}>
+              {r.data!.description}
+            </Text>
+          )}
+          <ClubStatistics clubId={r.data!.id} />
         </Stack>
       </WithLocalNavigationHeader>
     )
