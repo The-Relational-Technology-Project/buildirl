@@ -52,6 +52,8 @@ export default function EditableUserAvatar({
       notifyError("Failed to upload user profile image.");
       return;
     }
+    // TODO this will clear existing form data but we cannot implement something like
+    //  EditableClubImage version increment as it does not refresh the header bar image
     // force a full refresh of the page so all image references
     // can pick up new upload
     window.location.reload();
