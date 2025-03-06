@@ -95,7 +95,7 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
                 size={buttonSize}
                 onClick={() => router.push(`/club/${club.id}/manage`)}
               >
-                Edit Club
+                Manage Club
               </Button>
             ) : (
               <Button
