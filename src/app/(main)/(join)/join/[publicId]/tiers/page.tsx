@@ -93,7 +93,7 @@ export default function ClubTiers() {
           <Text
             size={"sm"}
             style={{ alignSelf: "center", textAlign: "center" }}
-            c={"dimmed"}
+            c={colorScheme === "dark" ? "white" : "dimmed"}
             mb={20}
           >
             You will only be charged if you are approved as a member.
