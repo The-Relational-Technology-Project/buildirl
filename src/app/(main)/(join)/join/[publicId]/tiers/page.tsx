@@ -149,8 +149,8 @@ function MembershipTierCard({
 
           <Box style={{ alignSelf: "center" }}>
             <PrimaryButton
-              size={"md"}
-              color={"cerulean"}
+              size={"lg"}
+              color={"lilac"}
               onClick={() =>
                 router.push(
                   `/apply/${clubPublicId}?membershipTierId=${membershipTier.id}`

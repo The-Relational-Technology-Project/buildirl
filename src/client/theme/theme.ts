@@ -25,18 +25,6 @@ export const theme = createTheme({
       "#6850b7",
       "#563da3",
       "#442a8f"
-    ],
-    cerulean: [
-      "#f5f7ff",
-      "#e8ebff",
-      "#dbe0ff",
-      "#ced4ff",
-      "#c1c7f2",
-      "#b4bce5",
-      "#b2b9da",
-      "#9da3c4",
-      "#888eae",
-      "#737998"
     ]
   },
   fontFamily: "Manrope",
