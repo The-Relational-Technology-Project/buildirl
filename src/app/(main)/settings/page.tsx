@@ -62,14 +62,11 @@ function UpdateUserForm({ user }: UserFormProps) {
           Bio
         </Title>
         <Textarea
-          defaultValue={form.values.description}
-          onChange={(event) =>
-            form.setFieldValue("description", event.currentTarget.value)
-          }
           placeholder={
             "Share a little about who you are and how you will add to the community!"
           }
-          error={form.errors.description}
+          key={form.key("description")}
+          {...form.getInputProps("description")}
           autosize
           minRows={3}
         />

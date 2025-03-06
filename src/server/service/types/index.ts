@@ -168,7 +168,7 @@ export const UrlSchema = z
   .url("Not a valid url (tip: did you forget http(s) prefix?)");
 export type Url = z.infer<typeof UrlSchema>;
 
-const EmailSchema = z.string().email("Not a valid email");
+export const EmailSchema = z.string().email("Not a valid email");
 export type Email = z.infer<typeof EmailSchema>;
 
 export const InstagramHandleSchema = z

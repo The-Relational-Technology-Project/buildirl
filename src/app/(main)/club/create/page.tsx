@@ -61,11 +61,8 @@ function CreateClubForm(props: StackProps) {
         <TextInput
           required
           placeholder="Club name"
-          value={form.values.name}
-          onChange={(event) =>
-            form.setFieldValue("name", event.currentTarget.value)
-          }
-          error={form.errors.name}
+          key={form.key("name")}
+          {...form.getInputProps("name")}
         />
         <Title order={6} mt={4}>
           Choose a share link.
@@ -75,11 +72,8 @@ function CreateClubForm(props: StackProps) {
           <TextInput
             required
             placeholder="club-tag"
-            value={form.values.publicId}
-            onChange={(event) =>
-              form.setFieldValue("publicId", event.currentTarget.value)
-            }
-            error={form.errors.publicId}
+            key={form.key("publicId")}
+            {...form.getInputProps("publicId")}
           />
         </Group>
         <Button

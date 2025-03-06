@@ -32,6 +32,8 @@ function CreateUserForm(props: StackProps) {
       lastName: ""
     },
 
+    validateInputOnChange: true,
+
     validate: {
       firstName: (v) => safeValidateSchema(FirstNameSchema, v),
       lastName: (v) => safeValidateSchema(LastNameSchema, v)
@@ -53,20 +55,14 @@ function CreateUserForm(props: StackProps) {
         <TextInput
           required
           placeholder="First name"
-          value={form.values.firstName}
-          onChange={(event) =>
-            form.setFieldValue("firstName", event.currentTarget.value)
-          }
-          error={form.errors.email && "Invalid name"}
+          key={form.key("firstName")}
+          {...form.getInputProps("firstName")}
         />
         <TextInput
           required
           placeholder="Last name"
-          value={form.values.lastName}
-          onChange={(event) =>
-            form.setFieldValue("lastName", event.currentTarget.value)
-          }
-          error={form.errors.email && "Invalid name"}
+          key={form.key("lastName")}
+          {...form.getInputProps("lastName")}
         />
         <Button
           type="submit"

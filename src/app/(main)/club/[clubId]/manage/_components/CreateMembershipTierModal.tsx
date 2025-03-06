@@ -51,6 +51,8 @@ export default function CreateMembershipTierModal({
       costPerMonthInUSD: DEFAULT_COST_PER_MONTH_USD
     },
 
+    validateInputOnChange: true,
+
     validate: {
       name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
       benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
@@ -89,35 +91,29 @@ export default function CreateMembershipTierModal({
           <TextInput
             placeholder="Tier name"
             required
-            onChange={(e) => form.setFieldValue("name", e.currentTarget.value)}
-            error={form.errors.name}
+            key={form.key("name")}
+            {...form.getInputProps("name")}
           />
 
           <Textarea
             placeholder="Describe the benefits members in this tier can expect."
             rows={5}
-            onChange={(e) =>
-              form.setFieldValue("benefitDescription", e.currentTarget.value)
-            }
-            error={form.errors.benefitDescription}
+            key={form.key("benefitDescription")}
+            {...form.getInputProps("benefitDescription")}
           />
 
           <Textarea
             placeholder="Describe the contributions expected of members in this tier."
             rows={5}
-            onChange={(e) =>
-              form.setFieldValue(
-                "contributionDescription",
-                e.currentTarget.value
-              )
-            }
-            error={form.errors.contributionDescription}
+            key={form.key("contributionDescription")}
+            {...form.getInputProps("contributionDescription")}
           />
 
           <Title order={6}>Monthly Cost</Title>
           <Slider
             label={(value) => `$${value}.00/month`}
-            onChange={(v) => form.setFieldValue("costPerMonthInUSD", v)}
+            key={form.key("costPerMonthInUSD")}
+            {...form.getInputProps("costPerMonthInUSD")}
             color={"black"}
             size={"xl"}
             defaultValue={DEFAULT_COST_PER_MONTH_USD}

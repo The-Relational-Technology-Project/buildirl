@@ -61,6 +61,8 @@ export default function UpdateMembershipTierModal({
       costPerMonthInUSD: membershipTier.costPerMonthInUSD
     },
 
+    validateInputOnChange: true,
+
     validate: {
       name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
       benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
@@ -100,31 +102,24 @@ export default function UpdateMembershipTierModal({
             defaultValue={form.values.name}
             placeholder="Tier name"
             required
-            onChange={(e) => form.setFieldValue("name", e.currentTarget.value)}
-            error={form.errors.name}
+            key={form.key("name")}
+            {...form.getInputProps("name")}
           />
 
           <Textarea
             defaultValue={form.values.benefitDescription}
             placeholder="Describe the benefits members in this tier can expect."
             rows={5}
-            onChange={(e) =>
-              form.setFieldValue("benefitDescription", e.currentTarget.value)
-            }
-            error={form.errors.benefitDescription}
+            key={form.key("benefitDescription")}
+            {...form.getInputProps("benefitDescription")}
           />
 
           <Textarea
             defaultValue={form.values.contributionDescription}
             placeholder="Describe the contributions expected of members in this tier."
             rows={5}
-            onChange={(e) =>
-              form.setFieldValue(
-                "contributionDescription",
-                e.currentTarget.value
-              )
-            }
-            error={form.errors.contributionDescription}
+            key={form.key("contributionDescription")}
+            {...form.getInputProps("contributionDescription")}
           />
 
           {!isDefaultFreeTier(membershipTier) && (
@@ -132,7 +127,8 @@ export default function UpdateMembershipTierModal({
               <Title order={6}>Monthly Cost</Title>
               <Slider
                 label={(value) => `$${value}.00/month`}
-                onChange={(v) => form.setFieldValue("costPerMonthInUSD", v)}
+                key={form.key("costPerMonthInUSD")}
+                {...form.getInputProps("costPerMonthInUSD")}
                 color={"black"}
                 size={"xl"}
                 defaultValue={form.values.costPerMonthInUSD}

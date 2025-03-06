@@ -16,11 +16,7 @@ import { createComponentClient } from "~/utils/supabase/auth/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { logger } from "~/client/logger";
 import { safeValidateSchema } from "~/utils/zod";
-
-const EmailSchema = z
-  .string()
-  .min(1, "Required")
-  .email("Invalid email address");
+import { EmailSchema } from "~/server/service/types";
 
 const OtpSchema = z.string().regex(/^\d{6}$/, "Code must be 6 digits");
 
@@ -63,11 +59,8 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
           required
           label="Email"
           placeholder="hello@buildirl.com"
-          value={form.values.email}
-          onChange={(event) =>
-            form.setFieldValue("email", event.currentTarget.value)
-          }
-          error={form.errors.email && "Invalid email"}
+          key={form.key("email")}
+          {...form.getInputProps("email")}
         />
         <Button type="submit" mt="sm">
           {"Send code"}
@@ -125,11 +118,8 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
           required
           label="Enter code"
           placeholder="6-digit code from email"
-          value={form.values.code}
-          onChange={(event) =>
-            form.setFieldValue("code", event.currentTarget.value)
-          }
-          error={form.errors.code && "Invalid code"}
+          key={form.key("code")}
+          {...form.getInputProps("code")}
         />
         <Button type="submit" mt="sm">
           {"Login"}
