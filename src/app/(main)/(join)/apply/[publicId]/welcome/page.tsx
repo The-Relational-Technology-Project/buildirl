@@ -76,14 +76,14 @@ export default function Welcome() {
   return (
     <Center pt={50}>
       <Stack align="center" gap="xl" mt={"xl"}>
-        <Title order={2} ta={"center"}>
+        <Title order={1} ta={"center"}>
           YOU'VE BEEN APPROVED!
         </Title>
 
         <UserClubHandshake user={u.data!} club={r.data!} />
 
         <Stack gap={"sm"} align={"center"}>
-          <Title order={3} fw={400} style={{ textAlign: "center" }}>
+          <Title order={2} fw={700} style={{ textAlign: "center" }}>
             Welcome {u.data!.firstName}!
           </Title>
           <Title order={3} fw={400}>

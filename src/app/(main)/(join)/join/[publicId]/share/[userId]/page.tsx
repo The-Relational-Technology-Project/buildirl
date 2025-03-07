@@ -39,17 +39,17 @@ export default function Share() {
   return (
     <Center pt={50}>
       <Stack align="center" gap="xl" mt={"xl"}>
-        <Title order={2} ta={"center"}>
+        <Title order={1} ta={"center"}>
           I'M A PROUD JOINER!
         </Title>
 
         <UserClubHandshake user={u.data!} club={r.data!} />
 
         <Stack gap={"sm"} align={"center"}>
-          <Title order={3} mt={"sm"} fw={400}>
+          <Title order={2} mt={"sm"} fw={400}>
             I Am a Member Of
           </Title>
-          <Title order={3}>{r.data!.name}!</Title>
+          <Title order={2}>{r.data!.name}!</Title>
         </Stack>
 
         <PrimaryButton onClick={() => router.push(`/join/${publicId}`)}>
