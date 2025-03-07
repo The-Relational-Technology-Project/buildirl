@@ -106,11 +106,11 @@ export default function ClubJoin() {
           align={"center"}
           gap={"lg"}
         >
-          <ClubImage club={r.data!} size={{ base: 200, md: 300 }} />
+          <ClubImage club={r.data!} size={{ base: 300, md: 360 }} />
 
           <Stack align={"center"} gap={0} mb={8}>
             <Title
-              fz={{ base: 36, md: 48 }}
+              fz={{ base: 40, md: 48 }}
               style={{
                 // we only want to apply this theme font family to this heading not all headings
                 fontFamily: r.data!.theme?.headingFontFamily ?? "inherit",

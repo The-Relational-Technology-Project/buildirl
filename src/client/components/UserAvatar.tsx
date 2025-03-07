@@ -1,10 +1,4 @@
-import {
-  Image,
-  Box,
-  useMantineColorScheme,
-  BoxProps,
-  MantineRadius
-} from "@mantine/core";
+import { Image, Box, BoxProps, MantineRadius } from "@mantine/core";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 import { User } from "~/server/service/types";
@@ -52,7 +46,6 @@ export default function UserAvatar({
   size,
   ...props
 }: UserAvatarProps & BoxProps) {
-  const { colorScheme } = useMantineColorScheme();
   const sizeNumber = getSizeNumber(size);
 
   return (
