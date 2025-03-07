@@ -9,9 +9,7 @@ import { isAllLoaded } from "~/client/utils";
 import { useEffect } from "react";
 import SecondaryButton from "~/client/components/SecondaryButton";
 import { activeMembershipForClub } from "~/utils/types";
-import PrimaryButton, {
-  BUTTON_STANDARD_WIDTH
-} from "~/client/components/PrimaryButton";
+import PrimaryButton from "~/client/components/PrimaryButton";
 import UserClubHandshake from "~/client/components/UserClubHandshake";
 
 export default function Welcome() {
@@ -101,19 +99,16 @@ export default function Welcome() {
         </Title>
 
         <Stack align="center" gap="md" w={"100%"}>
-          <PrimaryButton w={BUTTON_STANDARD_WIDTH} onClick={onShare}>
-            Share
-          </PrimaryButton>
+          <PrimaryButton onClick={onShare}>Share</PrimaryButton>
 
           <SecondaryButton
-            w={BUTTON_STANDARD_WIDTH}
             onClick={async () => {
               // mark as welcomed
               await setMembershipAsWelcomed.mutateAsync({
                 membershipId: membership!.id
               });
               // this is necessary because the mutation takes a bit to reflect
-              // in the query, so we need this bit to ensure the user is not 
+              // in the query, so we need this bit to ensure the user is not
               // redirected back here after clicking this
               router.push(`/join/${publicId}?fromWelcome=true`);
             }}

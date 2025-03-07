@@ -4,10 +4,6 @@ import React from "react";
 import { IconArrowUpRight } from "@tabler/icons-react";
 import { useMounted } from "@mantine/hooks";
 
-// for consistency on button sizes on join flow
-// TODO is this the best way to define and reuse this?
-export const BUTTON_STANDARD_WIDTH = 200;
-
 type PrimaryButtonProps = {
   children: React.ReactNode;
   includeIcon?: boolean;
@@ -34,7 +30,8 @@ export default function PrimaryButton({
         variant={"filled"}
         onClick={onClick}
         rightSection={includeIcon && <IconArrowUpRight />}
-        size={"lg"}
+        size={"xl"}
+        w={{ base: 300, md: 400 }}
         style={{
           border: `2px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,
           borderRadius: 360,

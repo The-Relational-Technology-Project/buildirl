@@ -150,6 +150,7 @@ function MembershipTierCard({
           <Box style={{ alignSelf: "center" }}>
             <PrimaryButton
               size={"lg"}
+              w={200}
               color={"lilac"}
               onClick={() =>
                 router.push(

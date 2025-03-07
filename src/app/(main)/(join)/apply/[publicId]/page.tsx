@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Title, Center, useMatches } from "@mantine/core";
+import { Stack, Title, Center } from "@mantine/core";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -8,9 +8,7 @@ import { isLoaded } from "~/client/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
 import { DefaultClubImage } from "~/client/components/ClubImage";
-import PrimaryButton, {
-  BUTTON_STANDARD_WIDTH
-} from "~/client/components/PrimaryButton";
+import PrimaryButton from "~/client/components/PrimaryButton";
 import React from "react";
 
 export default function Apply() {
@@ -42,7 +40,6 @@ export default function Apply() {
             </Title>
 
             <PrimaryButton
-              w={BUTTON_STANDARD_WIDTH}
               mt={"md"}
               onClick={() => {
                 router.push(

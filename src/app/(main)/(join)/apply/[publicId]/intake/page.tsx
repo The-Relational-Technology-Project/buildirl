@@ -16,7 +16,8 @@ import {
   Text,
   Textarea,
   TextInput,
-  Title
+  Title,
+  useMatches
 } from "@mantine/core";
 import {
   FormQuestion,
@@ -103,6 +104,8 @@ function ApplicationForm({
   membershipTierId,
   clubPublicId
 }: ApplicationFormProps) {
+  const BUTTON_WIDTH = useMatches({ base: 100, md: 120 });
+
   const [activeStep, setActiveStep] = useState(0);
   const [shareEmail, setShareEmail] = useState(false);
 
@@ -340,18 +343,24 @@ function ApplicationForm({
 
         <Group mt="xl" justify={"center"}>
           {activeStep > 0 && (
-            <SecondaryButton size={"sm"} onClick={prevStep}>
+            <SecondaryButton w={BUTTON_WIDTH} size={"sm"} onClick={prevStep}>
               Back
             </SecondaryButton>
           )}
           {activeStep === totalQuestions - 1 ? (
             // for now, this is hardcoded assuming share email
             // is always the last question
-            <PrimaryButton type="submit" size={"sm"} disabled={!shareEmail}>
+            <PrimaryButton
+              type="submit"
+              w={BUTTON_WIDTH}
+              size={"sm"}
+              disabled={!shareEmail}
+            >
               Submit
             </PrimaryButton>
           ) : (
             <PrimaryButton
+              w={BUTTON_WIDTH}
               size={"sm"}
               onClick={nextStep}
               disabled={!isCurrentQuestionValid()}

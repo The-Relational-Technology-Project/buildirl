@@ -168,6 +168,7 @@ export default function ClubJoin() {
 
           {r.data!.eventCalendarUrl && (
             <SecondaryButton
+              w={"80%"}
               includeIcon
               onClick={() => window.open(r.data!.eventCalendarUrl!)}
               mt={"md"}

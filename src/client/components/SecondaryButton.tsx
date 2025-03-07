@@ -24,7 +24,8 @@ export default function SecondaryButton({
       variant={"outline"}
       onClick={onClick}
       rightSection={includeIcon && <IconArrowUpRight />}
-      size={"lg"}
+      size={"xl"}
+      w={{ base: 300, md: 400 }}
       style={{
         border: "2px solid",
         borderRadius: 360,

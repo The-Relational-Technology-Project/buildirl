@@ -6,9 +6,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { Center, Stack, Title } from "@mantine/core";
 import { strictParseInt } from "~/utils";
-import PrimaryButton, {
-  BUTTON_STANDARD_WIDTH
-} from "~/client/components/PrimaryButton";
+import PrimaryButton from "~/client/components/PrimaryButton";
 import UserClubHandshake from "~/client/components/UserClubHandshake";
 
 export default function Share() {
@@ -54,10 +52,7 @@ export default function Share() {
           <Title order={3}>{r.data!.name}!</Title>
         </Stack>
 
-        <PrimaryButton
-          onClick={() => router.push(`/join/${publicId}`)}
-          w={BUTTON_STANDARD_WIDTH}
-        >
+        <PrimaryButton onClick={() => router.push(`/join/${publicId}`)}>
           Join Me
         </PrimaryButton>
       </Stack>
