@@ -57,7 +57,7 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
             borderBottomRightRadius: "10%",
             borderTopLeftRadius: "100%",
             borderTopRightRadius: "100%",
-            border: "1px solid"
+            border: "2px solid"
           }
         }}
       />

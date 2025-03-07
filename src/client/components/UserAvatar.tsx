@@ -59,7 +59,7 @@ export default function UserAvatar({
         fit={"cover"}
         alt={`${user.firstName} ${user.lastName}`}
         style={{
-          border: `1px solid`
+          border: `${size === "sm" ? 1 : 2}px solid`
         }}
       />
     </Box>
