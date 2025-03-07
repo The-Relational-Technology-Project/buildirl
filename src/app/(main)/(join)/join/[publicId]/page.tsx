@@ -96,7 +96,7 @@ export default function ClubJoin() {
           pb={"lg"}
           px={{ base: 0, md: 150 }}
           // this page specifically, we want to fill up more space
-          mx={-20}
+          mx={-6}
           maw={PAGE_WIDTH}
           align={"center"}
           gap={"lg"}

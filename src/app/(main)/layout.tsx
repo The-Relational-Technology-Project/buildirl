@@ -42,7 +42,7 @@ function AuthenticatedLayout({ children }: LayoutProps) {
       <AppShellMain h={"100%"}>
         <WithDefaultColorSchemeOnManualRouteChange>
           <Center>
-            <Box w={{ base: "80vw", md: PAGE_WIDTH }}>
+            <Box w={{ base: "100%", md: PAGE_WIDTH }} px={{ base: 30, md: 0 }}>
               <ErrorBoundary adjustForHeader>{children}</ErrorBoundary>
             </Box>
           </Center>
@@ -58,7 +58,7 @@ function PublicLayout({ children }: LayoutProps) {
       <AppShellMain h={"100%"}>
         <WithDefaultColorSchemeOnManualRouteChange>
           <Center>
-            <Box w={{ base: "80vw", md: PAGE_WIDTH }}>
+            <Box w={{ base: "100%", md: PAGE_WIDTH }} px={{ base: 30, md: 0 }}>
               <ErrorBoundary>{children}</ErrorBoundary>
             </Box>
           </Center>
