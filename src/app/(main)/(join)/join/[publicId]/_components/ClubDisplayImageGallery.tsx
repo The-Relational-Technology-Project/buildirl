@@ -24,7 +24,8 @@ export default function ClubDisplayImageGallery({
         <ScrollArea type="never" h={size + 10}>
           <Group w={"max-content"} px={4}>
             {club?.displayImageUrls.map((url, index) => (
-              <Paper key={index}>
+              // remove the shadow
+              <Paper key={index} style={{ border: "2px solid" }}>
                 <Image src={url} h={size} w={size} />
               </Paper>
             ))}
