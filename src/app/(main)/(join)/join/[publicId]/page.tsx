@@ -101,12 +101,14 @@ export default function ClubJoin() {
         <Stack
           pt="xl"
           pb={"lg"}
-          px={{ base: "sm", md: 150 }}
+          px={{ base: 0, md: 150 }}
+          // this page specifically, we want to fill up more space
+          mx={-20}
           maw={PAGE_WIDTH}
           align={"center"}
           gap={"lg"}
         >
-          <ClubImage club={r.data!} size={{ base: 300, md: 360 }} />
+          <ClubImage club={r.data!} size={{ base: 320, md: 360 }} />
 
           <Stack align={"center"} gap={0} mb={8}>
             <Title
