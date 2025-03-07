@@ -34,6 +34,7 @@ import { isLoaded } from "~/client/utils";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import SecondaryButton from "~/client/components/SecondaryButton";
 import HideablePaper from "~/client/components/HideablePaper";
+import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 
 type ShareEmailQuestionProp = {
   shareEmail: boolean;
@@ -79,11 +80,13 @@ export default function IntakePage() {
   return (
     isLoaded(r) && (
       <Stack pt={"xl"} px={{ base: undefined, md: 180 }}>
-        <ApplicationForm
-          applicationQuestions={r.data!.applicationQuestions}
-          membershipTierId={membershipTierId}
-          clubPublicId={params.publicId}
-        />
+        <WithLocalNavigationHeader>
+          <ApplicationForm
+            applicationQuestions={r.data!.applicationQuestions}
+            membershipTierId={membershipTierId}
+            clubPublicId={params.publicId}
+          />
+        </WithLocalNavigationHeader>
       </Stack>
     )
   );
