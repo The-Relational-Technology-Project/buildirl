@@ -8,6 +8,7 @@ import Autoplay from "embla-carousel-autoplay";
 import React from "react";
 import { IconStarFilled } from "@tabler/icons-react";
 import { UserImage } from "~/client/components/UserAvatar";
+import { useRouter } from "next/navigation";
 
 type MemberCarouselProps = {
   clubId: number;
@@ -15,6 +16,8 @@ type MemberCarouselProps = {
 };
 
 export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
+  const router = useRouter();
+
   const r = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
   });
@@ -60,7 +63,14 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
                   <IconStarFilled />
                 </ThemeIcon>
               )}
-              <Paper>
+              <Paper
+                onClick={() => router.push(`/user/${m.id}?back=true`)}
+                style={{
+                  border: "2px solid",
+                  boxShadow: "4px 4px 0px",
+                  cursor: "pointer"
+                }}
+              >
                 <UserImage
                   h={slideWidth * 1.3}
                   w={slideWidth}
