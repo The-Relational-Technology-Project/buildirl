@@ -31,11 +31,11 @@ export default function Apply() {
       <WithLocalNavigationHeader>
         <Center pt={30} px={40}>
           <Stack align="center" gap="lg">
-            <Title order={2}>YOU ROCK!</Title>
+            <Title order={1}>YOU ROCK!</Title>
 
-            <DefaultClubImage size={180} />
+            <DefaultClubImage size={240} />
 
-            <Title order={3} fw={500} ta="center">
+            <Title order={2} fw={500} ta="center">
               Let's See If We're A Fit!
             </Title>
 
