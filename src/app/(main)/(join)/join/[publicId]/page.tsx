@@ -76,9 +76,6 @@ function WithRedirectToWelcomePage({
 }
 
 export default function ClubJoin() {
-  const taglineTextSize = useMatches({ base: "sm", md: "md" });
-  const aboutLinkTextSize = useMatches({ base: "xs", md: "sm" });
-
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
   const router = useRouter();
@@ -124,7 +121,7 @@ export default function ClubJoin() {
             </Title>
 
             <Stack align={"center"} gap={8}>
-              <Text ta={"center"} size={taglineTextSize}>
+              <Text ta={"center"} size={"md"}>
                 {r.data!.tagLine}
               </Text>
 
@@ -132,7 +129,7 @@ export default function ClubJoin() {
                 td={"underline"}
                 style={{ cursor: "pointer", fontStyle: "underlined" }}
                 onClick={() => router.push(`/join/${publicId}/about`)}
-                size={aboutLinkTextSize}
+                size={"sm"}
               >
                 {"Read more >"}
               </Text>

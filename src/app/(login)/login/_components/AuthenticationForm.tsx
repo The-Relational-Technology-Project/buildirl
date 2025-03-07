@@ -70,7 +70,7 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
           component="button"
           type="button"
           onClick={toggle}
-          size="xs"
+          size="sm"
         >
           Received code?
         </Anchor>
@@ -129,7 +129,7 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
           component="button"
           type="button"
           onClick={toggle}
-          size="xs"
+          size="sm"
         >
           Try again
         </Anchor>
