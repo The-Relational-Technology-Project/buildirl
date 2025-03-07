@@ -9,7 +9,7 @@ import {
   GroupProps,
   useMatches
 } from "@mantine/core";
-import { IconLink, IconBrandInstagram } from "@tabler/icons-react";
+import { IconBrandInstagram, IconWorld } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
@@ -140,7 +140,7 @@ export default function ClubJoin() {
                 {r.data!.websiteUrl && (
                   <ActionIconBox
                     onClick={() => window.open(`${r.data!.websiteUrl}`)}
-                    icon={<IconLink />}
+                    icon={<IconWorld />}
                     size={"lg"}
                   />
                 )}
