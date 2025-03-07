@@ -17,7 +17,7 @@ type MemberCarouselProps = {
 
 export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
   const router = useRouter();
-  const slideWidth = useMatches({ base: 200, md: 250 });
+  const slideWidth = useMatches({ base: 240, md: 300 });
 
   const r = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
