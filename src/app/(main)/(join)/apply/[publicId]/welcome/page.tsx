@@ -75,7 +75,8 @@ export default function Welcome() {
 
   return (
     <Center pt={50}>
-      <Stack align="center" gap="xl" mt={"xl"}>
+      {/* in desktop, we need to decrease margin top for vertical centering*/}
+      <Stack align="center" gap="xl" mt={{ base: "xl", md: 0 }}>
         <Title order={1} ta={"center"}>
           YOU'VE BEEN APPROVED!
         </Title>
