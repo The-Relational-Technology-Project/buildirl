@@ -30,7 +30,7 @@ export function UserImage({
 
 type UserAvatarProps = {
   user: User;
-  size: "sm" | "md" | "lg" | "xl";
+  size: "sm" | "md" | "lg" | "xl" | number;
 };
 
 function getSizeNumber(size: "sm" | "md" | "lg" | "xl") {
@@ -46,7 +46,7 @@ export default function UserAvatar({
   size,
   ...props
 }: UserAvatarProps & BoxProps) {
-  const sizeNumber = getSizeNumber(size);
+  const sizeNumber = typeof size === "number" ? size : getSizeNumber(size);
 
   return (
     <Box h={sizeNumber} w={sizeNumber} {...props}>
