@@ -1,4 +1,4 @@
-import { Group, GroupProps, Text } from "@mantine/core";
+import { Group, GroupProps, Text, MantineSize } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -7,10 +7,12 @@ import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareTheme
 
 type MemberCountStatisticProps = {
   clubId: number;
+  textSize?: MantineSize | (string & {});
 };
 
 export default function MemberCountStatistic({
   clubId,
+  textSize = "sm",
   ...props
 }: MemberCountStatisticProps & GroupProps) {
   const r = api.main.clubStatistics.useQuery({ clubId: clubId });
@@ -26,7 +28,7 @@ export default function MemberCountStatistic({
         <ColorSchemeAwareThemeIcon size={"xs"}>
           <IconUsers />
         </ColorSchemeAwareThemeIcon>
-        <Text size={"sm"} fw={400}>
+        <Text size={textSize} fw={400}>
           {`${r.data!.memberCount} member${r.data!.memberCount > 1 ? "s" : ""}`}
         </Text>
       </Group>

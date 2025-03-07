@@ -1,14 +1,7 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  Stack,
-  Title,
-  Text,
-  Group,
-  GroupProps,
-  useMatches
-} from "@mantine/core";
+import { Stack, Title, Text, Group, GroupProps } from "@mantine/core";
 import { IconBrandInstagram, IconWorld } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -112,7 +105,7 @@ export default function ClubJoin() {
 
           <Stack align={"center"} gap={0} mb={8}>
             <Title
-              fz={{ base: 40, md: 48 }}
+              fz={{ base: 48, md: 60 }}
               style={{
                 // we only want to apply this theme font family to this heading not all headings
                 fontFamily: r.data!.theme?.headingFontFamily ?? "inherit",
@@ -123,7 +116,7 @@ export default function ClubJoin() {
             </Title>
 
             <Stack align={"center"} gap={8}>
-              <Text ta={"center"} size={"md"}>
+              <Text ta={"center"} size={"lg"}>
                 {r.data!.tagLine}
               </Text>
 
@@ -136,7 +129,7 @@ export default function ClubJoin() {
                 {"Read more >"}
               </Text>
 
-              <MemberCountStatistic clubId={r.data!.id} />
+              <MemberCountStatistic clubId={r.data!.id} textSize={"md"} />
 
               <Group>
                 {r.data!.websiteUrl && (
@@ -201,7 +194,6 @@ function ContributingMembersLink({
 }: ContributingMembersLinkProps & GroupProps) {
   const router = useRouter();
   const r = api.main.clubStatistics.useQuery({ clubId: clubId });
-  const memberCountTextSize = useMatches({ base: "sm", md: "md" });
 
   QueryError.check({
     result: r,
@@ -211,11 +203,11 @@ function ContributingMembersLink({
   return (
     isLoaded(r) && (
       <Stack align={"center"} gap={4}>
-        <Title fz={{ base: 24, md: 30 }}>We are the club</Title>
+        <Title order={1}>We are the club</Title>
         <Text
           style={{ cursor: "pointer" }}
           onClick={() => router.push(`/join/${clubPublicId}/members`)}
-          size={memberCountTextSize}
+          size={"md"}
         >
           {`${r.data!.memberCount} contributing member${r.data!.memberCount > 1 ? "s" : ""} >`}
         </Text>
