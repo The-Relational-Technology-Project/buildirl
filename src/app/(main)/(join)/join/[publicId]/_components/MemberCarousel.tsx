@@ -2,7 +2,7 @@ import { User } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { Box, Paper, Stack, Text, ThemeIcon } from "@mantine/core";
+import { Box, Paper, Stack, Text, ThemeIcon, useMatches } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import React from "react";
@@ -31,7 +31,7 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
   const allMembers = [owner, ...r.data!.map((m) => m.user)];
 
   const autoplay = Autoplay({ delay: 2000, stopOnInteraction: false });
-  const slideWidth = { base: 150, md: 250 };
+  const slideWidth = useMatches({ base: 200, md: 250 });
 
   return (
     <Box w={"100%"}>
@@ -62,7 +62,7 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
               )}
               <Paper>
                 <UserImage
-                  h={{ base: 200, md: 300 }}
+                  h={slideWidth * 1.3}
                   w={slideWidth}
                   radius={"xs"}
                   user={m}
