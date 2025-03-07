@@ -24,15 +24,15 @@ export default function ApplicationCompleted() {
     isLoaded(r) && (
       <Center pt={80} px={{ base: undefined, md: 200 }}>
         <Stack align="center" gap={"lg"}>
-          <Title order={2} ta={"center"}>
+          <Title order={1} ta={"center"}>
             THANK YOU FOR APPLYING!
           </Title>
-          <Text ta={"center"}>
+          <Text ta={"center"} size={"lg"}>
             Your application will be reviewed as soon as possible. Please check
             back here.
           </Text>
 
-          <ClubImage club={r.data!} size={180} />
+          <ClubImage club={r.data!} size={240} />
 
           <SecondaryButton
             mt={"lg"}
