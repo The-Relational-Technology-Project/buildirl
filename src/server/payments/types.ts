@@ -1,9 +1,7 @@
-import { Id, Maybe } from "~/utils/types";
-
 export type PaymentService = {
-  createAccount(): Promise<PaymentResponse>;
+  createAccount(): Promise<CreateAccountResponse>;
 };
 
-export type PaymentResponse = {
-  createdEntityId: Maybe<Id>;
+export type CreateAccountResponse = {
+  accountId: string;
 };
