@@ -5,18 +5,16 @@ import {
   Group,
   Text,
   ThemeIcon,
-  Image,
   Menu,
   Box,
   useMantineTheme,
   useMantineColorScheme,
-  BoxProps,
-  ImageProps
+  BoxProps
 } from "@mantine/core";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
-import { IconBrandSafari, IconHome, TablerIcon } from "@tabler/icons-react";
+import { IconHome, TablerIcon } from "@tabler/icons-react";
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -158,12 +156,7 @@ export default function HeaderBar() {
         }}
       >
         <Group justify="flex-start" w={{ base: undefined, md: PAGE_WIDTH }}>
-          <NavigationLink Icon={IconHome} label={"Clubs"} navigateTo={"/"} />
-          <NavigationLink
-            Icon={IconBrandSafari}
-            label={"Discover"}
-            navigateTo={"https://buildirl.com/clubs"}
-          />
+          <NavigationLink Icon={IconHome} label={"My Clubs"} navigateTo={"/"} />
         </Group>
         <ProfileMenu
           pos={"fixed"}
