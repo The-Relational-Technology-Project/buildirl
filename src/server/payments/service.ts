@@ -1,4 +1,9 @@
-import { CreateAccountResponse, PaymentService } from "~/server/payments/types";
+import {
+  CreateAccountLinkInput,
+  CreateAccountLinkResponse,
+  CreateAccountResponse,
+  PaymentService
+} from "~/server/payments/types";
 import { stripe } from "~/server/payments/stripe";
 import { rootLogger } from "~/logger";
 
@@ -17,7 +22,34 @@ export function createPaymentService(): PaymentService {
     }
   }
 
+  async function createAccountLink(
+    input: CreateAccountLinkInput
+  ): Promise<CreateAccountLinkResponse> {
+    try {
+      const accountLink = await stripe.accountLinks.create({
+        account: input.accountId,
+        refresh_url: `${input.origin}/refresh/${input.accountId}`,
+        return_url: `${input.origin}/return/${input.accountId}`,
+        type: "account_onboarding"
+      });
+      const url = accountLink.url;
+      logger.info(
+        `successfully created account link with url ${url} for account with id ${input.accountId}`
+      );
+      return {
+        url
+      };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create account link for account with id ${input.accountId}`
+      );
+      throw e;
+    }
+  }
+
   return {
-    createAccount
+    createAccount,
+    createAccountLink
   };
 }
