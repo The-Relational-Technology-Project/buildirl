@@ -78,10 +78,6 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
   );
 }
 
-function LogoIcon({ ...props }: ImageProps) {
-  return <Image src={"/images/logo-icon.svg"} w={15} h={20} {...props} />;
-}
-
 function ProfileMenu({ ...props }: BoxProps) {
   const router = useRouter();
   const r = api.main.user.useQuery();
@@ -161,12 +157,6 @@ export default function HeaderBar() {
           borderBottom: `solid 1px ${colorScheme === "dark" ? theme.colors.dark[4] : "black"}`
         }}
       >
-        <LogoIcon
-          style={{
-            position: "absolute",
-            left: 10
-          }}
-        />
         <Group justify="flex-start" w={{ base: undefined, md: PAGE_WIDTH }}>
           <NavigationLink Icon={IconHome} label={"Clubs"} navigateTo={"/"} />
           <NavigationLink
