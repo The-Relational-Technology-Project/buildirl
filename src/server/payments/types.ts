@@ -1,3 +1,6 @@
+import { Url, UrlSchema } from "~/server/service/types";
+import { z } from "zod";
+
 export type PaymentService = {
   createAccount(): Promise<CreateAccountResponse>;
   createAccountLink(
@@ -5,13 +8,16 @@ export type PaymentService = {
   ): Promise<CreateAccountLinkResponse>;
 };
 
-export type CreateAccountLinkInput = {
-  origin: string;
-  accountId: string;
-};
+export const CreateAccountLinkInputSchema = z.object({
+  origin: UrlSchema,
+  accountId: z.string()
+});
+export type CreateAccountLinkInput = z.infer<
+  typeof CreateAccountLinkInputSchema
+>;
 
 export type CreateAccountLinkResponse = {
-  url: string;
+  url: Url;
 };
 
 export type CreateAccountResponse = {

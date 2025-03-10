@@ -4,12 +4,12 @@ import {
   CreateAccountResponse,
   PaymentService
 } from "~/server/payments/types";
-import { stripe } from "~/server/payments/stripe";
 import { rootLogger } from "~/logger";
+import Stripe from "stripe";
 
 const logger = rootLogger.child({ module: "paymentService" });
 
-export function createPaymentService(): PaymentService {
+export function createPaymentService(stripe: Stripe): PaymentService {
   async function createAccount(): Promise<CreateAccountResponse> {
     try {
       const account = await stripe.accounts.create({});
