@@ -17,7 +17,7 @@ export type CreateAccountLinkInput = z.infer<
 >;
 
 export type CreateAccountLinkResponse = {
-  url: Url;
+  redirectUrl: Url;
 };
 
 export type CreateAccountResponse = {

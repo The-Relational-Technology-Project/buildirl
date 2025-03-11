@@ -28,6 +28,7 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     try {
       const accountLink = await stripe.accountLinks.create({
         account: input.accountId,
+        // TODO
         refresh_url: `${input.origin}/refresh/${input.accountId}`,
         return_url: `${input.origin}/return/${input.accountId}`,
         type: "account_onboarding"
@@ -37,7 +38,7 @@ export function createPaymentService(stripe: Stripe): PaymentService {
         `successfully created account link with url ${url} for account with id ${input.accountId}`
       );
       return {
-        url
+        redirectUrl: url
       };
     } catch (e) {
       logger.error(
