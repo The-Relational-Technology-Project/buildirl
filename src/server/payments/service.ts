@@ -13,7 +13,7 @@ import {
   CreateSetupIntentResponse,
   CreateSubscriptionInput,
   CreateSubscriptionResponse,
-  DeleteProductResponse,
+  ArchiveProductResponse,
   GetDefaultPaymentMethodResponse,
   PaymentService,
   UpdateDefaultPaymentMethodInput,
@@ -21,10 +21,12 @@ import {
   UpdateProductInput,
   UpdateProductResponse,
   UpdateSubscriptionPaymentMethodInput,
-  UpdateSubscriptionPaymentMethodResponse
+  UpdateSubscriptionPaymentMethodResponse,
+  PublishProductResponse
 } from "~/server/payments/types";
 import { rootLogger } from "~/logger";
 import Stripe from "stripe";
+import { Maybe } from "~/utils/types";
 
 const logger = rootLogger.child({ module: "paymentService" });
 
@@ -103,28 +105,24 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     input: CreateProductInput
   ): Promise<CreateProductResponse> {
     try {
-      // Create the product
       const product = await stripe.products.create(
         {
           name: input.name,
           description: input.description,
-          metadata: {
-            tierExternalId: input.tierExternalId
-          }
+          active: true
         },
         {
           stripeAccount: input.accountId
         }
       );
 
-      // Create the price for the product
       const price = await stripe.prices.create(
         {
           product: product.id,
-          unit_amount: input.priceAmount,
-          currency: input.currency,
+          unit_amount: input.pricePerMonthInUSD,
+          currency: "usd",
           recurring: {
-            interval: input.interval as Stripe.PriceRecurringInterval
+            interval: "month"
           }
         },
         {
@@ -133,80 +131,105 @@ export function createPaymentService(stripe: Stripe): PaymentService {
       );
 
       logger.info(
-        `Successfully created product (${product.id}) and price (${price.id}) for tier: ${input.tierExternalId}`
+        `created product ${product.id} and price ${price.id} from input ${input}`
       );
+
       return {
         productId: product.id,
         priceId: price.id
       };
     } catch (e) {
-      logger.error(
-        e,
-        `Failed to create product for tier: ${input.tierExternalId}`
-      );
+      logger.error(e, `failed to create product and price from input ${input}`);
       throw e;
     }
   }
 
   async function updateProduct(
+    productId: string,
     input: UpdateProductInput
   ): Promise<UpdateProductResponse> {
     try {
-      // Update the product if needed
-      if (
-        input.name ||
-        input.description !== undefined ||
-        input.active !== undefined
-      ) {
-        await stripe.products.update(input.productId, {
-          name: input.name,
-          description: input.description,
-          active: input.active
-        });
-      }
+      await stripe.products.update(productId, {
+        name: input.name,
+        description: input.description
+      });
 
-      // Only create new price if price amount changes
-      let priceId = input.priceId;
-      if (input.priceAmount !== undefined) {
-        const existingPrice = await stripe.prices.retrieve(input.priceId);
-
-        // Create new price if amount is different
-        if (existingPrice.unit_amount !== input.priceAmount) {
-          const newPrice = await stripe.prices.create({
-            product: input.productId,
-            unit_amount: input.priceAmount,
-            currency: existingPrice.currency,
-            recurring:
-              existingPrice.recurring as Stripe.PriceCreateParams.Recurring
-          });
-
-          // Deactivate old price
-          await stripe.prices.update(input.priceId, { active: false });
-
-          priceId = newPrice.id;
-        }
-      }
-
-      logger.info(`Successfully updated product: ${input.productId}`);
+      const updatedPriceId = await updatePriceIfAmountChanged(
+        productId,
+        input.pricePerMonthInUSD,
+        input.currentPriceId
+      );
+      logger.info(`updated product ${productId} from input ${input}`);
       return {
-        productId: input.productId,
-        priceId: priceId
+        updatedPriceId
       };
     } catch (e) {
-      logger.error(e, `Failed to update product: ${input.productId}`);
+      logger.error(e, `failed to update product from ${input}`);
       throw e;
     }
   }
 
-  async function deleteProduct(
+  async function updatePriceIfAmountChanged(
+    productId: string,
+    pricePerMonthInUSD: number,
+    currentPriceId: string
+  ): Promise<Maybe<string>> {
+    try {
+      if (pricePerMonthInUSD !== null) {
+        const existingPrice = await stripe.prices.retrieve(currentPriceId);
+        if (existingPrice.unit_amount !== pricePerMonthInUSD) {
+          const newPrice = await stripe.prices.create({
+            product: productId,
+            unit_amount: pricePerMonthInUSD,
+            currency: "usd",
+            recurring: {
+              interval: "month"
+            }
+          });
+          // deactivate old price
+          await stripe.prices.update(currentPriceId, { active: false });
+          logger.info(
+            `updated price for product ${productId} from price ${currentPriceId} to new price ${newPrice.id} with amount ${pricePerMonthInUSD} `
+          );
+          return newPrice.id;
+        }
+      }
+      logger.info(
+        `did not update price for product ${productId} and price ${currentPriceId} because there was no price change`
+      );
+      // else no updated price id
+      return null;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update price for product ${productId} and price ${currentPriceId} to ${pricePerMonthInUSD}`
+      );
+      throw e;
+    }
+  }
+
+  async function archiveProduct(
     productId: string
-  ): Promise<DeleteProductResponse> {
+  ): Promise<ArchiveProductResponse> {
     try {
       await stripe.products.update(productId, { active: false });
-      logger.info(`Successfully marked product as inactive: ${productId}`);
+      logger.info(`archived product ${productId}`);
       return { success: true };
     } catch (e) {
-      logger.error(e, `Failed to delete product: ${productId}`);
+      logger.error(e, `failed to archive product ${productId}`);
+      throw e;
+    }
+  }
+
+  async function publishProduct(
+    productId: string
+  ): Promise<PublishProductResponse> {
+    try {
+      await stripe.products.update(productId, { active: true });
+      logger.info(`published product ${productId}`);
+      return { success: true };
+    } catch (e) {
+      logger.error(e, `failed to publish product ${productId}`);
       throw e;
     }
   }
@@ -262,6 +285,7 @@ export function createPaymentService(stripe: Stripe): PaymentService {
           items: [{ price: input.priceId }],
           default_payment_method: setupIntent.payment_method as string,
           metadata: input.metadata,
+          collection_method: "charge_automatically",
           payment_behavior: "default_incomplete",
           expand: ["latest_invoice.payment_intent"]
         },
@@ -423,7 +447,8 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     getAccountStatus,
     createProduct,
     updateProduct,
-    deleteProduct,
+    archiveProduct,
+    publishProduct,
     createSetupIntent,
     createSubscription,
     cancelSetupIntent,

@@ -1,5 +1,6 @@
-import { Url, UrlSchema } from "~/server/service/types";
+import { MonetaryValueSchema, Url, UrlSchema } from "~/server/service/types";
 import { z } from "zod";
+import { Maybe } from "~/utils/types";
 
 export type PaymentService = {
   // connected account management
@@ -11,8 +12,12 @@ export type PaymentService = {
 
   // product set-up
   createProduct(input: CreateProductInput): Promise<CreateProductResponse>;
-  updateProduct(input: UpdateProductInput): Promise<UpdateProductResponse>;
-  deleteProduct(productId: string): Promise<DeleteProductResponse>;
+  updateProduct(
+    productId: string,
+    input: UpdateProductInput
+  ): Promise<UpdateProductResponse>;
+  archiveProduct(productId: string): Promise<ArchiveProductResponse>;
+  publishProduct(productId: string): Promise<PublishProductResponse>;
 
   // payment flow
   createSetupIntent(
@@ -69,10 +74,7 @@ export const CreateProductInputSchema = z.object({
   accountId: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  priceAmount: z.number(),
-  currency: z.string().default("usd"),
-  interval: z.enum(["day", "week", "month", "year"]),
-  tierExternalId: z.string()
+  pricePerMonthInUSD: MonetaryValueSchema
 });
 export type CreateProductInput = z.infer<typeof CreateProductInputSchema>;
 
@@ -82,21 +84,22 @@ export type CreateProductResponse = {
 };
 
 export const UpdateProductInputSchema = z.object({
-  productId: z.string(),
-  priceId: z.string().optional(),
-  name: z.string().optional(),
-  description: z.string().optional(),
-  priceAmount: z.number().optional(),
-  active: z.boolean().optional()
+  currentPriceId: z.string(),
+  name: z.string(),
+  description: z.string(),
+  pricePerMonthInUSD: MonetaryValueSchema
 });
 export type UpdateProductInput = z.infer<typeof UpdateProductInputSchema>;
 
 export type UpdateProductResponse = {
-  productId: string;
-  priceId: string;
+  updatedPriceId: Maybe<string>;
 };
 
-export type DeleteProductResponse = {
+export type ArchiveProductResponse = {
+  success: boolean;
+};
+
+export type PublishProductResponse = {
   success: boolean;
 };
 
