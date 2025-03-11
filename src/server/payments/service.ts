@@ -3,6 +3,8 @@ import {
   CreateAccountLinkInput,
   CreateAccountLinkResponse,
   CreateAccountResponse,
+  CreateCustomerInput,
+  CreateCustomerResponse,
   CreateProductInput,
   CreateProductResponse,
   CreateSubscriptionInput,
@@ -97,7 +99,10 @@ export function createPaymentService(stripe: Stripe): PaymentService {
         {
           name: input.name,
           description: input.description,
-          active: true
+          active: true,
+          metadata: {
+            externalMembershipTierId: input.membershipTierId
+          }
         },
         {
           stripeAccount: input.accountId
@@ -216,6 +221,27 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     }
   }
 
+  async function createCustomer(
+    input: CreateCustomerInput
+  ): Promise<CreateCustomerResponse> {
+    try {
+      const customer = await stripe.customers.create({
+        name: input.name,
+        email: input.email,
+        metadata: {
+          externalUserId: input.userId
+        }
+      });
+      logger.info(`created customer ${customer.id} from input ${input}`);
+      return {
+        customerId: customer.id
+      };
+    } catch (e) {
+      logger.error(e, `failed to create customer from input ${input}`);
+      throw e;
+    }
+  }
+
   async function createSubscription(
     input: CreateSubscriptionInput
   ): Promise<CreateSubscriptionResponse> {
@@ -304,6 +330,7 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     updateProduct,
     archiveProduct,
     publishProduct,
+    createCustomer,
     createSubscription,
     cancelSetupIntent,
     cancelSubscription

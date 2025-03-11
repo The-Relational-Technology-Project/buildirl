@@ -20,6 +20,7 @@ export type PaymentService = {
   publishProduct(productId: string): Promise<void>;
 
   // payment flow
+  createCustomer(input: CreateCustomerInput): Promise<CreateCustomerResponse>;
   createSubscription(
     input: CreateSubscriptionInput
   ): Promise<CreateSubscriptionResponse>;
@@ -52,7 +53,8 @@ export const CreateProductInputSchema = z.object({
   accountId: z.string(),
   name: z.string(),
   description: z.string().optional(),
-  pricePerMonthInUSD: MonetaryValueSchema
+  pricePerMonthInUSD: MonetaryValueSchema,
+  membershipTierId: z.number()
 });
 export type CreateProductInput = z.infer<typeof CreateProductInputSchema>;
 
@@ -71,6 +73,17 @@ export type UpdateProductInput = z.infer<typeof UpdateProductInputSchema>;
 
 export type UpdateProductResponse = {
   updatedPriceId: Maybe<string>;
+};
+
+export const CreateCustomerInputSchema = z.object({
+  email: z.string(),
+  name: z.string(),
+  userId: z.number()
+});
+export type CreateCustomerInput = z.infer<typeof CreateCustomerInputSchema>;
+
+export type CreateCustomerResponse = {
+  customerId: string;
 };
 
 export const CreateSubscriptionInputSchema = z.object({
