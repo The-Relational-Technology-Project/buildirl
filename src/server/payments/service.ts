@@ -1,28 +1,15 @@
 import {
   AccountStatusResponse,
-  CancelSetupIntentResponse,
-  CancelSubscriptionResponse,
   CreateAccountLinkInput,
   CreateAccountLinkResponse,
   CreateAccountResponse,
-  CreateCustomerInput,
-  CreateCustomerResponse,
   CreateProductInput,
   CreateProductResponse,
-  CreateSetupIntentInput,
-  CreateSetupIntentResponse,
   CreateSubscriptionInput,
   CreateSubscriptionResponse,
-  ArchiveProductResponse,
-  GetDefaultPaymentMethodResponse,
   PaymentService,
-  UpdateDefaultPaymentMethodInput,
-  UpdateDefaultPaymentMethodResponse,
   UpdateProductInput,
-  UpdateProductResponse,
-  UpdateSubscriptionPaymentMethodInput,
-  UpdateSubscriptionPaymentMethodResponse,
-  PublishProductResponse
+  UpdateProductResponse
 } from "~/server/payments/types";
 import { rootLogger } from "~/logger";
 import Stripe from "stripe";
@@ -55,6 +42,7 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     try {
       const accountLink = await stripe.accountLinks.create({
         account: input.accountId,
+        // TODO
         refresh_url: `${input.origin}/club/payment/refresh/${input.accountId}`,
         return_url: `${input.origin}/club/payment/return/${input.accountId}`,
         type: "account_onboarding"
@@ -208,58 +196,22 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     }
   }
 
-  async function archiveProduct(
-    productId: string
-  ): Promise<ArchiveProductResponse> {
+  async function archiveProduct(productId: string): Promise<void> {
     try {
       await stripe.products.update(productId, { active: false });
       logger.info(`archived product ${productId}`);
-      return { success: true };
     } catch (e) {
       logger.error(e, `failed to archive product ${productId}`);
       throw e;
     }
   }
 
-  async function publishProduct(
-    productId: string
-  ): Promise<PublishProductResponse> {
+  async function publishProduct(productId: string): Promise<void> {
     try {
       await stripe.products.update(productId, { active: true });
       logger.info(`published product ${productId}`);
-      return { success: true };
     } catch (e) {
       logger.error(e, `failed to publish product ${productId}`);
-      throw e;
-    }
-  }
-
-  // Payment Flow
-  async function createSetupIntent(
-    input: CreateSetupIntentInput
-  ): Promise<CreateSetupIntentResponse> {
-    try {
-      const setupIntent = await stripe.setupIntents.create(
-        {
-          customer: input.customerId,
-          payment_method_types: ["card"],
-          metadata: input.metadata
-        },
-        {
-          stripeAccount: input.accountId
-        }
-      );
-
-      logger.info(`Successfully created setup intent: ${setupIntent.id}`);
-      return {
-        setupIntentId: setupIntent.id,
-        clientSecret: setupIntent.client_secret as string
-      };
-    } catch (e) {
-      logger.error(
-        e,
-        `Failed to create setup intent for account: ${input.accountId}`
-      );
       throw e;
     }
   }
@@ -268,33 +220,39 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     input: CreateSubscriptionInput
   ): Promise<CreateSubscriptionResponse> {
     try {
-      // Get payment method from setup intent
       const setupIntent = await stripe.setupIntents.retrieve(
         input.setupIntentId,
-        { stripeAccount: input.accountId }
+        {
+          stripeAccount: input.accountId
+        }
       );
 
       if (!setupIntent.payment_method) {
-        throw new Error("No payment method attached to setup intent");
+        // noinspection ExceptionCaughtLocallyJS
+        throw new Error(
+          `no payment method attached to setup intent ${setupIntent}`
+        );
       }
 
-      // Create the subscription
+      // create subscription
       const subscription = await stripe.subscriptions.create(
         {
           customer: input.customerId,
           items: [{ price: input.priceId }],
-          default_payment_method: setupIntent.payment_method as string,
-          metadata: input.metadata,
+          default_payment_method: paymentMethodId(setupIntent.payment_method),
           collection_method: "charge_automatically",
-          payment_behavior: "default_incomplete",
-          expand: ["latest_invoice.payment_intent"]
+          // TODO for now, we are strict on first charge, in future allow for
+          //  flexibility and incomplete handling
+          payment_behavior: "error_if_incomplete"
         },
         {
           stripeAccount: input.accountId
         }
       );
 
-      logger.info(`Successfully created subscription: ${subscription.id}`);
+      logger.info(
+        `successfully created subscription with id ${subscription.id} from setup intent with id ${input.setupIntentId}`
+      );
       return {
         subscriptionId: subscription.id,
         status: subscription.status
@@ -302,140 +260,37 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     } catch (e) {
       logger.error(
         e,
-        `Failed to create subscription with setup intent: ${input.setupIntentId}`
+        `failed to create subscription with setup intent with id ${input.setupIntentId}`
       );
       throw e;
     }
   }
 
-  async function cancelSetupIntent(
-    setupIntentId: string
-  ): Promise<CancelSetupIntentResponse> {
+  function paymentMethodId(paymentMethod: string | Stripe.PaymentMethod): string {
+    if (typeof paymentMethod === "string") {
+      return paymentMethod;
+    }
+    return paymentMethod.id;
+  }
+
+  async function cancelSetupIntent(setupIntentId: string): Promise<void> {
     try {
       await stripe.setupIntents.cancel(setupIntentId);
-      logger.info(`Successfully cancelled setup intent: ${setupIntentId}`);
-      return { success: true };
+      logger.info(`cancelled setup intent with id ${setupIntentId}`);
     } catch (e) {
-      logger.error(e, `Failed to cancel setup intent: ${setupIntentId}`);
+      logger.error(e, `failed to cancel setup intent with id ${setupIntentId}`);
       throw e;
     }
   }
 
-  async function cancelSubscription(
-    subscriptionId: string
-  ): Promise<CancelSubscriptionResponse> {
+  async function cancelSubscription(subscriptionId: string): Promise<void> {
     try {
       await stripe.subscriptions.cancel(subscriptionId);
-      logger.info(`Successfully cancelled subscription: ${subscriptionId}`);
-      return { success: true };
-    } catch (e) {
-      logger.error(e, `Failed to cancel subscription: ${subscriptionId}`);
-      throw e;
-    }
-  }
-
-  async function updateSubscriptionPaymentMethod(
-    input: UpdateSubscriptionPaymentMethodInput
-  ): Promise<UpdateSubscriptionPaymentMethodResponse> {
-    try {
-      await stripe.subscriptions.update(input.subscriptionId, {
-        default_payment_method: input.paymentMethodId
-      });
-      logger.info(
-        `Successfully updated payment method for subscription: ${input.subscriptionId}`
-      );
-      return { success: true };
+      logger.info(`cancelled subscription with id ${subscriptionId}`);
     } catch (e) {
       logger.error(
         e,
-        `Failed to update payment method for subscription: ${input.subscriptionId}`
-      );
-      throw e;
-    }
-  }
-
-  async function createCustomer(
-    input: CreateCustomerInput
-  ): Promise<CreateCustomerResponse> {
-    try {
-      const customer = await stripe.customers.create({
-        email: input.email,
-        name: input.name,
-        metadata: input.metadata
-      });
-      logger.info(`Successfully created customer: ${customer.id}`);
-      return {
-        customerId: customer.id
-      };
-    } catch (e) {
-      logger.error(e, `Failed to create customer with email: ${input.email}`);
-      throw e;
-    }
-  }
-
-  async function createDefaultSetupIntent(
-    input: CreateDefaultSetupIntentInput
-  ): Promise<CreateSetupIntentResponse> {
-    return createSetupIntent({
-      accountId: input.accountId,
-      customerId: input.customerId,
-      metadata: { isDefault: "true" }
-    });
-  }
-
-  async function getDefaultPaymentMethod(
-    customerId: string
-  ): Promise<GetDefaultPaymentMethodResponse> {
-    try {
-      const paymentMethods = await stripe.paymentMethods.list({
-        customer: customerId,
-        type: "card"
-      });
-
-      if (paymentMethods.data.length === 0) {
-        logger.info(`No payment methods found for customer: ${customerId}`);
-        return {};
-      }
-
-      // Use the first payment method as default
-      const paymentMethod = paymentMethods.data[0];
-
-      logger.info(
-        `Successfully retrieved default payment method for customer: ${customerId}`
-      );
-      return {
-        paymentMethodId: paymentMethod.id,
-        last4: paymentMethod.card?.last4,
-        brand: paymentMethod.card?.brand,
-        expiryMonth: paymentMethod.card?.exp_month,
-        expiryYear: paymentMethod.card?.exp_year
-      };
-    } catch (e) {
-      logger.error(
-        e,
-        `Failed to get default payment method for customer: ${customerId}`
-      );
-      throw e;
-    }
-  }
-
-  async function updateDefaultPaymentMethod(
-    input: UpdateDefaultPaymentMethodInput
-  ): Promise<UpdateDefaultPaymentMethodResponse> {
-    try {
-      await stripe.customers.update(input.customerId, {
-        invoice_settings: {
-          default_payment_method: input.paymentMethodId
-        }
-      });
-      logger.info(
-        `Successfully updated default payment method for customer: ${input.customerId}`
-      );
-      return { success: true };
-    } catch (e) {
-      logger.error(
-        e,
-        `Failed to update default payment method for customer: ${input.customerId}`
+        `failed to cancel subscription with id ${subscriptionId}`
       );
       throw e;
     }
@@ -449,14 +304,8 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     updateProduct,
     archiveProduct,
     publishProduct,
-    createSetupIntent,
     createSubscription,
     cancelSetupIntent,
-    cancelSubscription,
-    updateSubscriptionPaymentMethod,
-    createCustomer,
-    createDefaultSetupIntent,
-    getDefaultPaymentMethod,
-    updateDefaultPaymentMethod
+    cancelSubscription
   };
 }
