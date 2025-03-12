@@ -49,6 +49,7 @@ export default function ClubAdminPanel({ clubId }: ClubAdminPanelProps) {
         "Are you sure you want to delete this club? This action cannot be undone."
       )
     ) {
+      // TODO delete club should also delete assets in bucket
       deleteClubMutation.mutate({ id: clubId });
     }
   };
