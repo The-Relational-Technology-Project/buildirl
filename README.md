@@ -1,5 +1,5 @@
 # BuildIRL
-This is the tech platform for [BuildIRL](https://www.buildirl.com/) (est., 2025)! We will supercharge the next generation
+This is the tech platform for [BuildIRL](https://www.clubs.buildirl.com/) (est., 2025)! We will supercharge the next generation
 of local community builders!
 
 ## Project
@@ -69,9 +69,9 @@ the time your code is divergent from main.
 
 ### CI Workflow
 1. Run PBT in `system.test.ts` on any backend changes locally before deployment
-2. Merge and push code into `testing` branch which is deployed automatically to the [testing environment](https://buildirl-git-testing-buildirl.vercel.app/)
+2. Merge and push code into `testing` branch which is deployed automatically to the [testing environment](https://clubs-test.buildirl.com/)
 3. To deploy prod, run `just deploy-prod` which merges `origin/testing` into `origin/main`. Updates to the `main` branch is automatically 
-deployed to the [production environment](https://platform.buildirl.com/).
+deployed to the [production environment](https://clubs.buildirl.com/).
 
 ### DB Migrations
 1. Apply migrations first locally using `just db-migrate`. This creates migration files (in `prisma/migrations/`) from `schema.prisma` changes

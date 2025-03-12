@@ -165,7 +165,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
         <Stack gap={8} mt={6}>
           <Title order={6}>Share link</Title>
           <Group gap={4} wrap={"nowrap"}>
-            <Text size={"sm"}>buildirl.com/join/</Text>
+            <Text size={"sm"}>clubs.buildirl.com/join/</Text>
             <TextInput
               required
               placeholder="club-tag"
