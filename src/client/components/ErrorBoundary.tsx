@@ -46,7 +46,8 @@ class ErrorBoundary extends React.Component<
               <Anchor
                 underline={"always"}
                 fw={500}
-                href={"mailto:help@buildirl.com"}
+                href={"https://tally.so/r/w5MevP"}
+                target={"_blank"}
                 c={"black"}
               >
                 contact
