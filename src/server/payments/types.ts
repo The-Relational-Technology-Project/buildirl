@@ -29,6 +29,9 @@ export type PaymentService = {
   ): Promise<CreateSubscriptionResponse>;
   cancelSetupIntent(setupIntentId: string): Promise<void>;
   cancelSubscription(subscriptionId: string): Promise<void>;
+  getSubscriptionStatus(
+    subscriptionId: string
+  ): Promise<SubscriptionStatusResponse>;
 };
 
 export const CreateAccountLinkInputSchema = z.object({
@@ -49,7 +52,6 @@ export type CreateAccountResponse = {
 
 export type AccountStatusResponse = {
   isComplete: boolean;
-  missingRequirements?: string[];
 };
 
 export const CreateProductInputSchema = z.object({
@@ -117,4 +119,8 @@ export type CreateSubscriptionInput = z.infer<
 export type CreateSubscriptionResponse = {
   subscriptionId: string;
   status: string;
+};
+
+export type SubscriptionStatusResponse = {
+  isActive: boolean;
 };

@@ -12,6 +12,7 @@ import {
   CreateSubscriptionInput,
   CreateSubscriptionResponse,
   PaymentService,
+  SubscriptionStatusResponse,
   UpdateProductInput,
   UpdateProductResponse
 } from "~/server/payments/types";
@@ -76,8 +77,7 @@ export function createPaymentService(stripe: Stripe): PaymentService {
       const isComplete = requirements?.currently_due?.length === 0;
 
       const accountStatus = {
-        isComplete,
-        missingRequirements: requirements?.currently_due || []
+        isComplete
       };
 
       logger.info(
@@ -356,6 +356,26 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     }
   }
 
+  async function getSubscriptionStatus(
+    subscriptionId: string
+  ): Promise<SubscriptionStatusResponse> {
+    try {
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const status = subscription.status;
+
+      logger.info(
+        `retrieved subscription status ${status} for subscription with id ${subscriptionId}`
+      );
+      return { isActive: status === "active" };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to get subscription status for subscription with id ${subscriptionId}`
+      );
+      throw e;
+    }
+  }
+
   return {
     createAccount,
     createAccountLink,
@@ -368,6 +388,7 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     createCheckoutSession,
     createSubscription,
     cancelSetupIntent,
-    cancelSubscription
+    cancelSubscription,
+    getSubscriptionStatus
   };
 }
