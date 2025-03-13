@@ -12,11 +12,16 @@ import React from "react";
 import { useMounted } from "@mantine/hooks";
 import EditProfilePanel from "~/app/(main)/settings/_components/EditProfilePanel";
 import StripeConnectPanel from "~/app/(main)/settings/_components/StripeConnectPanel";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Settings() {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const mounted = useMounted();
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") ?? "profile";
 
   return (
     mounted && (
@@ -26,7 +31,11 @@ export default function Settings() {
         <Tabs
           // hacky but how we support dark mode with defaults
           color={colorScheme === "dark" ? theme.colors.dark[4] : undefined}
-          defaultValue={"profile"}
+          value={activeTab}
+          onChange={(value) => {
+            // change url without scrolling page to top
+            router.push(`?tab=${value}`, { scroll: false });
+          }}
         >
           <Tabs.List>
             <Tabs.Tab value={"profile"}>Edit Profile</Tabs.Tab>
