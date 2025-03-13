@@ -21,6 +21,9 @@ export type PaymentService = {
 
   // payment flow
   createCustomer(input: CreateCustomerInput): Promise<CreateCustomerResponse>;
+  createCheckoutSession(
+    input: CreateCheckoutSessionInput
+  ): Promise<CreateCheckoutSessionResponse>;
   createSubscription(
     input: CreateSubscriptionInput
   ): Promise<CreateSubscriptionResponse>;
@@ -75,6 +78,10 @@ export type UpdateProductResponse = {
   updatedPriceId: Maybe<string>;
 };
 
+export type CreateCheckoutSessionResponse = {
+  redirectUrl: Url;
+};
+
 export const CreateCustomerInputSchema = z.object({
   email: z.string(),
   name: z.string(),
@@ -85,6 +92,15 @@ export type CreateCustomerInput = z.infer<typeof CreateCustomerInputSchema>;
 export type CreateCustomerResponse = {
   customerId: string;
 };
+
+export const CreateCheckoutSessionInputSchema = z.object({
+  origin: UrlSchema,
+  customerId: z.string(),
+  priceId: z.string()
+});
+export type CreateCheckoutSessionInput = z.infer<
+  typeof CreateCheckoutSessionInputSchema
+>;
 
 export const CreateSubscriptionInputSchema = z.object({
   accountId: z.string(),

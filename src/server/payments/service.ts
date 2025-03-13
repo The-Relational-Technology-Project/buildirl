@@ -3,6 +3,8 @@ import {
   CreateAccountLinkInput,
   CreateAccountLinkResponse,
   CreateAccountResponse,
+  CreateCheckoutSessionInput,
+  CreateCheckoutSessionResponse,
   CreateCustomerInput,
   CreateCustomerResponse,
   CreateProductInput,
@@ -242,6 +244,39 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     }
   }
 
+  async function createCheckoutSession(
+    input: CreateCheckoutSessionInput
+  ): Promise<CreateCheckoutSessionResponse> {
+    try {
+      const session = await stripe.checkout.sessions.create({
+        customer: input.customerId,
+        // TODO
+        success_url: `${input.origin}/apply/completed/`,
+        line_items: [
+          {
+            // subscription
+            price: input.priceId,
+            quantity: 1
+          }
+        ],
+        mode: "setup"
+      });
+
+      if (!session.url) {
+        throw new Error("expected active session with url but found no url");
+      }
+
+      logger.info(
+        `successfully created checkout session with id ${session.id} from input ${input}`
+      );
+
+      return { redirectUrl: session.url };
+    } catch (e) {
+      logger.error(e, `failed to create checkout session from input ${input}`);
+      throw e;
+    }
+  }
+
   async function createSubscription(
     input: CreateSubscriptionInput
   ): Promise<CreateSubscriptionResponse> {
@@ -292,7 +327,9 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     }
   }
 
-  function paymentMethodId(paymentMethod: string | Stripe.PaymentMethod): string {
+  function paymentMethodId(
+    paymentMethod: string | Stripe.PaymentMethod
+  ): string {
     if (typeof paymentMethod === "string") {
       return paymentMethod;
     }
@@ -331,6 +368,7 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     archiveProduct,
     publishProduct,
     createCustomer,
+    createCheckoutSession,
     createSubscription,
     cancelSetupIntent,
     cancelSubscription
