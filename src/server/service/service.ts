@@ -646,9 +646,13 @@ export function createMainService(prisma: PrismaClient): MainService {
     return createMembershipTierInTransaction(
       clubId,
       {
-        name: "Free",
-        benefitDescription: "",
-        contributionDescription: "",
+        name: "The Club Crew",
+        benefitDescription:
+          "Weekly meetups and events, members-only WhatsApp / Slack group, awesome local deals, and a whole lot of " +
+          "opportunities to create with fellow members!",
+        contributionDescription:
+          "We’re member-first and member-led. Help us keep the good vibes going by co-hosting, volunteering, or just chipping " +
+          "in where you can. Your dues go towards venues, snacks, and more. Your support is what makes this stay alive!",
         costPerMonthInUSD: 0
       },
       tx
