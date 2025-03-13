@@ -122,16 +122,24 @@ export default function Settings() {
         <Tabs
           // hacky but how we support dark mode with defaults
           color={colorScheme === "dark" ? theme.colors.dark[4] : undefined}
-          defaultValue={"account"}
+          defaultValue={"profile"}
         >
           <Tabs.List>
-            <Tabs.Tab value={"account"}>Account</Tabs.Tab>
+            <Tabs.Tab value={"profile"}>Edit Profile</Tabs.Tab>
+            <Tabs.Tab value={"connect"}>Stripe Connect</Tabs.Tab>
+            <Tabs.Tab value={"payments"}>Payments</Tabs.Tab>
           </Tabs.List>
 
           <Divider />
 
-          <Tabs.Panel value={"account"}>
+          <Tabs.Panel value={"profile"}>
             <AccountPanel />
+          </Tabs.Panel>
+          <Tabs.Panel value={"connect"}>
+            <></>
+          </Tabs.Panel>
+          <Tabs.Panel value={"payments"}>
+            <></>
           </Tabs.Panel>
         </Tabs>
       </Stack>

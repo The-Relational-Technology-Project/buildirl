@@ -64,18 +64,9 @@ export default function ManageMembershipTiersPanel({
         <Carousel.Slide py={4}>
           <Paper w={300} h={400}>
             <Center h={"100%"}>
-              <Tooltip
-                position={"bottom"}
-                label={"Paid membership tier support coming soon!"}
-              >
-                <ColorSchemeAwareActionIcon
-                  variant="transparent"
-                  disabled={true}
-                  onClick={open}
-                >
-                  <IconPlus />
-                </ColorSchemeAwareActionIcon>
-              </Tooltip>
+              <ColorSchemeAwareActionIcon variant="transparent" onClick={open}>
+                <IconPlus />
+              </ColorSchemeAwareActionIcon>
             </Center>
           </Paper>
         </Carousel.Slide>
