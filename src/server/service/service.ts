@@ -474,22 +474,25 @@ export function createMainService(prisma: PrismaClient): MainService {
           ...input,
           ownerUserId: userId,
           // default questions
-          applicationQuestions: { 
+          applicationQuestions: {
             questions: [
               {
                 question: "What is drawing you most to joining our club?",
                 type: FormQuestionType.LONG_TEXT
               },
               {
-                question: "If you were hosting an event for the club, what would you dream up? Get creative!",
+                question:
+                  "If you were hosting an event for the club, what would you dream up? Get creative!",
                 type: FormQuestionType.LONG_TEXT
               },
               {
-                question: "Get personal – we'd love to get to know you. What's something sweet, unexpected, delightful, or lovely about you that you'd like to share with us?",
+                question:
+                  "Get personal – we'd love to get to know you. What's something sweet, unexpected, delightful, or lovely about you that you'd like to share with us?",
                 type: FormQuestionType.LONG_TEXT
               },
               {
-                question: "What's your go-to snack when you're in the middle of a Netflix binge?",
+                question:
+                  "What's your go-to snack when you're in the middle of a Netflix binge?",
                 type: FormQuestionType.SINGLE_SELECT,
                 metadata: {
                   choices: [
@@ -500,7 +503,7 @@ export function createMainService(prisma: PrismaClient): MainService {
                   ]
                 }
               }
-            ] 
+            ]
           },
           theme: Prisma.DbNull
         },
@@ -673,6 +676,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   ): Promise<MutationResult> {
     return createMembershipTierInTransaction(
       clubId,
+      // default tier description
       {
         name: "The Club Crew",
         benefitDescription:
