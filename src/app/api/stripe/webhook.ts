@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { rootLogger } from "~/logger";
 import { env } from "~/env";
@@ -36,10 +38,42 @@ export default async function handler(
     );
 
     // https://docs.stripe.com/api/events/types
+    //  https://docs.stripe.com/billing/subscriptions/webhooks
     switch (event.type) {
       case "account.updated":
         throw new Error("unimplemented");
+      case "customer.created":
+        throw new Error("unimplemented");
+      case "customer.subscription.created":
+        throw new Error("unimplemented");
+      case "customer.subscription.updated":
+        throw new Error("unimplemented");
+      case "customer.subscription.deleted":
+        throw new Error("unimplemented");
+      case "checkout.session.completed":
+        throw new Error("unimplemented");
+      case "checkout.session.expired":
+        throw new Error("unimplemented");
+      case "setup_intent.succeeded":
+        throw new Error("unimplemented");
+      case "setup_intent.setup_failed":
+        throw new Error("unimplemented");
       default:
+        // TODO for failure cases, at least log as error?
+        // invoice.created
+        // invoice.paid
+        // invoice.payment_failed
+        // payment_intent.created
+        // payment_intent.succeeded
+        // payment_intent.payment_failed
+        // customer.updated
+        // customer.deleted
+        // customer.subscription.paused
+        // customer.subscription.resumed
+        // plan.created
+        // plan.updated
+        // subscription_schedule.created
+        // subscription_schedule.updated
         logger.info(`Unhandled event type: ${event.type}`);
     }
 
