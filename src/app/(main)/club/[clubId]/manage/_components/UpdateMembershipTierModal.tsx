@@ -99,7 +99,6 @@ export default function UpdateMembershipTierModal({
       >
         <Stack>
           <TextInput
-            defaultValue={form.values.name}
             placeholder="Tier name"
             required
             key={form.key("name")}
@@ -107,7 +106,6 @@ export default function UpdateMembershipTierModal({
           />
 
           <Textarea
-            defaultValue={form.values.benefitDescription}
             placeholder="Describe the benefits members in this tier can expect."
             rows={5}
             key={form.key("benefitDescription")}
@@ -115,7 +113,6 @@ export default function UpdateMembershipTierModal({
           />
 
           <Textarea
-            defaultValue={form.values.contributionDescription}
             placeholder="Describe the contributions expected of members in this tier."
             rows={5}
             key={form.key("contributionDescription")}
@@ -131,7 +128,6 @@ export default function UpdateMembershipTierModal({
                 {...form.getInputProps("costPerMonthInUSD")}
                 color={"black"}
                 size={"xl"}
-                defaultValue={form.values.costPerMonthInUSD}
                 precision={2}
                 step={5}
                 min={5}

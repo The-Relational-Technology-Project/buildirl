@@ -154,7 +154,7 @@ export default function Home() {
           <Title order={3} mt={"lg"}>
             You are not part of any clubs!
           </Title>
-          <Text size={"md"}>Discover clubs or create one of your own</Text>
+          <Text size={"md"}>Join clubs or create one of your own</Text>
           <Button
             onClick={() => router.push("/club/create")}
             mt={"md"}
@@ -192,7 +192,7 @@ export default function Home() {
         style={{ alignSelf: "center", textAlign: "center" }}
         mt={10}
       >
-        Discover more clubs to join or{" "}
+        Join a club or{" "}
         <a href="/club/create" style={{ color: "inherit" }}>
           create
         </a>{" "}
