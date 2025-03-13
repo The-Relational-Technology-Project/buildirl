@@ -44,16 +44,13 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     input: CreateAccountLinkInput
   ): Promise<CreateAccountLinkResponse> {
     try {
-      const accountLink = await stripe.accountLinks.create(
-        {
-          account: input.accountId,
-          // TODO
-          refresh_url: `${input.origin}/api/payments/refresh-account-link`,
-          return_url: `${input.origin}/settings?tab=connect`,
-          type: "account_onboarding"
-        },
-        { stripeAccount: input.accountId }
-      );
+      const accountLink = await stripe.accountLinks.create({
+        account: input.accountId,
+        // TODO
+        refresh_url: `${input.origin}/api/payments/refresh-account-link`,
+        return_url: `${input.origin}/settings?tab=connect`,
+        type: "account_onboarding"
+      });
       const url = accountLink.url;
       logger.info(
         `created account link with redirect url ${url} for account with id ${input.accountId}`
@@ -100,33 +97,23 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     input: CreateProductInput
   ): Promise<CreateProductResponse> {
     try {
-      const product = await stripe.products.create(
-        {
-          name: input.name,
-          description: input.description,
-          active: true,
-          metadata: {
-            externalMembershipTierId: input.membershipTierId
-          }
-        },
-        {
-          stripeAccount: input.accountId
+      const product = await stripe.products.create({
+        name: input.name,
+        description: input.description,
+        active: true,
+        metadata: {
+          externalMembershipTierId: input.membershipTierId
         }
-      );
+      });
 
-      const price = await stripe.prices.create(
-        {
-          product: product.id,
-          unit_amount: input.pricePerMonthInUSD,
-          currency: "usd",
-          recurring: {
-            interval: "month"
-          }
-        },
-        {
-          stripeAccount: input.accountId
+      const price = await stripe.prices.create({
+        product: product.id,
+        unit_amount: input.pricePerMonthInUSD,
+        currency: "usd",
+        recurring: {
+          interval: "month"
         }
-      );
+      });
 
       logger.info(
         `created product ${product.id} and price ${price.id} from input ${input}`
@@ -290,10 +277,7 @@ export function createPaymentService(stripe: Stripe): PaymentService {
   ): Promise<CreateSubscriptionResponse> {
     try {
       const setupIntent = await stripe.setupIntents.retrieve(
-        input.setupIntentId,
-        {
-          stripeAccount: input.accountId
-        }
+        input.setupIntentId
       );
 
       if (!setupIntent.payment_method) {
@@ -319,7 +303,8 @@ export function createPaymentService(stripe: Stripe): PaymentService {
           }
         },
         {
-          stripeAccount: input.accountId
+          // we want to capture this for tracking purposes
+          stripeAccount: input.byAccountId
         }
       );
 

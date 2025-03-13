@@ -53,7 +53,6 @@ export type AccountStatusResponse = {
 };
 
 export const CreateProductInputSchema = z.object({
-  accountId: z.string(),
   name: z.string(),
   description: z.string().optional(),
   pricePerMonthInUSD: MonetaryValueSchema,
@@ -105,11 +104,11 @@ export type CreateCheckoutSessionInput = z.infer<
 >;
 
 export const CreateSubscriptionInputSchema = z.object({
-  accountId: z.string(),
   customerId: z.string(),
   priceId: z.string(),
   setupIntentId: z.string(),
-  membershipId: z.bigint()
+  membershipId: z.bigint(),
+  byAccountId: z.string()
 });
 export type CreateSubscriptionInput = z.infer<
   typeof CreateSubscriptionInputSchema
