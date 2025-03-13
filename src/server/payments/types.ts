@@ -95,6 +95,8 @@ export type CreateCustomerResponse = {
 
 export const CreateCheckoutSessionInputSchema = z.object({
   origin: UrlSchema,
+  clubId: z.number(),
+  membershipId: z.number(),
   customerId: z.string(),
   priceId: z.string()
 });
@@ -106,7 +108,8 @@ export const CreateSubscriptionInputSchema = z.object({
   accountId: z.string(),
   customerId: z.string(),
   priceId: z.string(),
-  setupIntentId: z.string()
+  setupIntentId: z.string(),
+  membershipId: z.bigint()
 });
 export type CreateSubscriptionInput = z.infer<
   typeof CreateSubscriptionInputSchema

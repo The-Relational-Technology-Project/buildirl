@@ -44,13 +44,16 @@ export function createPaymentService(stripe: Stripe): PaymentService {
     input: CreateAccountLinkInput
   ): Promise<CreateAccountLinkResponse> {
     try {
-      const accountLink = await stripe.accountLinks.create({
-        account: input.accountId,
-        // TODO
-        refresh_url: `${input.origin}/club/payment/refresh/${input.accountId}`,
-        return_url: `${input.origin}/club/payment/return/${input.accountId}`,
-        type: "account_onboarding"
-      });
+      const accountLink = await stripe.accountLinks.create(
+        {
+          account: input.accountId,
+          // TODO
+          refresh_url: `${input.origin}/api/payments/refresh-account-link`,
+          return_url: `${input.origin}/settings?tab=connect`,
+          type: "account_onboarding"
+        },
+        { stripeAccount: input.accountId }
+      );
       const url = accountLink.url;
       logger.info(
         `created account link with redirect url ${url} for account with id ${input.accountId}`
@@ -251,7 +254,7 @@ export function createPaymentService(stripe: Stripe): PaymentService {
       const session = await stripe.checkout.sessions.create({
         customer: input.customerId,
         // TODO
-        success_url: `${input.origin}/apply/completed/`,
+        success_url: `${input.origin}/apply/${input.clubId}/completed/`,
         line_items: [
           {
             // subscription
@@ -259,6 +262,11 @@ export function createPaymentService(stripe: Stripe): PaymentService {
             quantity: 1
           }
         ],
+        setup_intent_data: {
+          metadata: {
+            externalMembershipId: input.membershipId
+          }
+        },
         mode: "setup"
       });
 
@@ -302,9 +310,13 @@ export function createPaymentService(stripe: Stripe): PaymentService {
           items: [{ price: input.priceId }],
           default_payment_method: paymentMethodId(setupIntent.payment_method),
           collection_method: "charge_automatically",
-          // TODO for now, we are strict on first charge, in future allow for
-          //  flexibility and incomplete handling
-          payment_behavior: "error_if_incomplete"
+          // we will surface inactive status if needed but do not block
+          // subscription creation
+          payment_behavior: "allow_incomplete",
+          metadata: {
+            // no bigint, must convert to string
+            externalMembershipId: input.membershipId.toString()
+          }
         },
         {
           stripeAccount: input.accountId

@@ -1,4 +1,3 @@
-import { Prisma } from ".prisma/client";
 import { Maybe } from "~/utils/types";
 
 /**
@@ -23,7 +22,7 @@ export function strictParseInt(s: Maybe<string>): number {
   return r;
 }
 
-export function assertAsString(value: string | string[]): string {
+export function assertAsString(value: any): string {
   if (typeof value === "string") {
     return value;
   }

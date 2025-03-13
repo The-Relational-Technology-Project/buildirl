@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { rootLogger } from "~/logger";
 import { env } from "~/env";
 import { stripe } from "~/server/payments/stripe";
+import { assertAsString } from "~/utils";
 
 export const config = {
   api: {
@@ -22,7 +23,7 @@ export default async function handler(
     return;
   }
 
-  const signature = req.headers["stripe-signature"] as string;
+  const signature = assertAsString(req.headers["stripe-signature"]);
 
   if (!signature) {
     logger.error("missing Stripe signature");
