@@ -477,17 +477,17 @@ export function createMainService(prisma: PrismaClient): MainService {
           applicationQuestions: {
             questions: [
               {
-                question: "What is drawing you most to joining our club?",
+                question: "What is drawing you most to joining our club? 🤔✨",
                 type: FormQuestionType.LONG_TEXT
               },
               {
                 question:
-                  "If you were hosting an event for the club, what would you dream up? Get creative!",
+                  "If you were hosting an event for the club, what would you dream up? 🎉💭",
                 type: FormQuestionType.LONG_TEXT
               },
               {
                 question:
-                  "Get personal – we'd love to get to know you. What's something sweet, unexpected, delightful, or lovely about you that you'd like to share with us?",
+                  "Get personal – we'd love to get to know you. What's something sweet, unexpected, delightful, or lovely about you that you'd like to share with us? 💖🌟",
                 type: FormQuestionType.LONG_TEXT
               },
               {
@@ -496,10 +496,10 @@ export function createMainService(prisma: PrismaClient): MainService {
                 type: FormQuestionType.SINGLE_SELECT,
                 metadata: {
                   choices: [
-                    "Popcorn all the way!",
-                    "Chips and salsa for life",
-                    "Chocolate, duh",
-                    "Fruit and yogurt, keeping it fresh"
+                    "Popcorn all the way! 🍿",
+                    "Chips and salsa for life 🌶️",
+                    "Chocolate, duh 🍫",
+                    "Fruit and yogurt, keeping it fresh 🍓"
                   ]
                 }
               }
