@@ -44,11 +44,13 @@ model User {
 }
 
 model UserSettings {
-  userId    Int      @id @unique @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
-  email     String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  userId                 Int      @id @unique @map("user_id")
+  user                   User     @relation(fields: [userId], references: [id])
+  email                  String?
+  stripeConnectAccountId String?  @unique
+  stripeCustomerId       String?  @unique
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
 
   @@index([userId])
   @@map("user_settings")
@@ -87,6 +89,9 @@ model MembershipTier {
   club                    Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubId                  Int                  @map("club_id")
   status                  MembershipTierStatus @default(PUBLISHED)
+  stripeProductId         String?              @unique
+  // active price
+  stripePriceId           String?              @unique
   memberships             Membership[]
   createdAt               DateTime             @default(now()) @map("created_at")
   updatedAt               DateTime             @updatedAt @map("updated_at")
@@ -104,6 +109,8 @@ model Membership {
   applicationResponses Json             @map("application_responses")
   status               MembershipStatus
   isWelcomed           Boolean          @default(false) @map("is_welcomed")
+  stripeSetupIntentId  String?          @unique
+  stripeSubscriptionId String?          @unique
   createdAt            DateTime         @default(now()) @map("created_at")
   updatedAt            DateTime         @updatedAt @map("updated_at")
 
