@@ -126,16 +126,12 @@ export default function Settings() {
         >
           <Tabs.List>
             <Tabs.Tab value={"account"}>Account</Tabs.Tab>
-            <Tabs.Tab value={"payment"}>Payment</Tabs.Tab>
           </Tabs.List>
 
           <Divider />
 
           <Tabs.Panel value={"account"}>
             <AccountPanel />
-          </Tabs.Panel>
-          <Tabs.Panel value={"payment"}>
-            <></>
           </Tabs.Panel>
         </Tabs>
       </Stack>
