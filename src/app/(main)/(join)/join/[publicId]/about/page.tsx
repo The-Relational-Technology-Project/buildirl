@@ -63,12 +63,6 @@ function ClubStatistics({
             size={"md"}
           >{`active member${r.data!.memberCount > 1 ? "s" : ""}`}</Text>
         </Group>
-        <Group gap={4}>
-          <Text size={"md"} fw={700}>
-            {r.data!.pendingMembershipApplications}
-          </Text>
-          <Text size={"md"}>applied</Text>
-        </Group>
       </Stack>
     )
   );

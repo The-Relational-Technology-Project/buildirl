@@ -348,18 +348,9 @@ export function createMainService(prisma: PrismaClient): MainService {
           status: "ACTIVE"
         }
       });
-      const pendingMembershipApplications = await prisma.membership.count({
-        where: {
-          membershipTier: {
-            clubId: clubId
-          },
-          status: "PENDING"
-        }
-      });
       const statistics = {
         // plus the owner
-        memberCount: memberCount + 1,
-        pendingMembershipApplications
+        memberCount: memberCount + 1
       };
       logger.info(
         `queried club statistics for club with clubId ${clubId} with result ${stringify(statistics)}`
