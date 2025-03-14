@@ -48,6 +48,7 @@ export type CreateAccountResponse = {
 
 export type AccountStatusResponse = {
   isComplete: boolean;
+  missingRequirements: string[];
 };
 
 export interface CreateProductInput {
@@ -110,4 +111,5 @@ export type CreateSubscriptionResponse = {
 
 export type SubscriptionStatusResponse = {
   isActive: boolean;
+  status: string;
 };

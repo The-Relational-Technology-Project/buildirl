@@ -77,7 +77,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       const isComplete = requirements?.currently_due?.length === 0;
 
       const accountStatus = {
-        isComplete
+        isComplete,
+        missingRequirements: requirements?.currently_due || []
       };
 
       logger.info(
@@ -366,7 +367,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       logger.info(
         `retrieved subscription status ${status} for subscription with id ${subscriptionId}`
       );
-      return { isActive: status === "active" };
+      return { isActive: status === "active", status: status };
     } catch (e) {
       logger.error(
         e,
