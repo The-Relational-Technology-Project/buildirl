@@ -5,6 +5,11 @@ import { rootLogger } from "~/logger";
 import { env } from "~/env";
 import { stripe } from "~/server/payments/stripe";
 import { assertAsString } from "~/utils";
+import Cors from "micro-cors";
+
+const cors = Cors({
+  allowMethods: ["POST", "HEAD"]
+});
 
 export const config = {
   api: {
@@ -14,10 +19,7 @@ export const config = {
 
 const logger = rootLogger.child({ module: "stripeWebhookHandler" });
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     res.status(405).appendHeader("Allow", "POST").end();
     return;
@@ -55,3 +57,5 @@ export default async function handler(
     res.status(400).json({ error: `webhook error: ${e}` });
   }
 }
+
+export default cors(handler as any);
