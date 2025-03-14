@@ -106,7 +106,6 @@ export interface CreateSubscriptionInput {
 
 export type CreateSubscriptionResponse = {
   subscriptionId: string;
-  status: string;
 };
 
 export type SubscriptionStatusResponse = {

@@ -3,7 +3,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { rootLogger } from "~/logger";
 import { env } from "~/env";
-import { stripe } from "~/server/payments/stripe";
+import { stripe } from "~/server/payments/stripe/stripe";
 import { assertAsString } from "~/utils";
 import Cors from "micro-cors";
 

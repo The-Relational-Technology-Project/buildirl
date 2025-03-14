@@ -20,7 +20,7 @@ import { rootLogger } from "~/logger";
 import Stripe from "stripe";
 import { Maybe } from "~/utils/types";
 
-const logger = rootLogger.child({ module: "paymentService" });
+const logger = rootLogger.child({ module: "stripeClient" });
 
 export function createStripeClient(stripe: Stripe): StripeClient {
   async function createAccount(): Promise<CreateAccountResponse> {
@@ -313,8 +313,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         `successfully created subscription with id ${subscription.id} from setup intent with id ${input.setupIntentId}`
       );
       return {
-        subscriptionId: subscription.id,
-        status: subscription.status
+        subscriptionId: subscription.id
       };
     } catch (e) {
       logger.error(
