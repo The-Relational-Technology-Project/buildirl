@@ -1,7 +1,15 @@
 import Stripe from "stripe";
 import { env } from "~/env";
 
-// TODO singleton pattern https://vercel.com/guides/getting-started-with-nextjs-typescript-stripe
-export const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-02-24.acacia"
-});
+const createStripeClient = () =>
+  new Stripe(env.STRIPE_SECRET_KEY, {
+    apiVersion: "2025-02-24.acacia"
+  });
+
+const globalForStripe = globalThis as unknown as {
+  stripe: ReturnType<typeof createStripeClient> | undefined;
+};
+
+export const stripe = globalForStripe.stripe ?? createStripeClient();
+
+if (env.NODE_ENV !== "production") globalForStripe.stripe = stripe;
