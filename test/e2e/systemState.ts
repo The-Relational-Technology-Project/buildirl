@@ -542,11 +542,7 @@ export class SystemState {
   public getClubStatistics(clubId: number): ClubStatistics {
     return {
       // plus one for owner
-      memberCount: this.membershipCountWithStatus(clubId, "ACTIVE") + 1,
-      pendingMembershipApplications: this.membershipCountWithStatus(
-        clubId,
-        "PENDING"
-      )
+      memberCount: this.membershipCountWithStatus(clubId, "ACTIVE") + 1
     };
   }
 

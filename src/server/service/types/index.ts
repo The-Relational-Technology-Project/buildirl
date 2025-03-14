@@ -82,7 +82,6 @@ export type MembershipTier = {
 
 export type ClubStatistics = {
   memberCount: number;
-  pendingMembershipApplications: number;
 };
 
 export type MainMutations = {
