@@ -1,5 +1,3 @@
-// noinspection ExceptionCaughtLocallyJS
-
 import { NextApiRequest, NextApiResponse } from "next";
 import { rootLogger } from "~/logger";
 import { env } from "~/env";

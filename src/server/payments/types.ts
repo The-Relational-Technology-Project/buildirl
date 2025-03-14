@@ -1,11 +1,14 @@
 import { z } from "zod";
 import { Url } from "~/server/service/types";
+import { Maybe } from "~/utils/types";
 
 export type PaymentService = PaymentMutations & PaymentQueries;
 
 type PaymentQueries = {
-  getAccountStatus(userId: number): Promise<AccountStatus>;
-  getSubscriptionStatus(membershipId: bigint): Promise<SubscriptionStatus>;
+  getAccountStatus(userId: number): Promise<Maybe<AccountStatus>>;
+  getSubscriptionStatus(
+    membershipId: bigint
+  ): Promise<Maybe<SubscriptionStatus>>;
   getCustomerPortalLink(userId: number): Promise<Url>;
 };
 

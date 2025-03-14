@@ -1,4 +1,4 @@
-import { MonetaryValue, Url } from "~/server/service/types";
+import { Email, MonetaryValue, Url } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
 
 export type StripeClient = {
@@ -20,6 +20,7 @@ export type StripeClient = {
 
   // payment flow
   createCustomer(input: CreateCustomerInput): Promise<CreateCustomerResponse>;
+  getCustomerEmail(customerId: string): Promise<Email>;
   createCheckoutSession(
     input: CreateCheckoutSessionInput
   ): Promise<CreateCheckoutSessionResponse>;

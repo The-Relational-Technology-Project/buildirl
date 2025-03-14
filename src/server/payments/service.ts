@@ -12,6 +12,8 @@ import {
 } from "~/server/payments/types";
 import { stringify } from "~/utils";
 import { Url } from "~/server/service/types";
+import { Maybe } from "~/utils/types";
+import { env } from "~/env";
 
 const logger = rootLogger.child({ module: "paymentService" });
 
@@ -19,21 +21,27 @@ export function createPaymentService(
   stripeClient: StripeClient,
   prisma: PrismaClient
 ): PaymentService {
-  async function getAccountStatus(userId: number): Promise<AccountStatus> {
+  async function getAccountStatus(
+    userId: number
+  ): Promise<Maybe<AccountStatus>> {
     try {
-      const userSettings = await prisma.userSettings.findUniqueOrThrow({
+      const result = await prisma.userSettings.findUniqueOrThrow({
+        select: {
+          stripeConnectAccountId: true
+        },
         where: { userId }
       });
 
-      if (!userSettings.stripeConnectAccountId) {
-        return {
-          isComplete: false,
-          missingRequirements: ["Stripe Connect account not created"]
-        };
+      if (!result.stripeConnectAccountId) {
+        logger.info(
+          `no account found when retrieving account status for user with id ${userId}`
+        );
+        // no connected account
+        return null;
       }
 
       const accountStatus = await stripeClient.getAccountStatus(
-        userSettings.stripeConnectAccountId
+        result.stripeConnectAccountId
       );
 
       logger.info(
@@ -51,21 +59,19 @@ export function createPaymentService(
 
   async function getSubscriptionStatus(
     membershipId: bigint
-  ): Promise<SubscriptionStatus> {
+  ): Promise<Maybe<SubscriptionStatus>> {
     try {
-      const membership = await prisma.membership.findUniqueOrThrow({
+      const result = await prisma.membership.findUniqueOrThrow({
+        select: { stripeSubscriptionId: true },
         where: { id: membershipId }
       });
 
-      if (!membership.stripeSubscriptionId) {
-        return {
-          isActive: false,
-          status: "no_subscription"
-        };
+      if (!result.stripeSubscriptionId) {
+        return null;
       }
 
       const subscriptionStatus = await stripeClient.getSubscriptionStatus(
-        membership.stripeSubscriptionId
+        result.stripeSubscriptionId
       );
 
       logger.info(
@@ -83,19 +89,31 @@ export function createPaymentService(
 
   async function getCustomerPortalLink(userId: number): Promise<Url> {
     try {
-      const userSettings = await prisma.userSettings.findUniqueOrThrow({
+      const result = await prisma.userSettings.findUniqueOrThrow({
+        select: {
+          stripeCustomerId: true
+        },
         where: { userId }
       });
 
-      if (!userSettings.stripeCustomerId) {
+      // TODO! remove this once this field is made required after back-fill
+      if (!result.stripeCustomerId) {
         throw new Error(
           `no stripe customer id found for user with id ${userId}`
         );
       }
 
-      // TODO: Implement customer portal link generation
-      // This would require additional Stripe API integration
-      throw new Error("customer portal link generation not implemented");
+      const email = await stripeClient.getCustomerEmail(
+        result.stripeCustomerId
+      );
+
+      const customerPortalLink = `${env.STRIPE_CUSTOMER_PORTAL_URL}?prefilled_email=${email}`;
+
+      logger.info(
+        `retrieved customer portal link ${customerPortalLink} for user with id ${userId}`
+      );
+
+      return customerPortalLink;
     } catch (e) {
       logger.error(
         e,
@@ -108,11 +126,11 @@ export function createPaymentService(
   async function createAccount(userId: number): Promise<void> {
     return prisma.$transaction(async (tx) => {
       try {
-        const userSettings = await tx.userSettings.findUniqueOrThrow({
+        const result = await tx.userSettings.findUniqueOrThrow({
           where: { userId }
         });
 
-        if (userSettings.stripeConnectAccountId) {
+        if (result.stripeConnectAccountId) {
           throw new Error(
             `stripe connect account already exists for user with id ${userId}`
           );

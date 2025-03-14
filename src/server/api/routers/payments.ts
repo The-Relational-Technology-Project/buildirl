@@ -23,6 +23,7 @@ export const paymentsRouter = createTRPCRouter({
   getSubscriptionStatus: securedProcedure
     .input(z.object({ membershipId: z.bigint() }))
     .query(({ ctx, input }) => {
+      // todo! casl authz
       return ctx.service.payment.getSubscriptionStatus(input.membershipId);
     }),
 

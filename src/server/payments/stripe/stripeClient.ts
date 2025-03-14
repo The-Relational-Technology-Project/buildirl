@@ -19,6 +19,8 @@ import {
 import { rootLogger } from "~/logger";
 import Stripe from "stripe";
 import { Maybe } from "~/utils/types";
+import { stringify } from "~/utils";
+import { Email } from "~/server/service/types";
 
 const logger = rootLogger.child({ module: "stripeClient" });
 
@@ -82,7 +84,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       };
 
       logger.info(
-        `retrieved account status ${accountStatus} for account with id ${accountId}`
+        `retrieved account status ${stringify(accountStatus)} for account with id ${accountId}`
       );
       return accountStatus;
     } catch (e) {
@@ -117,7 +119,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       });
 
       logger.info(
-        `created product ${product.id} and price ${price.id} from input ${input}`
+        `created product ${product.id} and price ${price.id} from input ${stringify(input)}`
       );
 
       return {
@@ -125,7 +127,10 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         priceId: price.id
       };
     } catch (e) {
-      logger.error(e, `failed to create product and price from input ${input}`);
+      logger.error(
+        e,
+        `failed to create product and price from input ${stringify(input)}`
+      );
       throw e;
     }
   }
@@ -145,12 +150,14 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         input.pricePerMonthInUSD,
         input.currentPriceId
       );
-      logger.info(`updated product ${productId} from input ${input}`);
+      logger.info(
+        `updated product ${productId} from input ${stringify(input)}`
+      );
       return {
         updatedPriceId
       };
     } catch (e) {
-      logger.error(e, `failed to update product from ${input}`);
+      logger.error(e, `failed to update product from ${stringify(input)}`);
       throw e;
     }
   }
@@ -225,12 +232,41 @@ export function createStripeClient(stripe: Stripe): StripeClient {
           externalUserId: input.userId
         }
       });
-      logger.info(`created customer ${customer.id} from input ${input}`);
+      logger.info(
+        `created customer ${customer.id} from input ${stringify(input)}`
+      );
       return {
         customerId: customer.id
       };
     } catch (e) {
-      logger.error(e, `failed to create customer from input ${input}`);
+      logger.error(
+        e,
+        `failed to create customer from input ${stringify(input)}`
+      );
+      throw e;
+    }
+  }
+
+  async function getCustomerEmail(customerId: string): Promise<Email> {
+    try {
+      const customer = await stripe.customers.retrieve(customerId);
+      if (customer.deleted) {
+        throw new Error(
+          `could not get email for customer with id ${customerId} because customer was deleted`
+        );
+      }
+      if (!customer.email) {
+        throw new Error(`customer with id ${customerId} was missing email`);
+      }
+      logger.info(
+        `queried email ${customer.email} for customer with id ${customerId}`
+      );
+      return customer.email;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to get customer email for customer with id ${customerId}`
+      );
       throw e;
     }
   }
@@ -263,12 +299,15 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       }
 
       logger.info(
-        `successfully created checkout session with id ${session.id} from input ${input}`
+        `successfully created checkout session with id ${session.id} from input ${stringify(input)}`
       );
 
       return { redirectUrl: session.url };
     } catch (e) {
-      logger.error(e, `failed to create checkout session from input ${input}`);
+      logger.error(
+        e,
+        `failed to create checkout session from input ${stringify(input)}`
+      );
       throw e;
     }
   }
@@ -282,9 +321,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       );
 
       if (!setupIntent.payment_method) {
-        // noinspection ExceptionCaughtLocallyJS
         throw new Error(
-          `no payment method attached to setup intent ${setupIntent}`
+          `no payment method attached to setup intent ${stringify(setupIntent)}`
         );
       }
 
@@ -385,6 +423,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     archiveProduct,
     publishProduct,
     createCustomer,
+    getCustomerEmail,
     createCheckoutSession,
     createSubscription,
     cancelSetupIntent,
