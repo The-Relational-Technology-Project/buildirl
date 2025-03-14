@@ -229,6 +229,7 @@ export const MonetaryValueSchema = z
   .max(1000.0, "Cannot be greater than $1000.00")
   // 2 decimal places
   .transform((val) => Number(val.toFixed(2)));
+export type MonetaryValue = z.infer<typeof MonetaryValueSchema>;
 
 export const MembershipTierNameSchema = z
   .string()

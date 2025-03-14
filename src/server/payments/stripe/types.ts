@@ -1,8 +1,7 @@
-import { MonetaryValueSchema, Url, UrlSchema } from "~/server/service/types";
-import { z } from "zod";
+import { MonetaryValue, Url } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
 
-export type PaymentService = {
+export type StripeClient = {
   // connected account management
   createAccount(): Promise<CreateAccountResponse>;
   createAccountLink(
@@ -34,13 +33,10 @@ export type PaymentService = {
   ): Promise<SubscriptionStatusResponse>;
 };
 
-export const CreateAccountLinkInputSchema = z.object({
-  origin: UrlSchema,
-  accountId: z.string()
-});
-export type CreateAccountLinkInput = z.infer<
-  typeof CreateAccountLinkInputSchema
->;
+export interface CreateAccountLinkInput {
+  origin: Url;
+  accountId: string;
+}
 
 export type CreateAccountLinkResponse = {
   redirectUrl: Url;
@@ -54,26 +50,24 @@ export type AccountStatusResponse = {
   isComplete: boolean;
 };
 
-export const CreateProductInputSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
-  pricePerMonthInUSD: MonetaryValueSchema,
-  membershipTierId: z.number()
-});
-export type CreateProductInput = z.infer<typeof CreateProductInputSchema>;
+export interface CreateProductInput {
+  name: string;
+  description?: string;
+  pricePerMonthInUSD: MonetaryValue;
+  membershipTierId: number;
+}
 
 export type CreateProductResponse = {
   productId: string;
   priceId: string;
 };
 
-export const UpdateProductInputSchema = z.object({
-  currentPriceId: z.string(),
-  name: z.string(),
-  description: z.string(),
-  pricePerMonthInUSD: MonetaryValueSchema
-});
-export type UpdateProductInput = z.infer<typeof UpdateProductInputSchema>;
+export interface UpdateProductInput {
+  currentPriceId: string;
+  name: string;
+  description: string;
+  pricePerMonthInUSD: MonetaryValue;
+}
 
 export type UpdateProductResponse = {
   updatedPriceId: Maybe<string>;
@@ -83,38 +77,31 @@ export type CreateCheckoutSessionResponse = {
   redirectUrl: Url;
 };
 
-export const CreateCustomerInputSchema = z.object({
-  email: z.string(),
-  name: z.string(),
-  userId: z.number()
-});
-export type CreateCustomerInput = z.infer<typeof CreateCustomerInputSchema>;
+export interface CreateCustomerInput {
+  email: string;
+  name: string;
+  userId: number;
+}
 
 export type CreateCustomerResponse = {
   customerId: string;
 };
 
-export const CreateCheckoutSessionInputSchema = z.object({
-  origin: UrlSchema,
-  clubId: z.number(),
-  membershipId: z.number(),
-  customerId: z.string(),
-  priceId: z.string()
-});
-export type CreateCheckoutSessionInput = z.infer<
-  typeof CreateCheckoutSessionInputSchema
->;
+export interface CreateCheckoutSessionInput {
+  origin: Url;
+  clubId: number;
+  membershipId: number;
+  customerId: string;
+  priceId: string;
+}
 
-export const CreateSubscriptionInputSchema = z.object({
-  customerId: z.string(),
-  priceId: z.string(),
-  setupIntentId: z.string(),
-  membershipId: z.bigint(),
-  byAccountId: z.string()
-});
-export type CreateSubscriptionInput = z.infer<
-  typeof CreateSubscriptionInputSchema
->;
+export interface CreateSubscriptionInput {
+  customerId: string;
+  priceId: string;
+  setupIntentId: string;
+  membershipId: bigint;
+  byAccountId: string;
+}
 
 export type CreateSubscriptionResponse = {
   subscriptionId: string;
