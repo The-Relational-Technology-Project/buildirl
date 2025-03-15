@@ -1,5 +1,5 @@
 import { StripeClient } from "~/server/payments/stripe/types";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import {
   PaymentService,
@@ -7,8 +7,7 @@ import {
   SubscriptionStatus,
   CreateAccountLinkInput,
   CreateAccountLinkResult,
-  CreateCheckoutSessionInput,
-  CreateCheckoutSessionResult
+  CreateCheckoutSessionInput
 } from "~/server/payments/types";
 import { stringify } from "~/utils";
 import { Url } from "~/server/service/types";
@@ -125,35 +124,45 @@ export function createPaymentService(
 
   async function createAccount(userId: number): Promise<void> {
     return prisma.$transaction(async (tx) => {
-      try {
-        const result = await tx.userSettings.findUniqueOrThrow({
-          where: { userId }
-        });
-
-        if (result.stripeConnectAccountId) {
-          throw new Error(
-            `stripe connect account already exists for user with id ${userId}`
-          );
-        }
-
-        const { accountId } = await stripeClient.createAccount();
-
-        await tx.userSettings.update({
-          where: { userId },
-          data: { stripeConnectAccountId: accountId }
-        });
-
-        logger.info(
-          `created stripe connect account with id ${accountId} for user with id ${userId}`
-        );
-      } catch (e) {
-        logger.error(
-          e,
-          `failed to create stripe connect account for user with id ${userId}`
-        );
-        throw e;
-      }
+      return createAccountInTransaction(userId, tx);
     });
+  }
+
+  async function createAccountInTransaction(
+    userId: number,
+    tx: Prisma.TransactionClient
+  ) {
+    try {
+      const result = await tx.userSettings.findUniqueOrThrow({
+        select: {
+          stripeConnectAccountId: true
+        },
+        where: { userId }
+      });
+
+      if (result.stripeConnectAccountId) {
+        throw new Error(
+          `Stripe Connect account already exists for user with id ${userId}`
+        );
+      }
+
+      const { accountId } = await stripeClient.createAccount();
+
+      await tx.userSettings.update({
+        where: { userId },
+        data: { stripeConnectAccountId: accountId }
+      });
+
+      logger.info(
+        `created Stripe Connect account with id ${accountId} for user with id ${userId}`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create stripe connect account for user with id ${userId}`
+      );
+      throw e;
+    }
   }
 
   async function createAccountLink(
@@ -161,23 +170,26 @@ export function createPaymentService(
     userId: number
   ): Promise<CreateAccountLinkResult> {
     try {
-      const userSettings = await prisma.userSettings.findUniqueOrThrow({
+      const result = await prisma.userSettings.findUniqueOrThrow({
+        select: {
+          stripeConnectAccountId: true
+        },
         where: { userId }
       });
 
-      if (!userSettings.stripeConnectAccountId) {
+      if (!result.stripeConnectAccountId) {
         throw new Error(
-          `no stripe connect account found for user with id ${userId}`
+          `no Stripe Connect account found for user with id ${userId}`
         );
       }
 
       const { redirectUrl } = await stripeClient.createAccountLink({
-        accountId: userSettings.stripeConnectAccountId,
+        accountId: result.stripeConnectAccountId,
         origin: input.origin
       });
 
       logger.info(
-        `created account link with redirect url ${redirectUrl} for user with id ${userId}`
+        `created account link with url ${redirectUrl} for user with id ${userId}`
       );
       return { redirectUrl };
     } catch (e) {
@@ -192,50 +204,58 @@ export function createPaymentService(
   async function createCheckoutSession(
     input: CreateCheckoutSessionInput,
     userId: number
-  ): Promise<CreateCheckoutSessionResult> {
-    return prisma.$transaction(async (tx) => {
-      try {
-        const userSettings = await tx.userSettings.findUniqueOrThrow({
-          where: { userId }
-        });
+  ) {
+    try {
+      const userSettings = await prisma.userSettings.findUniqueOrThrow({
+        select: {
+          stripeCustomerId: true
+        },
+        where: { userId }
+      });
 
-        if (!userSettings.stripeCustomerId) {
-          throw new Error(
-            `no stripe customer found for user with id ${userId}`
-          );
-        }
-
-        const membership = await tx.membership.findUniqueOrThrow({
-          where: { id: input.membershipId },
-          include: { membershipTier: true }
-        });
-
-        if (!membership.membershipTier.stripePriceId) {
-          throw new Error(
-            `no stripe price found for membership tier with id ${membership.membershipTierId}`
-          );
-        }
-
-        const { redirectUrl } = await stripeClient.createCheckoutSession({
-          customerId: userSettings.stripeCustomerId,
-          priceId: membership.membershipTier.stripePriceId,
-          membershipId: Number(membership.id),
-          clubId: membership.membershipTier.clubId,
-          origin: input.origin
-        });
-
-        logger.info(
-          `created checkout session with redirect url ${redirectUrl} for membership with id ${input.membershipId}`
-        );
-        return { redirectUrl };
-      } catch (e) {
-        logger.error(
-          e,
-          `failed to create checkout session for membership with id ${input.membershipId}`
-        );
-        throw e;
+      if (!userSettings.stripeCustomerId) {
+        throw new Error(`no Stripe customer found for user with id ${userId}`);
       }
-    });
+
+      const membership = await prisma.membership.findUniqueOrThrow({
+        where: { id: input.membershipId },
+        select: {
+          id: true,
+          membershipTier: {
+            select: {
+              id: true,
+              stripePriceId: true,
+              clubId: true
+            }
+          }
+        }
+      });
+
+      if (!membership.membershipTier.stripePriceId) {
+        throw new Error(
+          `no Stripe price found for membership tier with id ${membership.membershipTier.id}`
+        );
+      }
+
+      const { redirectUrl } = await stripeClient.createCheckoutSession({
+        customerId: userSettings.stripeCustomerId,
+        priceId: membership.membershipTier.stripePriceId,
+        membershipId: membership.id,
+        clubId: membership.membershipTier.clubId,
+        origin: input.origin
+      });
+
+      logger.info(
+        `created checkout session with url ${redirectUrl} for membership with id ${input.membershipId}`
+      );
+      return { redirectUrl };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create checkout session for membership with id ${input.membershipId}`
+      );
+      throw e;
+    }
   }
 
   return {

@@ -34,10 +34,10 @@ export type StripeClient = {
   ): Promise<SubscriptionStatusResponse>;
 };
 
-export interface CreateAccountLinkInput {
+export type CreateAccountLinkInput = {
   origin: Url;
   accountId: string;
-}
+};
 
 export type CreateAccountLinkResponse = {
   redirectUrl: Url;
@@ -52,24 +52,24 @@ export type AccountStatusResponse = {
   missingRequirements: string[];
 };
 
-export interface CreateProductInput {
+export type CreateProductInput = {
   name: string;
   description?: string;
   pricePerMonthInUSD: MonetaryValue;
   membershipTierId: number;
-}
+};
 
 export type CreateProductResponse = {
   productId: string;
   priceId: string;
 };
 
-export interface UpdateProductInput {
+export type UpdateProductInput = {
   currentPriceId: string;
   name: string;
   description: string;
   pricePerMonthInUSD: MonetaryValue;
-}
+};
 
 export type UpdateProductResponse = {
   updatedPriceId: Maybe<string>;
@@ -79,31 +79,31 @@ export type CreateCheckoutSessionResponse = {
   redirectUrl: Url;
 };
 
-export interface CreateCustomerInput {
+export type CreateCustomerInput = {
   email: string;
   name: string;
   userId: number;
-}
+};
 
 export type CreateCustomerResponse = {
   customerId: string;
 };
 
-export interface CreateCheckoutSessionInput {
+export type CreateCheckoutSessionInput = {
   origin: Url;
   clubId: number;
-  membershipId: number;
+  membershipId: bigint;
   customerId: string;
   priceId: string;
-}
+};
 
-export interface CreateSubscriptionInput {
+export type CreateSubscriptionInput = {
   customerId: string;
   priceId: string;
   setupIntentId: string;
   membershipId: bigint;
   byAccountId: string;
-}
+};
 
 export type CreateSubscriptionResponse = {
   subscriptionId: string;

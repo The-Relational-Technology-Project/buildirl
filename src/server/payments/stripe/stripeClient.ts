@@ -288,7 +288,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         ],
         setup_intent_data: {
           metadata: {
-            externalMembershipId: input.membershipId
+            // does not allow saving of bigint so we convert to string
+            externalMembershipId: input.membershipId.toString()
           }
         },
         mode: "setup"
