@@ -49,7 +49,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     try {
       const accountLink = await stripe.accountLinks.create({
         account: input.accountId,
-        // TODO
+        // TODO!
         refresh_url: `${input.origin}/api/payments/refresh-account-link`,
         return_url: `${input.origin}/settings?tab=connect`,
         type: "account_onboarding"
@@ -277,7 +277,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     try {
       const session = await stripe.checkout.sessions.create({
         customer: input.customerId,
-        // TODO
+        // TODO!
         success_url: `${input.origin}/apply/${input.clubId}/completed/`,
         line_items: [
           {

@@ -1,9 +1,15 @@
-import { createTRPCRouter, securedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  securedProcedure,
+  securedProcedureWithAbilityFor
+} from "~/server/api/trpc";
 import { z } from "zod";
 import {
   CreateAccountLinkInputSchema,
   CreateCheckoutSessionInputSchema
 } from "~/server/payments/types";
+import { subject } from "@casl/ability";
+import { TRPCError } from "@trpc/server";
 
 export const paymentsRouter = createTRPCRouter({
   createAccount: securedProcedure.mutation(({ ctx }) => {
@@ -20,10 +26,17 @@ export const paymentsRouter = createTRPCRouter({
     return ctx.service.payment.getAccountStatus(ctx.user.userId);
   }),
 
-  getSubscriptionStatus: securedProcedure
+  getSubscriptionStatus: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: z.bigint() }))
     .query(({ ctx, input }) => {
-      // todo! casl authz
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: input.membershipId })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
       return ctx.service.payment.getSubscriptionStatus(input.membershipId);
     }),
 
