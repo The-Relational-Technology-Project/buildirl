@@ -1,4 +1,10 @@
-import { CreateMembershipTierInput, Membership, MembershipTier, UpdateMembershipTierInput } from "~/server/service/types";
+import { Prisma } from "@prisma/client";
+import {
+  CreateMembershipTierInput,
+  Membership,
+  MembershipTier,
+  UpdateMembershipTierInput
+} from "~/server/service/types";
 
 export type Maybe<T> = T | null;
 
@@ -29,9 +35,21 @@ export function idAsBigInt(maybeId: Maybe<Id>): bigint {
   return maybeId;
 }
 
-export function isDefaultFreeTier(membershipTier: MembershipTier | CreateMembershipTierInput | UpdateMembershipTierInput): boolean {
+export function isDefaultFreeTier(
+  membershipTier:
+    | MembershipTier
+    | CreateMembershipTierInput
+    | UpdateMembershipTierInput
+): boolean {
   // this is the definition of default free tier
   return membershipTier.costPerMonthInUSD === 0;
+}
+
+export function isPrismaResultDefaultFreeTier(membershipTier: {
+  costPerMonthInUSD: Prisma.Decimal;
+}): boolean {
+  // this is the definition of default free tier
+  return membershipTier.costPerMonthInUSD.toNumber() === 0;
 }
 
 export function membershipForClub(

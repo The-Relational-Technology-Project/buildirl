@@ -33,7 +33,11 @@ import { stringify } from "~/utils";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import ClubGetPayload = Prisma.ClubGetPayload;
 import MembershipGetPayload = Prisma.MembershipGetPayload;
-import { isDefaultFreeTier, Maybe } from "~/utils/types";
+import {
+  isDefaultFreeTier,
+  isPrismaResultDefaultFreeTier,
+  Maybe
+} from "~/utils/types";
 import { TemplateThemeSchema } from "~/client/theme/templates";
 import { z } from "zod";
 import { StripeClient } from "~/server/payments/stripe/types";
@@ -762,10 +766,9 @@ export function createMainService(
         select: { costPerMonthInUSD: true }
       });
       logger.info(
-        `checked if membership tier with id ${membershipTierId} is free tier with result ${result.costPerMonthInUSD.toNumber() === 0}`
+        `checked if membership tier with id ${membershipTierId} is free tier with result ${isPrismaResultDefaultFreeTier(result)}`
       );
-      // this is definition of free tier, manually created tiers cannot be 0 cost
-      return result.costPerMonthInUSD.toNumber() === 0;
+      return isPrismaResultDefaultFreeTier(result);
     } catch (e) {
       logger.error(
         e,
@@ -1369,7 +1372,7 @@ export function createMainService(
     });
 
     // free tier does not need to create subscription
-    if (membership.membershipTier.costPerMonthInUSD.toNumber() === 0) {
+    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
       return;
     }
 
@@ -1476,7 +1479,7 @@ export function createMainService(
     });
 
     // free tier does not need to cancel setup intent
-    if (membership.membershipTier.costPerMonthInUSD.toNumber() === 0) {
+    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
       return;
     }
 
@@ -1560,7 +1563,7 @@ export function createMainService(
     });
 
     // free tier does not need to cancel subscription
-    if (membership.membershipTier.costPerMonthInUSD.toNumber() === 0) {
+    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
       return;
     }
 
