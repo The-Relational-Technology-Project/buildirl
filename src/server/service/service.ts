@@ -36,10 +36,14 @@ import MembershipGetPayload = Prisma.MembershipGetPayload;
 import { Maybe } from "~/utils/types";
 import { TemplateThemeSchema } from "~/client/theme/templates";
 import { z } from "zod";
+import { StripeClient } from "~/server/payments/stripe/types";
 
 const logger = rootLogger.child({ module: "mainService" });
 
-export function createMainService(prisma: PrismaClient): MainService {
+export function createMainService(
+  prisma: PrismaClient,
+  stripeClient: StripeClient
+): MainService {
   const USER_SELECT = {
     id: true,
     firstName: true,

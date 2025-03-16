@@ -8,6 +8,7 @@ import { allCommands } from "./commands";
 import { rootLogger } from "~/logger";
 import { MainService } from "~/server/service/types";
 import { createMainService } from "~/server/service/service";
+import { createFakeStripeClient } from "./fakeStripeClient";
 
 function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {
   execSync(
@@ -37,7 +38,8 @@ describe("mainService", () => {
     );
 
     rootLogger.info("connection string: " + supabaseContainer.connectionString);
-    service = createMainService(prisma);
+    // TODO!
+    service = createMainService(prisma, createFakeStripeClient());
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull
   }, 30000);

@@ -43,7 +43,7 @@ export const createTRPCContext = async (opts: {
   const stripeClient = createStripeClient(stripe);
   return {
     service: {
-      main: createMainService(prisma),
+      main: createMainService(prisma, stripeClient),
       payment: createPaymentService(stripeClient, prisma)
     },
     user: user,
