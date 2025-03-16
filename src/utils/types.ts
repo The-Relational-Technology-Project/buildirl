@@ -1,4 +1,4 @@
-import { Membership, MembershipTier } from "~/server/service/types";
+import { CreateMembershipTierInput, Membership, MembershipTier, UpdateMembershipTierInput } from "~/server/service/types";
 
 export type Maybe<T> = T | null;
 
@@ -29,7 +29,7 @@ export function idAsBigInt(maybeId: Maybe<Id>): bigint {
   return maybeId;
 }
 
-export function isDefaultFreeTier(membershipTier: MembershipTier): boolean {
+export function isDefaultFreeTier(membershipTier: MembershipTier | CreateMembershipTierInput | UpdateMembershipTierInput): boolean {
   // this is the definition of default free tier
   return membershipTier.costPerMonthInUSD === 0;
 }

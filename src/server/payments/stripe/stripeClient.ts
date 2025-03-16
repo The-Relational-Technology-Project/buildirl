@@ -111,7 +111,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
       const price = await stripe.prices.create({
         product: product.id,
-        unit_amount: input.pricePerMonthInUSD,
+        // convert to cents
+        unit_amount: input.pricePerMonthInUSD * 100,
         currency: "usd",
         recurring: {
           interval: "month"
@@ -173,7 +174,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         if (existingPrice.unit_amount !== pricePerMonthInUSD) {
           const newPrice = await stripe.prices.create({
             product: productId,
-            unit_amount: pricePerMonthInUSD,
+            // convert to cents
+            unit_amount: pricePerMonthInUSD * 100,
             currency: "usd",
             recurring: {
               interval: "month"
