@@ -1,16 +1,14 @@
-import {
-  MainService,
-  UpdateClubDisplayImageUrlsInput
-} from "~/server/service/types";
+import { UpdateClubDisplayImageUrlsInput } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
+import { Services } from "../system.test";
 
 export default class UpdateClubDisplayImageUrlsCommand
-  implements Command<SystemState, MainService>
+  implements Command<SystemState, Services>
 {
   private readonly input: UpdateClubDisplayImageUrlsInput;
   private readonly clubIdSelector: ItemSelector<number>;
@@ -28,11 +26,11 @@ export default class UpdateClubDisplayImageUrlsCommand
     return m.hasClubs();
   }
 
-  async run(m: SystemState, r: MainService): Promise<void> {
+  async run(m: SystemState, r: Services): Promise<void> {
     this.clubId = this.clubIdSelector.select(m.getClubIds());
-    await r.updateClubDisplayImageUrls(this.clubId, this.input);
+    await r.main.updateClubDisplayImageUrls(this.clubId, this.input);
     m.updateClubDisplayImageUrls(this.clubId, this.input);
-    await verifiers.verifyClub(this.clubId, r, m);
+    await verifiers.verifyClub(this.clubId, r.main, m);
   }
 
   toString() {

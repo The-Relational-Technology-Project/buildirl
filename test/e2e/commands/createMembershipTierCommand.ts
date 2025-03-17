@@ -1,13 +1,14 @@
-import { CreateMembershipTierInput, MainService } from "~/server/service/types";
+import { CreateMembershipTierInput } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { idAsNumber, Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
+import { Services } from "../system.test";
 
 export default class CreateMembershipTierCommand
-  implements Command<SystemState, MainService>
+  implements Command<SystemState, Services>
 {
   private readonly input: CreateMembershipTierInput;
   private readonly clubIdSelector: ItemSelector<number>;
@@ -23,16 +24,16 @@ export default class CreateMembershipTierCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasClubs();
+    return m.getClubIdsWithOwnersWithStripeAccounts().length > 0;
   }
 
-  async run(m: SystemState, r: MainService): Promise<void> {
-    this.clubId = this.clubIdSelector.select(m.getClubIds());
-    const result = await r.createMembershipTier(this.clubId, this.input);
+  async run(m: SystemState, r: Services): Promise<void> {
+    this.clubId = this.clubIdSelector.select(m.getClubIdsWithOwnersWithStripeAccounts());
+    const result = await r.main.createMembershipTier(this.clubId, this.input);
     this.membershipTierId = idAsNumber(result.createdEntityId);
     m.createMembershipTier(this.membershipTierId, this.clubId, this.input);
     // membership tier is attached to club
-    await verifiers.verifyClub(this.clubId, r, m);
+    await verifiers.verifyClub(this.clubId, r.main, m);
   }
 
   toString() {

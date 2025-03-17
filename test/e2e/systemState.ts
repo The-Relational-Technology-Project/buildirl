@@ -61,6 +61,7 @@ type UserState = {
   description: string;
   // settings
   email: Maybe<string>;
+  hasStripeAccount: boolean;
 };
 
 export class SystemState {
@@ -115,7 +116,8 @@ export class SystemState {
     this.users.set(id, {
       id: id,
       ...input,
-      email: email
+      email: email,
+      hasStripeAccount: false
     });
   }
 
@@ -636,5 +638,25 @@ export class SystemState {
       ...membershipState,
       isWelcomed: true
     });
+  }
+
+  public setStripeAccountCreatedForUser(userId: number) {
+    const user = this.getUserState(userId);
+    this.users.set(userId, {
+      ...user,
+      hasStripeAccount: true
+    });
+  }
+
+  public getUserIdsWithoutStripeAccounts(): number[] {
+    return Array.from(this.users.values())
+      .filter((u) => !u.hasStripeAccount)
+      .map((u) => u.id);
+  }
+
+  public getClubIdsWithOwnersWithStripeAccounts(): number[] {
+    return Array.from(this.clubs.values())
+      .filter((c) => this.users.get(c.ownerUserId)!.hasStripeAccount)
+      .map((c) => c.id);
   }
 }

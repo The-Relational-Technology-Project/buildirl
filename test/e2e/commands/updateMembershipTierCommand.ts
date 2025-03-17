@@ -1,13 +1,14 @@
-import { UpdateMembershipTierInput, MainService } from "~/server/service/types";
+import { UpdateMembershipTierInput } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
+import { Services } from "../system.test";
 
 export default class UpdateMembershipTierCommand
-  implements Command<SystemState, MainService>
+  implements Command<SystemState, Services>
 {
   private input: UpdateMembershipTierInput;
   private readonly membershipTierIdSelector: ItemSelector<number>;
@@ -33,7 +34,7 @@ export default class UpdateMembershipTierCommand
     return isDefaultFreeTier(membershipTier);
   }
 
-  async run(m: SystemState, r: MainService): Promise<void> {
+  async run(m: SystemState, r: Services): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
       m.getNoActiveMembersMembershipTiersIds()
     );
@@ -43,11 +44,11 @@ export default class UpdateMembershipTierCommand
       this.input = { ...this.input, costPerMonthInUSD: 0 };
     }
 
-    await r.updateMembershipTier(this.membershipTierId, this.input);
+    await r.main.updateMembershipTier(this.membershipTierId, this.input);
     m.updateMembershipTier(this.membershipTierId, this.input);
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
     // membership tier is attached to club
-    await verifiers.verifyClub(clubId, r, m);
+    await verifiers.verifyClub(clubId, r.main, m);
   }
 
   toString() {

@@ -4,10 +4,10 @@ import { type CreateUserInput } from "~/server/service/types";
 import { idAsNumber, type Maybe } from "~/utils/types";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
-import { MainService } from "~/server/service/types";
+import { Services } from "../system.test";
 
 export default class CreateUserCommand
-  implements Command<SystemState, MainService>
+  implements Command<SystemState, Services>
 {
   private readonly input: CreateUserInput;
   private userId: Maybe<number> = null;
@@ -24,15 +24,15 @@ export default class CreateUserCommand
     return true;
   }
 
-  async run(m: SystemState, r: MainService): Promise<void> {
-    const result = await r.createUser(
+  async run(m: SystemState, r: Services): Promise<void> {
+    const result = await r.main.createUser(
       this.input,
       this.authUserId,
       this.authEmail
     );
     this.userId = idAsNumber(result.createdEntityId);
     m.createUser(this.userId, this.input, this.authEmail);
-    await verifiers.verifyUser(this.userId, r, m);
+    await verifiers.verifyUser(this.userId, r.main, m);
   }
 
   toString() {

@@ -1,16 +1,14 @@
-import {
-  MainService,
-  SubmitMembershipApplicationInput
-} from "~/server/service/types";
+import { SubmitMembershipApplicationInput } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { idAsBigInt, Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
+import { Services } from "../system.test";
 
 export default class SubmitMembershipApplicationCommand
-  implements Command<SystemState, MainService>
+  implements Command<SystemState, Services>
 {
   private readonly input: SubmitMembershipApplicationInput;
   private readonly membershipTierIdSelector: ItemSelector<number>;
@@ -48,12 +46,12 @@ export default class SubmitMembershipApplicationCommand
     return m.userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(userId, clubId);
   }
 
-  async run(m: SystemState, r: MainService): Promise<void> {
+  async run(m: SystemState, r: Services): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
       m.getPublishedMembershipTierIds()
     );
     this.userId = this.userIdSelector.select(m.getUserIds());
-    const result = await r.submitMembershipApplication(
+    const result = await r.main.submitMembershipApplication(
       this.membershipTierId,
       this.input,
       this.userId
@@ -66,9 +64,9 @@ export default class SubmitMembershipApplicationCommand
       this.userId
     );
 
-    await verifiers.verifyUserMemberships(this.userId, r, m);
+    await verifiers.verifyUserMemberships(this.userId, r.main, m);
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
-    await verifiers.verifyClubMemberships(clubId, r, m);
+    await verifiers.verifyClubMemberships(clubId, r.main, m);
   }
 
   toString() {

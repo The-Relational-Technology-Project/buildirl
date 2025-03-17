@@ -1,13 +1,13 @@
-import { MainService } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
+import { Services } from "../system.test";
 
 export default class UnpublishMembershipTierCommand
-  implements Command<SystemState, MainService>
+  implements Command<SystemState, Services>
 {
   private readonly membershipTierIdSelector: ItemSelector<number>;
   private membershipTierId: Maybe<number> = null;
@@ -20,15 +20,15 @@ export default class UnpublishMembershipTierCommand
     return m.hasPublishedButNotLastPublishedMembershipTiers();
   }
 
-  async run(m: SystemState, r: MainService): Promise<void> {
+  async run(m: SystemState, r: Services): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
       m.getPublishedButNotLastPublishedMembershipTierIds()
     );
-    await r.unpublishMembershipTier(this.membershipTierId);
+    await r.main.unpublishMembershipTier(this.membershipTierId);
     m.unpublishMembershipTier(this.membershipTierId);
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
     // membership tier is attached to club
-    await verifiers.verifyClub(clubId, r, m);
+    await verifiers.verifyClub(clubId, r.main, m);
   }
 
   toString() {
