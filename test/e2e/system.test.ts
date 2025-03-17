@@ -48,7 +48,11 @@ describe("mainService", () => {
     rootLogger.info("connection string: " + supabaseContainer.connectionString);
     const fakeStripeClient = createFakeStripeClient();
     mainService = createMainService(prisma, fakeStripeClient);
-    paymentService = createPaymentService(fakeStripeClient, prisma);
+    paymentService = createPaymentService(
+      fakeStripeClient,
+      prisma,
+      "https://stripe.com/customer-portal"
+    );
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull
   }, 30000);

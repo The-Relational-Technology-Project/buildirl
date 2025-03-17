@@ -12,13 +12,13 @@ import {
 import { stringify } from "~/utils";
 import { Url } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
-import { env } from "~/env";
 
 const logger = rootLogger.child({ module: "paymentService" });
 
 export function createPaymentService(
   stripeClient: StripeClient,
-  prisma: PrismaClient
+  prisma: PrismaClient,
+  stripeCustomerPortalUrl: string
 ): PaymentService {
   async function getAccountStatus(
     userId: number
@@ -106,7 +106,7 @@ export function createPaymentService(
         result.stripeCustomerId
       );
 
-      const customerPortalLink = `${env.STRIPE_CUSTOMER_PORTAL_URL}?prefilled_email=${email}`;
+      const customerPortalLink = `${stripeCustomerPortalUrl}?prefilled_email=${email}`;
 
       logger.info(
         `retrieved customer portal link ${customerPortalLink} for user with id ${userId}`
