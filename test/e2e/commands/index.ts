@@ -67,7 +67,7 @@ function createUserCommands() {
     lastName: string().filter((s) => isZodType(s, LastNameSchema)),
     description: string(),
     authUserId: uuid(),
-    authEmail: option(emailAddress(), { freq: 4 })
+    authEmail: emailAddress()
   }).map(
     (i) =>
       new CreateUserCommand(

@@ -97,6 +97,9 @@ export const mainRouter = createTRPCRouter({
   createUser: securedProcedure
     .input(CreateUserInputSchema)
     .mutation(({ ctx, input }) => {
+      if (!ctx.user.authEmail) {
+        throw new Error("email is required on auth user to create user");
+      }
       return ctx.service.main.createUser(
         input,
         ctx.user.authUserId,

@@ -68,6 +68,7 @@ async function authUser(supabase: SupabaseClient): Promise<Maybe<AuthUser>> {
     return null;
   }
   const userId = await userIdByAuthUserId(user.id);
+
   return { userId: userId, authUserId: user.id, authEmail: user.email ?? null };
 }
 

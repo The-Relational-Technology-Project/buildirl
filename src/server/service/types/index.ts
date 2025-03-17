@@ -88,7 +88,7 @@ export type MainMutations = {
   createUser(
     input: CreateUserInput,
     authUserId: string,
-    authEmail: Maybe<string>
+    authEmail: string
   ): Promise<MutationResult>;
   updateUser(id: number, input: UpdateUserInput): Promise<MutationResult>;
   createClub(input: CreateClubInput, userId: number): Promise<MutationResult>;

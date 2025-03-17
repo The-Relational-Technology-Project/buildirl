@@ -380,7 +380,7 @@ export function createMainService(
   async function createUser(
     input: CreateUserInput,
     authUserId: string,
-    authEmail: Maybe<string>
+    authEmail: string
   ): Promise<MutationResult> {
     return prisma.$transaction(async (tx) => {
       return createUserInTransaction(input, authUserId, authEmail, tx);
@@ -390,7 +390,7 @@ export function createMainService(
   async function createUserInTransaction(
     input: CreateUserInput,
     authUserId: string,
-    authEmail: Maybe<string>,
+    authEmail: string,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
@@ -435,7 +435,7 @@ export function createMainService(
 
       if (!user.settings?.email) {
         throw new Error(
-          `user with id ${userId} has no email to create Stripe customer`
+          `user with id ${userId} has no settings with email to create Stripe customer`
         );
       }
 
@@ -464,7 +464,7 @@ export function createMainService(
 
   async function createUserSettingInTransaction(
     userId: number,
-    authEmail: Maybe<string>,
+    authEmail: string,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {

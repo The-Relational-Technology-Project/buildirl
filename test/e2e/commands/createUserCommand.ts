@@ -12,13 +12,9 @@ export default class CreateUserCommand
   private readonly input: CreateUserInput;
   private userId: Maybe<number> = null;
   private readonly authUserId: string;
-  private readonly authEmail: Maybe<string>;
+  private readonly authEmail: string;
 
-  constructor(
-    input: CreateUserInput,
-    authUserId: string,
-    authEmail: Maybe<string>
-  ) {
+  constructor(input: CreateUserInput, authUserId: string, authEmail: string) {
     this.input = input;
     this.authUserId = authUserId;
     this.authEmail = authEmail;
