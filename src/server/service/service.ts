@@ -399,6 +399,9 @@ export function createMainService(
           id: true
         }
       });
+
+      await createStripeCustomer(id, tx);
+
       logger.info(
         `created user from input ${stringify(input)} with userId ${id}`
       );
@@ -408,6 +411,49 @@ export function createMainService(
       return { createdEntityId: id };
     } catch (e) {
       logger.error(e, `failed to create user from input ${stringify(input)}`);
+      throw e;
+    }
+  }
+
+  async function createStripeCustomer(
+    userId: number,
+    tx: Prisma.TransactionClient
+  ) {
+    try {
+      const user = await tx.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: {
+          firstName: true,
+          lastName: true,
+          settings: { select: { email: true } }
+        }
+      });
+
+      if (!user.settings?.email) {
+        throw new Error(
+          `user with id ${userId} has no email to create Stripe customer`
+        );
+      }
+
+      const response = await stripeClient.createCustomer({
+        email: user.settings.email,
+        name: `${user.firstName} ${user.lastName}`,
+        userId: userId
+      });
+
+      await tx.userSettings.update({
+        data: { stripeCustomerId: response.customerId },
+        where: { userId: userId }
+      });
+
+      logger.info(
+        `updated user settings for user with id ${userId} with stripeCustomerId ${response.customerId}`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update user settings for user with id ${userId} with stripeCustomerId`
+      );
       throw e;
     }
   }
