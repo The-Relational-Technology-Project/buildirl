@@ -38,6 +38,7 @@ import DeleteClubCommand from "./deleteClubCommand";
 import { TEMPLATE_THEME_SELECTION } from "~/client/theme/templates";
 import UpdateClubDisplayImageUrlsCommand from "./updateClubDisplayImageUrlsCommand";
 import SetMembershipAsWelcomedCommand from "./setMembershipAsWelcomedCommand";
+import CreateStripeAccountCommand from "./createStripeAccountCommand";
 
 export const allCommands = () => {
   return [
@@ -57,7 +58,8 @@ export const allCommands = () => {
     approveMembershipApplicationCommands(),
     declineMembershipApplicationCommands(),
     deactivateMembershipCommands(),
-    setMembershipAsWelcomedCommands()
+    setMembershipAsWelcomedCommands(),
+    createStripeAccountCommands()
   ];
 };
 
@@ -310,4 +312,10 @@ function setMembershipAsWelcomedCommands() {
   return record({
     membershipIdSelector: itemSelector<bigint>()
   }).map((i) => new SetMembershipAsWelcomedCommand(i.membershipIdSelector));
+}
+
+function createStripeAccountCommands() {
+  return record({
+    userIdSelector: itemSelector<number>()
+  }).map((i) => new CreateStripeAccountCommand(i.userIdSelector));
 }
