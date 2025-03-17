@@ -21,6 +21,10 @@ import { Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
 import { FormQuestions, FormResponses } from "~/server/service/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
+import {
+  DEFAULT_APPLICATION_QUESTIONS,
+  DEFAULT_FREE_MEMBERSHIP_TIER
+} from "~/server/service/defaults";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -228,7 +232,7 @@ export class SystemState {
       ...input,
       ownerUserId: userId,
       // empty to start
-      applicationQuestions: { questions: [] },
+      applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
       theme: null,
       displayImageUrls: [],
       membershipTierIds: []
@@ -241,12 +245,11 @@ export class SystemState {
     freeMembershipTierId: number,
     clubId: number
   ) {
-    this.createMembershipTier(freeMembershipTierId, clubId, {
-      name: "Free",
-      benefitDescription: "",
-      contributionDescription: "",
-      costPerMonthInUSD: 0
-    });
+    this.createMembershipTier(
+      freeMembershipTierId,
+      clubId,
+      DEFAULT_FREE_MEMBERSHIP_TIER
+    );
   }
 
   public updateClub(id: number, input: UpdateClubInput) {
