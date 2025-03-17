@@ -938,13 +938,13 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
+      await archiveProduct(id, tx);
+
       await tx.membershipTier.delete({
         where: {
           id: id
         }
       });
-
-      await archiveProduct(id, tx);
 
       logger.info(`deleted membership tier with id ${id}`);
       return NO_ID_MUTATION_RESULT;
@@ -959,9 +959,14 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const membershipTier = await tx.membershipTier.findUniqueOrThrow({
-      where: { id: membershipTierId },
-      select: { stripeProductId: true }
+      select: { stripeProductId: true, costPerMonthInUSD: true },
+      where: { id: membershipTierId }
     });
+
+    // free tier does not need to archive product
+    if (isPrismaResultDefaultFreeTier(membershipTier)) {
+      return;
+    }
 
     if (!membershipTier.stripeProductId) {
       throw new Error(
@@ -1032,9 +1037,14 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const membershipTier = await tx.membershipTier.findUniqueOrThrow({
-      where: { id: membershipTierId },
-      select: { stripeProductId: true }
+      select: { stripeProductId: true, costPerMonthInUSD: true },
+      where: { id: membershipTierId }
     });
+
+    // free tier does not need to publish product
+    if (isPrismaResultDefaultFreeTier(membershipTier)) {
+      return;
+    }
 
     if (!membershipTier.stripeProductId) {
       throw new Error(
@@ -1103,8 +1113,8 @@ export function createMainService(
   async function getOwnerUserId(clubId: number): Promise<number> {
     try {
       const club = await prisma.club.findUniqueOrThrow({
-        where: { id: clubId },
-        select: { ownerUserId: true }
+        select: { ownerUserId: true },
+        where: { id: clubId }
       });
       logger.info(
         `queried owner userId for club with clubId ${clubId} with result ${club.ownerUserId}`
@@ -1124,8 +1134,8 @@ export function createMainService(
   ): Promise<number> {
     try {
       const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
-        where: { id: membershipTierId },
-        select: { clubId: true }
+        select: { clubId: true },
+        where: { id: membershipTierId }
       });
       logger.info(
         `queried clubId for membership tier with membershipTierId ${membershipTierId} with result ${membershipTier.clubId}`
@@ -1344,7 +1354,6 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const membership = await tx.membership.findUniqueOrThrow({
-      where: { id: membershipId },
       select: {
         stripeSetupIntentId: true,
         user: {
@@ -1378,7 +1387,8 @@ export function createMainService(
             }
           }
         }
-      }
+      },
+      where: { id: membershipId }
     });
 
     // free tier does not need to create subscription
@@ -1477,7 +1487,6 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const membership = await tx.membership.findUniqueOrThrow({
-      where: { id: membershipId },
       select: {
         stripeSetupIntentId: true,
         membershipTier: {
@@ -1485,7 +1494,8 @@ export function createMainService(
             costPerMonthInUSD: true
           }
         }
-      }
+      },
+      where: { id: membershipId }
     });
 
     // free tier does not need to cancel setup intent
@@ -1561,7 +1571,6 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await tx.membership.findUniqueOrThrow({
-      where: { id: membershipId },
       select: {
         membershipTier: {
           select: {
@@ -1569,7 +1578,8 @@ export function createMainService(
           }
         },
         stripeSubscriptionId: true
-      }
+      },
+      where: { id: membershipId }
     });
 
     // free tier does not need to cancel subscription
