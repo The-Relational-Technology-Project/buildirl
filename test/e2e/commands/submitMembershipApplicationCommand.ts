@@ -6,6 +6,7 @@ import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
 import { Services } from "../system.test";
+import { setupCheckoutSession, uniqueSetupIntentId } from "../utils/mockData";
 
 export default class SubmitMembershipApplicationCommand
   implements Command<SystemState, Services>
@@ -56,7 +57,18 @@ export default class SubmitMembershipApplicationCommand
       this.input,
       this.userId
     );
+
     const membershipId = idAsBigInt(result.createdEntityId);
+
+    // we also process a mock checkout session to test that code path
+    // as well as maintain data consistency that memberships have associated
+    // setup intents
+    await r.paymentEvents.onCheckoutSessionCompleted(
+      // we don't care what the setup intent id is just that it is unique
+      // since we aren't verifying or driving any logic of its exact value
+      setupCheckoutSession(uniqueSetupIntentId(), membershipId.toString())
+    );
+
     m.submitMembershipApplication(
       membershipId,
       this.membershipTierId,

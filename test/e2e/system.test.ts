@@ -11,10 +11,15 @@ import { createMainService } from "~/server/service/service";
 import { createFakeStripeClient } from "./fakeStripeClient";
 import { PaymentService } from "~/server/payments/types";
 import { createPaymentService } from "~/server/payments/service";
+import {
+  createPaymentEventProcessor,
+  PaymentEventProcessor
+} from "~/server/payments/eventProcessor";
 
 export type Services = {
   main: MainService;
   payment: PaymentService;
+  paymentEvents: PaymentEventProcessor;
 };
 
 function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {
@@ -30,6 +35,7 @@ describe("mainService", () => {
   let container: StartedTestContainer;
   let mainService: MainService;
   let paymentService: PaymentService;
+  let paymentEventProcessor: PaymentEventProcessor;
 
   beforeAll(async () => {
     const supabaseContainer = await createSupabaseTestContainer();
@@ -53,6 +59,7 @@ describe("mainService", () => {
       prisma,
       "https://stripe.com/customer-portal"
     );
+    paymentEventProcessor = createPaymentEventProcessor(null, prisma);
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull
   }, 30000);
@@ -71,7 +78,11 @@ describe("mainService", () => {
         async (cmds) => {
           const s = () => ({
             model: new SystemState(),
-            real: { main: mainService, payment: paymentService }
+            real: {
+              main: mainService,
+              payment: paymentService,
+              paymentEvents: paymentEventProcessor
+            }
           });
           // TODO check that all commands were run at least once
           await asyncModelRun(s, cmds);

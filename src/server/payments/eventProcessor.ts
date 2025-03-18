@@ -1,15 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 import Stripe from "stripe";
 import { rootLogger } from "~/logger";
+import { Maybe } from "~/utils/types";
 
 const logger = rootLogger.child({ module: "paymentEventProcessor" });
 
-type PaymentEventProcessor = {
+export type PaymentEventProcessor = {
   onCheckoutSessionCompleted(session: Stripe.Checkout.Session): Promise<void>;
 };
 
 export function createPaymentEventProcessor(
-  stripe: Stripe,
+  stripe: Maybe<Stripe>,
   prisma: PrismaClient
 ): PaymentEventProcessor {
   async function updateMembershipWithStripeSetupIntentId(
@@ -39,6 +40,13 @@ export function createPaymentEventProcessor(
     setupIntent: string | Stripe.SetupIntent
   ): Promise<Stripe.SetupIntent> {
     if (typeof setupIntent === "string") {
+      // hacky to make this nullable to work with tests, we should think of better
+      // strategy for mocking if we add to this
+      if (!stripe) {
+        throw new Error(
+          "stripe client not found, are you in a test environment?"
+        );
+      }
       return stripe.setupIntents.retrieve(setupIntent);
     }
     return Promise.resolve(setupIntent);
