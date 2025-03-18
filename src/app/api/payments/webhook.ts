@@ -59,7 +59,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     logger.error(e, `webhook error for req ${stringify(req.body)}`);
     // errors here will be retried by Stripe
     // TODO we can observe if there are classes and distinguish errors that are not retryable
-    res.status(400).json({ error: `webhook error: ${stringify(e)}` });
+    res.status(500).json({ error: `webhook error: ${stringify(e)}` });
   }
 }
 
