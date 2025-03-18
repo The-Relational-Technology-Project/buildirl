@@ -22,7 +22,8 @@ of local community builders!
 ## Running Locally
 
 First time users can use the commands in the [justfile](justfile) in order to run the application locally.
-1. Install [Stripe CLI](https://docs.stripe.com/stripe-cli) for webhook forwarding to local endpoint
+1. Install and login to [Stripe CLI](https://docs.stripe.com/stripe-cli) and [preview plugin](https://docs.stripe.com/cli-preview-plugin) 
+for webhook forwarding. Follow in-prompt instructions and choose Local sandbox environment.
 2. `just setup` for first time set-up of local database and dependencies
 3. `just db-start` and `just start` to begin local instance. See output for the localport (defaults to `localhost:3000`)
 
