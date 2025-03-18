@@ -1,42 +1,29 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from 'next/server';
 import { rootLogger } from "~/logger";
 import { env } from "~/env";
 import { stripe } from "~/server/payments/stripe/stripe";
-import { assertAsString, stringify } from "~/utils";
-import Cors from "micro-cors";
+import { stringify } from "~/utils";
 import Stripe from "stripe";
 import { createPaymentEventProcessor } from "~/server/payments/eventProcessor";
 import { prisma } from "~/server/prisma";
 
-const cors = Cors({
-  allowMethods: ["POST", "HEAD"]
-});
-
-export const config = {
-  api: {
-    bodyParser: false
-  }
-};
-
 const logger = rootLogger.child({ module: "stripeWebhookHandler" });
 const eventProcessor = createPaymentEventProcessor(stripe, prisma);
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    res.status(405).appendHeader("Allow", "POST").end();
-    return;
-  }
-
-  const signature = assertAsString(req.headers["stripe-signature"]);
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  // raw body from request
+  const body = await req.text();
+  
+  const signature = req.headers.get('stripe-signature');
 
   if (!signature) {
     logger.error("missing Stripe signature");
-    return res.status(400).json({ error: "missing Stripe signature" });
+    return NextResponse.json({ error: "missing Stripe signature" }, { status: 400 });
   }
 
   try {
     const event = stripe.webhooks.constructEvent(
-      req.body,
+      body,
       signature,
       env.STRIPE_WEBHOOK_SECRET
     );
@@ -54,13 +41,22 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         logger.warn(`Unhandled event type: ${event.type}`);
     }
 
-    res.status(200).json({ received: true });
+    return NextResponse.json({ received: true }, { status: 200 });
   } catch (e) {
-    logger.error(e, `webhook error for req ${stringify(req.body)}`);
+    logger.error(e, `webhook error for req ${stringify(body)}`);
     // errors here will be retried by Stripe
     // TODO we can observe if there are classes and distinguish errors that are not retryable
-    res.status(500).json({ error: `webhook error: ${stringify(e)}` });
+    return NextResponse.json({ error: `webhook error: ${stringify(e)}` }, { status: 500 });
   }
 }
 
-export default cors(handler as any);
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, stripe-signature',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+} 
