@@ -27,7 +27,7 @@ db-reset-hard:
    prisma migrate reset
 
 start:
-	yarn dev
+	yarn dev & stripe listen --forward-to localhost:3000/api/payments/webhook
 
 stop:
     db-stop

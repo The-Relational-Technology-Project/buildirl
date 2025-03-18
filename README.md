@@ -17,12 +17,14 @@ of local community builders!
 - [Supabase](https://supabase.com/docs)
 - [Supabase Auth](https://supabase.com/docs/guides/auth)
 - [CASL](https://casl.js.org/v6/en/guide/intro)
+- [Stripe](https://docs.stripe.com/billing/subscriptions/overview)
 
 ## Running Locally
 
 First time users can use the commands in the [justfile](justfile) in order to run the application locally.
-1. `just setup` for first time set-up of local database and dependencies
-2. `just db-start` and `just start` to begin local instance. See output for the localport (defaults to `localhost:3000`)
+1. Install [Stripe CLI](https://docs.stripe.com/stripe-cli) for webhook forwarding to local endpoint
+2. `just setup` for first time set-up of local database and dependencies
+3. `just db-start` and `just start` to begin local instance. See output for the localport (defaults to `localhost:3000`)
 
 ### Local Authentication
 Authentication requires OTP sent to your email. When running locally, you will not receive an email. Instead you can retrieve 
