@@ -8,8 +8,8 @@ import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 
 export default function RefreshAccountLink() {
   const createAccountLink = api.payments.createAccountLink.useMutation({
-    onSuccess: (data) => {
-      window.location.href = data.redirectUrl;
+    onSuccess: (r) => {
+      window.location.href = r.redirectUrl;
     },
     onError: (e) => {
       logger.error(e, "failed to refresh account link");

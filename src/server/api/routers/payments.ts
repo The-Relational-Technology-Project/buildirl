@@ -22,11 +22,11 @@ export const paymentsRouter = createTRPCRouter({
       return ctx.service.payment.createAccountLink(input, ctx.user.userId);
     }),
 
-  getAccountStatus: securedProcedure.query(({ ctx }) => {
+  accountStatus: securedProcedure.query(({ ctx }) => {
     return ctx.service.payment.getAccountStatus(ctx.user.userId);
   }),
 
-  getSubscriptionStatus: securedProcedureWithAbilityFor("Membership")
+  subscriptionStatus: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: z.bigint() }))
     .query(({ ctx, input }) => {
       if (
@@ -40,7 +40,7 @@ export const paymentsRouter = createTRPCRouter({
       return ctx.service.payment.getSubscriptionStatus(input.membershipId);
     }),
 
-  getCustomerPortalLink: securedProcedure.query(({ ctx }) => {
+  customerPortalLink: securedProcedure.query(({ ctx }) => {
     return ctx.service.payment.getCustomerPortalLink(ctx.user.userId);
   }),
 
