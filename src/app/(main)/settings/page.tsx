@@ -13,6 +13,7 @@ import { useMounted } from "@mantine/hooks";
 import EditProfilePanel from "~/app/(main)/settings/_components/EditProfilePanel";
 import StripeConnectPanel from "~/app/(main)/settings/_components/StripeConnectPanel";
 import { useRouter, useSearchParams } from "next/navigation";
+import PaymentsPanel from "~/app/(main)/settings/_components/PaymentsPanel";
 
 export default function Settings() {
   const { colorScheme } = useMantineColorScheme();
@@ -52,7 +53,7 @@ export default function Settings() {
             <StripeConnectPanel />
           </Tabs.Panel>
           <Tabs.Panel value={"payments"}>
-            <></>
+            <PaymentsPanel />
           </Tabs.Panel>
         </Tabs>
       </Stack>
