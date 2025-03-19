@@ -20,16 +20,16 @@ function CreateStripeConnectAccount() {
   });
 
   return (
-    <Button
-      w={200}
-      mt={"lg"}
-      onClick={async () => {
-        await createAccount.mutateAsync();
-      }}
-      loading={createAccount.isPending}
-    >
-      Create Account
-    </Button>
+    <Box mt={"md"}>
+      <Button
+        onClick={async () => {
+          await createAccount.mutateAsync();
+        }}
+        loading={createAccount.isPending}
+      >
+        Create Account
+      </Button>
+    </Box>
   );
 }
 
@@ -69,40 +69,38 @@ function ManageStripeConnectAccount({
   });
 
   return (
-    <Stack gap="lg" mt={"sm"}>
-      <Box>
-        {status.isComplete ? (
+    <Box mt={"md"}>
+      {status.isComplete ? (
+        <Button
+          component="a"
+          href="https://dashboard.stripe.com/"
+          target="_blank"
+        >
+          Manage Stripe Dashboard
+        </Button>
+      ) : (
+        <Tooltip
+          position={"bottom-start"}
+          label={
+            <MissingRequirementsToolTip
+              requirements={status.missingRequirements}
+            />
+          }
+          hidden={status.missingRequirements.length === 0}
+        >
           <Button
-            component="a"
-            href="https://dashboard.stripe.com/"
-            target="_blank"
+            onClick={async () => {
+              await createAccountLink.mutateAsync({
+                origin: window.location.origin
+              });
+            }}
+            loading={createAccountLink.isPending}
           >
-            Manage Stripe Dashboard
+            Complete Account Setup
           </Button>
-        ) : (
-          <Tooltip
-            position={"bottom-start"}
-            label={
-              <MissingRequirementsToolTip
-                requirements={status.missingRequirements}
-              />
-            }
-            hidden={status.missingRequirements.length === 0}
-          >
-            <Button
-              onClick={async () => {
-                await createAccountLink.mutateAsync({
-                  origin: window.location.origin
-                });
-              }}
-              loading={createAccountLink.isPending}
-            >
-              Complete Account Setup
-            </Button>
-          </Tooltip>
-        )}
-      </Box>
-    </Stack>
+        </Tooltip>
+      )}
+    </Box>
   );
 }
 
