@@ -3,7 +3,7 @@ import { Maybe } from "~/utils/types";
 
 export type StripeClient = {
   // connected account management
-  createAccount(): Promise<CreateAccountResponse>;
+  createAccount(input: CreateAccountInput): Promise<CreateAccountResponse>;
   createAccountLink(
     input: CreateAccountLinkInput
   ): Promise<CreateAccountLinkResponse>;
@@ -41,6 +41,10 @@ export type CreateAccountLinkInput = {
 
 export type CreateAccountLinkResponse = {
   redirectUrl: Url;
+};
+
+export type CreateAccountInput = {
+  email: Email;
 };
 
 export type CreateAccountResponse = {

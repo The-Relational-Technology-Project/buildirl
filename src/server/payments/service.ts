@@ -135,7 +135,8 @@ export function createPaymentService(
     try {
       const result = await tx.userSettings.findUniqueOrThrow({
         select: {
-          stripeConnectAccountId: true
+          stripeConnectAccountId: true,
+          email: true
         },
         where: { userId }
       });
@@ -146,7 +147,15 @@ export function createPaymentService(
         );
       }
 
-      const { accountId } = await stripeClient.createAccount();
+      if (!result.email) {
+        throw new Error(
+          `user with id ${userId} has no email to create Stripe Connect account`
+        );
+      }
+
+      const { accountId } = await stripeClient.createAccount({
+        email: result.email
+      });
 
       await tx.userSettings.update({
         where: { userId },
