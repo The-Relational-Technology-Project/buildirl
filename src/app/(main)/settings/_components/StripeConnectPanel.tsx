@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Button, Group, Stack, Text, Title, List } from "@mantine/core";
+import { Button, Stack, Text, Title, List, Box, Tooltip } from "@mantine/core";
 import React from "react";
 import { api } from "~/trpc/react";
 import { logger } from "~/client/logger";
@@ -33,6 +33,25 @@ function CreateStripeConnectAccount() {
   );
 }
 
+type MissingRequirementsToolTipProps = {
+  requirements: string[];
+};
+
+function MissingRequirementsToolTip({
+  requirements
+}: MissingRequirementsToolTipProps) {
+  return (
+    <Stack gap={"xs"} p={4}>
+      <Title order={6}>Missing Requirements</Title>
+      <List size="sm">
+        {requirements.map((req, index) => (
+          <List.Item key={index}>{req}</List.Item>
+        ))}
+      </List>
+    </Stack>
+  );
+}
+
 type ManageStripeConnectAccountProps = {
   status: AccountStatus;
 };
@@ -50,19 +69,8 @@ function ManageStripeConnectAccount({
   });
 
   return (
-    <Stack mt="lg" gap="md">
-      {!status.isComplete && status.missingRequirements.length > 0 && (
-        <Alert color="yellow" title="Missing Account Requirements">
-          <Text mb="xs">Please complete the following requirements:</Text>
-          <List size="sm">
-            {status.missingRequirements.map((req, index) => (
-              <List.Item key={index}>{req}</List.Item>
-            ))}
-          </List>
-        </Alert>
-      )}
-
-      <Group>
+    <Stack gap="lg" mt={"sm"}>
+      <Box>
         {status.isComplete ? (
           <Button
             component="a"
@@ -72,18 +80,28 @@ function ManageStripeConnectAccount({
             Manage Stripe Dashboard
           </Button>
         ) : (
-          <Button
-            onClick={async () => {
-              await createAccountLink.mutateAsync({
-                origin: window.location.origin
-              });
-            }}
-            loading={createAccountLink.isPending}
+          <Tooltip
+            position={"bottom-start"}
+            label={
+              <MissingRequirementsToolTip
+                requirements={status.missingRequirements}
+              />
+            }
+            hidden={status.missingRequirements.length === 0}
           >
-            Complete Account Setup
-          </Button>
+            <Button
+              onClick={async () => {
+                await createAccountLink.mutateAsync({
+                  origin: window.location.origin
+                });
+              }}
+              loading={createAccountLink.isPending}
+            >
+              Complete Account Setup
+            </Button>
+          </Tooltip>
         )}
-      </Group>
+      </Box>
     </Stack>
   );
 }
