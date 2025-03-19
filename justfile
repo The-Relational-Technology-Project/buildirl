@@ -27,7 +27,7 @@ db-reset-hard:
    prisma migrate reset
 
 start:
-	yarn dev & stripe preview listen --forward-to localhost:3000/api/payments/webhook
+	yarn dev
 
 stop:
     db-stop
@@ -44,3 +44,6 @@ generate-prisma:
 # - This will not work if there are uncommitted changes on your current branch. Please stash these before running the command.
 deploy-prod:
     git fetch origin && git checkout main && git reset --hard origin/main && git merge origin/testing && git push origin main && git checkout -
+
+stripe-listen:
+	stripe preview listen --forward-to localhost:3000/api/payments/webhook
