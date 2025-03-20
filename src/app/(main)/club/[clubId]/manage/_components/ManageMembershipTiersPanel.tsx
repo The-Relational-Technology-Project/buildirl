@@ -19,8 +19,11 @@ import AlertMessage from "~/client/components/AlertMessage";
 import { useDisclosure } from "@mantine/hooks";
 import CreateMembershipTierModal from "~/app/(main)/club/[clubId]/manage/_components/CreateMembershipTierModal";
 import UpdateMembershipTierModal from "~/app/(main)/club/[clubId]/manage/_components/UpdateMembershipTierModal";
+import SetupStripeConnectModal from "~/app/(main)/club/[clubId]/manage/_components/SetupStripeConnectModal";
 import { Carousel } from "@mantine/carousel";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import { QueryError } from "~/client/utils/QueryError";
+import { isLoaded } from "~/client/utils";
 
 type ManageMembershipsPanelProps = {
   club: Club;
@@ -29,7 +32,25 @@ type ManageMembershipsPanelProps = {
 export default function ManageMembershipTiersPanel({
   club
 }: ManageMembershipsPanelProps) {
-  const [opened, { open, close }] = useDisclosure(false);
+  const [
+    createModalOpened,
+    { open: openCreateModal, close: closeCreateModal }
+  ] = useDisclosure(false);
+  const [
+    stripeModalOpened,
+    { open: openStripeModal, close: closeStripeModal }
+  ] = useDisclosure(false);
+
+  const r = api.payments.accountStatus.useQuery();
+
+  QueryError.checkNullable({
+    result: r,
+    fieldName: "accountStatus"
+  });
+
+  if (!isLoaded(r)) {
+    return;
+  }
 
   const publishedTiers = club.membershipTiers.filter(
     (tier) => tier.status === "PUBLISHED"
@@ -37,6 +58,16 @@ export default function ManageMembershipTiersPanel({
   const unpublishedTiers = club.membershipTiers.filter(
     (tier) => tier.status === "UNPUBLISHED"
   );
+
+  const handleCreateTierClick = () => {
+    // do not allow create and prompt for Stripe Connect setup
+    // if not complete
+    if (null === r.data || !r.data!.isComplete) {
+      openStripeModal();
+    } else {
+      openCreateModal();
+    }
+  };
 
   return (
     <Stack py={"lg"} pb={"xl"} gap={"sm"}>
@@ -64,7 +95,10 @@ export default function ManageMembershipTiersPanel({
         <Carousel.Slide py={4}>
           <Paper w={300} h={400}>
             <Center h={"100%"}>
-              <ColorSchemeAwareActionIcon variant="transparent" onClick={open}>
+              <ColorSchemeAwareActionIcon
+                variant="transparent"
+                onClick={handleCreateTierClick}
+              >
                 <IconPlus />
               </ColorSchemeAwareActionIcon>
             </Center>
@@ -74,8 +108,13 @@ export default function ManageMembershipTiersPanel({
 
       <CreateMembershipTierModal
         club={club}
-        opened={opened}
-        handleClose={close}
+        opened={createModalOpened}
+        handleClose={closeCreateModal}
+      />
+
+      <SetupStripeConnectModal
+        opened={stripeModalOpened}
+        handleClose={closeStripeModal}
       />
 
       {unpublishedTiers.length !== 0 && (
