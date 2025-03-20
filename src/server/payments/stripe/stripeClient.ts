@@ -103,14 +103,20 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     input: CreateProductInput
   ): Promise<CreateProductResponse> {
     try {
-      const product = await stripe.products.create({
-        name: input.name,
-        description: input.description,
-        active: true,
-        metadata: {
-          externalMembershipTierId: input.membershipTierId
+      const product = await stripe.products.create(
+        {
+          name: input.name,
+          description: input.description,
+          active: true,
+          metadata: {
+            externalMembershipTierId: input.membershipTierId
+          }
+        },
+        {
+          // track provenance
+          stripeAccount: input.byAccountId
         }
-      });
+      );
 
       const price = await stripe.prices.create({
         product: product.id,
@@ -348,7 +354,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
           }
         },
         {
-          // we want to capture this for tracking purposes
+          // track provenance
           stripeAccount: input.byAccountId
         }
       );

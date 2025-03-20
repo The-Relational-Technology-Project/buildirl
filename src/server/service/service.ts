@@ -693,6 +693,53 @@ export function createMainService(
     }
   }
 
+  async function getClubOwnerStripeAccountId(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<string> {
+    try {
+      const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+        select: {
+          club: {
+            select: {
+              owner: {
+                select: {
+                  settings: {
+                    select: {
+                      stripeConnectAccountId: true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        where: { id: membershipTierId }
+      });
+
+      const stripeConnectAccountId =
+        membershipTier.club.owner.settings?.stripeConnectAccountId;
+
+      if (!stripeConnectAccountId) {
+        throw new Error(
+          `club owner for membership tier with id ${membershipTierId} has no stripeConnectAccountId`
+        );
+      }
+
+      logger.info(
+        `retrieved club owner stripeConnectAccountId for membership tier with id ${membershipTierId}`
+      );
+
+      return stripeConnectAccountId;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to retrieve stripeConnectAccountId for club owner of membership tier with id ${membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
   async function createStripeProductAndPrice(
     membershipTierId: number,
     input: CreateMembershipTierInput,
@@ -703,11 +750,17 @@ export function createMainService(
       return;
     }
 
+    const ownerStripeAccountId = await getClubOwnerStripeAccountId(
+      membershipTierId,
+      tx
+    );
+
     const { productId, priceId } = await stripeClient.createProduct({
       name: input.name,
       description: input.benefitDescription,
       pricePerMonthInUSD: input.costPerMonthInUSD,
-      membershipTierId: membershipTierId
+      membershipTierId: membershipTierId,
+      byAccountId: ownerStripeAccountId
     });
 
     try {

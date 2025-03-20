@@ -61,6 +61,7 @@ export type CreateProductInput = {
   description?: string;
   pricePerMonthInUSD: MonetaryValue;
   membershipTierId: number;
+  byAccountId: string;
 };
 
 export type CreateProductResponse = {
