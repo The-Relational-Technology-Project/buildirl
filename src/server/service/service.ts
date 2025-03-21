@@ -1608,8 +1608,6 @@ export function createMainService(
       // if subscription was cancelled outside of this system,
       // that is OK because these operations are idempotent
       // https://docs.stripe.com/api/idempotent_requests
-      // TODO currently if user cancels subscription, they will need cancel and re-join;
-      //  there is opportunity for more automated workflow here
       await cancelSubscription(membershipId, tx);
       await cancelSetupIntent(membershipId, tx);
 

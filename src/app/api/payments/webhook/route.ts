@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 import { rootLogger } from "~/logger";
 import { env } from "~/env";
 import { stripe } from "~/server/payments/stripe/stripe";
@@ -13,12 +13,15 @@ const eventProcessor = createPaymentEventProcessor(stripe, prisma);
 export async function POST(req: NextRequest): Promise<NextResponse> {
   // raw body from request
   const body = await req.text();
-  
-  const signature = req.headers.get('stripe-signature');
+
+  const signature = req.headers.get("stripe-signature");
 
   if (!signature) {
     logger.error("missing Stripe signature");
-    return NextResponse.json({ error: "missing Stripe signature" }, { status: 400 });
+    return NextResponse.json(
+      { error: "missing Stripe signature" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -35,6 +38,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const session = event.data.object as Stripe.Checkout.Session;
         await eventProcessor.onCheckoutSessionCompleted(session);
         break;
+      // TODO handle 'customer.subscription.deleted', possibly automatically
+      //  put them in the free tier
       default:
         // TODO for failed cases (e.g. invoice.payment_failed), should we at
         //  least alert as error?
@@ -46,7 +51,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     logger.error(e, `webhook error for req ${stringify(body)}`);
     // errors here will be retried by Stripe
     // TODO we can observe if there are classes and distinguish errors that are not retryable
-    return NextResponse.json({ error: `webhook error: ${stringify(e)}` }, { status: 500 });
+    return NextResponse.json(
+      { error: `webhook error: ${stringify(e)}` },
+      { status: 500 }
+    );
   }
 }
 
@@ -54,9 +62,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, stripe-signature',
-      'Access-Control-Max-Age': '86400',
-    },
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, stripe-signature",
+      "Access-Control-Max-Age": "86400"
+    }
   });
-} 
+}
