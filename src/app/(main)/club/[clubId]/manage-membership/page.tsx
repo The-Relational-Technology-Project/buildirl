@@ -11,7 +11,6 @@ import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHe
 import JoinedDate from "~/client/components/JoinedDate";
 import { isDefaultFreeTier, membershipForClub } from "~/utils/types";
 import ManagePaymentsButton from "~/app/(main)/settings/_components/ManagePaymentsButton";
-import { INHERIT_KEYS } from "@babel/types";
 import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
 
 export default function ManageMembership() {

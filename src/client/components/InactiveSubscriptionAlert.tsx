@@ -17,8 +17,8 @@ export default function InactiveSubscriptionAlert({
   const r = api.payments.subscriptionStatus.useQuery(
     { membershipId: membershipId.toString() },
     {
-      // refetch every 1 minute as data can be changed externally in Stripe
-      refetchInterval: 60 * 1000
+      // refetch every 5 minute as data can be changed externally in Stripe
+      refetchInterval: 5 * 60 * 1000
     }
   );
 
