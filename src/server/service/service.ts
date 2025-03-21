@@ -1328,6 +1328,7 @@ export function createMainService(
       logger.info(
         `updated membership to pending membership from input ${stringify(input)} with membershipId ${id}`
       );
+      // need to return id as this is considered creation
       return { createdEntityId: id };
     } catch (e) {
       logger.error(

@@ -22,6 +22,13 @@ export function strictParseInt(s: Maybe<string>): number {
   return r;
 }
 
+export function strictParseBigInt(s: Maybe<string>): bigint {
+  if (null === s) {
+    throw new Error(`${s} is not a bigint`);
+  }
+  return BigInt(s);
+}
+
 export function assertAsString(value: any): string {
   if (typeof value === "string") {
     return value;

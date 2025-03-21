@@ -11,7 +11,7 @@ function SubscriptionUpdateWarning() {
       multiline
       w={300}
       label="While the Stripe dashboard allows you to cancel and pause your subscription directly, this is not recommended.
-      Club owners are notified of inactive subscriptions. If you wish to cancel your membership and subscription,
+      Club owners are notified of inactive subscriptions. If you wish to cancel your subscription,
       please leave the club through membership management."
       position="right-start"
     >

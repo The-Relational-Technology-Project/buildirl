@@ -288,8 +288,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     try {
       const session = await stripe.checkout.sessions.create({
         customer: input.customerId,
-        // TODO!
-        success_url: `${input.origin}/apply/${input.clubId}/completed/`,
+        success_url: `${input.origin}/apply/${input.clubId}/completed`,
         line_items: [
           {
             // subscription
