@@ -63,11 +63,13 @@ export default class SubmitMembershipApplicationCommand
     // we also process a mock checkout session to test that code path
     // as well as maintain data consistency that memberships have associated
     // setup intents
-    await r.paymentEvents.onCheckoutSessionCompleted(
-      // we don't care what the setup intent id is just that it is unique
-      // since we aren't verifying or driving any logic of its exact value
-      setupCheckoutSession(uniqueSetupIntentId(), membershipId.toString())
-    );
+    if (!m.isDefaultFreeTier(this.membershipTierId)) {
+      await r.paymentEvents.onCheckoutSessionCompleted(
+        // we don't care what the setup intent id is just that it is unique
+        // since we aren't verifying or driving any logic of its exact value
+        setupCheckoutSession(uniqueSetupIntentId(), membershipId.toString())
+      );
+    }
 
     m.submitMembershipApplication(
       membershipId,

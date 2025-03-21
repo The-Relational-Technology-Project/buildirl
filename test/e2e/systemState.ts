@@ -17,7 +17,7 @@ import {
   ClubStatistics,
   UpdateClubDisplayImageUrlsInput
 } from "~/server/service/types";
-import { Maybe } from "~/utils/types";
+import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
 import { FormQuestions, FormResponses } from "~/server/service/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
@@ -427,6 +427,11 @@ export class SystemState {
       publishedMembershipTiers.length === 1 &&
       publishedMembershipTiers[0] === membershipTierId
     );
+  }
+
+  public isDefaultFreeTier(membershipTierId: number): boolean {
+    const membershipTier = this.getMembershipTier(membershipTierId);
+    return isDefaultFreeTier(membershipTier);
   }
 
   public hasPublishedMembershipTiers(): boolean {

@@ -21,8 +21,8 @@ export function createPaymentEventProcessor(
       // it is important this is idempotent because stripe can send webhook event
       // multiple times
       await prisma.membership.update({
-        where: { id: membershipId },
-        data: { stripeSetupIntentId: setupIntentId }
+        data: { stripeSetupIntentId: setupIntentId, status: "PENDING" },
+        where: { id: membershipId }
       });
       logger.info(
         `updated membership with id ${membershipId} with stripeSetupIntentId ${setupIntentId}`

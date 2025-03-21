@@ -51,7 +51,12 @@ export type Club = {
   membershipTiers: MembershipTier[];
 };
 
-export type MembershipStatus = "ACTIVE" | "PENDING" | "DECLINED" | "INACTIVE";
+export type MembershipStatus =
+  | "ACTIVE"
+  | "PENDING"
+  | "PENDING_INCOMPLETE"
+  | "DECLINED"
+  | "INACTIVE";
 export type MembershipTierStatus = "PUBLISHED" | "UNPUBLISHED";
 
 export type Membership = {
@@ -66,7 +71,7 @@ export type Membership = {
   email: Maybe<Email>;
   isWelcomed: boolean;
   // this isn't exactly the join date as it is the date
-  // the membership went into `PENDING` state
+  // the membership first was created (e.g., as `PENDING_INCOMPLETE`)
   // TODO refine
   createdAt: Date;
 };

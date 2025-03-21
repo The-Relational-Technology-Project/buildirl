@@ -822,7 +822,7 @@ export function createMainService(
     }
   }
 
-  async function isDefaultFreeMembershipTier(membershipTierId: number) {
+  async function isDefaultFreeTierById(membershipTierId: number) {
     try {
       const result = await prisma.membershipTier.findUniqueOrThrow({
         where: { id: membershipTierId },
@@ -842,7 +842,7 @@ export function createMainService(
   }
 
   async function checkIsNotDefaultFreeMembershipTier(membershipTierId: number) {
-    if (await isDefaultFreeMembershipTier(membershipTierId)) {
+    if (await isDefaultFreeTierById(membershipTierId)) {
       throw new Error("cannot delete default free membership tier");
     }
   }
@@ -852,7 +852,7 @@ export function createMainService(
     input: UpdateMembershipTierInput
   ) {
     if (
-      (await isDefaultFreeMembershipTier(membershipTierId)) &&
+      (await isDefaultFreeTierById(membershipTierId)) &&
       input.costPerMonthInUSD !== 0
     ) {
       throw new Error(
@@ -866,7 +866,7 @@ export function createMainService(
     input: UpdateMembershipTierInput
   ) {
     if (
-      !(await isDefaultFreeMembershipTier(membershipTierId)) &&
+      !(await isDefaultFreeTierById(membershipTierId)) &&
       input.costPerMonthInUSD === 0
     ) {
       throw new Error("cannot update cost of membership tier to zero value");
@@ -1266,21 +1266,29 @@ export function createMainService(
     await checkUserIsNotClubOwner(userId, clubId);
     await checkUserDoesNotHaveActiveMembershipForClub(userId, clubId);
     const existingMembership = await userMembershipForClub(userId, clubId);
+    const isDefaultFreeTier = await isDefaultFreeTierById(membershipTierId);
     if (null === existingMembership) {
-      return await createMembershipApplication(membershipTierId, input, userId);
+      return await createMembershipApplication(
+        membershipTierId,
+        input,
+        userId,
+        isDefaultFreeTier
+      );
     }
     // declined or deactivate membership can reapply with overwrite
     return await updateMembershipWithNewApplication(
       membershipTierId,
       input,
-      existingMembership.id
+      existingMembership.id,
+      isDefaultFreeTier
     );
   }
 
   async function createMembershipApplication(
     membershipTierId: number,
     input: SubmitMembershipApplicationInput,
-    userId: number
+    userId: number,
+    isDefaultFreeTier: boolean
   ): Promise<MutationResult> {
     try {
       const { id } = await prisma.membership.create({
@@ -1288,7 +1296,8 @@ export function createMainService(
           userId: userId,
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          status: "PENDING"
+          // if not free tier, still awaiting setup intent
+          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE"
         },
         select: {
           id: true
@@ -1310,14 +1319,16 @@ export function createMainService(
   async function updateMembershipWithNewApplication(
     membershipTierId: number,
     input: SubmitMembershipApplicationInput,
-    membershipId: bigint
+    membershipId: bigint,
+    isDefaultFreeTier: boolean
   ): Promise<MutationResult> {
     try {
       const { id } = await prisma.membership.update({
         data: {
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          status: "PENDING",
+          // if not free tier, awaiting setup intent
+          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
           // reset welcome status
           isWelcomed: false
         },
