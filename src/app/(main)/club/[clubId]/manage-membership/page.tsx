@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Stack, Title, Text, Paper } from "@mantine/core";
+import { Button, Stack, Title, Text, Paper, Group } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { strictParseInt } from "~/utils";
 import { api } from "~/trpc/react";
@@ -9,8 +9,10 @@ import { isLoaded } from "~/client/utils";
 import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import JoinedDate from "~/client/components/JoinedDate";
-import { membershipForClub } from "~/utils/types";
+import { isDefaultFreeTier, membershipForClub } from "~/utils/types";
 import ManagePaymentsButton from "~/app/(main)/settings/_components/ManagePaymentsButton";
+import { INHERIT_KEYS } from "@babel/types";
+import InactiveSubscriptionWarning from "~/client/components/InactiveSubscriptionWarning";
 
 export default function ManageMembership() {
   const params = useParams<{ clubId: string }>();
@@ -62,7 +64,12 @@ export default function ManageMembership() {
       <Stack>
         <Title order={3}>Your Membership to {membership.club.name}</Title>
         <Paper p={"xl"}>
-          <Title order={4}>Membership Details</Title>
+          <Group gap={"xs"}>
+            <Title order={4}>Membership Details</Title>
+            {!isDefaultFreeTier(membership.membershipTier) && (
+              <InactiveSubscriptionWarning membershipId={membership.id} />
+            )}
+          </Group>
 
           <JoinedDate date={membership.createdAt} mt={8} />
 
@@ -97,7 +104,7 @@ export default function ManageMembership() {
               size={"sm"}
             >{`$${membership.membershipTier.costPerMonthInUSD}.00/month`}</Text>
 
-            {membership.membershipTier.costPerMonthInUSD > 0 && (
+            {!isDefaultFreeTier(membership.membershipTier) && (
               <ManagePaymentsButton mt={"lg"} />
             )}
           </Stack>

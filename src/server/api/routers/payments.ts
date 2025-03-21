@@ -10,6 +10,7 @@ import {
 } from "~/server/payments/types";
 import { subject } from "@casl/ability";
 import { TRPCError } from "@trpc/server";
+import { bigint, BigIntStringSchema } from "~/utils/types";
 
 export const paymentsRouter = createTRPCRouter({
   createAccount: securedProcedure.mutation(({ ctx }) => {
@@ -27,17 +28,19 @@ export const paymentsRouter = createTRPCRouter({
   }),
 
   subscriptionStatus: securedProcedureWithAbilityFor("Membership")
-    .input(z.object({ membershipId: z.bigint() }))
+    .input(z.object({ membershipId: BigIntStringSchema }))
     .query(({ ctx, input }) => {
       if (
         !ctx.ability.can(
           "manage",
-          subject("Membership", { id: input.membershipId })
+          subject("Membership", { id: bigint(input.membershipId) })
         )
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.payment.getSubscriptionStatus(input.membershipId);
+      return ctx.service.payment.getSubscriptionStatus(
+        bigint(input.membershipId)
+      );
     }),
 
   customerPortalLink: securedProcedure.query(({ ctx }) => {
