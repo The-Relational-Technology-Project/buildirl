@@ -21,7 +21,7 @@ import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { IconListCheck } from "@tabler/icons-react";
 import UserAvatar from "~/client/components/UserAvatar";
-import InactiveSubscriptionWarning from "~/client/components/InactiveSubscriptionWarning";
+import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
 import { isDefaultFreeTier } from "~/utils/types";
 
 type ActiveMembershipTableProps = {
@@ -113,7 +113,7 @@ export default function ActiveMembershipTable({
       <Table.Td>
         <Center h={"100%"}>
           {!isDefaultFreeTier(m.membershipTier) && (
-            <InactiveSubscriptionWarning membershipId={m.id} forClubOwner />
+            <InactiveSubscriptionAlert membershipId={m.id} forClubOwner />
           )}
         </Center>
       </Table.Td>

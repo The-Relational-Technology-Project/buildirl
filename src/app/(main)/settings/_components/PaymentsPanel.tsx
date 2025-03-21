@@ -9,7 +9,7 @@ export default function PaymentsPanel() {
     <Stack mt={"lg"} gap={4}>
       <Title order={4}>Payments</Title>
       <Text size={"md"}>
-        Manage your payment details and subscriptions through Stripe.
+        Manage your payment details and subscription payments through Stripe.
       </Text>
       <ManagePaymentsButton mt={"md"} />
     </Stack>

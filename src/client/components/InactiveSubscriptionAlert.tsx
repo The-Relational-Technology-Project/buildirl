@@ -3,18 +3,17 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { IconAlertCircle } from "@tabler/icons-react";
-import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
 import React from "react";
 
-type InactiveSubscriptionWarningProps = {
+type InactiveSubscriptionAlertProps = {
   membershipId: bigint;
   forClubOwner?: boolean;
 };
 
-export default function InactiveSubscriptionWarning({
+export default function InactiveSubscriptionAlert({
   membershipId,
   forClubOwner = false
-}: InactiveSubscriptionWarningProps) {
+}: InactiveSubscriptionAlertProps) {
   const r = api.payments.subscriptionStatus.useQuery(
     { membershipId: membershipId.toString() },
     {
