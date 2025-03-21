@@ -10,6 +10,7 @@ import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import JoinedDate from "~/client/components/JoinedDate";
 import { membershipForClub } from "~/utils/types";
+import ManagePaymentsButton from "~/app/(main)/settings/_components/ManagePaymentsButton";
 
 export default function ManageMembership() {
   const params = useParams<{ clubId: string }>();
@@ -88,21 +89,22 @@ export default function ManageMembership() {
                 </Text>
               </>
             )}
+
             <Title order={5} mt={"sm"}>
               Cost
             </Title>
             <Text
               size={"sm"}
             >{`$${membership.membershipTier.costPerMonthInUSD}.00/month`}</Text>
+
+            {membership.membershipTier.costPerMonthInUSD > 0 && (
+              <ManagePaymentsButton mt={"lg"} />
+            )}
           </Stack>
         </Paper>
 
         <Stack w={"100%"} align={"center"} mt={"md"}>
-          <Button
-            w={150}
-            color={"orange"}
-            onClick={handleDeactivateMembership}
-          >
+          <Button w={150} color={"orange"} onClick={handleDeactivateMembership}>
             Leave Club
           </Button>
           <Text size={"sm"} w={300} style={{ textAlign: "center" }}>
