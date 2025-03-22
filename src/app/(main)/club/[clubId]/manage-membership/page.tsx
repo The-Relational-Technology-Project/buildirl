@@ -23,6 +23,9 @@ export default function ManageMembership() {
     onSuccess: async () => {
       await utils.main.userMemberships.invalidate();
       await utils.main.activeMembershipsForClub.invalidate({ clubId: clubId });
+      await utils.main.activeMembershipsForClubWithEmail.invalidate({
+        clubId: clubId
+      });
       router.back();
     }
   });
@@ -98,11 +101,7 @@ export default function ManageMembership() {
         </Paper>
 
         <Stack w={"100%"} align={"center"} mt={"md"}>
-          <Button
-            w={150}
-            color={"orange"}
-            onClick={handleDeactivateMembership}
-          >
+          <Button w={150} color={"orange"} onClick={handleDeactivateMembership}>
             Leave Club
           </Button>
           <Text size={"sm"} w={300} style={{ textAlign: "center" }}>
