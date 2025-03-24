@@ -14,7 +14,7 @@ export default function AbsoluteCenter({
 }: AbsoluteCenterProps & CenterProps) {
   return (
     <Center
-      // okay not *exactly* the center, but it looks better to be slightly upshifted
+      // okay not *exactly* the center, but it looks better to be moved up slightly
       mih={`calc(80vh - ${adjustForHeader ? HEADER_BAR_HEIGHT : 0}px)`}
       {...props}
     >
