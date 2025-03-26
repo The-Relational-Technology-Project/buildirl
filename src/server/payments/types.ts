@@ -13,10 +13,9 @@ type PaymentQueries = {
 };
 
 type PaymentMutations = {
-  createAccount(userId: number): Promise<void>;
+  createAccount(input: CreateAccountInput): Promise<void>;
   createAccountLink(
-    input: CreateAccountLinkInput,
-    userId: number
+    input: CreateAccountLinkInput
   ): Promise<CreateAccountLinkResult>;
   createCheckoutSession(
     input: CreateCheckoutSessionInput,
@@ -34,7 +33,13 @@ export type SubscriptionStatus = {
   status: string;
 };
 
+export const CreateAccountInputSchema = z.object({
+  clubId: z.number()
+});
+export type CreateAccountInput = z.infer<typeof CreateAccountInputSchema>;
+
 export const CreateAccountLinkInputSchema = z.object({
+  clubId: z.number(),
   origin: z.string().url()
 });
 export type CreateAccountLinkInput = z.infer<

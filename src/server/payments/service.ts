@@ -7,7 +7,8 @@ import {
   SubscriptionStatus,
   CreateAccountLinkInput,
   CreateAccountLinkResult,
-  CreateCheckoutSessionInput
+  CreateCheckoutSessionInput,
+  CreateAccountInput
 } from "~/server/payments/types";
 import { stringify } from "~/utils";
 import { Url } from "~/server/service/types";
@@ -122,53 +123,44 @@ export function createPaymentService(
     }
   }
 
-  async function createAccount(userId: number): Promise<void> {
+  async function createAccount(input: CreateAccountInput): Promise<void> {
     return prisma.$transaction(async (tx) => {
-      return createAccountInTransaction(userId, tx);
+      return createAccountInTransaction(input, tx);
     });
   }
 
   async function createAccountInTransaction(
-    userId: number,
+    input: CreateAccountInput,
     tx: Prisma.TransactionClient
   ) {
     try {
-      const result = await tx.userSettings.findUniqueOrThrow({
+      const result = await tx.club.findUniqueOrThrow({
         select: {
-          stripeConnectAccountId: true,
-          email: true
+          stripeConnectAccountId: true
         },
-        where: { userId }
+        where: { id: input.clubId }
       });
 
       if (result.stripeConnectAccountId) {
         throw new Error(
-          `Stripe Connect account already exists for user with id ${userId}`
+          `Stripe Connect account already exists for club with id ${input.clubId}`
         );
       }
 
-      if (!result.email) {
-        throw new Error(
-          `user with id ${userId} has no email to create Stripe Connect account`
-        );
-      }
+      const { accountId } = await stripeClient.createAccount();
 
-      const { accountId } = await stripeClient.createAccount({
-        email: result.email
-      });
-
-      await tx.userSettings.update({
-        where: { userId },
+      await tx.club.update({
+        where: { id: input.clubId },
         data: { stripeConnectAccountId: accountId }
       });
 
       logger.info(
-        `created Stripe Connect account with id ${accountId} for user with id ${userId}`
+        `created Stripe Connect account with id ${accountId} for club with id ${input.clubId}`
       );
     } catch (e) {
       logger.error(
         e,
-        `failed to create stripe connect account for user with id ${userId}`
+        `failed to create stripe connect account for user with id ${input.clubId}`
       );
       throw e;
     }
@@ -179,16 +171,16 @@ export function createPaymentService(
     userId: number
   ): Promise<CreateAccountLinkResult> {
     try {
-      const result = await prisma.userSettings.findUniqueOrThrow({
+      const result = await prisma.club.findUniqueOrThrow({
         select: {
           stripeConnectAccountId: true
         },
-        where: { userId }
+        where: { id: input.clubId }
       });
 
       if (!result.stripeConnectAccountId) {
         throw new Error(
-          `no Stripe Connect account found for user with id ${userId}`
+          `no Stripe Connect account found for club with id ${input.clubId}`
         );
       }
 
@@ -198,13 +190,13 @@ export function createPaymentService(
       });
 
       logger.info(
-        `created account link with url ${redirectUrl} for user with id ${userId}`
+        `created account link with url ${redirectUrl} for club with id ${input.clubId}`
       );
       return { redirectUrl };
     } catch (e) {
       logger.error(
         e,
-        `failed to create account link for user with id ${userId}`
+        `failed to create account link for club with id ${input.clubId}`
       );
       throw e;
     }

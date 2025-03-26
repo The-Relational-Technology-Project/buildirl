@@ -26,13 +26,10 @@ import { Email } from "~/server/service/types";
 const logger = rootLogger.child({ module: "stripeClient" });
 
 export function createStripeClient(stripe: Stripe): StripeClient {
-  async function createAccount(
-    input: CreateAccountInput
-  ): Promise<CreateAccountResponse> {
+  async function createAccount(): Promise<CreateAccountResponse> {
     try {
       const account = await stripe.accounts.create({
         type: "standard",
-        email: input.email,
         capabilities: {
           card_payments: { requested: true },
           transfers: { requested: true }
