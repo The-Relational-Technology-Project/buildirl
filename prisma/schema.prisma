@@ -46,36 +46,35 @@ model User {
 }
 
 model UserSettings {
-  userId                 Int      @id @unique @map("user_id")
-  user                   User     @relation(fields: [userId], references: [id])
-  email                  String
-  stripeConnectAccountId String?  @unique
-  stripeCustomerId       String?  @unique
-  createdAt              DateTime @default(now()) @map("created_at")
-  updatedAt              DateTime @updatedAt @map("updated_at")
+  userId    Int      @id @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  email     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([userId])
   @@map("user_settings")
 }
 
 model Club {
-  id                   Int              @id @default(autoincrement())
-  publicId             String           @unique @map("public_id")
-  name                 String
-  tagLine              String           @map("tag_line")
-  description          String
-  owner                User             @relation(fields: [ownerUserId], references: [id])
-  ownerUserId          Int              @map("owner_user_id")
-  websiteUrl           String?          @map("website_url")
-  eventCalendarUrl     String?          @map("event_calendar_url")
-  instagramHandle      String?          @map("instagram_handle")
-  applicationQuestions Json             @map("application_questions")
-  theme                Json?
+  id                     Int              @id @default(autoincrement())
+  publicId               String           @unique @map("public_id")
+  name                   String
+  tagLine                String           @map("tag_line")
+  description            String
+  owner                  User             @relation(fields: [ownerUserId], references: [id])
+  ownerUserId            Int              @map("owner_user_id")
+  websiteUrl             String?          @map("website_url")
+  eventCalendarUrl       String?          @map("event_calendar_url")
+  instagramHandle        String?          @map("instagram_handle")
+  applicationQuestions   Json             @map("application_questions")
+  theme                  Json?
   // ordered
-  displayImageUrls     String[]         @default([]) @map("display_image_urls")
-  membershipTiers      MembershipTier[]
-  createdAt            DateTime         @default(now()) @map("created_at")
-  updatedAt            DateTime         @updatedAt @map("updated_at")
+  displayImageUrls       String[]         @default([]) @map("display_image_urls")
+  membershipTiers        MembershipTier[]
+  stripeConnectAccountId String?          @unique
+  createdAt              DateTime         @default(now()) @map("created_at")
+  updatedAt              DateTime         @updatedAt @map("updated_at")
 
   @@index([ownerUserId])
   @@index([publicId])
@@ -111,6 +110,7 @@ model Membership {
   applicationResponses Json             @map("application_responses")
   status               MembershipStatus
   isWelcomed           Boolean          @default(false) @map("is_welcomed")
+  stripeCustomerId     String?          @unique
   stripeSetupIntentId  String?          @unique
   stripeSubscriptionId String?          @unique
   createdAt            DateTime         @default(now()) @map("created_at")
