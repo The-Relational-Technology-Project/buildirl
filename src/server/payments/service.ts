@@ -22,19 +22,19 @@ export function createPaymentService(
   stripeCustomerPortalUrl: string
 ): PaymentService {
   async function getAccountStatus(
-    userId: number
+    clubId: number
   ): Promise<Maybe<AccountStatus>> {
     try {
-      const result = await prisma.userSettings.findUniqueOrThrow({
+      const result = await prisma.club.findUniqueOrThrow({
         select: {
           stripeConnectAccountId: true
         },
-        where: { userId }
+        where: { id: clubId }
       });
 
       if (!result.stripeConnectAccountId) {
         logger.info(
-          `no account found when retrieving account status for user with id ${userId}`
+          `no account found when retrieving account status for club with id ${clubId}`
         );
         // no connected account
         return null;
@@ -45,13 +45,13 @@ export function createPaymentService(
       );
 
       logger.info(
-        `retrieved account status ${stringify(accountStatus)} for user with id ${userId}`
+        `retrieved account status ${stringify(accountStatus)} for club with id ${clubId}`
       );
       return accountStatus;
     } catch (e) {
       logger.error(
         e,
-        `failed to get account status for user with id ${userId}`
+        `failed to get account status for club with id ${clubId}`
       );
       throw e;
     }
@@ -87,19 +87,19 @@ export function createPaymentService(
     }
   }
 
-  async function getCustomerPortalLink(userId: number): Promise<Url> {
+  async function getCustomerPortalLink(membershipId: number): Promise<Url> {
     try {
-      const result = await prisma.userSettings.findUniqueOrThrow({
+      const result = await prisma.membership.findUniqueOrThrow({
         select: {
           stripeCustomerId: true
         },
-        where: { userId }
+        where: { id: membershipId }
       });
 
-      // TODO! remove this once this field is made required after back-fill
+      // TODO can we get rid of this after backfill?
       if (!result.stripeCustomerId) {
         throw new Error(
-          `no stripe customer id found for user with id ${userId}`
+          `no stripe customer id found for membership with id ${membershipId}`
         );
       }
 
@@ -110,14 +110,14 @@ export function createPaymentService(
       const customerPortalLink = `${stripeCustomerPortalUrl}?prefilled_email=${email}`;
 
       logger.info(
-        `retrieved customer portal link ${customerPortalLink} for user with id ${userId}`
+        `retrieved customer portal link ${customerPortalLink} for membership with id ${membershipId}`
       );
 
       return customerPortalLink;
     } catch (e) {
       logger.error(
         e,
-        `failed to get customer portal link for user with id ${userId}`
+        `failed to get customer portal link for membership with id ${membershipId}`
       );
       throw e;
     }
@@ -167,8 +167,7 @@ export function createPaymentService(
   }
 
   async function createAccountLink(
-    input: CreateAccountLinkInput,
-    userId: number
+    input: CreateAccountLinkInput
   ): Promise<CreateAccountLinkResult> {
     try {
       const result = await prisma.club.findUniqueOrThrow({
@@ -202,24 +201,9 @@ export function createPaymentService(
     }
   }
 
-  async function createCheckoutSession(
-    input: CreateCheckoutSessionInput,
-    userId: number
-  ) {
+  async function createCheckoutSession(input: CreateCheckoutSessionInput) {
     try {
-      const userSettings = await prisma.userSettings.findUniqueOrThrow({
-        select: {
-          stripeCustomerId: true
-        },
-        where: { userId }
-      });
-
-      if (!userSettings.stripeCustomerId) {
-        throw new Error(`no Stripe customer found for user with id ${userId}`);
-      }
-
-      const membership = await prisma.membership.findUniqueOrThrow({
-        where: { id: input.membershipId },
+      const result = await prisma.membership.findUniqueOrThrow({
         select: {
           id: true,
           membershipTier: {
@@ -228,21 +212,29 @@ export function createPaymentService(
               stripePriceId: true,
               clubId: true
             }
-          }
-        }
+          },
+          stripeCustomerId: true
+        },
+        where: { id: input.membershipId }
       });
 
-      if (!membership.membershipTier.stripePriceId) {
+      if (!result.stripeCustomerId) {
         throw new Error(
-          `no Stripe price found for membership tier with id ${membership.membershipTier.id}`
+          `no Stripe customer found for membership with id ${input.membershipId}`
+        );
+      }
+
+      if (!result.membershipTier.stripePriceId) {
+        throw new Error(
+          `no Stripe price found for membership tier with id ${result.membershipTier.id}`
         );
       }
 
       const { redirectUrl } = await stripeClient.createCheckoutSession({
-        customerId: userSettings.stripeCustomerId,
-        priceId: membership.membershipTier.stripePriceId,
-        membershipId: membership.id,
-        clubId: membership.membershipTier.clubId,
+        customerId: result.stripeCustomerId,
+        priceId: result.membershipTier.stripePriceId,
+        membershipId: result.id,
+        clubId: result.membershipTier.clubId,
         origin: input.origin
       });
 

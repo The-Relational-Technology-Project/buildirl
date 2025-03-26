@@ -5,11 +5,11 @@ import { Maybe } from "~/utils/types";
 export type PaymentService = PaymentMutations & PaymentQueries;
 
 type PaymentQueries = {
-  getAccountStatus(userId: number): Promise<Maybe<AccountStatus>>;
+  getAccountStatus(clubId: number): Promise<Maybe<AccountStatus>>;
   getSubscriptionStatus(
     membershipId: bigint
   ): Promise<Maybe<SubscriptionStatus>>;
-  getCustomerPortalLink(userId: number): Promise<Url>;
+  getCustomerPortalLink(membershipId: number): Promise<Url>;
 };
 
 type PaymentMutations = {
@@ -18,8 +18,7 @@ type PaymentMutations = {
     input: CreateAccountLinkInput
   ): Promise<CreateAccountLinkResult>;
   createCheckoutSession(
-    input: CreateCheckoutSessionInput,
-    userId: number
+    input: CreateCheckoutSessionInput
   ): Promise<CreateCheckoutSessionResult>;
 };
 
