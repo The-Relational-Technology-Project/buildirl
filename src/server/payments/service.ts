@@ -87,7 +87,7 @@ export function createPaymentService(
     }
   }
 
-  async function getCustomerPortalLink(membershipId: number): Promise<Url> {
+  async function getCustomerPortalLink(membershipId: bigint): Promise<Url> {
     try {
       const membership = await prisma.membership.findUniqueOrThrow({
         select: {
@@ -225,7 +225,7 @@ export function createPaymentService(
 
       if (!membership.membershipTier.stripePriceId) {
         throw new Error(
-          `no Stripe price found for membership tier with id ${result.membershipTier.id}`
+          `no Stripe price found for membership tier with id ${membership.membershipTier.id}`
         );
       }
 

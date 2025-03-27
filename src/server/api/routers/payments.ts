@@ -1,10 +1,10 @@
 import {
   createTRPCRouter,
-  securedProcedure,
   securedProcedureWithAbilityFor
 } from "~/server/api/trpc";
 import { z } from "zod";
 import {
+  CreateAccountInputSchema,
   CreateAccountLinkInputSchema,
   CreateCheckoutSessionInputSchema
 } from "~/server/payments/types";
@@ -13,19 +13,32 @@ import { TRPCError } from "@trpc/server";
 import { bigint, BigIntStringSchema } from "~/utils/types";
 
 export const paymentsRouter = createTRPCRouter({
-  createAccount: securedProcedure.mutation(({ ctx }) => {
-    return ctx.service.payment.createAccount(ctx.user.userId);
-  }),
-
-  createAccountLink: securedProcedure
-    .input(CreateAccountLinkInputSchema)
-    .mutation(async ({ ctx, input }) => {
-      return ctx.service.payment.createAccountLink(input, ctx.user.userId);
+  createAccount: securedProcedureWithAbilityFor("Club")
+    .input(CreateAccountInputSchema)
+    .mutation(({ ctx, input }) => {
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.payment.createAccount(input);
     }),
 
-  accountStatus: securedProcedure.query(({ ctx }) => {
-    return ctx.service.payment.getAccountStatus(ctx.user.userId);
-  }),
+  createAccountLink: securedProcedureWithAbilityFor("Club")
+    .input(CreateAccountLinkInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.payment.createAccountLink(input);
+    }),
+
+  accountStatus: securedProcedureWithAbilityFor("Club")
+    .input(z.object({ clubId: z.number() }))
+    .query(({ ctx, input }) => {
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.payment.getAccountStatus(input.clubId);
+    }),
 
   subscriptionStatus: securedProcedureWithAbilityFor("Membership")
     .input(z.object({ membershipId: BigIntStringSchema }))
@@ -43,13 +56,43 @@ export const paymentsRouter = createTRPCRouter({
       );
     }),
 
-  customerPortalLink: securedProcedure.query(({ ctx }) => {
-    return ctx.service.payment.getCustomerPortalLink(ctx.user.userId);
-  }),
+  customerPortalLink: securedProcedureWithAbilityFor("Membership")
+    .input(z.object({ membershipId: BigIntStringSchema }))
+    .query(({ ctx, input }) => {
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: bigint(input.membershipId) })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.payment.getCustomerPortalLink(
+        bigint(input.membershipId)
+      );
+    }),
 
-  createCheckoutSession: securedProcedure
-    .input(CreateCheckoutSessionInputSchema)
+  createCheckoutSession: securedProcedureWithAbilityFor("Membership")
+    .input(
+      z.object({
+        input: CreateCheckoutSessionInputSchema,
+        membershipId: BigIntStringSchema
+      })
+    )
     .mutation(({ ctx, input }) => {
-      return ctx.service.payment.createCheckoutSession(input, ctx.user.userId);
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: bigint(input.membershipId) })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      return ctx.service.payment.createCheckoutSession(
+        input.input,
+        // hacky to split out but want to keep conversion at the edge layer
+        bigint(input.membershipId)
+      );
     })
 });
