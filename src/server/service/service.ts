@@ -571,6 +571,8 @@ export function createMainService(
     }
 
     try {
+      // TODO do we want to delete connect account?
+
       await prisma.club.delete({
         where: { id }
       });
@@ -663,12 +665,15 @@ export function createMainService(
       tx
     );
 
-    const { productId, priceId } = await stripeClient.createProduct({
-      name: input.name,
-      description: input.benefitDescription,
-      pricePerMonthInUSD: input.costPerMonthInUSD,
-      membershipTierId: membershipTierId,
-    }, accountId);
+    const { productId, priceId } = await stripeClient.createProduct(
+      {
+        name: input.name,
+        description: input.benefitDescription,
+        pricePerMonthInUSD: input.costPerMonthInUSD,
+        membershipTierId: membershipTierId
+      },
+      accountId
+    );
 
     try {
       await tx.membershipTier.update({
@@ -935,9 +940,12 @@ export function createMainService(
     }
 
     if (!membershipTier.stripeProductId) {
-      throw new Error(
+      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
+      // we should not block
+      logger.error(
         `membership tier with id ${membershipTierId} requires stripeProductId to be archived`
       );
+      return;
     }
 
     const accountId = await accountIdResolver.fromMembershipTierInTransaction(
@@ -945,7 +953,10 @@ export function createMainService(
       tx
     );
 
-    await stripeClient.archiveProduct(membershipTier.stripeProductId, accountId);
+    await stripeClient.archiveProduct(
+      membershipTier.stripeProductId,
+      accountId
+    );
   }
 
   async function isMembershipTierPublished(membershipTierId: number) {
@@ -1028,7 +1039,10 @@ export function createMainService(
       tx
     );
 
-    await stripeClient.publishProduct(membershipTier.stripeProductId, accountId);
+    await stripeClient.publishProduct(
+      membershipTier.stripeProductId,
+      accountId
+    );
   }
 
   async function isMembershipTierLastPublishedTier(membershipTierId: number) {
@@ -1292,11 +1306,14 @@ export function createMainService(
         tx
       );
 
-      const response = await stripeClient.createCustomer({
-        email: membership.user.settings.email,
-        name: `${membership.user.firstName} ${membership.user.lastName}`,
-        membershipId: membershipId
-      }, accountId);
+      const response = await stripeClient.createCustomer(
+        {
+          email: membership.user.settings.email,
+          name: `${membership.user.firstName} ${membership.user.lastName}`,
+          membershipId: membershipId
+        },
+        accountId
+      );
 
       await tx.membership.update({
         data: { stripeCustomerId: response.customerId },
@@ -1476,12 +1493,15 @@ export function createMainService(
       tx
     );
 
-    const { subscriptionId } = await stripeClient.createSubscription({
-      setupIntentId: setupIntentId,
-      customerId: customerId,
-      priceId: priceId,
-      membershipId: membershipId
-    }, accountId);
+    const { subscriptionId } = await stripeClient.createSubscription(
+      {
+        setupIntentId: setupIntentId,
+        customerId: customerId,
+        priceId: priceId,
+        membershipId: membershipId
+      },
+      accountId
+    );
 
     try {
       await tx.membership.update({
@@ -1525,6 +1545,7 @@ export function createMainService(
       });
 
       await cancelSetupIntent(membershipId, tx);
+      // keep customer id in case we are accepted in future
 
       logger.info(`declined membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1556,9 +1577,12 @@ export function createMainService(
     }
 
     if (!membership.stripeSetupIntentId) {
-      throw new Error(
+      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
+      // we should not block
+      logger.error(
         `membership with id ${membershipId} has no stripeSetupIntentId to cancel`
       );
+      return;
     }
 
     const accountId = await accountIdResolver.fromMembershipInTransaction(
@@ -1566,7 +1590,10 @@ export function createMainService(
       tx
     );
 
-    await stripeClient.cancelSetupIntent(membership.stripeSetupIntentId, accountId);
+    await stripeClient.cancelSetupIntent(
+      membership.stripeSetupIntentId,
+      accountId
+    );
 
     try {
       await tx.membership.update({
@@ -1614,6 +1641,7 @@ export function createMainService(
       // https://docs.stripe.com/api/idempotent_requests
       await cancelSubscription(membershipId, tx);
       await cancelSetupIntent(membershipId, tx);
+      // keep customer id in case we are reactivated
 
       logger.info(`deactivated membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1648,9 +1676,12 @@ export function createMainService(
     }
 
     if (!membership.stripeSubscriptionId) {
-      throw new Error(
+      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
+      // we should not block
+      logger.error(
         `membership with id ${membershipId} has no stripeSubscriptionId to cancel`
       );
+      return;
     }
 
     const accountId = await accountIdResolver.fromMembershipInTransaction(
@@ -1658,7 +1689,10 @@ export function createMainService(
       tx
     );
 
-    await stripeClient.cancelSubscription(membership.stripeSubscriptionId, accountId);
+    await stripeClient.cancelSubscription(
+      membership.stripeSubscriptionId,
+      accountId
+    );
 
     try {
       await tx.membership.update({
