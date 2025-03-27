@@ -10,27 +10,40 @@ export type StripeClient = {
   getAccountStatus(accountId: string): Promise<AccountStatusResponse>;
 
   // product set-up
-  createProduct(input: CreateProductInput): Promise<CreateProductResponse>;
+  createProduct(
+    input: CreateProductInput,
+    byAccountId: string
+  ): Promise<CreateProductResponse>;
   updateProduct(
     productId: string,
-    input: UpdateProductInput
+    input: UpdateProductInput,
+    byAccountId: string
   ): Promise<UpdateProductResponse>;
-  archiveProduct(productId: string): Promise<void>;
-  publishProduct(productId: string): Promise<void>;
+  archiveProduct(productId: string, byAccountId: string): Promise<void>;
+  publishProduct(productId: string, byAccountId: string): Promise<void>;
 
   // payment flow
-  createCustomer(input: CreateCustomerInput): Promise<CreateCustomerResponse>;
-  getCustomerEmail(customerId: string): Promise<Email>;
+  createCustomer(
+    input: CreateCustomerInput,
+    byAccountId: string
+  ): Promise<CreateCustomerResponse>;
+  getCustomerEmail(customerId: string, byAccountId: string): Promise<Email>;
   createCheckoutSession(
-    input: CreateCheckoutSessionInput
+    input: CreateCheckoutSessionInput,
+    byAccountId: string
   ): Promise<CreateCheckoutSessionResponse>;
   createSubscription(
-    input: CreateSubscriptionInput
+    input: CreateSubscriptionInput,
+    byAccountId: string
   ): Promise<CreateSubscriptionResponse>;
-  cancelSetupIntent(setupIntentId: string): Promise<void>;
-  cancelSubscription(subscriptionId: string): Promise<void>;
+  cancelSetupIntent(setupIntentId: string, byAccountId: string): Promise<void>;
+  cancelSubscription(
+    subscriptionId: string,
+    byAccountId: string
+  ): Promise<void>;
   getSubscriptionStatus(
-    subscriptionId: string
+    subscriptionId: string,
+    byAccountId: string
   ): Promise<SubscriptionStatusResponse>;
 };
 
@@ -61,7 +74,6 @@ export type CreateProductInput = {
   description?: string;
   pricePerMonthInUSD: MonetaryValue;
   membershipTierId: number;
-  byAccountId: string;
 };
 
 export type CreateProductResponse = {
@@ -78,10 +90,6 @@ export type UpdateProductInput = {
 
 export type UpdateProductResponse = {
   updatedPriceId: Maybe<string>;
-};
-
-export type CreateCheckoutSessionResponse = {
-  redirectUrl: Url;
 };
 
 export type CreateCustomerInput = {
@@ -102,12 +110,15 @@ export type CreateCheckoutSessionInput = {
   priceId: string;
 };
 
+export type CreateCheckoutSessionResponse = {
+  redirectUrl: Url;
+};
+
 export type CreateSubscriptionInput = {
   customerId: string;
   priceId: string;
   setupIntentId: string;
   membershipId: bigint;
-  byAccountId: string;
 };
 
 export type CreateSubscriptionResponse = {

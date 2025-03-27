@@ -13,12 +13,14 @@ import {
 import { stringify } from "~/utils";
 import { Url } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
+import { AccountIdResolver } from "./accountIdResolver";
 
 const logger = rootLogger.child({ module: "paymentService" });
 
 export function createPaymentService(
   stripeClient: StripeClient,
   prisma: PrismaClient,
+  accountIdResolver: AccountIdResolver,
   stripeCustomerPortalUrl: string
 ): PaymentService {
   async function getAccountStatus(
@@ -70,8 +72,11 @@ export function createPaymentService(
         return null;
       }
 
+      const accountId = await accountIdResolver.fromMembership(membershipId);
+
       const subscriptionStatus = await stripeClient.getSubscriptionStatus(
-        membership.stripeSubscriptionId
+        membership.stripeSubscriptionId,
+        accountId
       );
 
       logger.info(
@@ -102,8 +107,11 @@ export function createPaymentService(
         );
       }
 
+      const accountId = await accountIdResolver.fromMembership(membershipId);
+
       const email = await stripeClient.getCustomerEmail(
-        membership.stripeCustomerId
+        membership.stripeCustomerId,
+        accountId
       );
 
       const customerPortalLink = `${stripeCustomerPortalUrl}?prefilled_email=${email}`;
@@ -217,7 +225,10 @@ export function createPaymentService(
     }
   }
 
-  async function createCheckoutSession(input: CreateCheckoutSessionInput) {
+  async function createCheckoutSession(
+    input: CreateCheckoutSessionInput,
+    membershipId: bigint
+  ) {
     try {
       const membership = await prisma.membership.findUniqueOrThrow({
         select: {
@@ -231,12 +242,12 @@ export function createPaymentService(
           },
           stripeCustomerId: true
         },
-        where: { id: input.membershipId }
+        where: { id: membershipId }
       });
 
       if (!membership.stripeCustomerId) {
         throw new Error(
-          `no Stripe customer found for membership with id ${input.membershipId}`
+          `no Stripe customer found for membership with id ${membershipId}`
         );
       }
 
@@ -246,22 +257,24 @@ export function createPaymentService(
         );
       }
 
+      const accountId = await accountIdResolver.fromMembership(membershipId);
+
       const { redirectUrl } = await stripeClient.createCheckoutSession({
         customerId: membership.stripeCustomerId,
         priceId: membership.membershipTier.stripePriceId,
-        membershipId: membership.id,
+        membershipId: membershipId,
         clubId: membership.membershipTier.clubId,
         origin: input.origin
-      });
+      }, accountId);
 
       logger.info(
-        `created checkout session with url ${redirectUrl} for membership with id ${input.membershipId}`
+        `created checkout session with url ${redirectUrl} for membership with id ${membershipId}`
       );
       return { redirectUrl };
     } catch (e) {
       logger.error(
         e,
-        `failed to create checkout session for membership with id ${input.membershipId}`
+        `failed to create checkout session for membership with id ${membershipId}`
       );
       throw e;
     }

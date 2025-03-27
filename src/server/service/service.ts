@@ -44,12 +44,13 @@ import {
   DEFAULT_APPLICATION_QUESTIONS,
   DEFAULT_FREE_MEMBERSHIP_TIER
 } from "~/server/service/defaults";
-
+import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 const logger = rootLogger.child({ module: "mainService" });
 
 export function createMainService(
   prisma: PrismaClient,
-  stripeClient: StripeClient
+  stripeClient: StripeClient,
+  accountIdResolver: AccountIdResolver
 ): MainService {
   const USER_SELECT = {
     id: true,
@@ -647,45 +648,6 @@ export function createMainService(
     }
   }
 
-  async function getClubStripeAccountId(
-    membershipTierId: number,
-    tx: Prisma.TransactionClient
-  ): Promise<string> {
-    try {
-      const membershipTier = await tx.membershipTier.findUniqueOrThrow({
-        select: {
-          club: {
-            select: {
-              id: true,
-              stripeConnectAccountId: true
-            }
-          }
-        },
-        where: { id: membershipTierId }
-      });
-
-      const stripeConnectAccountId = membershipTier.club.stripeConnectAccountId;
-
-      if (!stripeConnectAccountId) {
-        throw new Error(
-          `club with id ${membershipTier.club.id} has no stripeConnectAccountId`
-        );
-      }
-
-      logger.info(
-        `retrieved club owner stripeConnectAccountId for membership tier with id ${membershipTierId}`
-      );
-
-      return stripeConnectAccountId;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to retrieve stripeConnectAccountId for club owner of membership tier with id ${membershipTierId}`
-      );
-      throw e;
-    }
-  }
-
   async function createStripeProductAndPrice(
     membershipTierId: number,
     input: CreateMembershipTierInput,
@@ -696,7 +658,7 @@ export function createMainService(
       return;
     }
 
-    const ownerStripeAccountId = await getClubStripeAccountId(
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
       membershipTierId,
       tx
     );
@@ -706,8 +668,7 @@ export function createMainService(
       description: input.benefitDescription,
       pricePerMonthInUSD: input.costPerMonthInUSD,
       membershipTierId: membershipTierId,
-      byAccountId: ownerStripeAccountId
-    });
+    }, accountId);
 
     try {
       await tx.membershipTier.update({
@@ -890,6 +851,11 @@ export function createMainService(
       );
     }
 
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
     const { updatedPriceId } = await stripeClient.updateProduct(
       membershipTier.stripeProductId,
       {
@@ -897,7 +863,8 @@ export function createMainService(
         description: input.benefitDescription,
         pricePerMonthInUSD: input.costPerMonthInUSD,
         currentPriceId: membershipTier.stripePriceId
-      }
+      },
+      accountId
     );
 
     // only update price id if it has changed
@@ -973,7 +940,12 @@ export function createMainService(
       );
     }
 
-    await stripeClient.archiveProduct(membershipTier.stripeProductId);
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    await stripeClient.archiveProduct(membershipTier.stripeProductId, accountId);
   }
 
   async function isMembershipTierPublished(membershipTierId: number) {
@@ -1051,7 +1023,12 @@ export function createMainService(
       );
     }
 
-    await stripeClient.publishProduct(membershipTier.stripeProductId);
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    await stripeClient.publishProduct(membershipTier.stripeProductId, accountId);
   }
 
   async function isMembershipTierLastPublishedTier(membershipTierId: number) {
@@ -1310,11 +1287,16 @@ export function createMainService(
         );
       }
 
+      const accountId = await accountIdResolver.fromMembershipInTransaction(
+        membershipId,
+        tx
+      );
+
       const response = await stripeClient.createCustomer({
         email: membership.user.settings.email,
         name: `${membership.user.firstName} ${membership.user.lastName}`,
         membershipId: membershipId
-      });
+      }, accountId);
 
       await tx.membership.update({
         data: { stripeCustomerId: response.customerId },
@@ -1489,13 +1471,17 @@ export function createMainService(
       );
     }
 
+    const accountId = await accountIdResolver.fromMembershipInTransaction(
+      membershipId,
+      tx
+    );
+
     const { subscriptionId } = await stripeClient.createSubscription({
       setupIntentId: setupIntentId,
       customerId: customerId,
       priceId: priceId,
-      membershipId: membershipId,
-      byAccountId: stripeAccountId
-    });
+      membershipId: membershipId
+    }, accountId);
 
     try {
       await tx.membership.update({
@@ -1575,7 +1561,12 @@ export function createMainService(
       );
     }
 
-    await stripeClient.cancelSetupIntent(membership.stripeSetupIntentId);
+    const accountId = await accountIdResolver.fromMembershipInTransaction(
+      membershipId,
+      tx
+    );
+
+    await stripeClient.cancelSetupIntent(membership.stripeSetupIntentId, accountId);
 
     try {
       await tx.membership.update({
@@ -1662,7 +1653,12 @@ export function createMainService(
       );
     }
 
-    await stripeClient.cancelSubscription(membership.stripeSubscriptionId);
+    const accountId = await accountIdResolver.fromMembershipInTransaction(
+      membershipId,
+      tx
+    );
+
+    await stripeClient.cancelSubscription(membership.stripeSubscriptionId, accountId);
 
     try {
       await tx.membership.update({

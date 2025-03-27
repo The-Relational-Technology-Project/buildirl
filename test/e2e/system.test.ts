@@ -15,6 +15,7 @@ import {
   createPaymentEventProcessor,
   PaymentEventProcessor
 } from "~/server/payments/eventProcessor";
+import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
 
 export type Services = {
   main: MainService;
@@ -53,10 +54,16 @@ describe("mainService", () => {
 
     rootLogger.info("connection string: " + supabaseContainer.connectionString);
     const fakeStripeClient = createFakeStripeClient();
-    mainService = createMainService(prisma, fakeStripeClient);
+    const accountIdResolver = createAccountIdResolver(prisma);
+    mainService = createMainService(
+      prisma,
+      fakeStripeClient,
+      accountIdResolver
+    );
     paymentService = createPaymentService(
       fakeStripeClient,
       prisma,
+      accountIdResolver,
       "https://stripe.com/customer-portal"
     );
     paymentEventProcessor = createPaymentEventProcessor(null, prisma);
