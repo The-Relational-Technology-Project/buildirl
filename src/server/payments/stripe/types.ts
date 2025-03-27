@@ -27,6 +27,10 @@ export type StripeClient = {
     input: CreateCustomerInput,
     byAccountId: string
   ): Promise<CreateCustomerResponse>;
+  createCustomerPortalSession(
+    input: CreateCustomerPortalSessionInput,
+    byAccountId: string
+  ): Promise<CreateCustomerPortalSessionResponse>;
   getCustomerEmail(customerId: string, byAccountId: string): Promise<Email>;
   createCheckoutSession(
     input: CreateCheckoutSessionInput,
@@ -100,6 +104,16 @@ export type CreateCustomerInput = {
 
 export type CreateCustomerResponse = {
   customerId: string;
+};
+
+export type CreateCustomerPortalSessionInput = {
+  clubId: number;
+  origin: Url;
+  customerId: string;
+};
+
+export type CreateCustomerPortalSessionResponse = {
+  redirectUrl: Url;
 };
 
 export type CreateCheckoutSessionInput = {

@@ -7,6 +7,8 @@ import {
   CreateCheckoutSessionInput,
   CreateCheckoutSessionResponse,
   CreateCustomerInput,
+  CreateCustomerPortalSessionInput,
+  CreateCustomerPortalSessionResponse,
   CreateCustomerResponse,
   CreateProductInput,
   CreateProductResponse,
@@ -101,7 +103,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
   async function createProduct(
     input: CreateProductInput,
-    accountId: string
+    byAccountId: string
   ): Promise<CreateProductResponse> {
     try {
       const product = await stripe.products.create(
@@ -114,21 +116,24 @@ export function createStripeClient(stripe: Stripe): StripeClient {
           }
         },
         {
-          stripeAccount: accountId
+          stripeAccount: byAccountId
         }
       );
 
-      const price = await stripe.prices.create({
-        product: product.id,
-        // convert to cents
-        unit_amount: input.pricePerMonthInUSD * 100,
-        currency: "usd",
-        recurring: {
-          interval: "month"
+      const price = await stripe.prices.create(
+        {
+          product: product.id,
+          // convert to cents
+          unit_amount: input.pricePerMonthInUSD * 100,
+          currency: "usd",
+          recurring: {
+            interval: "month"
+          }
+        },
+        {
+          stripeAccount: byAccountId
         }
-      }, {
-        stripeAccount: accountId
-      });
+      );
 
       logger.info(
         `created product ${product.id} and price ${price.id} from input ${stringify(input)}`
@@ -150,21 +155,25 @@ export function createStripeClient(stripe: Stripe): StripeClient {
   async function updateProduct(
     productId: string,
     input: UpdateProductInput,
-    accountId: string
+    byAccountId: string
   ): Promise<UpdateProductResponse> {
     try {
-      await stripe.products.update(productId, {
-        name: input.name,
-        description: input.description
-      }, {
-        stripeAccount: accountId
-      });
+      await stripe.products.update(
+        productId,
+        {
+          name: input.name,
+          description: input.description
+        },
+        {
+          stripeAccount: byAccountId
+        }
+      );
 
       const updatedPriceId = await updatePriceIfAmountChanged(
         productId,
         input.pricePerMonthInUSD,
         input.currentPriceId,
-        accountId
+        byAccountId
       );
       logger.info(
         `updated product ${productId} from input ${stringify(input)}`
@@ -182,27 +191,34 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     productId: string,
     pricePerMonthInUSD: number,
     currentPriceId: string,
-    accountId: string
+    byAccountId: string
   ): Promise<Maybe<string>> {
     try {
       if (pricePerMonthInUSD !== null) {
         const existingPrice = await stripe.prices.retrieve(currentPriceId);
         if (existingPrice.unit_amount !== pricePerMonthInUSD) {
-          const newPrice = await stripe.prices.create({
-            product: productId,
-            // convert to cents
-            unit_amount: pricePerMonthInUSD * 100,
-            currency: "usd",
-            recurring: {
-              interval: "month"
+          const newPrice = await stripe.prices.create(
+            {
+              product: productId,
+              // convert to cents
+              unit_amount: pricePerMonthInUSD * 100,
+              currency: "usd",
+              recurring: {
+                interval: "month"
+              }
+            },
+            {
+              stripeAccount: byAccountId
             }
-          }, {
-            stripeAccount: accountId
-          });
+          );
           // deactivate old price
-          await stripe.prices.update(currentPriceId, { active: false }, {
-            stripeAccount: accountId
-          });
+          await stripe.prices.update(
+            currentPriceId,
+            { active: false },
+            {
+              stripeAccount: byAccountId
+            }
+          );
           logger.info(
             `updated price for product ${productId} from price ${currentPriceId} to new price ${newPrice.id} with amount ${pricePerMonthInUSD} `
           );
@@ -223,11 +239,18 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  async function archiveProduct(productId: string, accountId: string): Promise<void> {
+  async function archiveProduct(
+    productId: string,
+    byAccountId: string
+  ): Promise<void> {
     try {
-      await stripe.products.update(productId, { active: false }, {
-        stripeAccount: accountId
-      });
+      await stripe.products.update(
+        productId,
+        { active: false },
+        {
+          stripeAccount: byAccountId
+        }
+      );
       logger.info(`archived product ${productId}`);
     } catch (e) {
       logger.error(e, `failed to archive product ${productId}`);
@@ -235,9 +258,16 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  async function publishProduct(productId: string, accountId: string): Promise<void> {
+  async function publishProduct(
+    productId: string,
+    byAccountId: string
+  ): Promise<void> {
     try {
-      await stripe.products.update(productId, { active: true }, {stripeAccount: accountId});
+      await stripe.products.update(
+        productId,
+        { active: true },
+        { stripeAccount: byAccountId }
+      );
       logger.info(`published product ${productId}`);
     } catch (e) {
       logger.error(e, `failed to publish product ${productId}`);
@@ -247,18 +277,21 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
   async function createCustomer(
     input: CreateCustomerInput,
-    accountId: string
+    byAccountId: string
   ): Promise<CreateCustomerResponse> {
     try {
-      const customer = await stripe.customers.create({
-        name: input.name,
-        email: input.email,
-        metadata: {
-          externalMembershipId: input.membershipId.toString()
+      const customer = await stripe.customers.create(
+        {
+          name: input.name,
+          email: input.email,
+          metadata: {
+            externalMembershipId: input.membershipId.toString()
+          }
         },
-      }, {
-        stripeAccount: accountId
-      });
+        {
+          stripeAccount: byAccountId
+        }
+      );
       logger.info(
         `created customer ${customer.id} from input ${stringify(input)}`
       );
@@ -274,10 +307,41 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  async function getCustomerEmail(customerId: string, accountId: string): Promise<Email> {
+  async function createCustomerPortalSession(
+    input: CreateCustomerPortalSessionInput,
+    byAccountId: string
+  ): Promise<CreateCustomerPortalSessionResponse> {
+    try {
+      const session = await stripe.billingPortal.sessions.create(
+        {
+          customer: input.customerId,
+          return_url: `${input.origin}/club/${input.clubId}/manage-membership`
+        },
+        {
+          stripeAccount: byAccountId
+        }
+      );
+      logger.info(
+        `successfully created customer portal session with url ${session.url} from input ${stringify(input)}`
+      );
+      return {
+        redirectUrl: session.url
+      };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create customer portal session from input ${stringify(input)}`
+      );
+      throw e;
+  }
+
+  async function getCustomerEmail(
+    customerId: string,
+    byAccountId: string
+  ): Promise<Email> {
     try {
       const customer = await stripe.customers.retrieve(customerId, {
-        stripeAccount: accountId
+        stripeAccount: byAccountId
       });
       if (customer.deleted) {
         throw new Error(
@@ -302,29 +366,32 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
   async function createCheckoutSession(
     input: CreateCheckoutSessionInput,
-    accountId: string
+    byAccountId: string
   ): Promise<CreateCheckoutSessionResponse> {
     try {
-      const session = await stripe.checkout.sessions.create({
-        customer: input.customerId,
-        success_url: `${input.origin}/apply/${input.clubId}/completed`,
-        line_items: [
-          {
-            // subscription
-            price: input.priceId,
-            quantity: 1
-          }
-        ],
-        setup_intent_data: {
-          metadata: {
-            // does not allow saving of bigint so we convert to string
-            externalMembershipId: input.membershipId.toString()
-          }
+      const session = await stripe.checkout.sessions.create(
+        {
+          customer: input.customerId,
+          success_url: `${input.origin}/apply/${input.clubId}/completed`,
+          line_items: [
+            {
+              // subscription
+              price: input.priceId,
+              quantity: 1
+            }
+          ],
+          setup_intent_data: {
+            metadata: {
+              // does not allow saving of bigint so we convert to string
+              externalMembershipId: input.membershipId.toString()
+            }
+          },
+          mode: "setup"
         },
-        mode: "setup"
-      }, {
-        stripeAccount: accountId
-      });
+        {
+          stripeAccount: byAccountId
+        }
+      );
 
       if (!session.url) {
         throw new Error("expected active session with url but found no url");
@@ -346,13 +413,13 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
   async function createSubscription(
     input: CreateSubscriptionInput,
-    accountId: string
+    byAccountId: string
   ): Promise<CreateSubscriptionResponse> {
     try {
       const setupIntent = await stripe.setupIntents.retrieve(
         input.setupIntentId,
         {
-          stripeAccount: accountId
+          stripeAccount: byAccountId
         }
       );
 
@@ -362,7 +429,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         );
       }
 
-      // create subscription
       const subscription = await stripe.subscriptions.create(
         {
           customer: input.customerId,
@@ -378,7 +444,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
           }
         },
         {
-          stripeAccount: accountId
+          stripeAccount: byAccountId
         }
       );
 
@@ -406,10 +472,13 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     return paymentMethod.id;
   }
 
-  async function cancelSetupIntent(setupIntentId: string, accountId: string): Promise<void> {
+  async function cancelSetupIntent(
+    setupIntentId: string,
+    byAccountId: string
+  ): Promise<void> {
     try {
       await stripe.setupIntents.cancel(setupIntentId, {
-        stripeAccount: accountId
+        stripeAccount: byAccountId
       });
       logger.info(`cancelled setup intent with id ${setupIntentId}`);
     } catch (e) {
@@ -418,10 +487,13 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  async function cancelSubscription(subscriptionId: string, accountId: string): Promise<void> {
+  async function cancelSubscription(
+    subscriptionId: string,
+    byAccountId: string
+  ): Promise<void> {
     try {
       await stripe.subscriptions.cancel(subscriptionId, {
-        stripeAccount: accountId
+        stripeAccount: byAccountId
       });
       logger.info(`cancelled subscription with id ${subscriptionId}`);
     } catch (e) {
@@ -434,10 +506,13 @@ export function createStripeClient(stripe: Stripe): StripeClient {
   }
 
   async function getSubscriptionStatus(
-    subscriptionId: string, accountId: string
+    subscriptionId: string,
+    byAccountId: string
   ): Promise<SubscriptionStatusResponse> {
     try {
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId, {stripeAccount: accountId});
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+        stripeAccount: byAccountId
+      });
       const status = subscription.status;
 
       logger.info(
@@ -462,6 +537,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     archiveProduct,
     publishProduct,
     createCustomer,
+    createCustomerPortalSession,
     getCustomerEmail,
     createCheckoutSession,
     createSubscription,
