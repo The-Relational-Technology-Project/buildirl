@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Url } from "~/server/service/types";
-import { BigIntStringSchema, Maybe } from "~/utils/types";
+import { Maybe } from "~/utils/types";
 
 export type PaymentService = PaymentMutations & PaymentQueries;
 
@@ -9,7 +9,6 @@ type PaymentQueries = {
   getSubscriptionStatus(
     membershipId: bigint
   ): Promise<Maybe<SubscriptionStatus>>;
-  getCustomerPortalLink(membershipId: bigint): Promise<Url>;
 };
 
 type PaymentMutations = {
@@ -21,6 +20,10 @@ type PaymentMutations = {
     input: CreateCheckoutSessionInput,
     membershipId: bigint
   ): Promise<CreateCheckoutSessionResult>;
+  createCustomerPortalSession(
+    input: CreateCustomerPortalSessionInput,
+    membershipId: bigint
+  ): Promise<CreateCustomerPortalSessionResult>;
 };
 
 export type AccountStatus = {
@@ -58,5 +61,16 @@ export type CreateCheckoutSessionInput = z.infer<
 >;
 
 export type CreateCheckoutSessionResult = {
+  redirectUrl: Url;
+};
+
+export const CreateCustomerPortalSessionInputSchema = z.object({
+  origin: z.string().url()
+});
+export type CreateCustomerPortalSessionInput = z.infer<
+  typeof CreateCustomerPortalSessionInputSchema
+>;
+
+export type CreateCustomerPortalSessionResult = {
   redirectUrl: Url;
 };

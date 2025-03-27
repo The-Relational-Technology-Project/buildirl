@@ -6,6 +6,8 @@ import {
   CreateCheckoutSessionInput,
   CreateCheckoutSessionResponse,
   CreateCustomerInput,
+  CreateCustomerPortalSessionInput,
+  CreateCustomerPortalSessionResponse,
   CreateCustomerResponse,
   CreateProductInput,
   CreateProductResponse,
@@ -16,7 +18,6 @@ import {
   UpdateProductInput,
   UpdateProductResponse
 } from "~/server/payments/stripe/types";
-import { Email } from "~/server/service/types";
 
 export function createFakeStripeClient(): StripeClient {
   let nextAccountId: number = 1;
@@ -80,7 +81,9 @@ export function createFakeStripeClient(): StripeClient {
     return Promise.resolve(response);
   }
 
-  async function getCustomerEmail(_: string): Promise<Email> {
+  async function createCustomerPortalSession(
+    _: CreateCustomerPortalSessionInput
+  ): Promise<CreateCustomerPortalSessionResponse> {
     throw new Error("not implemented");
   }
 
@@ -123,7 +126,7 @@ export function createFakeStripeClient(): StripeClient {
     archiveProduct,
     publishProduct,
     createCustomer,
-    getCustomerEmail,
+    createCustomerPortalSession,
     createCheckoutSession,
     createSubscription,
     cancelSetupIntent,

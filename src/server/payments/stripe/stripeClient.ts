@@ -23,7 +23,6 @@ import { rootLogger } from "~/logger";
 import Stripe from "stripe";
 import { Maybe } from "~/utils/types";
 import { stringify } from "~/utils";
-import { Email } from "~/server/service/types";
 
 const logger = rootLogger.child({ module: "stripeClient" });
 
@@ -333,34 +332,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         `failed to create customer portal session from input ${stringify(input)}`
       );
       throw e;
-  }
-
-  async function getCustomerEmail(
-    customerId: string,
-    byAccountId: string
-  ): Promise<Email> {
-    try {
-      const customer = await stripe.customers.retrieve(customerId, {
-        stripeAccount: byAccountId
-      });
-      if (customer.deleted) {
-        throw new Error(
-          `could not get email for customer with id ${customerId} because customer was deleted`
-        );
-      }
-      if (!customer.email) {
-        throw new Error(`customer with id ${customerId} was missing email`);
-      }
-      logger.info(
-        `queried email ${customer.email} for customer with id ${customerId}`
-      );
-      return customer.email;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to get customer email for customer with id ${customerId}`
-      );
-      throw e;
     }
   }
 
@@ -538,7 +509,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     publishProduct,
     createCustomer,
     createCustomerPortalSession,
-    getCustomerEmail,
     createCheckoutSession,
     createSubscription,
     cancelSetupIntent,

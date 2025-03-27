@@ -6,7 +6,8 @@ import { z } from "zod";
 import {
   CreateAccountInputSchema,
   CreateAccountLinkInputSchema,
-  CreateCheckoutSessionInputSchema
+  CreateCheckoutSessionInputSchema,
+  CreateCustomerPortalSessionInputSchema
 } from "~/server/payments/types";
 import { subject } from "@casl/ability";
 import { TRPCError } from "@trpc/server";
@@ -56,22 +57,6 @@ export const paymentsRouter = createTRPCRouter({
       );
     }),
 
-  customerPortalLink: securedProcedureWithAbilityFor("Membership")
-    .input(z.object({ membershipId: BigIntStringSchema }))
-    .query(({ ctx, input }) => {
-      if (
-        !ctx.ability.can(
-          "manage",
-          subject("Membership", { id: bigint(input.membershipId) })
-        )
-      ) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
-      return ctx.service.payment.getCustomerPortalLink(
-        bigint(input.membershipId)
-      );
-    }),
-
   createCheckoutSession: securedProcedureWithAbilityFor("Membership")
     .input(
       z.object({
@@ -90,6 +75,29 @@ export const paymentsRouter = createTRPCRouter({
       }
 
       return ctx.service.payment.createCheckoutSession(
+        input.input,
+        // hacky to split out but want to keep conversion at the edge layer
+        bigint(input.membershipId)
+      );
+    }),
+
+    createCustomerPortalSession: securedProcedureWithAbilityFor("Membership")
+    .input(
+      z.object({
+        input: CreateCustomerPortalSessionInputSchema,
+        membershipId: BigIntStringSchema
+      })
+    )
+    .query(({ ctx, input }) => {
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: bigint(input.membershipId) })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.payment.createCustomerPortalSession(
         input.input,
         // hacky to split out but want to keep conversion at the edge layer
         bigint(input.membershipId)

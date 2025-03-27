@@ -27,11 +27,6 @@ export type StripeClient = {
     input: CreateCustomerInput,
     byAccountId: string
   ): Promise<CreateCustomerResponse>;
-  createCustomerPortalSession(
-    input: CreateCustomerPortalSessionInput,
-    byAccountId: string
-  ): Promise<CreateCustomerPortalSessionResponse>;
-  getCustomerEmail(customerId: string, byAccountId: string): Promise<Email>;
   createCheckoutSession(
     input: CreateCheckoutSessionInput,
     byAccountId: string
@@ -49,6 +44,12 @@ export type StripeClient = {
     subscriptionId: string,
     byAccountId: string
   ): Promise<SubscriptionStatusResponse>;
+
+  // membership management
+  createCustomerPortalSession(
+    input: CreateCustomerPortalSessionInput,
+    byAccountId: string
+  ): Promise<CreateCustomerPortalSessionResponse>;
 };
 
 export type CreateAccountInput = {

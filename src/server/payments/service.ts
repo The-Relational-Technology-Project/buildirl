@@ -8,10 +8,12 @@ import {
   CreateAccountLinkInput,
   CreateAccountLinkResult,
   CreateCheckoutSessionInput,
-  CreateAccountInput
+  CreateAccountInput,
+  CreateCheckoutSessionResult,
+  CreateCustomerPortalSessionResult,
+  CreateCustomerPortalSessionInput
 } from "~/server/payments/types";
 import { stringify } from "~/utils";
-import { Url } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
 import { AccountIdResolver } from "./accountIdResolver";
 
@@ -87,44 +89,6 @@ export function createPaymentService(
       logger.error(
         e,
         `failed to get subscription status for membership with id ${membershipId}`
-      );
-      throw e;
-    }
-  }
-
-  async function getCustomerPortalLink(membershipId: bigint): Promise<Url> {
-    try {
-      const membership = await prisma.membership.findUniqueOrThrow({
-        select: {
-          stripeCustomerId: true
-        },
-        where: { id: membershipId }
-      });
-
-      if (!membership.stripeCustomerId) {
-        throw new Error(
-          `no stripe customer id found for membership with id ${membershipId}`
-        );
-      }
-
-      const accountId = await accountIdResolver.fromMembership(membershipId);
-
-      const email = await stripeClient.getCustomerEmail(
-        membership.stripeCustomerId,
-        accountId
-      );
-
-      const customerPortalLink = `${stripeCustomerPortalUrl}?prefilled_email=${email}`;
-
-      logger.info(
-        `retrieved customer portal link ${customerPortalLink} for membership with id ${membershipId}`
-      );
-
-      return customerPortalLink;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to get customer portal link for membership with id ${membershipId}`
       );
       throw e;
     }
@@ -228,7 +192,7 @@ export function createPaymentService(
   async function createCheckoutSession(
     input: CreateCheckoutSessionInput,
     membershipId: bigint
-  ) {
+  ): Promise<CreateCheckoutSessionResult> {
     try {
       const membership = await prisma.membership.findUniqueOrThrow({
         select: {
@@ -259,13 +223,16 @@ export function createPaymentService(
 
       const accountId = await accountIdResolver.fromMembership(membershipId);
 
-      const { redirectUrl } = await stripeClient.createCheckoutSession({
-        customerId: membership.stripeCustomerId,
-        priceId: membership.membershipTier.stripePriceId,
-        membershipId: membershipId,
-        clubId: membership.membershipTier.clubId,
-        origin: input.origin
-      }, accountId);
+      const { redirectUrl } = await stripeClient.createCheckoutSession(
+        {
+          customerId: membership.stripeCustomerId,
+          priceId: membership.membershipTier.stripePriceId,
+          membershipId: membershipId,
+          clubId: membership.membershipTier.clubId,
+          origin: input.origin
+        },
+        accountId
+      );
 
       logger.info(
         `created checkout session with url ${redirectUrl} for membership with id ${membershipId}`
@@ -280,12 +247,60 @@ export function createPaymentService(
     }
   }
 
+  async function createCustomerPortalSession(
+    input: CreateCustomerPortalSessionInput,
+    membershipId: bigint
+  ): Promise<CreateCustomerPortalSessionResult> {
+    try {
+      const membership = await prisma.membership.findUniqueOrThrow({
+        select: {
+          id: true,
+          stripeCustomerId: true,
+          membershipTier: {
+            select: {
+              clubId: true
+            }
+          }
+        },
+        where: { id: membershipId }
+      });
+
+      if (!membership.stripeCustomerId) {
+        throw new Error(
+          `no Stripe customer found for membership with id ${membershipId}`
+        );
+      }
+
+      const accountId = await accountIdResolver.fromMembership(membershipId);
+
+      const { redirectUrl } = await stripeClient.createCustomerPortalSession(
+        {
+          customerId: membership.stripeCustomerId,
+          clubId: membership.membershipTier.clubId,
+          origin: input.origin
+        },
+        accountId
+      );
+
+      logger.info(
+        `created customer portal session with url ${redirectUrl} for membership with id ${membershipId}`
+      );
+      return { redirectUrl };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create customer portal session for membership with id ${membershipId}`
+      );
+      throw e;
+    }
+  }
+
   return {
     getAccountStatus,
     getSubscriptionStatus,
-    getCustomerPortalLink,
     createAccount,
     createAccountLink,
-    createCheckoutSession
+    createCheckoutSession,
+    createCustomerPortalSession
   };
 }
