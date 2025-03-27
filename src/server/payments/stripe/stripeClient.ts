@@ -1,6 +1,5 @@
 import {
   AccountStatusResponse,
-  CreateAccountInput,
   CreateAccountLinkInput,
   CreateAccountLinkResponse,
   CreateAccountResponse,
@@ -237,7 +236,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         name: input.name,
         email: input.email,
         metadata: {
-          externalUserId: input.userId
+          externalMembershipId: input.membershipId.toString()
         }
       });
       logger.info(

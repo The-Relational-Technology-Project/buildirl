@@ -25,8 +25,7 @@ import {
 } from "~/server/service/types";
 import {
   FormQuestionsSchema,
-  FormResponsesSchema,
-  FormQuestionType
+  FormResponsesSchema
 } from "~/server/service/types/form";
 import { parseAsZodType } from "~/utils/zod";
 import { stringify } from "~/utils";
@@ -410,54 +409,9 @@ export function createMainService(
 
       await createUserSettingInTransaction(id, authEmail, tx);
 
-      await createStripeCustomer(id, tx);
-
       return { createdEntityId: id };
     } catch (e) {
       logger.error(e, `failed to create user from input ${stringify(input)}`);
-      throw e;
-    }
-  }
-
-  async function createStripeCustomer(
-    userId: number,
-    tx: Prisma.TransactionClient
-  ) {
-    try {
-      const user = await tx.user.findUniqueOrThrow({
-        where: { id: userId },
-        select: {
-          firstName: true,
-          lastName: true,
-          settings: { select: { email: true } }
-        }
-      });
-
-      if (!user.settings?.email) {
-        throw new Error(
-          `user with id ${userId} has no settings with email to create Stripe customer`
-        );
-      }
-
-      const response = await stripeClient.createCustomer({
-        email: user.settings.email,
-        name: `${user.firstName} ${user.lastName}`,
-        userId: userId
-      });
-
-      await tx.userSettings.update({
-        data: { stripeCustomerId: response.customerId },
-        where: { userId: userId }
-      });
-
-      logger.info(
-        `updated user settings for user with id ${userId} with stripeCustomerId ${response.customerId}`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to update user settings for user with id ${userId} with stripeCustomerId`
-      );
       throw e;
     }
   }
@@ -693,7 +647,7 @@ export function createMainService(
     }
   }
 
-  async function getClubOwnerStripeAccountId(
+  async function getClubStripeAccountId(
     membershipTierId: number,
     tx: Prisma.TransactionClient
   ): Promise<string> {
@@ -702,27 +656,19 @@ export function createMainService(
         select: {
           club: {
             select: {
-              owner: {
-                select: {
-                  settings: {
-                    select: {
-                      stripeConnectAccountId: true
-                    }
-                  }
-                }
-              }
+              id: true,
+              stripeConnectAccountId: true
             }
           }
         },
         where: { id: membershipTierId }
       });
 
-      const stripeConnectAccountId =
-        membershipTier.club.owner.settings?.stripeConnectAccountId;
+      const stripeConnectAccountId = membershipTier.club.stripeConnectAccountId;
 
       if (!stripeConnectAccountId) {
         throw new Error(
-          `club owner for membership tier with id ${membershipTierId} has no stripeConnectAccountId`
+          `club with id ${membershipTier.club.id} has no stripeConnectAccountId`
         );
       }
 
@@ -750,7 +696,7 @@ export function createMainService(
       return;
     }
 
-    const ownerStripeAccountId = await getClubOwnerStripeAccountId(
+    const ownerStripeAccountId = await getClubStripeAccountId(
       membershipTierId,
       tx
     );
@@ -824,14 +770,14 @@ export function createMainService(
 
   async function isDefaultFreeTierById(membershipTierId: number) {
     try {
-      const result = await prisma.membershipTier.findUniqueOrThrow({
+      const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
         where: { id: membershipTierId },
         select: { costPerMonthInUSD: true }
       });
       logger.info(
-        `checked if membership tier with id ${membershipTierId} is free tier with result ${isPrismaResultDefaultFreeTier(result)}`
+        `checked if membership tier with id ${membershipTierId} is free tier with result ${isPrismaResultDefaultFreeTier(membershipTier)}`
       );
-      return isPrismaResultDefaultFreeTier(result);
+      return isPrismaResultDefaultFreeTier(membershipTier);
     } catch (e) {
       logger.error(
         e,
@@ -1290,8 +1236,26 @@ export function createMainService(
     userId: number,
     isDefaultFreeTier: boolean
   ): Promise<MutationResult> {
+    return prisma.$transaction(async (tx) => {
+      return createMembershipApplicationInTransaction(
+        membershipTierId,
+        input,
+        userId,
+        isDefaultFreeTier,
+        tx
+      );
+    });
+  }
+
+  async function createMembershipApplicationInTransaction(
+    membershipTierId: number,
+    input: SubmitMembershipApplicationInput,
+    userId: number,
+    isDefaultFreeTier: boolean,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
     try {
-      const { id } = await prisma.membership.create({
+      const { id } = await tx.membership.create({
         data: {
           userId: userId,
           membershipTierId: membershipTierId,
@@ -1303,6 +1267,9 @@ export function createMainService(
           id: true
         }
       });
+
+      await createStripeCustomer(id, tx);
+
       logger.info(
         `created pending membership from input ${stringify(input)} with membershipId ${id}`
       );
@@ -1311,6 +1278,56 @@ export function createMainService(
       logger.error(
         e,
         `failed to create pending membership from input ${stringify(input)}`
+      );
+      throw e;
+    }
+  }
+
+  async function createStripeCustomer(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    try {
+      const membership = await tx.membership.findUniqueOrThrow({
+        where: { id: membershipId },
+        select: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              settings: {
+                select: { email: true }
+              }
+            }
+          }
+        }
+      });
+
+      if (!membership.user.settings?.email) {
+        throw new Error(
+          `user with id ${membership.user.id} has no settings with email to create Stripe customer`
+        );
+      }
+
+      const response = await stripeClient.createCustomer({
+        email: membership.user.settings.email,
+        name: `${membership.user.firstName} ${membership.user.lastName}`,
+        membershipId: membershipId
+      });
+
+      await tx.membership.update({
+        data: { stripeCustomerId: response.customerId },
+        where: { id: membershipId }
+      });
+
+      logger.info(
+        `updated membership with id ${membershipId} with stripeCustomerId ${response.customerId}`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update membership with id ${membershipId} with stripeCustomerId`
       );
       throw e;
     }
@@ -1331,6 +1348,7 @@ export function createMainService(
           status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
           // reset welcome status
           isWelcomed: false
+          // we keep the stripeCustomerId to be reused if reactivated
         },
         where: {
           id: membershipId
@@ -1421,16 +1439,7 @@ export function createMainService(
     const membership = await tx.membership.findUniqueOrThrow({
       select: {
         stripeSetupIntentId: true,
-        user: {
-          select: {
-            id: true,
-            settings: {
-              select: {
-                stripeCustomerId: true
-              }
-            }
-          }
-        },
+        stripeCustomerId: true,
         membershipTier: {
           select: {
             id: true,
@@ -1438,16 +1447,8 @@ export function createMainService(
             costPerMonthInUSD: true,
             club: {
               select: {
-                owner: {
-                  select: {
-                    id: true,
-                    settings: {
-                      select: {
-                        stripeConnectAccountId: true
-                      }
-                    }
-                  }
-                }
+                id: true,
+                stripeConnectAccountId: true
               }
             }
           }
@@ -1461,20 +1462,20 @@ export function createMainService(
       return;
     }
 
-    const customerId = membership.user.settings?.stripeCustomerId;
-    const ownerAccountId =
-      membership.membershipTier.club.owner.settings?.stripeConnectAccountId;
+    const customerId = membership.stripeCustomerId;
+    const stripeAccountId =
+      membership.membershipTier.club.stripeConnectAccountId;
     const setupIntentId = membership.stripeSetupIntentId;
     const priceId = membership.membershipTier.stripePriceId;
 
     if (!customerId) {
       throw new Error(
-        `user with id ${membership.user.id} has no stripeCustomerId to create subscription`
+        `membership with id ${membershipId} has no stripeCustomerId to create subscription`
       );
     }
-    if (!ownerAccountId) {
+    if (!stripeAccountId) {
       throw new Error(
-        `club owner with id ${membership.membershipTier.club.owner.id} has no stripeAccountId create subscription`
+        `club with id ${membership.membershipTier.club.id} has no stripeAccountId create subscription`
       );
     }
     if (!setupIntentId) {
@@ -1493,7 +1494,7 @@ export function createMainService(
       customerId: customerId,
       priceId: priceId,
       membershipId: membershipId,
-      byAccountId: ownerAccountId
+      byAccountId: stripeAccountId
     });
 
     try {

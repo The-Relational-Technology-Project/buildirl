@@ -83,7 +83,7 @@ export type CreateCheckoutSessionResponse = {
 export type CreateCustomerInput = {
   email: string;
   name: string;
-  userId: number;
+  membershipId: bigint;
 };
 
 export type CreateCustomerResponse = {

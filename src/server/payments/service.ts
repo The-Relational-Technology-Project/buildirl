@@ -25,14 +25,14 @@ export function createPaymentService(
     clubId: number
   ): Promise<Maybe<AccountStatus>> {
     try {
-      const result = await prisma.club.findUniqueOrThrow({
+      const club = await prisma.club.findUniqueOrThrow({
         select: {
           stripeConnectAccountId: true
         },
         where: { id: clubId }
       });
 
-      if (!result.stripeConnectAccountId) {
+      if (!club.stripeConnectAccountId) {
         logger.info(
           `no account found when retrieving account status for club with id ${clubId}`
         );
@@ -41,7 +41,7 @@ export function createPaymentService(
       }
 
       const accountStatus = await stripeClient.getAccountStatus(
-        result.stripeConnectAccountId
+        club.stripeConnectAccountId
       );
 
       logger.info(
@@ -61,17 +61,17 @@ export function createPaymentService(
     membershipId: bigint
   ): Promise<Maybe<SubscriptionStatus>> {
     try {
-      const result = await prisma.membership.findUniqueOrThrow({
+      const membership = await prisma.membership.findUniqueOrThrow({
         select: { stripeSubscriptionId: true },
         where: { id: membershipId }
       });
 
-      if (!result.stripeSubscriptionId) {
+      if (!membership.stripeSubscriptionId) {
         return null;
       }
 
       const subscriptionStatus = await stripeClient.getSubscriptionStatus(
-        result.stripeSubscriptionId
+        membership.stripeSubscriptionId
       );
 
       logger.info(
@@ -89,22 +89,21 @@ export function createPaymentService(
 
   async function getCustomerPortalLink(membershipId: number): Promise<Url> {
     try {
-      const result = await prisma.membership.findUniqueOrThrow({
+      const membership = await prisma.membership.findUniqueOrThrow({
         select: {
           stripeCustomerId: true
         },
         where: { id: membershipId }
       });
 
-      // TODO can we get rid of this after backfill?
-      if (!result.stripeCustomerId) {
+      if (!membership.stripeCustomerId) {
         throw new Error(
           `no stripe customer id found for membership with id ${membershipId}`
         );
       }
 
       const email = await stripeClient.getCustomerEmail(
-        result.stripeCustomerId
+        membership.stripeCustomerId
       );
 
       const customerPortalLink = `${stripeCustomerPortalUrl}?prefilled_email=${email}`;
@@ -134,14 +133,14 @@ export function createPaymentService(
     tx: Prisma.TransactionClient
   ) {
     try {
-      const result = await tx.club.findUniqueOrThrow({
+      const club = await tx.club.findUniqueOrThrow({
         select: {
           stripeConnectAccountId: true
         },
         where: { id: input.clubId }
       });
 
-      if (result.stripeConnectAccountId) {
+      if (club.stripeConnectAccountId) {
         throw new Error(
           `Stripe Connect account already exists for club with id ${input.clubId}`
         );
@@ -170,21 +169,21 @@ export function createPaymentService(
     input: CreateAccountLinkInput
   ): Promise<CreateAccountLinkResult> {
     try {
-      const result = await prisma.club.findUniqueOrThrow({
+      const club = await prisma.club.findUniqueOrThrow({
         select: {
           stripeConnectAccountId: true
         },
         where: { id: input.clubId }
       });
 
-      if (!result.stripeConnectAccountId) {
+      if (!club.stripeConnectAccountId) {
         throw new Error(
           `no Stripe Connect account found for club with id ${input.clubId}`
         );
       }
 
       const { redirectUrl } = await stripeClient.createAccountLink({
-        accountId: result.stripeConnectAccountId,
+        accountId: club.stripeConnectAccountId,
         origin: input.origin
       });
 
@@ -203,7 +202,7 @@ export function createPaymentService(
 
   async function createCheckoutSession(input: CreateCheckoutSessionInput) {
     try {
-      const result = await prisma.membership.findUniqueOrThrow({
+      const membership = await prisma.membership.findUniqueOrThrow({
         select: {
           id: true,
           membershipTier: {
@@ -218,23 +217,23 @@ export function createPaymentService(
         where: { id: input.membershipId }
       });
 
-      if (!result.stripeCustomerId) {
+      if (!membership.stripeCustomerId) {
         throw new Error(
           `no Stripe customer found for membership with id ${input.membershipId}`
         );
       }
 
-      if (!result.membershipTier.stripePriceId) {
+      if (!membership.membershipTier.stripePriceId) {
         throw new Error(
           `no Stripe price found for membership tier with id ${result.membershipTier.id}`
         );
       }
 
       const { redirectUrl } = await stripeClient.createCheckoutSession({
-        customerId: result.stripeCustomerId,
-        priceId: result.membershipTier.stripePriceId,
-        membershipId: result.id,
-        clubId: result.membershipTier.clubId,
+        customerId: membership.stripeCustomerId,
+        priceId: membership.membershipTier.stripePriceId,
+        membershipId: membership.id,
+        clubId: membership.membershipTier.clubId,
         origin: input.origin
       });
 
