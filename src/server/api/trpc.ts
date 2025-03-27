@@ -22,7 +22,6 @@ import { MongoAbility } from "@casl/ability";
 import { createPaymentService } from "~/server/payments/service";
 import { createStripeClient } from "~/server/payments/stripe/stripeClient";
 import { stripe } from "~/server/payments/stripe/stripe";
-import { env } from "~/env";
 import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
 
 /**
@@ -47,12 +46,7 @@ export const createTRPCContext = async (opts: {
   return {
     service: {
       main: createMainService(prisma, stripeClient, accountIdResolver),
-      payment: createPaymentService(
-        stripeClient,
-        prisma,
-        accountIdResolver,
-        env.STRIPE_CUSTOMER_PORTAL_URL
-      )
+      payment: createPaymentService(stripeClient, prisma, accountIdResolver)
     },
     user: user,
     headers: opts.headers,

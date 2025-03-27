@@ -63,8 +63,7 @@ describe("mainService", () => {
     paymentService = createPaymentService(
       fakeStripeClient,
       prisma,
-      accountIdResolver,
-      "https://stripe.com/customer-portal"
+      accountIdResolver
     );
     paymentEventProcessor = createPaymentEventProcessor(null, prisma);
     // container start ~15 seconds on mli's M1 Macbook;

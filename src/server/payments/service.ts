@@ -22,8 +22,7 @@ const logger = rootLogger.child({ module: "paymentService" });
 export function createPaymentService(
   stripeClient: StripeClient,
   prisma: PrismaClient,
-  accountIdResolver: AccountIdResolver,
-  stripeCustomerPortalUrl: string
+  accountIdResolver: AccountIdResolver
 ): PaymentService {
   async function getAccountStatus(
     clubId: number
