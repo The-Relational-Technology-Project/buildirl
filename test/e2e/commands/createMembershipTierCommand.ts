@@ -24,11 +24,11 @@ export default class CreateMembershipTierCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.getClubIdsWithOwnersWithStripeAccounts().length > 0;
+    return m.getClubIdsWithStripeAccounts().length > 0;
   }
 
   async run(m: SystemState, r: Services): Promise<void> {
-    this.clubId = this.clubIdSelector.select(m.getClubIdsWithOwnersWithStripeAccounts());
+    this.clubId = this.clubIdSelector.select(m.getClubIdsWithStripeAccounts());
     const result = await r.main.createMembershipTier(this.clubId, this.input);
     this.membershipTierId = idAsNumber(result.createdEntityId);
     m.createMembershipTier(this.membershipTierId, this.clubId, this.input);

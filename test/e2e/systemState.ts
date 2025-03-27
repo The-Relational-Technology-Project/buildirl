@@ -42,6 +42,7 @@ type ClubState = {
   theme: Maybe<TemplateTheme>;
   displayImageUrls: Url[];
   membershipTierIds: number[];
+  hasStripeAccount: boolean;
 };
 
 type MembershipState = {
@@ -61,7 +62,6 @@ type UserState = {
   description: string;
   // settings
   email: Maybe<string>;
-  hasStripeAccount: boolean;
 };
 
 export class SystemState {
@@ -116,8 +116,7 @@ export class SystemState {
     this.users.set(id, {
       id: id,
       ...input,
-      email: email,
-      hasStripeAccount: false
+      email: email
     });
   }
 
@@ -237,7 +236,9 @@ export class SystemState {
       applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
       theme: null,
       displayImageUrls: [],
-      membershipTierIds: []
+      membershipTierIds: [],
+      // default false
+      hasStripeAccount: false
     });
 
     this.createFreeMembershipTier(freeMembershipTierId, clubId);
@@ -645,23 +646,23 @@ export class SystemState {
     });
   }
 
-  public setStripeAccountCreatedForUser(userId: number) {
-    const user = this.getUserState(userId);
-    this.users.set(userId, {
-      ...user,
+  public setStripeAccountCreatedForClub(clubId: number) {
+    const club = this.getClubState(clubId);
+    this.clubs.set(clubId, {
+      ...club,
       hasStripeAccount: true
     });
   }
 
-  public getUserIdsWithoutStripeAccounts(): number[] {
-    return Array.from(this.users.values())
-      .filter((u) => !u.hasStripeAccount)
-      .map((u) => u.id);
+  public getClubIdsWithoutStripeAccounts(): number[] {
+    return Array.from(this.clubs.values())
+      .filter((c) => !c.hasStripeAccount)
+      .map((c) => c.id);
   }
 
-  public getClubIdsWithOwnersWithStripeAccounts(): number[] {
+  public getClubIdsWithStripeAccounts(): number[] {
     return Array.from(this.clubs.values())
-      .filter((c) => this.users.get(c.ownerUserId)!.hasStripeAccount)
+      .filter((c) => c.hasStripeAccount)
       .map((c) => c.id);
   }
 }

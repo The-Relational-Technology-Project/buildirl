@@ -316,6 +316,6 @@ function setMembershipAsWelcomedCommands() {
 
 function createStripeAccountCommands() {
   return record({
-    userIdSelector: itemSelector<number>()
-  }).map((i) => new CreateStripeAccountCommand(i.userIdSelector));
+    clubIdSelector: itemSelector<number>()
+  }).map((i) => new CreateStripeAccountCommand(i.clubIdSelector));
 }
