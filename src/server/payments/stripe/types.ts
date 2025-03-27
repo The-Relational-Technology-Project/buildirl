@@ -3,7 +3,7 @@ import { Maybe } from "~/utils/types";
 
 export type StripeClient = {
   // connected account management
-  createAccount(): Promise<CreateAccountResponse>;
+  createAccount(input: CreateAccountInput): Promise<CreateAccountResponse>;
   createAccountLink(
     input: CreateAccountLinkInput
   ): Promise<CreateAccountLinkResponse>;
@@ -32,6 +32,10 @@ export type StripeClient = {
   getSubscriptionStatus(
     subscriptionId: string
   ): Promise<SubscriptionStatusResponse>;
+};
+
+export type CreateAccountInput = {
+  email: Email;
 };
 
 export type CreateAccountLinkInput = {

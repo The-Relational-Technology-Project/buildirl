@@ -135,7 +135,16 @@ export function createPaymentService(
     try {
       const club = await tx.club.findUniqueOrThrow({
         select: {
-          stripeConnectAccountId: true
+          stripeConnectAccountId: true,
+          owner: {
+            select: {
+              settings: {
+                select: {
+                  email: true
+                }
+              }
+            }
+          }
         },
         where: { id: input.clubId }
       });
@@ -146,7 +155,15 @@ export function createPaymentService(
         );
       }
 
-      const { accountId } = await stripeClient.createAccount();
+      if (!club.owner?.settings?.email) {
+        throw new Error(
+          `no email found for club of club with id ${input.clubId} to create Stripe Connect account`
+        );
+      }
+
+      const { accountId } = await stripeClient.createAccount({
+        email: club.owner.settings.email
+      });
 
       await tx.club.update({
         where: { id: input.clubId },
