@@ -873,7 +873,7 @@ export function createMainService(
     );
 
     // only update price id if it has changed
-    if (!updatedPriceId) {
+    if (!!updatedPriceId) {
       try {
         await tx.membershipTier.update({
           where: { id: membershipTierId },
