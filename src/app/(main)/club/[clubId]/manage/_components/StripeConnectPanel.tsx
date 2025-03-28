@@ -1,6 +1,15 @@
 "use client";
 
-import { Button, Stack, Text, Title, List, Box, Tooltip } from "@mantine/core";
+import {
+  Button,
+  Stack,
+  Text,
+  Title,
+  List,
+  Box,
+  Tooltip,
+  Paper
+} from "@mantine/core";
 import React from "react";
 import { api } from "~/trpc/react";
 import { logger } from "~/client/logger";
@@ -135,8 +144,7 @@ export default function StripeConnectPanel({
 
   return (
     isLoaded(r) && (
-      <Stack mt={"lg"} gap={4}>
-        <Title order={4}>Stripe Connect</Title>
+      <Stack mt={"xl"} gap={4} align={"center"}>
         <Text size={"md"}>
           Use your Stripe Connect account to receive member contributions.
         </Text>
