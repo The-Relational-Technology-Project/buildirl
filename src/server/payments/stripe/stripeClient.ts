@@ -100,6 +100,11 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
+  function unitAmount(priceInUSD: number): number {
+    // convert to cents
+    return priceInUSD * 100;
+  }
+
   async function createProduct(
     input: CreateProductInput,
     byAccountId: string
@@ -122,8 +127,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       const price = await stripe.prices.create(
         {
           product: product.id,
-          // convert to cents
-          unit_amount: input.pricePerMonthInUSD * 100,
+          unit_amount: unitAmount(input.pricePerMonthInUSD),
           currency: "usd",
           recurring: {
             interval: "month"
@@ -185,7 +189,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       throw e;
     }
   }
-
   async function updatePriceIfAmountChanged(
     productId: string,
     pricePerMonthInUSD: number,
@@ -193,38 +196,35 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     byAccountId: string
   ): Promise<Maybe<string>> {
     try {
-      if (pricePerMonthInUSD !== null) {
-        const existingPrice = await stripe.prices.retrieve(currentPriceId, {
-          stripeAccount: byAccountId
-        });
-        if (existingPrice.unit_amount !== pricePerMonthInUSD) {
-          const newPrice = await stripe.prices.create(
-            {
-              product: productId,
-              // convert to cents
-              unit_amount: pricePerMonthInUSD * 100,
-              currency: "usd",
-              recurring: {
-                interval: "month"
-              }
-            },
-            {
-              stripeAccount: byAccountId
+      const existingPrice = await stripe.prices.retrieve(currentPriceId, {
+        stripeAccount: byAccountId
+      });
+      if (existingPrice.unit_amount !== unitAmount(pricePerMonthInUSD)) {
+        const newPrice = await stripe.prices.create(
+          {
+            product: productId,
+            unit_amount: unitAmount(pricePerMonthInUSD),
+            currency: "usd",
+            recurring: {
+              interval: "month"
             }
-          );
-          // deactivate old price
-          await stripe.prices.update(
-            currentPriceId,
-            { active: false },
-            {
-              stripeAccount: byAccountId
-            }
-          );
-          logger.info(
-            `updated price for product ${productId} from price ${currentPriceId} to new price ${newPrice.id} with amount ${pricePerMonthInUSD} `
-          );
-          return newPrice.id;
-        }
+          },
+          {
+            stripeAccount: byAccountId
+          }
+        );
+        // deactivate old price
+        await stripe.prices.update(
+          currentPriceId,
+          { active: false },
+          {
+            stripeAccount: byAccountId
+          }
+        );
+        logger.info(
+          `updated price for product ${productId} from price ${currentPriceId} to new price ${newPrice.id} with amount ${pricePerMonthInUSD} `
+        );
+        return newPrice.id;
       }
       logger.info(
         `did not update price for product ${productId} and price ${currentPriceId} because there was no price change`
