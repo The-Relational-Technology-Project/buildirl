@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import Stripe from "stripe";
 import { rootLogger } from "~/logger";
-import { Maybe } from "~/utils/types";
 
 const logger = rootLogger.child({ module: "paymentEventProcessor" });
 
@@ -10,7 +9,6 @@ export type PaymentEventProcessor = {
 };
 
 export function createPaymentEventProcessor(
-  stripe: Maybe<Stripe>,
   prisma: PrismaClient
 ): PaymentEventProcessor {
   async function updateMembershipWithStripeSetupIntentId(
@@ -36,22 +34,6 @@ export function createPaymentEventProcessor(
     }
   }
 
-  function getSetupIntent(
-    setupIntent: string | Stripe.SetupIntent
-  ): Promise<Stripe.SetupIntent> {
-    if (typeof setupIntent === "string") {
-      // hacky to make this nullable to work with tests, we should think of better
-      // strategy for mocking if we add to this
-      if (!stripe) {
-        throw new Error(
-          "stripe client not found, are you in a test environment?"
-        );
-      }
-      return stripe.setupIntents.retrieve(setupIntent);
-    }
-    return Promise.resolve(setupIntent);
-  }
-
   async function onCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
     if (!session.setup_intent) {
       // we cannot guarantee in future there are not other checkout sessions not
@@ -62,7 +44,14 @@ export function createPaymentEventProcessor(
       return;
     }
 
-    const setupIntent = await getSetupIntent(session.setup_intent);
+    if (typeof session.setup_intent === "string") {
+      logger.error(
+        `checkout session ${session.id} completed with setup intent id ${session.setup_intent} but expected object`
+      );
+      return;
+    }
+
+    const setupIntent = session.setup_intent;
 
     if (!setupIntent.metadata?.externalMembershipId) {
       const errorMessage = `setup intent ${setupIntent.id} missing externalMembershipId`;

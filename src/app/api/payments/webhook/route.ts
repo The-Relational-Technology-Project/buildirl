@@ -8,7 +8,7 @@ import { createPaymentEventProcessor } from "~/server/payments/eventProcessor";
 import { prisma } from "~/server/prisma";
 
 const logger = rootLogger.child({ module: "stripeWebhookHandler" });
-const eventProcessor = createPaymentEventProcessor(stripe, prisma);
+const eventProcessor = createPaymentEventProcessor(prisma);
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   // raw body from request
