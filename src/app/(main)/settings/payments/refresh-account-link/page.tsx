@@ -5,8 +5,13 @@ import { Alert, Loader, Stack, Text, Title } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { logger } from "~/client/logger";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
+import { useParams } from "next/navigation";
+import { strictParseInt } from "~/utils";
 
 export default function RefreshAccountLink() {
+  const params = useParams<{ clubId: string }>();
+  const clubId = strictParseInt(params.clubId);
+
   const createAccountLink = api.payments.createAccountLink.useMutation({
     onSuccess: (r) => {
       window.location.href = r.redirectUrl;
@@ -18,7 +23,8 @@ export default function RefreshAccountLink() {
 
   useEffect(() => {
     createAccountLink.mutate({
-      origin: window.location.origin
+      origin: window.location.origin,
+      clubId
     });
   }, []);
 
