@@ -8,7 +8,13 @@ import { AccountStatus } from "~/server/payments/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 
-function CreateStripeConnectAccount() {
+type CreateStripeConnectAccountProps = {
+  clubId: number;
+};
+
+function CreateStripeConnectAccount({
+  clubId
+}: CreateStripeConnectAccountProps) {
   const apiUtils = api.useUtils();
   const createAccount = api.payments.createAccount.useMutation({
     onSuccess: () => {
@@ -23,7 +29,7 @@ function CreateStripeConnectAccount() {
     <Box mt={"md"}>
       <Button
         onClick={async () => {
-          await createAccount.mutateAsync();
+          await createAccount.mutateAsync({ clubId });
         }}
         loading={createAccount.isPending}
       >
@@ -53,10 +59,12 @@ function MissingRequirementsToolTip({
 }
 
 type ManageStripeConnectAccountProps = {
+  clubId: number;
   status: AccountStatus;
 };
 
 function ManageStripeConnectAccount({
+  clubId,
   status
 }: ManageStripeConnectAccountProps) {
   const createAccountLink = api.payments.createAccountLink.useMutation({
@@ -91,7 +99,8 @@ function ManageStripeConnectAccount({
           <Button
             onClick={async () => {
               await createAccountLink.mutateAsync({
-                origin: window.location.origin
+                origin: window.location.origin,
+                clubId
               });
             }}
             loading={createAccountLink.isPending}
@@ -104,11 +113,20 @@ function ManageStripeConnectAccount({
   );
 }
 
-export default function StripeConnectPanel() {
-  const r = api.payments.accountStatus.useQuery(undefined, {
-    // refetch every 1 minute as data can be changed externally in Stripe
-    refetchInterval: 60 * 1000
-  });
+type StripeConnectPanelProps = {
+  clubId: number;
+};
+
+export default function StripeConnectPanel({
+  clubId
+}: StripeConnectPanelProps) {
+  const r = api.payments.accountStatus.useQuery(
+    { clubId },
+    {
+      // refetch every 1 minute as data can be changed externally in Stripe
+      refetchInterval: 60 * 1000
+    }
+  );
 
   QueryError.checkNullable({
     result: r,
@@ -123,9 +141,9 @@ export default function StripeConnectPanel() {
           Use your Stripe Connect account to receive member contributions.
         </Text>
         {r.data === null ? (
-          <CreateStripeConnectAccount />
+          <CreateStripeConnectAccount clubId={clubId} />
         ) : (
-          <ManageStripeConnectAccount status={r.data!} />
+          <ManageStripeConnectAccount clubId={clubId} status={r.data!} />
         )}
       </Stack>
     )

@@ -11,7 +11,6 @@ import {
 import React from "react";
 import { useMounted } from "@mantine/hooks";
 import EditProfilePanel from "~/app/(main)/settings/_components/EditProfilePanel";
-import StripeConnectPanel from "~/app/(main)/settings/_components/StripeConnectPanel";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Settings() {
@@ -39,16 +38,12 @@ export default function Settings() {
         >
           <Tabs.List>
             <Tabs.Tab value={"profile"}>Edit Profile</Tabs.Tab>
-            <Tabs.Tab value={"connect"}>Stripe Connect</Tabs.Tab>
           </Tabs.List>
 
           <Divider />
 
           <Tabs.Panel value={"profile"}>
             <EditProfilePanel />
-          </Tabs.Panel>
-          <Tabs.Panel value={"connect"}>
-            <StripeConnectPanel />
           </Tabs.Panel>
         </Tabs>
       </Stack>
