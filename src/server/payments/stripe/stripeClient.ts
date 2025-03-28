@@ -194,7 +194,9 @@ export function createStripeClient(stripe: Stripe): StripeClient {
   ): Promise<Maybe<string>> {
     try {
       if (pricePerMonthInUSD !== null) {
-        const existingPrice = await stripe.prices.retrieve(currentPriceId);
+        const existingPrice = await stripe.prices.retrieve(currentPriceId, {
+          stripeAccount: byAccountId
+        });
         if (existingPrice.unit_amount !== pricePerMonthInUSD) {
           const newPrice = await stripe.prices.create(
             {
