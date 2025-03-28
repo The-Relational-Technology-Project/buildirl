@@ -32,8 +32,8 @@ export default function IntakePaymentsPage() {
             <PrimaryButton
               onClick={async () =>
                 createCheckoutSession.mutateAsync({
-                  membershipId: membershipId,
-                  origin: window.location.origin
+                  input: { origin: window.location.origin },
+                  membershipId: membershipId.toString()
                 })
               }
               loading={createCheckoutSession.isPending}

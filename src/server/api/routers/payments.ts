@@ -81,14 +81,14 @@ export const paymentsRouter = createTRPCRouter({
       );
     }),
 
-    createCustomerPortalSession: securedProcedureWithAbilityFor("Membership")
+  createCustomerPortalSession: securedProcedureWithAbilityFor("Membership")
     .input(
       z.object({
         input: CreateCustomerPortalSessionInputSchema,
         membershipId: BigIntStringSchema
       })
     )
-    .query(({ ctx, input }) => {
+    .mutation(({ ctx, input }) => {
       if (
         !ctx.ability.can(
           "manage",

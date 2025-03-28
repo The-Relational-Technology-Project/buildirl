@@ -104,7 +104,7 @@ export default function ManageMembership() {
             >{`$${membership.membershipTier.costPerMonthInUSD}.00/month`}</Text>
 
             {!isDefaultFreeTier(membership.membershipTier) && (
-              <ManagePaymentsButton mt={"lg"} />
+              <ManagePaymentsButton membershipId={membership.id} mt={"lg"} />
             )}
           </Stack>
         </Paper>

@@ -1,9 +1,8 @@
 import { Button, Group, GroupProps, ThemeIcon, Tooltip } from "@mantine/core";
 import React from "react";
 import { api } from "~/trpc/react";
-import { QueryError } from "~/client/utils/QueryError";
-import { isLoaded } from "~/client/utils";
 import { IconAlertCircle } from "@tabler/icons-react";
+import { logger } from "~/client/logger";
 
 function SubscriptionUpdateWarning() {
   return (
@@ -22,22 +21,38 @@ function SubscriptionUpdateWarning() {
   );
 }
 
-export default function ManagePaymentsButton({ ...props }: GroupProps) {
-  const r = api.payments.customerPortalLink.useQuery();
+type ManagePaymentsButtonProps = {
+  membershipId: bigint;
+};
 
-  QueryError.checkNullable({
-    result: r,
-    fieldName: "customerPortalLink"
-  });
+export default function ManagePaymentsButton({
+  membershipId,
+  ...props
+}: ManagePaymentsButtonProps & GroupProps) {
+  const createCustomerPortalSession =
+    api.payments.createCustomerPortalSession.useMutation({
+      onSuccess: (r) => {
+        window.location.href = r.redirectUrl;
+      },
+      onError: (e) => {
+        logger.error(e, "failed to create customer portal session");
+      }
+    });
 
   return (
-    isLoaded(r) && (
-      <Group gap={"xs"} {...props}>
-        <Button component="a" href={r.data!} target="_blank">
-          Manage Payments
-        </Button>
-        <SubscriptionUpdateWarning />
-      </Group>
-    )
+    <Group gap={"xs"} {...props}>
+      <Button
+        onClick={async () => {
+          await createCustomerPortalSession.mutateAsync({
+            input: { origin: window.location.origin },
+            membershipId: membershipId.toString()
+          });
+        }}
+        loading={createCustomerPortalSession.isPending}
+      >
+        Manage Payments
+      </Button>
+      <SubscriptionUpdateWarning />
+    </Group>
   );
 }
