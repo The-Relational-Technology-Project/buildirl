@@ -119,6 +119,7 @@ export default function ManageMembershipTiersPanel({
       />
 
       <SetupStripeConnectModal
+        clubId={club.id}
         opened={stripeModalOpened}
         handleClose={closeStripeModal}
       />
