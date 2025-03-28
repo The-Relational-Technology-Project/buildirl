@@ -41,10 +41,13 @@ export default function ManageMembershipTiersPanel({
     { open: openStripeModal, close: closeStripeModal }
   ] = useDisclosure(false);
 
-  const r = api.payments.accountStatus.useQuery(undefined, {
-    // refetch every 1 minute as data can be changed externally in Stripe
-    refetchInterval: 60 * 1000
-  });
+  const r = api.payments.accountStatus.useQuery(
+    { clubId: club.id },
+    {
+      // refetch every 1 minute as data can be changed externally in Stripe
+      refetchInterval: 60 * 1000
+    }
+  );
 
   QueryError.checkNullable({
     result: r,
