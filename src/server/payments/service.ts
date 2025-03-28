@@ -172,7 +172,8 @@ export function createPaymentService(
 
       const { redirectUrl } = await stripeClient.createAccountLink({
         accountId: club.stripeConnectAccountId,
-        origin: input.origin
+        origin: input.origin,
+        clubId: input.clubId
       });
 
       logger.info(

@@ -54,8 +54,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     try {
       const accountLink = await stripe.accountLinks.create({
         account: input.accountId,
-        refresh_url: `${input.origin}/settings/payments/refresh-account-link`,
-        return_url: `${input.origin}/settings?tab=connect`,
+        refresh_url: `${input.origin}/club/${input.clubId}/manage/payments/refresh-account-link`,
+        return_url: `${input.origin}/club/${input.clubId}/manage?tab=stripe-connect`,
         type: "account_onboarding"
       });
       const url = accountLink.url;

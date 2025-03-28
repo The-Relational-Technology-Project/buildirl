@@ -58,6 +58,7 @@ export type CreateAccountInput = {
 
 export type CreateAccountLinkInput = {
   origin: Url;
+  clubId: number;
   accountId: string;
 };
 
