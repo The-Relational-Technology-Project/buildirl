@@ -10,8 +10,8 @@ import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import JoinedDate from "~/client/components/JoinedDate";
 import { isDefaultFreeTier, membershipForClub } from "~/utils/types";
-import ManagePaymentsButton from "~/app/(main)/settings/_components/ManagePaymentsButton";
 import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
+import ManagePaymentsButton from "~/app/(main)/club/[clubId]/manage-membership/_components/ManagePaymentsButton";
 
 export default function ManageMembership() {
   const params = useParams<{ clubId: string }>();
