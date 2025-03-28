@@ -1282,6 +1282,11 @@ export function createMainService(
       const membership = await tx.membership.findUniqueOrThrow({
         where: { id: membershipId },
         select: {
+          membershipTier: {
+            select: {
+              costPerMonthInUSD: true
+            }
+          },
           user: {
             select: {
               id: true,
@@ -1294,6 +1299,11 @@ export function createMainService(
           }
         }
       });
+
+      if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
+        // no Stripe customer needed for default free tier
+        return;
+      }
 
       if (!membership.user.settings?.email) {
         throw new Error(

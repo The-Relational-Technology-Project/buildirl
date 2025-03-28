@@ -20,7 +20,9 @@ export default class CreateStripeAccountCommand
   }
 
   async run(m: SystemState, r: Services): Promise<void> {
-    this.clubId = this.clubIdSelector.select(m.getClubIdsWithStripeAccounts());
+    this.clubId = this.clubIdSelector.select(
+      m.getClubIdsWithoutStripeAccounts()
+    );
     await r.payment.createAccount({ clubId: this.clubId });
     m.setStripeAccountCreatedForClub(this.clubId);
   }
