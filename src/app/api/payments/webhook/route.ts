@@ -34,9 +34,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // https://docs.stripe.com/api/events/types
     // https://docs.stripe.com/billing/subscriptions/webhooks
     switch (event.type) {
-      case "checkout.session.completed":
-        const session = event.data.object as Stripe.Checkout.Session;
-        await eventProcessor.onCheckoutSessionCompleted(session);
+      case "setup_intent.succeeded":
+        const session = event.data.object;
+        await eventProcessor.onSetupIntentSuccess(session);
         break;
       // TODO handle 'customer.subscription.deleted', possibly automatically
       //  put them in the free tier

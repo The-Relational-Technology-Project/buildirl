@@ -5,7 +5,7 @@ import { rootLogger } from "~/logger";
 const logger = rootLogger.child({ module: "paymentEventProcessor" });
 
 export type PaymentEventProcessor = {
-  onCheckoutSessionCompleted(session: Stripe.Checkout.Session): Promise<void>;
+  onSetupIntentSuccess(setupIntent: Stripe.SetupIntent): Promise<void>;
 };
 
 export function createPaymentEventProcessor(
@@ -34,25 +34,7 @@ export function createPaymentEventProcessor(
     }
   }
 
-  async function onCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-    if (!session.setup_intent) {
-      // we cannot guarantee in future there are not other checkout sessions not
-      // created by our system
-      logger.warn(
-        `checkout session ${session.id} completed without a setup intent`
-      );
-      return;
-    }
-
-    if (typeof session.setup_intent === "string") {
-      logger.error(
-        `checkout session ${session.id} completed with setup intent id ${session.setup_intent} but expected object`
-      );
-      return;
-    }
-
-    const setupIntent = session.setup_intent;
-
+  async function onSetupIntentSuccess(setupIntent: Stripe.SetupIntent) {
     if (!setupIntent.metadata?.externalMembershipId) {
       const errorMessage = `setup intent ${setupIntent.id} missing externalMembershipId`;
       logger.error(errorMessage);
@@ -64,10 +46,10 @@ export function createPaymentEventProcessor(
     await updateMembershipWithStripeSetupIntentId(membershipId, setupIntent.id);
 
     logger.info(
-      `successfully processed checkout.session.completed event for session ${session.id}`
+      `successfully processed setup_intent.success event for setup intent ${setupIntent.id}`
     );
   }
   return {
-    onCheckoutSessionCompleted
+    onSetupIntentSuccess
   };
 }

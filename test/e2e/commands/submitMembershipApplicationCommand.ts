@@ -6,7 +6,7 @@ import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
 import { Services } from "../system.test";
-import { setupCheckoutSession, uniqueSetupIntentId } from "../utils/mockData";
+import { setupIntent, uniqueSetupIntentId } from "../utils/mockData";
 
 export default class SubmitMembershipApplicationCommand
   implements Command<SystemState, Services>
@@ -64,10 +64,10 @@ export default class SubmitMembershipApplicationCommand
     // as well as maintain data consistency that memberships have associated
     // setup intents
     if (!m.isDefaultFreeTier(this.membershipTierId)) {
-      await r.paymentEvents.onCheckoutSessionCompleted(
+      await r.paymentEvents.onSetupIntentSuccess(
         // we don't care what the setup intent id is just that it is unique
         // since we aren't verifying or driving any logic of its exact value
-        setupCheckoutSession(uniqueSetupIntentId(), membershipId.toString())
+        setupIntent(uniqueSetupIntentId(), membershipId.toString())
       );
     }
 
