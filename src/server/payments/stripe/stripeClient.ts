@@ -370,7 +370,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       const session = await stripe.checkout.sessions.create(
         {
           customer: input.customerId,
-          success_url: `${input.origin}/apply/${input.clubId}/completed`,
+          success_url: `${input.origin}/apply/${input.clubPublicId}/completed`,
+          currency: "usd",
           setup_intent_data: {
             metadata: {
               // does not allow saving of bigint so we convert to string

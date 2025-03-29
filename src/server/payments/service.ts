@@ -199,7 +199,11 @@ export function createPaymentService(
           id: true,
           membershipTier: {
             select: {
-              clubId: true
+              club: {
+                select: {
+                  publicId: true
+                }
+              }
             }
           },
           stripeCustomerId: true
@@ -219,7 +223,7 @@ export function createPaymentService(
         {
           customerId: membership.stripeCustomerId,
           membershipId: membershipId,
-          clubId: membership.membershipTier.clubId,
+          clubPublicId: membership.membershipTier.club.publicId,
           origin: input.origin
         },
         accountId

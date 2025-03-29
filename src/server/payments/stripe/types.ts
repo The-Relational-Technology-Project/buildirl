@@ -137,7 +137,7 @@ export type CreateCustomerPortalSessionResponse = {
 
 export type CreateCheckoutSessionInput = {
   origin: Url;
-  clubId: number;
+  clubPublicId: string;
   membershipId: bigint;
   customerId: string;
 };
