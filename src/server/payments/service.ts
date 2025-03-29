@@ -199,8 +199,6 @@ export function createPaymentService(
           id: true,
           membershipTier: {
             select: {
-              id: true,
-              stripePriceId: true,
               clubId: true
             }
           },
@@ -215,18 +213,11 @@ export function createPaymentService(
         );
       }
 
-      if (!membership.membershipTier.stripePriceId) {
-        throw new Error(
-          `no Stripe price found for membership tier with id ${membership.membershipTier.id}`
-        );
-      }
-
       const accountId = await accountIdResolver.fromMembership(membershipId);
 
       const { redirectUrl } = await stripeClient.createCheckoutSession(
         {
           customerId: membership.stripeCustomerId,
-          priceId: membership.membershipTier.stripePriceId,
           membershipId: membershipId,
           clubId: membership.membershipTier.clubId,
           origin: input.origin

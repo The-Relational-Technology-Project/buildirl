@@ -140,7 +140,6 @@ export type CreateCheckoutSessionInput = {
   clubId: number;
   membershipId: bigint;
   customerId: string;
-  priceId: string;
 };
 
 export type CreateCheckoutSessionResponse = {

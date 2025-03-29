@@ -371,13 +371,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         {
           customer: input.customerId,
           success_url: `${input.origin}/apply/${input.clubId}/completed`,
-          line_items: [
-            {
-              // subscription
-              price: input.priceId,
-              quantity: 1
-            }
-          ],
           setup_intent_data: {
             metadata: {
               // does not allow saving of bigint so we convert to string
