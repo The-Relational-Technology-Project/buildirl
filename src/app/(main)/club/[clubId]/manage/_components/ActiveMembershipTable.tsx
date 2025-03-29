@@ -39,9 +39,13 @@ export default function ActiveMembershipTable({
   const utils = api.useUtils();
   const deactivateMembership = api.main.deactivateMembership.useMutation({
     onSuccess: async () => {
+      await utils.main.activeMembershipsForClub.invalidate({
+        clubId: clubId
+      });
       await utils.main.activeMembershipsForClubWithEmail.invalidate({
         clubId: clubId
       });
+      await utils.main.clubStatistics.invalidate({ clubId: clubId });
     }
   });
 

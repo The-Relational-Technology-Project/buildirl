@@ -25,6 +25,10 @@ export default function ManageMembership() {
     onSuccess: async () => {
       await utils.main.userMemberships.invalidate();
       await utils.main.activeMembershipsForClub.invalidate({ clubId: clubId });
+      await utils.main.activeMembershipsForClubWithEmail.invalidate({
+        clubId: clubId
+      });
+      await utils.main.clubStatistics.invalidate({ clubId: clubId });
       router.back();
     }
   });

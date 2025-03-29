@@ -38,6 +38,7 @@ export default function MembershipApplicationTable({
         await utils.main.activeMembershipsForClub.invalidate({
           clubId: clubId
         });
+        await utils.main.clubStatistics.invalidate({ clubId: clubId });
       }
     });
   const declineMembershipApplication =
