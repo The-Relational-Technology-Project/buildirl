@@ -10,9 +10,13 @@ import React from "react";
 export default function IntakePaymentsPage() {
   const searchParams = useSearchParams();
   const membershipId = strictParseBigInt(searchParams.get("membershipId"));
+  const utils = api.useUtils();
 
   const createCheckoutSession = api.payments.createCheckoutSession.useMutation({
     onSuccess: (r) => {
+      // after checkout completion, membership will move from
+      // PENDING_INCOMPLETE -> PENDING state
+      utils.main.userMemberships.invalidate();
       window.location.href = r.redirectUrl;
     }
   });
