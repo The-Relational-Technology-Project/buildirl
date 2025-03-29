@@ -1,5 +1,6 @@
 import {
   AccountStatusResponse,
+  ArchiveProductAndPriceInput,
   CreateAccountLinkInput,
   CreateAccountLinkResponse,
   CreateAccountResponse,
@@ -9,14 +10,15 @@ import {
   CreateCustomerPortalSessionInput,
   CreateCustomerPortalSessionResponse,
   CreateCustomerResponse,
-  CreateProductInput,
-  CreateProductResponse,
+  CreateProductAndPriceInput,
+  CreateProductAndPriceResponse,
   CreateSubscriptionInput,
   CreateSubscriptionResponse,
+  PublishProductAndPriceInput,
   StripeClient,
   SubscriptionStatusResponse,
-  UpdateProductInput,
-  UpdateProductResponse
+  UpdateProductAndPriceInput,
+  UpdateProductAndPriceResponse
 } from "~/server/payments/stripe/types";
 
 export function createFakeStripeClient(): StripeClient {
@@ -42,9 +44,9 @@ export function createFakeStripeClient(): StripeClient {
     throw new Error("not implemented");
   }
 
-  async function createProduct(
-    _: CreateProductInput
-  ): Promise<CreateProductResponse> {
+  async function createProductAndPrice(
+    _: CreateProductAndPriceInput
+  ): Promise<CreateProductAndPriceResponse> {
     const response = {
       productId: `product:id:${nextProductId}`,
       priceId: `price:id:${nextPriceId}`
@@ -54,10 +56,9 @@ export function createFakeStripeClient(): StripeClient {
     return Promise.resolve(response);
   }
 
-  async function updateProduct(
-    _: string,
-    __: UpdateProductInput
-  ): Promise<UpdateProductResponse> {
+  async function updateProductAndPrice(
+    __: UpdateProductAndPriceInput
+  ): Promise<UpdateProductAndPriceResponse> {
     const response = {
       updatedPriceId: `price:id:${nextPriceId}`
     };
@@ -65,11 +66,15 @@ export function createFakeStripeClient(): StripeClient {
     return Promise.resolve(response);
   }
 
-  async function archiveProduct(_: string): Promise<void> {
+  async function archiveProductAndPrice(
+    _: ArchiveProductAndPriceInput
+  ): Promise<void> {
     return Promise.resolve();
   }
 
-  async function publishProduct(_: string): Promise<void> {
+  async function publishProductAndPrice(
+    _: PublishProductAndPriceInput
+  ): Promise<void> {
     return Promise.resolve();
   }
 
@@ -121,10 +126,10 @@ export function createFakeStripeClient(): StripeClient {
     createAccount,
     createAccountLink,
     getAccountStatus,
-    createProduct,
-    updateProduct,
-    archiveProduct,
-    publishProduct,
+    createProductAndPrice,
+    updateProductAndPrice,
+    archiveProductAndPrice,
+    publishProductAndPrice,
     createCustomer,
     createCustomerPortalSession,
     createCheckoutSession,

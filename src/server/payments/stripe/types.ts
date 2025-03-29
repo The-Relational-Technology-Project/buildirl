@@ -10,17 +10,22 @@ export type StripeClient = {
   getAccountStatus(accountId: string): Promise<AccountStatusResponse>;
 
   // product set-up
-  createProduct(
-    input: CreateProductInput,
+  createProductAndPrice(
+    input: CreateProductAndPriceInput,
     byAccountId: string
-  ): Promise<CreateProductResponse>;
-  updateProduct(
-    productId: string,
-    input: UpdateProductInput,
+  ): Promise<CreateProductAndPriceResponse>;
+  updateProductAndPrice(
+    input: UpdateProductAndPriceInput,
     byAccountId: string
-  ): Promise<UpdateProductResponse>;
-  archiveProduct(productId: string, byAccountId: string): Promise<void>;
-  publishProduct(productId: string, byAccountId: string): Promise<void>;
+  ): Promise<UpdateProductAndPriceResponse>;
+  archiveProductAndPrice(
+    input: ArchiveProductAndPriceInput,
+    byAccountId: string
+  ): Promise<void>;
+  publishProductAndPrice(
+    input: PublishProductAndPriceInput,
+    byAccountId: string
+  ): Promise<void>;
 
   // payment flow
   createCustomer(
@@ -75,27 +80,39 @@ export type AccountStatusResponse = {
   missingRequirements: string[];
 };
 
-export type CreateProductInput = {
+export type CreateProductAndPriceInput = {
   name: string;
   description?: string;
   pricePerMonthInUSD: MonetaryValue;
   membershipTierId: number;
 };
 
-export type CreateProductResponse = {
+export type CreateProductAndPriceResponse = {
   productId: string;
   priceId: string;
 };
 
-export type UpdateProductInput = {
-  currentPriceId: string;
+export type UpdateProductAndPriceInput = {
+  productId: string;
+  priceId: string;
   name: string;
   description: string;
   pricePerMonthInUSD: MonetaryValue;
 };
 
-export type UpdateProductResponse = {
+export type UpdateProductAndPriceResponse = {
+  // null if unchanged
   updatedPriceId: Maybe<string>;
+};
+
+export type ArchiveProductAndPriceInput = {
+  productId: string;
+  priceId: string;
+};
+
+export type PublishProductAndPriceInput = {
+  productId: string;
+  priceId: string;
 };
 
 export type CreateCustomerInput = {

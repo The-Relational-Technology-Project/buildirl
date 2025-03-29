@@ -665,7 +665,7 @@ export function createMainService(
       tx
     );
 
-    const { productId, priceId } = await stripeClient.createProduct(
+    const { productId, priceId } = await stripeClient.createProductAndPrice(
       {
         name: input.name,
         description: input.benefitDescription,
@@ -861,13 +861,13 @@ export function createMainService(
       tx
     );
 
-    const { updatedPriceId } = await stripeClient.updateProduct(
-      membershipTier.stripeProductId,
+    const { updatedPriceId } = await stripeClient.updateProductAndPrice(
       {
+        productId: membershipTier.stripeProductId,
+        priceId: membershipTier.stripePriceId,
         name: input.name,
         description: input.benefitDescription,
-        pricePerMonthInUSD: input.costPerMonthInUSD,
-        currentPriceId: membershipTier.stripePriceId
+        pricePerMonthInUSD: input.costPerMonthInUSD
       },
       accountId
     );
@@ -909,7 +909,7 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
-      await archiveProduct(id, tx);
+      await archiveProductAndPrice(id, tx);
 
       await tx.membershipTier.delete({
         where: {
@@ -925,12 +925,16 @@ export function createMainService(
     }
   }
 
-  async function archiveProduct(
+  async function archiveProductAndPrice(
     membershipTierId: number,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const membershipTier = await tx.membershipTier.findUniqueOrThrow({
-      select: { stripeProductId: true, costPerMonthInUSD: true },
+      select: {
+        stripeProductId: true,
+        stripePriceId: true,
+        costPerMonthInUSD: true
+      },
       where: { id: membershipTierId }
     });
 
@@ -939,11 +943,11 @@ export function createMainService(
       return;
     }
 
-    if (!membershipTier.stripeProductId) {
+    if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
       // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
       // we should not block
       logger.error(
-        `membership tier with id ${membershipTierId} requires stripeProductId to be archived`
+        `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be archived`
       );
       return;
     }
@@ -953,8 +957,11 @@ export function createMainService(
       tx
     );
 
-    await stripeClient.archiveProduct(
-      membershipTier.stripeProductId,
+    await stripeClient.archiveProductAndPrice(
+      {
+        productId: membershipTier.stripeProductId,
+        priceId: membershipTier.stripePriceId
+      },
       accountId
     );
   }
@@ -1019,7 +1026,11 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const membershipTier = await tx.membershipTier.findUniqueOrThrow({
-      select: { stripeProductId: true, costPerMonthInUSD: true },
+      select: {
+        stripeProductId: true,
+        stripePriceId: true,
+        costPerMonthInUSD: true
+      },
       where: { id: membershipTierId }
     });
 
@@ -1028,9 +1039,9 @@ export function createMainService(
       return;
     }
 
-    if (!membershipTier.stripeProductId) {
+    if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
       throw new Error(
-        `membership tier with id ${membershipTierId} requires stripeProductId to be published`
+        `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be published`
       );
     }
 
@@ -1039,8 +1050,11 @@ export function createMainService(
       tx
     );
 
-    await stripeClient.publishProduct(
-      membershipTier.stripeProductId,
+    await stripeClient.publishProductAndPrice(
+      {
+        productId: membershipTier.stripeProductId,
+        priceId: membershipTier.stripePriceId
+      },
       accountId
     );
   }
@@ -1090,7 +1104,7 @@ export function createMainService(
         }
       });
 
-      await archiveProduct(id, tx);
+      await archiveProductAndPrice(id, tx);
 
       logger.info(`unpublished membership tier with id ${id}`);
       return NO_ID_MUTATION_RESULT;

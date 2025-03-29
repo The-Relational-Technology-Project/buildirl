@@ -1,5 +1,6 @@
 import {
   AccountStatusResponse,
+  ArchiveProductAndPriceInput,
   CreateAccountInput,
   CreateAccountLinkInput,
   CreateAccountLinkResponse,
@@ -10,14 +11,15 @@ import {
   CreateCustomerPortalSessionInput,
   CreateCustomerPortalSessionResponse,
   CreateCustomerResponse,
-  CreateProductInput,
-  CreateProductResponse,
+  CreateProductAndPriceInput,
+  CreateProductAndPriceResponse,
   CreateSubscriptionInput,
   CreateSubscriptionResponse,
+  PublishProductAndPriceInput,
   StripeClient,
   SubscriptionStatusResponse,
-  UpdateProductInput,
-  UpdateProductResponse
+  UpdateProductAndPriceInput,
+  UpdateProductAndPriceResponse
 } from "~/server/payments/stripe/types";
 import { rootLogger } from "~/logger";
 import Stripe from "stripe";
@@ -105,10 +107,10 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     return priceInUSD * 100;
   }
 
-  async function createProduct(
-    input: CreateProductInput,
+  async function createProductAndPrice(
+    input: CreateProductAndPriceInput,
     byAccountId: string
-  ): Promise<CreateProductResponse> {
+  ): Promise<CreateProductAndPriceResponse> {
     try {
       const product = await stripe.products.create(
         {
@@ -155,14 +157,13 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  async function updateProduct(
-    productId: string,
-    input: UpdateProductInput,
+  async function updateProductAndPrice(
+    input: UpdateProductAndPriceInput,
     byAccountId: string
-  ): Promise<UpdateProductResponse> {
+  ): Promise<UpdateProductAndPriceResponse> {
     try {
       await stripe.products.update(
-        productId,
+        input.productId,
         {
           name: input.name,
           description: input.description
@@ -173,13 +174,13 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       );
 
       const updatedPriceId = await updatePriceIfAmountChanged(
-        productId,
+        input.productId,
         input.pricePerMonthInUSD,
-        input.currentPriceId,
+        input.priceId,
         byAccountId
       );
       logger.info(
-        `updated product ${productId} from input ${stringify(input)}`
+        `updated product ${input.productId} from input ${stringify(input)}`
       );
       return {
         updatedPriceId
@@ -240,38 +241,62 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  async function archiveProduct(
-    productId: string,
+  async function archiveProductAndPrice(
+    input: ArchiveProductAndPriceInput,
     byAccountId: string
   ): Promise<void> {
     try {
       await stripe.products.update(
-        productId,
+        input.productId,
         { active: false },
         {
           stripeAccount: byAccountId
         }
       );
-      logger.info(`archived product ${productId}`);
+      await stripe.prices.update(
+        input.priceId,
+        { active: false },
+        {
+          stripeAccount: byAccountId
+        }
+      );
+      logger.info(
+        `archived product ${input.productId} and price ${input.priceId}`
+      );
     } catch (e) {
-      logger.error(e, `failed to archive product ${productId}`);
+      logger.error(
+        e,
+        `failed to archive product ${input.productId} and price ${input.priceId}`
+      );
       throw e;
     }
   }
 
-  async function publishProduct(
-    productId: string,
+  async function publishProductAndPrice(
+    input: PublishProductAndPriceInput,
     byAccountId: string
   ): Promise<void> {
     try {
       await stripe.products.update(
-        productId,
+        input.productId,
         { active: true },
         { stripeAccount: byAccountId }
       );
-      logger.info(`published product ${productId}`);
+      await stripe.prices.update(
+        input.priceId,
+        { active: true },
+        {
+          stripeAccount: byAccountId
+        }
+      );
+      logger.info(
+        `published product ${input.productId} and price ${input.priceId}`
+      );
     } catch (e) {
-      logger.error(e, `failed to publish product ${productId}`);
+      logger.error(
+        e,
+        `failed to publish product ${input.productId} and price ${input.priceId}`
+      );
       throw e;
     }
   }
@@ -505,10 +530,10 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     createAccount,
     createAccountLink,
     getAccountStatus,
-    createProduct,
-    updateProduct,
-    archiveProduct,
-    publishProduct,
+    createProductAndPrice,
+    updateProductAndPrice,
+    archiveProductAndPrice,
+    publishProductAndPrice,
     createCustomer,
     createCustomerPortalSession,
     createCheckoutSession,
