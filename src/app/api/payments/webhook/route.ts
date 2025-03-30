@@ -43,8 +43,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       default:
         // TODO for failed cases (e.g. invoice.payment_failed), should we at
         //  least alert as error?
-        logger.warn(`Unhandled event type: ${event.type}`);
+        logger.warn(
+          `unhandled event type: ${event.type} with id ${event.id} from account ${event.account}`
+        );
     }
+
+    logger.info(
+      `successfully processed event ${event.type} with id ${event.id} from account ${event.account}`
+    );
 
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (e) {
