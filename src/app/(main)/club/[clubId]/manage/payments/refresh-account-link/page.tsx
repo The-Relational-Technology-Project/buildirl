@@ -34,14 +34,11 @@ export default function RefreshAccountLink() {
         <Title order={3} fw={500}>
           Refreshing Your Account Link
         </Title>
-
-        {createAccountLink.isPending && (
-          <Stack align="center" gap="md">
-            <Text>Creating a new account link...</Text>
-            <Loader size="lg" color={"black"} />
-          </Stack>
-        )}
-
+        <Stack align="center" gap="md">
+          <Text>Creating a new account link...</Text>
+          <Loader size="lg" color={"black"} />
+        </Stack>
+        )
         {createAccountLink.isError && (
           <Alert color="red" title="Error" maw={500}>
             An unexpected error occurred while refreshing your account link.
