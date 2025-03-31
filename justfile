@@ -46,4 +46,4 @@ deploy-prod:
     git fetch origin && git checkout main && git reset --hard origin/main && git merge origin/testing && git push origin main && git checkout -
 
 stripe-listen:
-	stripe preview listen --forward-to localhost:3000/api/payments/webhook
+	stripe preview listen -e 'setup_intent.succeeded' --forward-to localhost:3000/api/payments/webhook
