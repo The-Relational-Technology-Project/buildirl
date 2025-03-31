@@ -63,7 +63,9 @@ export default function ManageMembership() {
   };
 
   return (
-    <WithLocalNavigationHeader>
+    // go back explicitly to root because we might have gone
+    // to Stripe and do not want to redirect back there
+    <WithLocalNavigationHeader navigateTo={"/"}>
       <Stack>
         <Title order={3}>Your Membership to {membership.club.name}</Title>
         <Paper p={"xl"}>
