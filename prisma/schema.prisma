@@ -72,7 +72,7 @@ model Club {
   // ordered
   displayImageUrls       String[]         @default([]) @map("display_image_urls")
   membershipTiers        MembershipTier[]
-  stripeConnectAccountId String?          @unique
+  stripeConnectAccountId String?          @unique @map("stripe_connect_account_id")
   createdAt              DateTime         @default(now()) @map("created_at")
   updatedAt              DateTime         @updatedAt @map("updated_at")
 
@@ -90,9 +90,9 @@ model MembershipTier {
   club                    Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubId                  Int                  @map("club_id")
   status                  MembershipTierStatus @default(PUBLISHED)
-  stripeProductId         String?              @unique
+  stripeProductId         String?              @unique @map("stripe_product_id")
   // active price
-  stripePriceId           String?              @unique
+  stripePriceId           String?              @unique @map("stripe_price_id")
   memberships             Membership[]
   createdAt               DateTime             @default(now()) @map("created_at")
   updatedAt               DateTime             @updatedAt @map("updated_at")
@@ -110,9 +110,9 @@ model Membership {
   applicationResponses Json             @map("application_responses")
   status               MembershipStatus
   isWelcomed           Boolean          @default(false) @map("is_welcomed")
-  stripeCustomerId     String?          @unique
-  stripeSetupIntentId  String?          @unique
-  stripeSubscriptionId String?          @unique
+  stripeCustomerId     String?          @unique @map("stripe_customer_id")
+  stripeSetupIntentId  String?          @unique @map("stripe_setup_intent_id")
+  stripeSubscriptionId String?          @unique @map("stripe_subscription_id")
   createdAt            DateTime         @default(now()) @map("created_at")
   updatedAt            DateTime         @updatedAt @map("updated_at")
 
