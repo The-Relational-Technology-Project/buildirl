@@ -40,7 +40,6 @@ export type StripeClient = {
     input: CreateSubscriptionInput,
     byAccountId: string
   ): Promise<CreateSubscriptionResponse>;
-  cancelSetupIntent(setupIntentId: string, byAccountId: string): Promise<void>;
   cancelSubscription(
     subscriptionId: string,
     byAccountId: string

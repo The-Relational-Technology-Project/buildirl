@@ -108,10 +108,6 @@ export function createFakeStripeClient(): StripeClient {
     return Promise.resolve(response);
   }
 
-  async function cancelSetupIntent(_: string): Promise<void> {
-    return Promise.resolve();
-  }
-
   async function cancelSubscription(_: string): Promise<void> {
     return Promise.resolve();
   }
@@ -134,7 +130,6 @@ export function createFakeStripeClient(): StripeClient {
     createCustomerPortalSession,
     createCheckoutSession,
     createSubscription,
-    cancelSetupIntent,
     cancelSubscription,
     getSubscriptionStatus
   };

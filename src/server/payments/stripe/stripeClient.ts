@@ -464,21 +464,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     return paymentMethod.id;
   }
 
-  async function cancelSetupIntent(
-    setupIntentId: string,
-    byAccountId: string
-  ): Promise<void> {
-    try {
-      await stripe.setupIntents.cancel(setupIntentId, {
-        stripeAccount: byAccountId
-      });
-      logger.info(`cancelled setup intent with id ${setupIntentId}`);
-    } catch (e) {
-      logger.error(e, `failed to cancel setup intent with id ${setupIntentId}`);
-      throw e;
-    }
-  }
-
   async function cancelSubscription(
     subscriptionId: string,
     byAccountId: string
@@ -532,7 +517,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     createCustomerPortalSession,
     createCheckoutSession,
     createSubscription,
-    cancelSetupIntent,
     cancelSubscription,
     getSubscriptionStatus
   };

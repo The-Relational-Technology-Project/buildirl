@@ -1568,7 +1568,7 @@ export function createMainService(
         where: { id: membershipId }
       });
 
-      await cancelSetupIntent(membershipId, tx);
+      await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are accepted in future
 
       logger.info(`declined membership with id ${membershipId}`);
@@ -1579,7 +1579,7 @@ export function createMainService(
     }
   }
 
-  async function cancelSetupIntent(
+  async function dissociateStripeSetupIntentId(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ): Promise<void> {
@@ -1595,7 +1595,7 @@ export function createMainService(
       where: { id: membershipId }
     });
 
-    // free tier does not need to cancel setup intent
+    // free tier does not have setup intent
     if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
       return;
     }
@@ -1609,15 +1609,12 @@ export function createMainService(
       return;
     }
 
-    const accountId = await accountIdResolver.fromMembershipInTransaction(
-      membershipId,
-      tx
-    );
-
-    await stripeClient.cancelSetupIntent(
-      membership.stripeSetupIntentId,
-      accountId
-    );
+    // we do not cancel setup intent from Stripe because those created from checkout session cannot be cancelled
+    // and are not in a confirmed state not 'requires_payment_method', 'requires_confirmation, or 'requires_action'
+    // which are the only states that are allowed to be cancelled: https://docs.stripe.com/api/setup_intents/cancel
+    // we also do not expire the checkout session since the checkout session is in a 'completed' state and not
+    // in 'open' state for expiration: https://docs.stripe.com/api/checkout/sessions/expire
+    // it should be OK to keep both objects in these terminal states even though we will not use them
 
     try {
       await tx.membership.update({
@@ -1664,7 +1661,7 @@ export function createMainService(
       // that is OK because these operations are idempotent
       // https://docs.stripe.com/api/idempotent_requests
       await cancelSubscription(membershipId, tx);
-      await cancelSetupIntent(membershipId, tx);
+      await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are reactivated
 
       logger.info(`deactivated membership with id ${membershipId}`);
