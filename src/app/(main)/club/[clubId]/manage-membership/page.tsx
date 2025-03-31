@@ -29,7 +29,7 @@ export default function ManageMembership() {
         clubId: clubId
       });
       await utils.main.clubStatistics.invalidate({ clubId: clubId });
-      router.back();
+      router.push("/");
     }
   });
 
