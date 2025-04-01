@@ -55,7 +55,7 @@ export default function ActiveMembershipTable({
 
   QueryError.check({
     result: r,
-    fieldName: "activeMembershipsForClub"
+    fieldName: "activeMembershipsForClubWithEmail"
   });
 
   if (!isLoaded(r)) {
