@@ -259,7 +259,9 @@ export function createPaymentService(
           stripeCustomerId: true,
           membershipTier: {
             select: {
-              clubId: true
+              club: {
+                select: { id: true, stripeCustomerPortalConfigurationId: true }
+              }
             }
           }
         },
@@ -272,13 +274,21 @@ export function createPaymentService(
         );
       }
 
+      if (!membership.membershipTier.club.stripeCustomerPortalConfigurationId) {
+        throw new Error(
+          `no Stripe customer portal configuration found for club with with id ${membership.membershipTier.club.id}`
+        );
+      }
+
       const accountId = await accountIdResolver.fromMembership(membershipId);
 
       const { redirectUrl } = await stripeClient.createCustomerPortalSession(
         {
           customerId: membership.stripeCustomerId,
-          clubId: membership.membershipTier.clubId,
-          origin: input.origin
+          clubId: membership.membershipTier.club.id,
+          origin: input.origin,
+          configurationId:
+            membership.membershipTier.club.stripeCustomerPortalConfigurationId
         },
         accountId
       );

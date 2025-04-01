@@ -382,6 +382,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     try {
       const session = await stripe.billingPortal.sessions.create(
         {
+          configuration: input.configurationId,
           customer: input.customerId,
           return_url: `${input.origin}/club/${input.clubId}/manage-membership`
         },

@@ -135,6 +135,7 @@ export type CreateCustomerPortalSessionInput = {
   clubId: number;
   origin: Url;
   customerId: string;
+  configurationId: string;
 };
 
 export type CreateCustomerPortalSessionResponse = {
