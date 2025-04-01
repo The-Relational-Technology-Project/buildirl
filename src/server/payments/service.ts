@@ -136,13 +136,19 @@ export function createPaymentService(
         email: club.owner.settings.email
       });
 
+      const { configurationId } =
+        await stripeClient.createCustomerPortalConfiguration(accountId);
+
       await tx.club.update({
         where: { id: input.clubId },
-        data: { stripeConnectAccountId: accountId }
+        data: {
+          stripeConnectAccountId: accountId,
+          stripeCustomerPortalConfigurationId: configurationId
+        }
       });
 
       logger.info(
-        `created Stripe Connect account with id ${accountId} for club with id ${input.clubId}`
+        `created Stripe Connect account with id ${accountId} with customer portal configuration with id ${configurationId} for club with id ${input.clubId}`
       );
     } catch (e) {
       logger.error(
