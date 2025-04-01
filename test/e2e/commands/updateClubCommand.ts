@@ -1,13 +1,14 @@
-import { MainService, UpdateClubInput } from "~/server/service/types";
+import { UpdateClubInput } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
+import { Services } from "../system.test";
 
 export default class UpdateClubCommand
-  implements Command<SystemState, MainService>
+  implements Command<SystemState, Services>
 {
   private readonly input: UpdateClubInput;
   private readonly clubIdSelector: ItemSelector<number>;
@@ -22,11 +23,11 @@ export default class UpdateClubCommand
     return m.hasClubs() && m.isNotClubPublicIdUsed(this.input.publicId);
   }
 
-  async run(m: SystemState, r: MainService): Promise<void> {
+  async run(m: SystemState, r: Services): Promise<void> {
     this.clubId = this.clubIdSelector.select(m.getClubIds());
-    await r.updateClub(this.clubId, this.input);
+    await r.main.updateClub(this.clubId, this.input);
     m.updateClub(this.clubId, this.input);
-    await verifiers.verifyClub(this.clubId, r, m);
+    await verifiers.verifyClub(this.clubId, r.main, m);
   }
 
   toString() {

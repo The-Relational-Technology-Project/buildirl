@@ -257,6 +257,19 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
           Manage Membership
         </PrimaryButton>
       );
+    case "PENDING_INCOMPLETE":
+      return (
+        <PrimaryButton
+          includeIcon
+          onClick={() =>
+            router.push(
+              `/apply/${club.publicId}/payments?membershipId=${membership.id}`
+            )
+          }
+        >
+          Complete Application
+        </PrimaryButton>
+      );
     // no membership, declined, or deactivated
     default:
       return (

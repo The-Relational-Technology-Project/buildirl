@@ -25,21 +25,33 @@ import {
 } from "~/server/service/types";
 import {
   FormQuestionsSchema,
-  FormResponsesSchema,
-  FormQuestionType
+  FormResponsesSchema
 } from "~/server/service/types/form";
 import { parseAsZodType } from "~/utils/zod";
 import { stringify } from "~/utils";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import ClubGetPayload = Prisma.ClubGetPayload;
 import MembershipGetPayload = Prisma.MembershipGetPayload;
-import { Maybe } from "~/utils/types";
+import {
+  isDefaultFreeTier,
+  isPrismaResultDefaultFreeTier,
+  Maybe
+} from "~/utils/types";
 import { TemplateThemeSchema } from "~/client/theme/templates";
 import { z } from "zod";
-
+import { StripeClient } from "~/server/payments/stripe/types";
+import {
+  DEFAULT_APPLICATION_QUESTIONS,
+  DEFAULT_FREE_MEMBERSHIP_TIER
+} from "~/server/service/defaults";
+import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 const logger = rootLogger.child({ module: "mainService" });
 
-export function createMainService(prisma: PrismaClient): MainService {
+export function createMainService(
+  prisma: PrismaClient,
+  stripeClient: StripeClient,
+  accountIdResolver: AccountIdResolver
+): MainService {
   const USER_SELECT = {
     id: true,
     firstName: true,
@@ -368,7 +380,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   async function createUser(
     input: CreateUserInput,
     authUserId: string,
-    authEmail: Maybe<string>
+    authEmail: string
   ): Promise<MutationResult> {
     return prisma.$transaction(async (tx) => {
       return createUserInTransaction(input, authUserId, authEmail, tx);
@@ -378,7 +390,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   async function createUserInTransaction(
     input: CreateUserInput,
     authUserId: string,
-    authEmail: Maybe<string>,
+    authEmail: string,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
@@ -391,6 +403,7 @@ export function createMainService(prisma: PrismaClient): MainService {
           id: true
         }
       });
+
       logger.info(
         `created user from input ${stringify(input)} with userId ${id}`
       );
@@ -406,7 +419,7 @@ export function createMainService(prisma: PrismaClient): MainService {
 
   async function createUserSettingInTransaction(
     userId: number,
-    authEmail: Maybe<string>,
+    authEmail: string,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {
@@ -465,37 +478,7 @@ export function createMainService(prisma: PrismaClient): MainService {
           ...input,
           ownerUserId: userId,
           // default questions
-          applicationQuestions: {
-            questions: [
-              {
-                question: "What is drawing you most to joining our club? 🤔✨",
-                type: FormQuestionType.LONG_TEXT
-              },
-              {
-                question:
-                  "If you were hosting an event for the club, what would you dream up? 🎉💭",
-                type: FormQuestionType.LONG_TEXT
-              },
-              {
-                question:
-                  "Get personal – we'd love to get to know you. What's something sweet, unexpected, delightful, or lovely about you that you'd like to share with us? 💖🌟",
-                type: FormQuestionType.LONG_TEXT
-              },
-              {
-                question:
-                  "What's your go-to snack when you're in the middle of a Netflix binge?",
-                type: FormQuestionType.SINGLE_SELECT,
-                metadata: {
-                  choices: [
-                    "Popcorn all the way! 🍿",
-                    "Chips and salsa for life 🌶️",
-                    "Chocolate, duh 🍫",
-                    "Fruit and yogurt, keeping it fresh 🍓"
-                  ]
-                }
-              }
-            ]
-          },
+          applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
           theme: Prisma.DbNull
         },
         select: {
@@ -588,6 +571,8 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
 
     try {
+      // TODO do we want to delete connect account?
+
       await prisma.club.delete({
         where: { id }
       });
@@ -623,6 +608,15 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
+  async function createMembershipTier(
+    clubId: number,
+    input: CreateMembershipTierInput
+  ): Promise<MutationResult> {
+    return prisma.$transaction(async (tx) => {
+      return createMembershipTierInTransaction(clubId, input, tx);
+    });
+  }
+
   async function createMembershipTierInTransaction(
     clubId: number,
     input: CreateMembershipTierInput,
@@ -640,6 +634,9 @@ export function createMainService(prisma: PrismaClient): MainService {
           id: true
         }
       });
+
+      await createStripeProductAndPrice(id, input, tx);
+
       logger.info(
         `created membership tier from input ${stringify(input)} with id ${id}`
       );
@@ -652,13 +649,50 @@ export function createMainService(prisma: PrismaClient): MainService {
       throw e;
     }
   }
-  async function createMembershipTier(
-    clubId: number,
-    input: CreateMembershipTierInput
-  ): Promise<MutationResult> {
-    return prisma.$transaction(async (tx) => {
-      return createMembershipTierInTransaction(clubId, input, tx);
-    });
+
+  async function createStripeProductAndPrice(
+    membershipTierId: number,
+    input: CreateMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    // free tier does not require Stripe product and prices
+    if (isDefaultFreeTier(input)) {
+      return;
+    }
+
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    const { productId, priceId } = await stripeClient.createProductAndPrice(
+      {
+        name: input.name,
+        description: input.benefitDescription,
+        pricePerMonthInUSD: input.costPerMonthInUSD,
+        membershipTierId: membershipTierId
+      },
+      accountId
+    );
+
+    try {
+      await tx.membershipTier.update({
+        where: { id: membershipTierId },
+        data: {
+          stripeProductId: productId,
+          stripePriceId: priceId
+        }
+      });
+      logger.info(
+        `updated membership tier with id ${membershipTierId} with stripeProductId ${productId} and stripePriceId ${priceId}`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update membership tier with id ${membershipTierId} with stripeProductId ${productId} and stripePriceId ${priceId}`
+      );
+      throw e;
+    }
   }
 
   async function createDefaultFreeMembershipTier(
@@ -667,17 +701,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   ): Promise<MutationResult> {
     return createMembershipTierInTransaction(
       clubId,
-      // default tier description
-      {
-        name: "The Club Crew",
-        benefitDescription:
-          "Weekly meetups and events, members-only WhatsApp / Slack group, awesome local deals, and a whole lot of " +
-          "opportunities to create with fellow members!",
-        contributionDescription:
-          "We're member-first and member-led. Help us keep the good vibes going by co-hosting, volunteering, or just chipping " +
-          "in where you can. Your dues go towards venues, snacks, and more. Your support is what makes this stay alive!",
-        costPerMonthInUSD: 0
-      },
+      DEFAULT_FREE_MEMBERSHIP_TIER,
       tx
     );
   }
@@ -710,17 +734,16 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
-  async function isDefaultFreeMembershipTier(membershipTierId: number) {
+  async function isDefaultFreeTierById(membershipTierId: number) {
     try {
-      const result = await prisma.membershipTier.findUniqueOrThrow({
+      const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
         where: { id: membershipTierId },
         select: { costPerMonthInUSD: true }
       });
       logger.info(
-        `checked if membership tier with id ${membershipTierId} is free tier with result ${result.costPerMonthInUSD.toNumber() === 0}`
+        `checked if membership tier with id ${membershipTierId} is free tier with result ${isPrismaResultDefaultFreeTier(membershipTier)}`
       );
-      // this is definition of free tier, manually created tiers cannot be 0 cost
-      return result.costPerMonthInUSD.toNumber() === 0;
+      return isPrismaResultDefaultFreeTier(membershipTier);
     } catch (e) {
       logger.error(
         e,
@@ -731,7 +754,7 @@ export function createMainService(prisma: PrismaClient): MainService {
   }
 
   async function checkIsNotDefaultFreeMembershipTier(membershipTierId: number) {
-    if (await isDefaultFreeMembershipTier(membershipTierId)) {
+    if (await isDefaultFreeTierById(membershipTierId)) {
       throw new Error("cannot delete default free membership tier");
     }
   }
@@ -741,7 +764,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     input: UpdateMembershipTierInput
   ) {
     if (
-      (await isDefaultFreeMembershipTier(membershipTierId)) &&
+      (await isDefaultFreeTierById(membershipTierId)) &&
       input.costPerMonthInUSD !== 0
     ) {
       throw new Error(
@@ -755,7 +778,7 @@ export function createMainService(prisma: PrismaClient): MainService {
     input: UpdateMembershipTierInput
   ) {
     if (
-      !(await isDefaultFreeMembershipTier(membershipTierId)) &&
+      !(await isDefaultFreeTierById(membershipTierId)) &&
       input.costPerMonthInUSD === 0
     ) {
       throw new Error("cannot update cost of membership tier to zero value");
@@ -769,13 +792,27 @@ export function createMainService(prisma: PrismaClient): MainService {
     await checkNoActiveMembersOnMembershipTier(id);
     await checkIsNotDefaultFreeMembershipTierAndUpdatingCost(id, input);
     await checkIsNotUpdatingMembershipTierToZeroCost(id, input);
+
+    return prisma.$transaction(async (tx) => {
+      return updateMembershipTierInTransaction(id, input, tx);
+    });
+  }
+
+  async function updateMembershipTierInTransaction(
+    id: number,
+    input: UpdateMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
     try {
-      await prisma.membershipTier.update({
+      await tx.membershipTier.update({
         data: input,
         where: {
           id: id
         }
       });
+
+      await updateProductAndPrice(id, input, tx);
+
       logger.info(
         `updated membership tier with id ${id} from input ${stringify(input)}`
       );
@@ -789,24 +826,144 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
+  async function updateProductAndPrice(
+    membershipTierId: number,
+    input: UpdateMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    // free tier does not require Stripe product and prices
+    if (isDefaultFreeTier(input)) {
+      return;
+    }
+
+    const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+      where: { id: membershipTierId },
+      select: {
+        stripeProductId: true,
+        stripePriceId: true,
+        costPerMonthInUSD: true
+      }
+    });
+
+    if (!membershipTier.stripeProductId) {
+      throw new Error(
+        `membership tier with id ${membershipTierId} requires stripeProductId to be updated`
+      );
+    }
+    if (!membershipTier.stripePriceId) {
+      throw new Error(
+        `membership tier with id ${membershipTierId} requires stripePriceId to be updated`
+      );
+    }
+
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    const { updatedPriceId } = await stripeClient.updateProductAndPrice(
+      {
+        productId: membershipTier.stripeProductId,
+        priceId: membershipTier.stripePriceId,
+        name: input.name,
+        description: input.benefitDescription,
+        pricePerMonthInUSD: input.costPerMonthInUSD
+      },
+      accountId
+    );
+
+    // only update price id if it has changed
+    if (!!updatedPriceId) {
+      try {
+        await tx.membershipTier.update({
+          where: { id: membershipTierId },
+          data: { stripePriceId: updatedPriceId }
+        });
+        logger.info(
+          `updated membership tier with id ${membershipTierId} with stripePriceId ${updatedPriceId}`
+        );
+      } catch (e) {
+        logger.error(
+          e,
+          `failed to update membership tier with id ${membershipTierId} with stripePriceId ${updatedPriceId}`
+        );
+        throw e;
+      }
+    }
+  }
+
   async function deleteMembershipTier(id: number): Promise<MutationResult> {
     await checkNoActiveMembersOnMembershipTier(id);
     await checkIsNotDefaultFreeMembershipTier(id);
     if (await isMembershipTierLastPublishedTier(id)) {
       throw new Error("cannot delete last published membership tier");
     }
+
+    return prisma.$transaction(async (tx) => {
+      return deleteMembershipTierInTransaction(id, tx);
+    });
+  }
+
+  async function deleteMembershipTierInTransaction(
+    id: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
     try {
-      await prisma.membershipTier.delete({
+      await archiveProductAndPrice(id, tx);
+
+      await tx.membershipTier.delete({
         where: {
           id: id
         }
       });
+
       logger.info(`deleted membership tier with id ${id}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(e, `failed to delete membership tier with id ${id}`);
       throw e;
     }
+  }
+
+  async function archiveProductAndPrice(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+      select: {
+        stripeProductId: true,
+        stripePriceId: true,
+        costPerMonthInUSD: true
+      },
+      where: { id: membershipTierId }
+    });
+
+    // free tier does not need to archive product
+    if (isPrismaResultDefaultFreeTier(membershipTier)) {
+      return;
+    }
+
+    if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
+      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
+      // we should not block
+      logger.error(
+        `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be archived`
+      );
+      return;
+    }
+
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    await stripeClient.archiveProductAndPrice(
+      {
+        productId: membershipTier.stripeProductId,
+        priceId: membershipTier.stripePriceId
+      },
+      accountId
+    );
   }
 
   async function isMembershipTierPublished(membershipTierId: number) {
@@ -836,19 +993,70 @@ export function createMainService(prisma: PrismaClient): MainService {
     if (await isMembershipTierPublished(id)) {
       throw new Error("Cannot publish an already published membership tier.");
     }
+
+    return prisma.$transaction(async (tx) => {
+      return publishMembershipTierInTransaction(id, tx);
+    });
+  }
+
+  async function publishMembershipTierInTransaction(
+    id: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
     try {
-      await prisma.membershipTier.update({
+      await tx.membershipTier.update({
         data: { status: "PUBLISHED" },
         where: {
           id: id
         }
       });
+
+      await publishProduct(id, tx);
+
       logger.info(`published membership tier with id ${id}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(e, `failed to publish membership tier with id ${id}`);
       throw e;
     }
+  }
+
+  async function publishProduct(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+      select: {
+        stripeProductId: true,
+        stripePriceId: true,
+        costPerMonthInUSD: true
+      },
+      where: { id: membershipTierId }
+    });
+
+    // free tier does not need to publish product
+    if (isPrismaResultDefaultFreeTier(membershipTier)) {
+      return;
+    }
+
+    if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
+      throw new Error(
+        `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be published`
+      );
+    }
+
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    await stripeClient.publishProductAndPrice(
+      {
+        productId: membershipTier.stripeProductId,
+        priceId: membershipTier.stripePriceId
+      },
+      accountId
+    );
   }
 
   async function isMembershipTierLastPublishedTier(membershipTierId: number) {
@@ -878,13 +1086,26 @@ export function createMainService(prisma: PrismaClient): MainService {
     if (await isMembershipTierLastPublishedTier(id)) {
       throw new Error("cannot unpublish last published membership tier");
     }
+
+    return prisma.$transaction(async (tx) => {
+      return unpublishMembershipTierInTransaction(id, tx);
+    });
+  }
+
+  async function unpublishMembershipTierInTransaction(
+    id: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
     try {
-      await prisma.membershipTier.update({
+      await tx.membershipTier.update({
         data: { status: "UNPUBLISHED" },
         where: {
           id: id
         }
       });
+
+      await archiveProductAndPrice(id, tx);
+
       logger.info(`unpublished membership tier with id ${id}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
@@ -896,8 +1117,8 @@ export function createMainService(prisma: PrismaClient): MainService {
   async function getOwnerUserId(clubId: number): Promise<number> {
     try {
       const club = await prisma.club.findUniqueOrThrow({
-        where: { id: clubId },
-        select: { ownerUserId: true }
+        select: { ownerUserId: true },
+        where: { id: clubId }
       });
       logger.info(
         `queried owner userId for club with clubId ${clubId} with result ${club.ownerUserId}`
@@ -917,8 +1138,8 @@ export function createMainService(prisma: PrismaClient): MainService {
   ): Promise<number> {
     try {
       const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
-        where: { id: membershipTierId },
-        select: { clubId: true }
+        select: { clubId: true },
+        where: { id: membershipTierId }
       });
       logger.info(
         `queried clubId for membership tier with membershipTierId ${membershipTierId} with result ${membershipTier.clubId}`
@@ -996,34 +1217,64 @@ export function createMainService(prisma: PrismaClient): MainService {
     await checkUserIsNotClubOwner(userId, clubId);
     await checkUserDoesNotHaveActiveMembershipForClub(userId, clubId);
     const existingMembership = await userMembershipForClub(userId, clubId);
+    const isDefaultFreeTier = await isDefaultFreeTierById(membershipTierId);
     if (null === existingMembership) {
-      return await createMembershipApplication(membershipTierId, input, userId);
+      return await createMembershipApplication(
+        membershipTierId,
+        input,
+        userId,
+        isDefaultFreeTier
+      );
     }
     // declined or deactivate membership can reapply with overwrite
     return await updateMembershipWithNewApplication(
       membershipTierId,
       input,
-      existingMembership.id
+      existingMembership.id,
+      isDefaultFreeTier
     );
   }
 
   async function createMembershipApplication(
     membershipTierId: number,
     input: SubmitMembershipApplicationInput,
-    userId: number
+    userId: number,
+    isDefaultFreeTier: boolean
+  ): Promise<MutationResult> {
+    return prisma.$transaction(async (tx) => {
+      return createMembershipApplicationInTransaction(
+        membershipTierId,
+        input,
+        userId,
+        isDefaultFreeTier,
+        tx
+      );
+    });
+  }
+
+  async function createMembershipApplicationInTransaction(
+    membershipTierId: number,
+    input: SubmitMembershipApplicationInput,
+    userId: number,
+    isDefaultFreeTier: boolean,
+    tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
-      const { id } = await prisma.membership.create({
+      const { id } = await tx.membership.create({
         data: {
           userId: userId,
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          status: "PENDING"
+          // if not free tier, still awaiting setup intent
+          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE"
         },
         select: {
           id: true
         }
       });
+
+      await createStripeCustomer(id, tx);
+
       logger.info(
         `created pending membership from input ${stringify(input)} with membershipId ${id}`
       );
@@ -1037,19 +1288,90 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
+  async function createStripeCustomer(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    try {
+      const membership = await tx.membership.findUniqueOrThrow({
+        where: { id: membershipId },
+        select: {
+          membershipTier: {
+            select: {
+              costPerMonthInUSD: true
+            }
+          },
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              settings: {
+                select: { email: true }
+              }
+            }
+          }
+        }
+      });
+
+      if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
+        // no Stripe customer needed for default free tier
+        return;
+      }
+
+      if (!membership.user.settings?.email) {
+        throw new Error(
+          `user with id ${membership.user.id} has no settings with email to create Stripe customer`
+        );
+      }
+
+      const accountId = await accountIdResolver.fromMembershipInTransaction(
+        membershipId,
+        tx
+      );
+
+      const response = await stripeClient.createCustomer(
+        {
+          email: membership.user.settings.email,
+          name: `${membership.user.firstName} ${membership.user.lastName}`,
+          membershipId: membershipId
+        },
+        accountId
+      );
+
+      await tx.membership.update({
+        data: { stripeCustomerId: response.customerId },
+        where: { id: membershipId }
+      });
+
+      logger.info(
+        `updated membership with id ${membershipId} with stripeCustomerId ${response.customerId}`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update membership with id ${membershipId} with stripeCustomerId`
+      );
+      throw e;
+    }
+  }
+
   async function updateMembershipWithNewApplication(
     membershipTierId: number,
     input: SubmitMembershipApplicationInput,
-    membershipId: bigint
+    membershipId: bigint,
+    isDefaultFreeTier: boolean
   ): Promise<MutationResult> {
     try {
       const { id } = await prisma.membership.update({
         data: {
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          status: "PENDING",
+          // if not free tier, awaiting setup intent
+          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
           // reset welcome status
           isWelcomed: false
+          // we keep the stripeCustomerId to be reused if reactivated
         },
         where: {
           id: membershipId
@@ -1058,6 +1380,7 @@ export function createMainService(prisma: PrismaClient): MainService {
       logger.info(
         `updated membership to pending membership from input ${stringify(input)} with membershipId ${id}`
       );
+      // need to return id as this is considered creation
       return { createdEntityId: id };
     } catch (e) {
       logger.error(
@@ -1104,11 +1427,26 @@ export function createMainService(prisma: PrismaClient): MainService {
     membershipId: bigint
   ): Promise<MutationResult> {
     await checkMembershipStatus(membershipId, "PENDING");
+
+    return prisma.$transaction(async (tx) => {
+      return approveMembershipApplicationInTransaction(membershipId, tx);
+    });
+  }
+
+  async function approveMembershipApplicationInTransaction(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
     try {
-      await prisma.membership.update({
-        data: { status: "ACTIVE" },
+      await tx.membership.update({
+        data: {
+          status: "ACTIVE"
+        },
         where: { id: membershipId }
       });
+
+      await createSubscription(membershipId, tx);
+
       logger.info(`approved membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
@@ -1117,15 +1455,122 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
+  async function createSubscription(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    const membership = await tx.membership.findUniqueOrThrow({
+      select: {
+        stripeSetupIntentId: true,
+        stripeCustomerId: true,
+        membershipTier: {
+          select: {
+            id: true,
+            stripePriceId: true,
+            costPerMonthInUSD: true,
+            club: {
+              select: {
+                id: true,
+                stripeConnectAccountId: true
+              }
+            }
+          }
+        }
+      },
+      where: { id: membershipId }
+    });
+
+    // free tier does not need to create subscription
+    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
+      return;
+    }
+
+    const customerId = membership.stripeCustomerId;
+    const stripeAccountId =
+      membership.membershipTier.club.stripeConnectAccountId;
+    const setupIntentId = membership.stripeSetupIntentId;
+    const priceId = membership.membershipTier.stripePriceId;
+
+    if (!customerId) {
+      throw new Error(
+        `membership with id ${membershipId} has no stripeCustomerId to create subscription`
+      );
+    }
+    if (!stripeAccountId) {
+      throw new Error(
+        `club with id ${membership.membershipTier.club.id} has no stripeAccountId create subscription`
+      );
+    }
+    if (!setupIntentId) {
+      throw new Error(
+        `membership with id ${membershipId} has no stripeSetupIntentId to create subscription`
+      );
+    }
+    if (!priceId) {
+      throw new Error(
+        `membership tier with id ${membership.membershipTier.id} has no priceId to create subscription`
+      );
+    }
+
+    const accountId = await accountIdResolver.fromMembershipInTransaction(
+      membershipId,
+      tx
+    );
+
+    const { subscriptionId } = await stripeClient.createSubscription(
+      {
+        setupIntentId: setupIntentId,
+        customerId: customerId,
+        priceId: priceId,
+        membershipId: membershipId
+      },
+      accountId
+    );
+
+    try {
+      await tx.membership.update({
+        data: {
+          stripeSubscriptionId: subscriptionId
+        },
+        where: { id: membershipId }
+      });
+      logger.info(
+        `updated membership with id ${membershipId} with subscription id ${subscriptionId}`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update membership with id ${membershipId} with subscription id ${subscriptionId}`
+      );
+      throw e;
+    }
+  }
+
   async function declineMembershipApplication(
     membershipId: bigint
   ): Promise<MutationResult> {
     await checkMembershipStatus(membershipId, "PENDING");
+
+    return prisma.$transaction(async (tx) => {
+      return declineMembershipApplicationInTransaction(membershipId, tx);
+    });
+  }
+
+  async function declineMembershipApplicationInTransaction(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
     try {
-      await prisma.membership.update({
-        data: { status: "DECLINED" },
+      await tx.membership.update({
+        data: {
+          status: "DECLINED"
+        },
         where: { id: membershipId }
       });
+
+      await dissociateStripeSetupIntentId(membershipId, tx);
+      // keep customer id in case we are accepted in future
+
       logger.info(`declined membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
@@ -1134,21 +1579,156 @@ export function createMainService(prisma: PrismaClient): MainService {
     }
   }
 
+  async function dissociateStripeSetupIntentId(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    const membership = await tx.membership.findUniqueOrThrow({
+      select: {
+        stripeSetupIntentId: true,
+        membershipTier: {
+          select: {
+            costPerMonthInUSD: true
+          }
+        }
+      },
+      where: { id: membershipId }
+    });
+
+    // free tier does not have setup intent
+    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
+      return;
+    }
+
+    if (!membership.stripeSetupIntentId) {
+      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
+      // we should not block
+      logger.error(
+        `membership with id ${membershipId} has no stripeSetupIntentId to cancel`
+      );
+      return;
+    }
+
+    // we do not cancel setup intent from Stripe because those created from checkout session cannot be cancelled
+    // and are not in a confirmed state not 'requires_payment_method', 'requires_confirmation, or 'requires_action'
+    // which are the only states that are allowed to be cancelled: https://docs.stripe.com/api/setup_intents/cancel
+    // we also do not expire the checkout session since the checkout session is in a 'completed' state and not
+    // in 'open' state for expiration: https://docs.stripe.com/api/checkout/sessions/expire
+    // it should be OK to keep both objects in these terminal states even though we will not use them
+
+    try {
+      await tx.membership.update({
+        data: {
+          stripeSetupIntentId: null
+        },
+        where: { id: membershipId }
+      });
+      logger.info(
+        `updated membership with id ${membershipId} to set stripeSetupIntentId to null`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update membership with id ${membershipId} to set stripeSetupIntentId to null`
+      );
+      throw e;
+    }
+  }
+
   async function deactivateMembership(
     membershipId: bigint
   ): Promise<MutationResult> {
     await checkMembershipStatus(membershipId, "ACTIVE");
+
+    return prisma.$transaction(async (tx) => {
+      return deactivateMembershipInTransaction(membershipId, tx);
+    });
+  }
+
+  async function deactivateMembershipInTransaction(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
     try {
-      await prisma.membership.update({
-        data: { status: "INACTIVE" },
+      await tx.membership.update({
+        data: {
+          status: "INACTIVE"
+        },
         where: { id: membershipId }
       });
+
+      // if subscription was cancelled outside of this system,
+      // that is OK because these operations are idempotent
+      // https://docs.stripe.com/api/idempotent_requests
+      await cancelSubscription(membershipId, tx);
+      await dissociateStripeSetupIntentId(membershipId, tx);
+      // keep customer id in case we are reactivated
+
       logger.info(`deactivated membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(
         e,
         `failed to deactivate membership with id ${membershipId}`
+      );
+      throw e;
+    }
+  }
+
+  async function cancelSubscription(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await tx.membership.findUniqueOrThrow({
+      select: {
+        membershipTier: {
+          select: {
+            costPerMonthInUSD: true
+          }
+        },
+        stripeSubscriptionId: true
+      },
+      where: { id: membershipId }
+    });
+
+    // free tier does not need to cancel subscription
+    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
+      return;
+    }
+
+    if (!membership.stripeSubscriptionId) {
+      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
+      // we should not block
+      logger.error(
+        `membership with id ${membershipId} has no stripeSubscriptionId to cancel`
+      );
+      return;
+    }
+
+    const accountId = await accountIdResolver.fromMembershipInTransaction(
+      membershipId,
+      tx
+    );
+
+    await stripeClient.cancelSubscription(
+      membership.stripeSubscriptionId,
+      accountId
+    );
+
+    try {
+      await tx.membership.update({
+        data: {
+          stripeSubscriptionId: null
+        },
+        where: { id: membershipId }
+      });
+      logger.info(
+        `updated membership with id ${membershipId} to set subscriptionId to null`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update membership with id ${membershipId} to set subscriptionId to null`
       );
       throw e;
     }

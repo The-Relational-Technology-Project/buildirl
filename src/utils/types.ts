@@ -1,4 +1,11 @@
-import { Membership, MembershipTier } from "~/server/service/types";
+import { Prisma } from "@prisma/client";
+import { z } from "zod";
+import {
+  CreateMembershipTierInput,
+  Membership,
+  MembershipTier,
+  UpdateMembershipTierInput
+} from "~/server/service/types";
 
 export type Maybe<T> = T | null;
 
@@ -29,9 +36,21 @@ export function idAsBigInt(maybeId: Maybe<Id>): bigint {
   return maybeId;
 }
 
-export function isDefaultFreeTier(membershipTier: MembershipTier): boolean {
+export function isDefaultFreeTier(
+  membershipTier:
+    | MembershipTier
+    | CreateMembershipTierInput
+    | UpdateMembershipTierInput
+): boolean {
   // this is the definition of default free tier
   return membershipTier.costPerMonthInUSD === 0;
+}
+
+export function isPrismaResultDefaultFreeTier(membershipTier: {
+  costPerMonthInUSD: Prisma.Decimal;
+}): boolean {
+  // this is the definition of default free tier
+  return membershipTier.costPerMonthInUSD.toNumber() === 0;
 }
 
 export function membershipForClub(
@@ -57,4 +76,25 @@ export function activeMembershipForClub(
     return clubMembership;
   }
   return null;
+}
+
+// react-query doesn't handle bigint serialization well for its query cache
+// we must do this hack to convert it to and from string in the trpc layer for queries
+export const BigIntStringSchema = z.string().refine(
+  (val) => {
+    try {
+      BigInt(val);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+  {
+    message: "value must be a valid BigInt string representation"
+  }
+);
+export type BigIntString = z.infer<typeof BigIntStringSchema>;
+
+export function bigint(val: BigIntString): bigint {
+  return BigInt(val);
 }

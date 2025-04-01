@@ -10,6 +10,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { IconChevronLeft } from "@tabler/icons-react";
+import { Maybe } from "~/utils/types";
 
 type NavigationButtonProps = {
   onClick: () => void;
@@ -45,11 +46,13 @@ type WithLocalNavigationHeaderProps = {
   title?: string;
   children: React.ReactNode;
   hidden?: boolean;
+  navigateTo?: Maybe<string>;
 };
 
 export default function WithLocalNavigationHeader({
   children,
-  hidden = false
+  hidden = false,
+  navigateTo = null
 }: WithLocalNavigationHeaderProps) {
   const router = useRouter();
   if (hidden) {
@@ -65,7 +68,9 @@ export default function WithLocalNavigationHeader({
         style={{ zIndex: 100, background: "transparent" }}
       >
         <NavigationButton
-          onClick={() => router.back()}
+          onClick={() => {
+            navigateTo === null ? router.back() : router.push("/");
+          }}
           icon={<IconChevronLeft />}
           mt={"lg"}
         />

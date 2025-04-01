@@ -17,10 +17,14 @@ import {
   ClubStatistics,
   UpdateClubDisplayImageUrlsInput
 } from "~/server/service/types";
-import { Maybe } from "~/utils/types";
+import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
 import { FormQuestions, FormResponses } from "~/server/service/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
+import {
+  DEFAULT_APPLICATION_QUESTIONS,
+  DEFAULT_FREE_MEMBERSHIP_TIER
+} from "~/server/service/defaults";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -38,6 +42,7 @@ type ClubState = {
   theme: Maybe<TemplateTheme>;
   displayImageUrls: Url[];
   membershipTierIds: number[];
+  hasStripeAccount: boolean;
 };
 
 type MembershipState = {
@@ -228,10 +233,12 @@ export class SystemState {
       ...input,
       ownerUserId: userId,
       // empty to start
-      applicationQuestions: { questions: [] },
+      applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
       theme: null,
       displayImageUrls: [],
-      membershipTierIds: []
+      membershipTierIds: [],
+      // default false
+      hasStripeAccount: false
     });
 
     this.createFreeMembershipTier(freeMembershipTierId, clubId);
@@ -241,12 +248,11 @@ export class SystemState {
     freeMembershipTierId: number,
     clubId: number
   ) {
-    this.createMembershipTier(freeMembershipTierId, clubId, {
-      name: "Free",
-      benefitDescription: "",
-      contributionDescription: "",
-      costPerMonthInUSD: 0
-    });
+    this.createMembershipTier(
+      freeMembershipTierId,
+      clubId,
+      DEFAULT_FREE_MEMBERSHIP_TIER
+    );
   }
 
   public updateClub(id: number, input: UpdateClubInput) {
@@ -422,6 +428,11 @@ export class SystemState {
       publishedMembershipTiers.length === 1 &&
       publishedMembershipTiers[0] === membershipTierId
     );
+  }
+
+  public isDefaultFreeTier(membershipTierId: number): boolean {
+    const membershipTier = this.getMembershipTier(membershipTierId);
+    return isDefaultFreeTier(membershipTier);
   }
 
   public hasPublishedMembershipTiers(): boolean {
@@ -633,5 +644,25 @@ export class SystemState {
       ...membershipState,
       isWelcomed: true
     });
+  }
+
+  public setStripeAccountCreatedForClub(clubId: number) {
+    const club = this.getClubState(clubId);
+    this.clubs.set(clubId, {
+      ...club,
+      hasStripeAccount: true
+    });
+  }
+
+  public getClubIdsWithoutStripeAccounts(): number[] {
+    return Array.from(this.clubs.values())
+      .filter((c) => !c.hasStripeAccount)
+      .map((c) => c.id);
+  }
+
+  public getClubIdsWithStripeAccounts(): number[] {
+    return Array.from(this.clubs.values())
+      .filter((c) => c.hasStripeAccount)
+      .map((c) => c.id);
   }
 }

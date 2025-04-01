@@ -15,6 +15,8 @@ datasource db {
 
 enum MembershipStatus {
   ACTIVE
+  // e.g., awaiting setup intent
+  PENDING_INCOMPLETE
   PENDING
   DECLINED
   INACTIVE
@@ -46,7 +48,7 @@ model User {
 model UserSettings {
   userId    Int      @id @unique @map("user_id")
   user      User     @relation(fields: [userId], references: [id])
-  email     String?
+  email     String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -55,23 +57,24 @@ model UserSettings {
 }
 
 model Club {
-  id                   Int              @id @default(autoincrement())
-  publicId             String           @unique @map("public_id")
-  name                 String
-  tagLine              String           @map("tag_line")
-  description          String
-  owner                User             @relation(fields: [ownerUserId], references: [id])
-  ownerUserId          Int              @map("owner_user_id")
-  websiteUrl           String?          @map("website_url")
-  eventCalendarUrl     String?          @map("event_calendar_url")
-  instagramHandle      String?          @map("instagram_handle")
-  applicationQuestions Json             @map("application_questions")
-  theme                Json?
+  id                     Int              @id @default(autoincrement())
+  publicId               String           @unique @map("public_id")
+  name                   String
+  tagLine                String           @map("tag_line")
+  description            String
+  owner                  User             @relation(fields: [ownerUserId], references: [id])
+  ownerUserId            Int              @map("owner_user_id")
+  websiteUrl             String?          @map("website_url")
+  eventCalendarUrl       String?          @map("event_calendar_url")
+  instagramHandle        String?          @map("instagram_handle")
+  applicationQuestions   Json             @map("application_questions")
+  theme                  Json?
   // ordered
-  displayImageUrls     String[]         @default([]) @map("display_image_urls")
-  membershipTiers      MembershipTier[]
-  createdAt            DateTime         @default(now()) @map("created_at")
-  updatedAt            DateTime         @updatedAt @map("updated_at")
+  displayImageUrls       String[]         @default([]) @map("display_image_urls")
+  membershipTiers        MembershipTier[]
+  stripeConnectAccountId String?          @unique @map("stripe_connect_account_id")
+  createdAt              DateTime         @default(now()) @map("created_at")
+  updatedAt              DateTime         @updatedAt @map("updated_at")
 
   @@index([ownerUserId])
   @@index([publicId])
@@ -87,6 +90,9 @@ model MembershipTier {
   club                    Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubId                  Int                  @map("club_id")
   status                  MembershipTierStatus @default(PUBLISHED)
+  stripeProductId         String?              @unique @map("stripe_product_id")
+  // active price
+  stripePriceId           String?              @unique @map("stripe_price_id")
   memberships             Membership[]
   createdAt               DateTime             @default(now()) @map("created_at")
   updatedAt               DateTime             @updatedAt @map("updated_at")
@@ -104,6 +110,9 @@ model Membership {
   applicationResponses Json             @map("application_responses")
   status               MembershipStatus
   isWelcomed           Boolean          @default(false) @map("is_welcomed")
+  stripeCustomerId     String?          @unique @map("stripe_customer_id")
+  stripeSetupIntentId  String?          @unique @map("stripe_setup_intent_id")
+  stripeSubscriptionId String?          @unique @map("stripe_subscription_id")
   createdAt            DateTime         @default(now()) @map("created_at")
   updatedAt            DateTime         @updatedAt @map("updated_at")
 

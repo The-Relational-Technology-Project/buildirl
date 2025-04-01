@@ -22,7 +22,7 @@ import { TRPCError } from "@trpc/server";
 
 export const mainRouter = createTRPCRouter({
   user: securedProcedure.query(({ ctx }) => {
-    return ctx.service.getUser(ctx.user.userId);
+    return ctx.service.main.getUser(ctx.user.userId);
   }),
 
   isUserAuthenticated: publicProcedure.query(({ ctx }) => {
@@ -30,17 +30,17 @@ export const mainRouter = createTRPCRouter({
   }),
 
   userOwnedClubs: securedProcedure.query(({ ctx }) => {
-    return ctx.service.getUserOwnedClubs(ctx.user.userId);
+    return ctx.service.main.getUserOwnedClubs(ctx.user.userId);
   }),
 
   userMemberships: securedProcedure.query(({ ctx }) => {
-    return ctx.service.getUserMemberships(ctx.user.userId);
+    return ctx.service.main.getUserMemberships(ctx.user.userId);
   }),
 
   clubByPublicId: publicProcedure
     .input(z.object({ publicId: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.service.getClubByPublicId(input.publicId);
+      return ctx.service.main.getClubByPublicId(input.publicId);
     }),
 
   activeMembershipsForClub: publicProcedure
@@ -50,7 +50,7 @@ export const mainRouter = createTRPCRouter({
       })
     )
     .query(({ ctx, input }) => {
-      return ctx.service.getActiveMembershipsForClub(input.clubId, false);
+      return ctx.service.main.getActiveMembershipsForClub(input.clubId, false);
     }),
 
   activeMembershipsForClubWithEmail: securedProcedureWithAbilityFor("Club")
@@ -64,7 +64,7 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.getActiveMembershipsForClub(input.clubId, true);
+      return ctx.service.main.getActiveMembershipsForClub(input.clubId, true);
     }),
 
   membershipApplicationsForClub: securedProcedureWithAbilityFor("Club")
@@ -73,31 +73,34 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.getMembershipApplicationsForClub(input.clubId);
+      return ctx.service.main.getMembershipApplicationsForClub(input.clubId);
     }),
 
   clubStatistics: publicProcedure
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
-      return ctx.service.getClubStatistics(input.clubId);
+      return ctx.service.main.getClubStatistics(input.clubId);
     }),
 
   userById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(({ ctx, input }) => {
-      return ctx.service.getUser(input.id);
+      return ctx.service.main.getUser(input.id);
     }),
 
   club: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(({ ctx, input }) => {
-      return ctx.service.getClub(input.id);
+      return ctx.service.main.getClub(input.id);
     }),
 
   createUser: securedProcedure
     .input(CreateUserInputSchema)
     .mutation(({ ctx, input }) => {
-      return ctx.service.createUser(
+      if (!ctx.user.authEmail) {
+        throw new Error("email is required on auth user to create user");
+      }
+      return ctx.service.main.createUser(
         input,
         ctx.user.authUserId,
         ctx.user.authEmail
@@ -110,13 +113,13 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("User", { id: input.id }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.updateUser(input.id, input.input);
+      return ctx.service.main.updateUser(input.id, input.input);
     }),
 
   createClub: securedProcedure
     .input(CreateClubInputSchema)
     .mutation(({ ctx, input }) => {
-      return ctx.service.createClub(input, ctx.user.userId);
+      return ctx.service.main.createClub(input, ctx.user.userId);
     }),
 
   updateClub: securedProcedureWithAbilityFor("Club")
@@ -125,7 +128,7 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.id }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.updateClub(input.id, input.input);
+      return ctx.service.main.updateClub(input.id, input.input);
     }),
 
   deleteClub: securedProcedureWithAbilityFor("Club")
@@ -134,7 +137,7 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.id }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.deleteClub(input.id);
+      return ctx.service.main.deleteClub(input.id);
     }),
 
   updateClubApplicationQuestions: securedProcedureWithAbilityFor("Club")
@@ -148,7 +151,7 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.updateClubApplicationQuestions(
+      return ctx.service.main.updateClubApplicationQuestions(
         input.clubId,
         input.input
       );
@@ -165,7 +168,10 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.updateClubDisplayImageUrls(input.clubId, input.input);
+      return ctx.service.main.updateClubDisplayImageUrls(
+        input.clubId,
+        input.input
+      );
     }),
 
   createMembershipTier: securedProcedureWithAbilityFor("Club")
@@ -176,7 +182,7 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.createMembershipTier(input.clubId, input.input);
+      return ctx.service.main.createMembershipTier(input.clubId, input.input);
     }),
 
   updateMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
@@ -192,7 +198,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.updateMembershipTier(input.id, input.input);
+      return ctx.service.main.updateMembershipTier(input.id, input.input);
     }),
 
   deleteMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
@@ -203,7 +209,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.deleteMembershipTier(input.id);
+      return ctx.service.main.deleteMembershipTier(input.id);
     }),
 
   publishMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
@@ -214,7 +220,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.publishMembershipTier(input.id);
+      return ctx.service.main.publishMembershipTier(input.id);
     }),
 
   unpublishMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
@@ -225,7 +231,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.unpublishMembershipTier(input.id);
+      return ctx.service.main.unpublishMembershipTier(input.id);
     }),
 
   submitMembershipApplication: securedProcedure
@@ -236,7 +242,7 @@ export const mainRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input }) => {
-      return ctx.service.submitMembershipApplication(
+      return ctx.service.main.submitMembershipApplication(
         input.membershipTierId,
         input.input,
         ctx.user.userId
@@ -254,7 +260,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.approveMembershipApplication(input.membershipId);
+      return ctx.service.main.approveMembershipApplication(input.membershipId);
     }),
 
   declineMembershipApplication: securedProcedureWithAbilityFor("Membership")
@@ -268,7 +274,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.declineMembershipApplication(input.membershipId);
+      return ctx.service.main.declineMembershipApplication(input.membershipId);
     }),
 
   deactivateMembership: securedProcedureWithAbilityFor("Membership")
@@ -282,7 +288,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.deactivateMembership(input.membershipId);
+      return ctx.service.main.deactivateMembership(input.membershipId);
     }),
 
   setMembershipAsWelcomed: securedProcedureWithAbilityFor("Membership")
@@ -296,6 +302,6 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.setMembershipAsWelcomed(input.membershipId);
+      return ctx.service.main.setMembershipAsWelcomed(input.membershipId);
     })
 });

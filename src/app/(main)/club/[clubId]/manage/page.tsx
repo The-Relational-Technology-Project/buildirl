@@ -21,6 +21,7 @@ import MembershipApplicationTable from "~/app/(main)/club/[clubId]/manage/_compo
 import ActiveMembershipTable from "~/app/(main)/club/[clubId]/manage/_components/ActiveMembershipTable";
 import ManageIntakePanel from "~/app/(main)/club/[clubId]/manage/_components/ManageIntakePanel";
 import { useMounted } from "@mantine/hooks";
+import StripeConnectPanel from "~/app/(main)/club/[clubId]/manage/_components/StripeConnectPanel";
 
 export default function ManageClub() {
   const { colorScheme } = useMantineColorScheme();
@@ -60,6 +61,7 @@ export default function ManageClub() {
             <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>
             <Tabs.Tab value={"people"}>People</Tabs.Tab>
             <Tabs.Tab value={"intake"}>Intake</Tabs.Tab>
+            <Tabs.Tab value={"stripe-connect"}>Stripe Connect</Tabs.Tab>
             <Tabs.Tab value={"admin"}>Admin</Tabs.Tab>
           </Tabs.List>
 
@@ -76,6 +78,9 @@ export default function ManageClub() {
           </Tabs.Panel>
           <Tabs.Panel value={"intake"}>
             <ManageIntakePanel club={r.data!} />
+          </Tabs.Panel>
+          <Tabs.Panel value={"stripe-connect"}>
+            <StripeConnectPanel clubId={r.data!.id} />
           </Tabs.Panel>
           <Tabs.Panel value={"admin"}>
             <ClubAdminPanel clubId={r.data!.id} />

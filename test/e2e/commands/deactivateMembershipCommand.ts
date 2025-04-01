@@ -1,13 +1,13 @@
-import { MainService } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
+import { Services } from "../system.test";
 
 export default class DeactivateMembershipCommand
-  implements Command<SystemState, MainService>
+  implements Command<SystemState, Services>
 {
   private readonly membershipIdSelector: ItemSelector<bigint>;
   private membershipId: Maybe<bigint> = null;
@@ -20,16 +20,16 @@ export default class DeactivateMembershipCommand
     return m.getActiveMembershipIds().length > 0;
   }
 
-  async run(m: SystemState, r: MainService): Promise<void> {
+  async run(m: SystemState, r: Services): Promise<void> {
     this.membershipId = this.membershipIdSelector.select(
       m.getActiveMembershipIds()
     );
-    await r.deactivateMembership(this.membershipId);
+    await r.main.deactivateMembership(this.membershipId);
     m.deactivateMembership(this.membershipId);
     const clubId = m.getClubIdForMembership(this.membershipId);
-    await verifiers.verifyClubMemberships(clubId, r, m);
+    await verifiers.verifyClubMemberships(clubId, r.main, m);
     const userId = m.getUserIdForMembership(this.membershipId);
-    await verifiers.verifyUserMemberships(userId, r, m);
+    await verifiers.verifyUserMemberships(userId, r.main, m);
   }
 
   toString() {

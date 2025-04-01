@@ -1,5 +1,6 @@
 import {
   Button,
+  Center,
   Group,
   Paper,
   ScrollArea,
@@ -20,6 +21,8 @@ import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { IconListCheck } from "@tabler/icons-react";
 import UserAvatar from "~/client/components/UserAvatar";
+import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
+import { isDefaultFreeTier } from "~/utils/types";
 
 type ActiveMembershipTableProps = {
   clubId: number;
@@ -42,6 +45,7 @@ export default function ActiveMembershipTable({
       await utils.main.activeMembershipsForClubWithEmail.invalidate({
         clubId: clubId
       });
+      await utils.main.clubStatistics.invalidate({ clubId: clubId });
     }
   });
 
@@ -110,6 +114,13 @@ export default function ActiveMembershipTable({
           Cancel
         </Button>
       </Table.Td>
+      <Table.Td>
+        <Center h={"100%"}>
+          {!isDefaultFreeTier(m.membershipTier) && (
+            <InactiveSubscriptionAlert membershipId={m.id} forClubOwner />
+          )}
+        </Center>
+      </Table.Td>
     </Table.Tr>
   ));
 
@@ -143,6 +154,8 @@ export default function ActiveMembershipTable({
                 {/* Application Questions */}
                 <Table.Th />
                 <Table.Th>Action</Table.Th>
+                {/* Subscription Status */}
+                <Table.Th />
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>

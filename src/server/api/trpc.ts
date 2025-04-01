@@ -19,6 +19,10 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { defineAbilityFor } from "~/server/api/authz/abilities";
 import { AppAction, AppSubject } from "~/server/api/authz/types";
 import { MongoAbility } from "@casl/ability";
+import { createPaymentService } from "~/server/payments/service";
+import { createStripeClient } from "~/server/payments/stripe/stripeClient";
+import { stripe } from "~/server/payments/stripe/stripe";
+import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
 
 /**
  * 1. CONTEXT
@@ -37,8 +41,13 @@ export const createTRPCContext = async (opts: {
   supabase: SupabaseClient;
 }) => {
   const user = await authUser(opts.supabase);
+  const stripeClient = createStripeClient(stripe);
+  const accountIdResolver = createAccountIdResolver(prisma);
   return {
-    service: createMainService(prisma),
+    service: {
+      main: createMainService(prisma, stripeClient, accountIdResolver),
+      payment: createPaymentService(stripeClient, prisma, accountIdResolver)
+    },
     user: user,
     headers: opts.headers,
     ability: null as Maybe<MongoAbility<[AppAction, AppSubject]>>
@@ -61,6 +70,7 @@ async function authUser(supabase: SupabaseClient): Promise<Maybe<AuthUser>> {
     return null;
   }
   const userId = await userIdByAuthUserId(user.id);
+
   return { userId: userId, authUserId: user.id, authEmail: user.email ?? null };
 }
 

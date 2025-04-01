@@ -36,6 +36,7 @@ import PrimaryButton from "~/client/components/PrimaryButton";
 import SecondaryButton from "~/client/components/SecondaryButton";
 import HideablePaper from "~/client/components/HideablePaper";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
+import { idAsBigInt } from "~/utils/types";
 
 type ShareEmailQuestionProp = {
   shareEmail: boolean;
@@ -104,7 +105,7 @@ function ApplicationForm({
   membershipTierId,
   clubPublicId
 }: ApplicationFormProps) {
-  const BUTTON_WIDTH = useMatches({ base: 100, md: 120 });
+  const buttonWidth = useMatches({ base: 100, md: 120 });
 
   const [activeStep, setActiveStep] = useState(0);
   const [shareEmail, setShareEmail] = useState(false);
@@ -114,9 +115,11 @@ function ApplicationForm({
 
   const submitMembershipApplication =
     api.main.submitMembershipApplication.useMutation({
-      onSuccess: () => {
+      onSuccess: (r) => {
         utils.main.userMemberships.invalidate();
-        router.push(`/apply/${clubPublicId}/completed`);
+        router.push(
+          `/apply/${clubPublicId}/payments?membershipId=${idAsBigInt(r.createdEntityId)}`
+        );
       }
     });
 
@@ -343,7 +346,7 @@ function ApplicationForm({
 
         <Group mt="xl" justify={"center"}>
           {activeStep > 0 && (
-            <SecondaryButton w={BUTTON_WIDTH} size={"sm"} onClick={prevStep}>
+            <SecondaryButton w={buttonWidth} size={"sm"} onClick={prevStep}>
               Back
             </SecondaryButton>
           )}
@@ -352,15 +355,15 @@ function ApplicationForm({
             // is always the last question
             <PrimaryButton
               type="submit"
-              w={BUTTON_WIDTH}
+              w={buttonWidth}
               size={"sm"}
               disabled={!shareEmail}
             >
-              Submit
+              Next
             </PrimaryButton>
           ) : (
             <PrimaryButton
-              w={BUTTON_WIDTH}
+              w={buttonWidth}
               size={"sm"}
               onClick={nextStep}
               disabled={!isCurrentQuestionValid()}

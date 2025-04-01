@@ -51,7 +51,12 @@ export type Club = {
   membershipTiers: MembershipTier[];
 };
 
-export type MembershipStatus = "ACTIVE" | "PENDING" | "DECLINED" | "INACTIVE";
+export type MembershipStatus =
+  | "ACTIVE"
+  | "PENDING"
+  | "PENDING_INCOMPLETE"
+  | "DECLINED"
+  | "INACTIVE";
 export type MembershipTierStatus = "PUBLISHED" | "UNPUBLISHED";
 
 export type Membership = {
@@ -66,7 +71,7 @@ export type Membership = {
   email: Maybe<Email>;
   isWelcomed: boolean;
   // this isn't exactly the join date as it is the date
-  // the membership went into `PENDING` state
+  // the membership first was created (e.g., as `PENDING_INCOMPLETE`)
   // TODO refine
   createdAt: Date;
 };
@@ -88,7 +93,7 @@ export type MainMutations = {
   createUser(
     input: CreateUserInput,
     authUserId: string,
-    authEmail: Maybe<string>
+    authEmail: string
   ): Promise<MutationResult>;
   updateUser(id: number, input: UpdateUserInput): Promise<MutationResult>;
   createClub(input: CreateClubInput, userId: number): Promise<MutationResult>;
@@ -229,6 +234,7 @@ export const MonetaryValueSchema = z
   .max(1000.0, "Cannot be greater than $1000.00")
   // 2 decimal places
   .transform((val) => Number(val.toFixed(2)));
+export type MonetaryValue = z.infer<typeof MonetaryValueSchema>;
 
 export const MembershipTierNameSchema = z
   .string()

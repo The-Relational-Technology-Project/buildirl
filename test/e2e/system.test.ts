@@ -8,6 +8,20 @@ import { allCommands } from "./commands";
 import { rootLogger } from "~/logger";
 import { MainService } from "~/server/service/types";
 import { createMainService } from "~/server/service/service";
+import { createFakeStripeClient } from "./fakeStripeClient";
+import { PaymentService } from "~/server/payments/types";
+import { createPaymentService } from "~/server/payments/service";
+import {
+  createPaymentEventProcessor,
+  PaymentEventProcessor
+} from "~/server/payments/eventProcessor";
+import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
+
+export type Services = {
+  main: MainService;
+  payment: PaymentService;
+  paymentEvents: PaymentEventProcessor;
+};
 
 function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {
   execSync(
@@ -20,7 +34,9 @@ function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {
 // TODO run this on gitlab-ci with docker-in-docker set-up
 describe("mainService", () => {
   let container: StartedTestContainer;
-  let service: MainService;
+  let mainService: MainService;
+  let paymentService: PaymentService;
+  let paymentEventProcessor: PaymentEventProcessor;
 
   beforeAll(async () => {
     const supabaseContainer = await createSupabaseTestContainer();
@@ -37,7 +53,19 @@ describe("mainService", () => {
     );
 
     rootLogger.info("connection string: " + supabaseContainer.connectionString);
-    service = createMainService(prisma);
+    const fakeStripeClient = createFakeStripeClient();
+    const accountIdResolver = createAccountIdResolver(prisma);
+    mainService = createMainService(
+      prisma,
+      fakeStripeClient,
+      accountIdResolver
+    );
+    paymentService = createPaymentService(
+      fakeStripeClient,
+      prisma,
+      accountIdResolver
+    );
+    paymentEventProcessor = createPaymentEventProcessor(prisma);
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull
   }, 30000);
@@ -56,7 +84,11 @@ describe("mainService", () => {
         async (cmds) => {
           const s = () => ({
             model: new SystemState(),
-            real: service
+            real: {
+              main: mainService,
+              payment: paymentService,
+              paymentEvents: paymentEventProcessor
+            }
           });
           // TODO check that all commands were run at least once
           await asyncModelRun(s, cmds);

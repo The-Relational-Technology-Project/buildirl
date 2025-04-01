@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Stack, Title, Text, Paper } from "@mantine/core";
+import { Button, Stack, Title, Text, Paper, Group } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { strictParseInt } from "~/utils";
 import { api } from "~/trpc/react";
@@ -9,7 +9,9 @@ import { isLoaded } from "~/client/utils";
 import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import JoinedDate from "~/client/components/JoinedDate";
-import { membershipForClub } from "~/utils/types";
+import { isDefaultFreeTier, membershipForClub } from "~/utils/types";
+import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
+import ManagePaymentsButton from "~/app/(main)/club/[clubId]/manage-membership/_components/ManagePaymentsButton";
 
 export default function ManageMembership() {
   const params = useParams<{ clubId: string }>();
@@ -26,7 +28,8 @@ export default function ManageMembership() {
       await utils.main.activeMembershipsForClubWithEmail.invalidate({
         clubId: clubId
       });
-      router.back();
+      await utils.main.clubStatistics.invalidate({ clubId: clubId });
+      router.push("/");
     }
   });
 
@@ -60,11 +63,18 @@ export default function ManageMembership() {
   };
 
   return (
-    <WithLocalNavigationHeader>
+    // go back explicitly to root because we might have gone
+    // to Stripe and do not want to redirect back there
+    <WithLocalNavigationHeader navigateTo={"/"}>
       <Stack>
         <Title order={3}>Your Membership to {membership.club.name}</Title>
         <Paper p={"xl"}>
-          <Title order={4}>Membership Details</Title>
+          <Group gap={"xs"}>
+            <Title order={4}>Membership Details</Title>
+            {!isDefaultFreeTier(membership.membershipTier) && (
+              <InactiveSubscriptionAlert membershipId={membership.id} />
+            )}
+          </Group>
 
           <JoinedDate date={membership.createdAt} mt={8} />
 
@@ -91,12 +101,17 @@ export default function ManageMembership() {
                 </Text>
               </>
             )}
+
             <Title order={5} mt={"sm"}>
               Cost
             </Title>
             <Text
               size={"sm"}
             >{`$${membership.membershipTier.costPerMonthInUSD}.00/month`}</Text>
+
+            {!isDefaultFreeTier(membership.membershipTier) && (
+              <ManagePaymentsButton membershipId={membership.id} mt={"lg"} />
+            )}
           </Stack>
         </Paper>
 

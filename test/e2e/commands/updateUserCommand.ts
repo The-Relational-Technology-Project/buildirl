@@ -4,11 +4,11 @@ import { UpdateUserInput } from "~/server/service/types";
 import { type Maybe } from "~/utils/types";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
-import { MainService } from "~/server/service/types";
 import { ItemSelector } from "../utils/itemSelector";
+import { Services } from "../system.test";
 
 export default class UpdateUserCommand
-  implements Command<SystemState, MainService>
+  implements Command<SystemState, Services>
 {
   private readonly input: UpdateUserInput;
   private readonly userIdSelector: ItemSelector<number>;
@@ -23,11 +23,11 @@ export default class UpdateUserCommand
     return m.hasUsers();
   }
 
-  async run(m: SystemState, r: MainService): Promise<void> {
+  async run(m: SystemState, r: Services): Promise<void> {
     this.userId = this.userIdSelector.select(m.getUserIds());
-    await r.updateUser(this.userId, this.input);
+    await r.main.updateUser(this.userId, this.input);
     m.updateUser(this.userId, this.input);
-    await verifiers.verifyUser(this.userId, r, m);
+    await verifiers.verifyUser(this.userId, r.main, m);
   }
 
   toString() {
