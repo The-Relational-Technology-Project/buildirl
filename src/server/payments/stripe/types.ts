@@ -50,6 +50,9 @@ export type StripeClient = {
   ): Promise<SubscriptionStatusResponse>;
 
   // membership management
+  createCustomerPortalConfiguration(
+    byAccountId: string
+  ): Promise<CreateCustomerPortalConfigurationResponse>;
   createCustomerPortalSession(
     input: CreateCustomerPortalSessionInput,
     byAccountId: string
@@ -122,6 +125,10 @@ export type CreateCustomerInput = {
 
 export type CreateCustomerResponse = {
   customerId: string;
+};
+
+export type CreateCustomerPortalConfigurationResponse = {
+  configurationId: string;
 };
 
 export type CreateCustomerPortalSessionInput = {

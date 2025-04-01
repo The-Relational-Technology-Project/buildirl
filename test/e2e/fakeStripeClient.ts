@@ -7,6 +7,7 @@ import {
   CreateCheckoutSessionInput,
   CreateCheckoutSessionResponse,
   CreateCustomerInput,
+  CreateCustomerPortalConfigurationResponse,
   CreateCustomerPortalSessionInput,
   CreateCustomerPortalSessionResponse,
   CreateCustomerResponse,
@@ -27,6 +28,7 @@ export function createFakeStripeClient(): StripeClient {
   let nextPriceId: number = 1;
   let nextCustomerId: number = 1;
   let nextSubscriptionId: number = 1;
+  let nextConfigurationId: number = 1;
 
   async function createAccount(): Promise<CreateAccountResponse> {
     const response = { accountId: `account:id:${nextAccountId}` };
@@ -45,7 +47,8 @@ export function createFakeStripeClient(): StripeClient {
   }
 
   async function createProductAndPrice(
-    _: CreateProductAndPriceInput
+    _: CreateProductAndPriceInput,
+    __: string
   ): Promise<CreateProductAndPriceResponse> {
     const response = {
       productId: `product:id:${nextProductId}`,
@@ -57,7 +60,8 @@ export function createFakeStripeClient(): StripeClient {
   }
 
   async function updateProductAndPrice(
-    __: UpdateProductAndPriceInput
+    _: UpdateProductAndPriceInput,
+    __: string
   ): Promise<UpdateProductAndPriceResponse> {
     const response = {
       updatedPriceId: `price:id:${nextPriceId}`
@@ -67,39 +71,55 @@ export function createFakeStripeClient(): StripeClient {
   }
 
   async function archiveProductAndPrice(
-    _: ArchiveProductAndPriceInput
+    _: ArchiveProductAndPriceInput,
+    __: string
   ): Promise<void> {
     return Promise.resolve();
   }
 
   async function publishProductAndPrice(
-    _: PublishProductAndPriceInput
+    _: PublishProductAndPriceInput,
+    __: string
   ): Promise<void> {
     return Promise.resolve();
   }
 
   async function createCustomer(
-    _: CreateCustomerInput
+    _: CreateCustomerInput,
+    __: string
   ): Promise<CreateCustomerResponse> {
     const response = { customerId: `customer:id:${nextCustomerId}` };
     nextCustomerId++;
     return Promise.resolve(response);
   }
 
+  async function createCustomerPortalConfiguration(
+    _: string
+  ): Promise<CreateCustomerPortalConfigurationResponse> {
+    const response = {
+      configurationId: `configuration:id:${nextConfigurationId}`
+    };
+    nextConfigurationId++;
+    return Promise.resolve(response);
+  }
+
   async function createCustomerPortalSession(
-    _: CreateCustomerPortalSessionInput
+    _: CreateCustomerPortalSessionInput,
+    __: string
   ): Promise<CreateCustomerPortalSessionResponse> {
     throw new Error("not implemented");
   }
 
   async function createCheckoutSession(
-    _: CreateCheckoutSessionInput
+    _: CreateCheckoutSessionInput,
+    __: string
   ): Promise<CreateCheckoutSessionResponse> {
     throw new Error("not implemented");
   }
 
   async function createSubscription(
-    _: CreateSubscriptionInput
+    _: CreateSubscriptionInput,
+    __: string
   ): Promise<CreateSubscriptionResponse> {
     const response = {
       subscriptionId: `subscription:id:${nextSubscriptionId}`
@@ -108,12 +128,13 @@ export function createFakeStripeClient(): StripeClient {
     return Promise.resolve(response);
   }
 
-  async function cancelSubscription(_: string): Promise<void> {
+  async function cancelSubscription(_: string, __: string): Promise<void> {
     return Promise.resolve();
   }
 
   async function getSubscriptionStatus(
-    _: string
+    _: string,
+    __: string
   ): Promise<SubscriptionStatusResponse> {
     throw new Error("not implemented");
   }
@@ -127,6 +148,7 @@ export function createFakeStripeClient(): StripeClient {
     archiveProductAndPrice,
     publishProductAndPrice,
     createCustomer,
+    createCustomerPortalConfiguration,
     createCustomerPortalSession,
     createCheckoutSession,
     createSubscription,
