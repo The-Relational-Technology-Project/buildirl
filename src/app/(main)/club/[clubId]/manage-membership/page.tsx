@@ -117,11 +117,11 @@ export default function ManageMembership() {
 
         <Stack w={"100%"} align={"center"} mt={"md"}>
           <Button w={150} color={"orange"} onClick={handleDeactivateMembership}>
-            Leave Club
+            Cancel Membership
           </Button>
           <Text size={"sm"} w={300} style={{ textAlign: "center" }}>
-            Your membership will be canceled. Re-joining will require a
-            re-application.
+            Your membership will be canceled and you will not be charged after
+            the remaining period. Re-joining will require a re-application.
           </Text>
         </Stack>
       </Stack>

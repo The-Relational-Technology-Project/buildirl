@@ -114,7 +114,7 @@ function ManageStripeConnectAccount({
             }}
             loading={createAccountLink.isPending}
           >
-            Complete Account Setup
+            Setup Stripe Account
           </Button>
         </Tooltip>
       )}
@@ -146,7 +146,7 @@ export default function StripeConnectPanel({
     isLoaded(r) && (
       <Stack mt={"xl"} gap={4} align={"center"}>
         <Text size={"md"}>
-          Use your Stripe Connect account to receive member contributions.
+          Manage your Stripe Connect account to receive member contributions
         </Text>
         {r.data === null ? (
           <CreateStripeConnectAccount clubId={clubId} />
