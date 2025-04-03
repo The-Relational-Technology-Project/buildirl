@@ -8,7 +8,10 @@ import {
   List,
   Box,
   Tooltip,
-  Paper
+  Paper,
+  Group,
+  ThemeIcon,
+  GroupProps
 } from "@mantine/core";
 import React from "react";
 import { api } from "~/trpc/react";
@@ -16,6 +19,8 @@ import { logger } from "~/client/logger";
 import { AccountStatus } from "~/server/payments/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
+import { IconAlertCircle } from "@tabler/icons-react";
+import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
 
 type CreateStripeConnectAccountProps = {
   clubId: number;
@@ -48,22 +53,39 @@ function CreateStripeConnectAccount({
   );
 }
 
-type MissingRequirementsToolTipProps = {
+type MissingRequirementsMessage = {
   requirements: string[];
 };
 
-function MissingRequirementsToolTip({
+function MissingRequirementsMessage({
   requirements
-}: MissingRequirementsToolTipProps) {
+}: MissingRequirementsMessage) {
+  if (requirements.length === 0) {
+    return;
+  }
+
   return (
-    <Stack gap={"xs"} p={4}>
-      <Title order={6}>Missing Requirements</Title>
-      <List size="sm">
-        {requirements.map((req, index) => (
-          <List.Item key={index}>{req}</List.Item>
-        ))}
-      </List>
-    </Stack>
+    <Group gap={2}>
+      <Text size={"sm"}>Account set up not complete. See details.</Text>
+      <Tooltip
+        label={
+          <Stack gap={4} p={8}>
+            <Text size={"sm"} fw={700}>
+              You are missing the following requirements
+            </Text>
+            <List size="sm">
+              {requirements.map((req, index) => (
+                <List.Item key={index}>{req}</List.Item>
+              ))}
+            </List>
+          </Stack>
+        }
+      >
+        <ColorSchemeAwareThemeIcon size={"xs"}>
+          <IconAlertCircle />
+        </ColorSchemeAwareThemeIcon>
+      </Tooltip>
+    </Group>
   );
 }
 
@@ -96,15 +118,7 @@ function ManageStripeConnectAccount({
           Manage Stripe Dashboard
         </Button>
       ) : (
-        <Tooltip
-          position={"bottom-start"}
-          label={
-            <MissingRequirementsToolTip
-              requirements={status.missingRequirements}
-            />
-          }
-          hidden={status.missingRequirements.length === 0}
-        >
+        <Stack gap={"lg"}>
           <Button
             onClick={async () => {
               await createAccountLink.mutateAsync({
@@ -116,7 +130,10 @@ function ManageStripeConnectAccount({
           >
             Setup Stripe Account
           </Button>
-        </Tooltip>
+          <MissingRequirementsMessage
+            requirements={status.missingRequirements}
+          />
+        </Stack>
       )}
     </Box>
   );
