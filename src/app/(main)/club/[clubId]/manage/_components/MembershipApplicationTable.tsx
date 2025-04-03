@@ -105,6 +105,7 @@ export default function MembershipApplicationTable({
                 membershipId: m.id
               })
             }
+            loading={approveMembershipApplication.isPending}
           >
             Approve
           </Button>
@@ -116,6 +117,7 @@ export default function MembershipApplicationTable({
                 membershipId: m.id
               })
             }
+            loading={declineMembershipApplication.isPending}
           >
             Decline
           </Button>
