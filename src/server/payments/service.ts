@@ -136,13 +136,19 @@ export function createPaymentService(
         email: club.owner.settings.email
       });
 
+      const { configurationId } =
+        await stripeClient.createCustomerPortalConfiguration(accountId);
+
       await tx.club.update({
         where: { id: input.clubId },
-        data: { stripeConnectAccountId: accountId }
+        data: {
+          stripeConnectAccountId: accountId,
+          stripeCustomerPortalConfigurationId: configurationId
+        }
       });
 
       logger.info(
-        `created Stripe Connect account with id ${accountId} for club with id ${input.clubId}`
+        `created Stripe Connect account with id ${accountId} with customer portal configuration with id ${configurationId} for club with id ${input.clubId}`
       );
     } catch (e) {
       logger.error(
@@ -253,7 +259,9 @@ export function createPaymentService(
           stripeCustomerId: true,
           membershipTier: {
             select: {
-              clubId: true
+              club: {
+                select: { id: true, stripeCustomerPortalConfigurationId: true }
+              }
             }
           }
         },
@@ -266,13 +274,21 @@ export function createPaymentService(
         );
       }
 
+      if (!membership.membershipTier.club.stripeCustomerPortalConfigurationId) {
+        throw new Error(
+          `no Stripe customer portal configuration found for club with with id ${membership.membershipTier.club.id}`
+        );
+      }
+
       const accountId = await accountIdResolver.fromMembership(membershipId);
 
       const { redirectUrl } = await stripeClient.createCustomerPortalSession(
         {
           customerId: membership.stripeCustomerId,
-          clubId: membership.membershipTier.clubId,
-          origin: input.origin
+          clubId: membership.membershipTier.club.id,
+          origin: input.origin,
+          configurationId:
+            membership.membershipTier.club.stripeCustomerPortalConfigurationId
         },
         accountId
       );

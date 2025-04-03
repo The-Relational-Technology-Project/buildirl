@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import {
+  Club,
   CreateMembershipTierInput,
   Membership,
   MembershipTier,
@@ -97,4 +98,18 @@ export type BigIntString = z.infer<typeof BigIntStringSchema>;
 
 export function bigint(val: BigIntString): bigint {
   return BigInt(val);
+}
+
+export function membershipTier(club: Club, membershipTierId: number) {
+  const membershipTier = club.membershipTiers.find(
+    (t) => t.id === membershipTierId
+  );
+
+  if (!membershipTier) {
+    throw new Error(
+      `expected to find membership tier with ${membershipTierId} in club with id ${club.id} but was missing`
+    );
+  }
+
+  return membershipTier;
 }

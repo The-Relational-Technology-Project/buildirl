@@ -110,6 +110,7 @@ export default function ActiveMembershipTable({
           color={"red"}
           size={"xs"}
           onClick={() => handleDeactivateMembership(m.id)}
+          loading={deactivateMembership.isPending}
         >
           Cancel
         </Button>

@@ -32,7 +32,7 @@ export default function ManagePaymentsButton({
         }}
         loading={createCustomerPortalSession.isPending}
       >
-        Manage Payments
+        Edit Payment Details
       </Button>
     </Box>
   );

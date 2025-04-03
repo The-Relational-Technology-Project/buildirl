@@ -26,10 +26,18 @@ export default function IntakePaymentsPage() {
     <Box pt={{ base: 100, md: 120 }} px={{ base: undefined, md: 180 }}>
       <Paper p={"xl"}>
         <Stack>
-          <Text fw={500}>Stripe Checkout</Text>
+          <Text fw={500}>
+            Almost there! Your application is still in progress.
+          </Text>
+
           <Text size="sm">
-            You will be directed to Stripe to securely provide your payment
-            details. You will not be charged unless you are approved as member.
+            Your support matters. The dues help keep our club alive!
+          </Text>
+
+          <Text size="sm">
+            You’ll only start paying dues once you're officially in. We won’t
+            begin your contributions until your membership is accepted by the
+            club.
           </Text>
 
           <Box style={{ alignSelf: "center" }} mt={"md"}>
@@ -44,7 +52,7 @@ export default function IntakePaymentsPage() {
               size={"sm"}
               w={200}
             >
-              Proceed to Checkout
+              Submit Payment Details
             </PrimaryButton>
           </Box>
         </Stack>

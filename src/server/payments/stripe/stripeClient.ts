@@ -8,6 +8,7 @@ import {
   CreateCheckoutSessionInput,
   CreateCheckoutSessionResponse,
   CreateCustomerInput,
+  CreateCustomerPortalConfigurationResponse,
   CreateCustomerPortalSessionInput,
   CreateCustomerPortalSessionResponse,
   CreateCustomerResponse,
@@ -333,6 +334,47 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
+  async function createCustomerPortalConfiguration(
+    byAccountId: string
+  ): Promise<CreateCustomerPortalConfigurationResponse> {
+    try {
+      const configuration = await stripe.billingPortal.configurations.create(
+        {
+          features: {
+            customer_update: {
+              allowed_updates: [
+                "address",
+                "email",
+                "name",
+                "phone",
+                "shipping"
+              ],
+              enabled: true
+            },
+            invoice_history: { enabled: true },
+            payment_method_update: { enabled: true },
+            // these are the important ones; we do not want customers to cancel
+            // subscription out of application; instead they should use in-app flows
+            subscription_cancel: { enabled: false },
+            subscription_update: { enabled: false }
+          }
+        },
+        {
+          stripeAccount: byAccountId
+        }
+      );
+      logger.info(
+        `successfully created customer portal configuration with id ${configuration.id}`
+      );
+      return {
+        configurationId: configuration.id
+      };
+    } catch (e) {
+      logger.error(e, `failed to create customer portal configuration`);
+      throw e;
+    }
+  }
+
   async function createCustomerPortalSession(
     input: CreateCustomerPortalSessionInput,
     byAccountId: string
@@ -340,6 +382,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     try {
       const session = await stripe.billingPortal.sessions.create(
         {
+          configuration: input.configurationId,
           customer: input.customerId,
           return_url: `${input.origin}/club/${input.clubId}/manage-membership`
         },
@@ -514,6 +557,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     archiveProductAndPrice,
     publishProductAndPrice,
     createCustomer,
+    createCustomerPortalConfiguration,
     createCustomerPortalSession,
     createCheckoutSession,
     createSubscription,

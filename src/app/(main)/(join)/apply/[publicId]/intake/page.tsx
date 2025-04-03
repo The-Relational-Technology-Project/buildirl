@@ -36,7 +36,7 @@ import PrimaryButton from "~/client/components/PrimaryButton";
 import SecondaryButton from "~/client/components/SecondaryButton";
 import HideablePaper from "~/client/components/HideablePaper";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
-import { idAsBigInt } from "~/utils/types";
+import { idAsBigInt, isDefaultFreeTier, membershipTier } from "~/utils/types";
 
 type ShareEmailQuestionProp = {
   shareEmail: boolean;
@@ -79,30 +79,39 @@ export default function IntakePage() {
     fieldName: "clubByPublicId"
   });
 
+  if (!isLoaded(r)) {
+    return;
+  }
+
+  const defaultFreeTier = isDefaultFreeTier(
+    membershipTier(r.data!, membershipTierId)
+  );
+
   return (
-    isLoaded(r) && (
-      <Stack pt={"xl"} px={{ base: undefined, md: 180 }}>
-        <WithLocalNavigationHeader>
-          <ApplicationForm
-            applicationQuestions={r.data!.applicationQuestions}
-            membershipTierId={membershipTierId}
-            clubPublicId={params.publicId}
-          />
-        </WithLocalNavigationHeader>
-      </Stack>
-    )
+    <Stack pt={"xl"} px={{ base: undefined, md: 180 }}>
+      <WithLocalNavigationHeader>
+        <ApplicationForm
+          applicationQuestions={r.data!.applicationQuestions}
+          membershipTierId={membershipTierId}
+          isDefaultFreeTier={defaultFreeTier}
+          clubPublicId={params.publicId}
+        />
+      </WithLocalNavigationHeader>
+    </Stack>
   );
 }
 
 type ApplicationFormProps = {
   applicationQuestions: FormQuestions;
   membershipTierId: number;
+  isDefaultFreeTier: boolean;
   clubPublicId: string;
 };
 
 function ApplicationForm({
   applicationQuestions,
   membershipTierId,
+  isDefaultFreeTier,
   clubPublicId
 }: ApplicationFormProps) {
   const buttonWidth = useMatches({ base: 100, md: 120 });
@@ -118,7 +127,9 @@ function ApplicationForm({
       onSuccess: (r) => {
         utils.main.userMemberships.invalidate();
         router.push(
-          `/apply/${clubPublicId}/payments?membershipId=${idAsBigInt(r.createdEntityId)}`
+          isDefaultFreeTier
+            ? `/apply/${clubPublicId}/completed`
+            : `/apply/${clubPublicId}/payments?membershipId=${idAsBigInt(r.createdEntityId)}`
         );
       }
     });
