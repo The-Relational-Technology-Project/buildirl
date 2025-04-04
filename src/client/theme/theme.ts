@@ -16,7 +16,7 @@ export const theme = createTheme({
     ],
     beige: [
       "#fffdf2",
-      "#fdfbeb",
+      "#fffef3",
       "#fcf9e4",
       "#faf7dd",
       "#faf8e4",
@@ -39,8 +39,8 @@ export const theme = createTheme({
       "#442a8f"
     ]
   },
-  fontFamily: "Manrope",
-  headings: { fontFamily: "Manrope" },
+  fontFamily: "Work Sans",
+  headings: { fontFamily: "Unbounded" },
   components: {
     Button: {
       defaultProps: {
