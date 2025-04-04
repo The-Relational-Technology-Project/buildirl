@@ -9,12 +9,104 @@ export const TemplateThemeSchema = z.object({
 export type TemplateTheme = z.infer<typeof TemplateThemeSchema>;
 
 export const TEMPLATE_THEME_SELECTION = {
-  Flora: {
-    backgroundFileName: "flora.jpg",
+  WaterColors: {
+    backgroundFileName: "water-colors.png",
     isDark: false
   },
-  Seren: {
-    backgroundFileName: "seren.jpg",
+  BlueStars: {
+    backgroundFileName: "blue-stars.png",
+    isDark: true
+  },
+  NostalgicClouds: {
+    backgroundFileName: "nostalgic-clouds.png",
+    isDark: false
+  },
+  Shine: {
+    backgroundFileName: "shine.png",
+    isDark: false
+  },
+  BlueZebra: {
+    backgroundFileName: "blue-zebra.png",
+    isDark: false
+  },
+  PixelGrass: {
+    backgroundFileName: "pixel-grass.png",
+    isDark: false
+  },
+  PurpleStars: {
+    backgroundFileName: "purple-stars.png",
+    isDark: true
+  },
+  BlackPaint: {
+    backgroundFileName: "black-paint.png",
+    isDark: true
+  },
+  PurpleBlueSwirl: {
+    backgroundFileName: "purple-blue-swirl.png",
+    isDark: true
+  },
+  GreenBlurDark: {
+    backgroundFileName: "green-blur.png",
+    isDark: true
+  },
+  YellowCurve: {
+    backgroundFileName: "yellow-curve.png",
+    isDark: false
+  },
+  PurpleCurves: {
+    backgroundFileName: "purple-curves.png",
+    isDark: true
+  },
+  RuledPaper: {
+    backgroundFileName: "ruled-paper.png",
+    isDark: false
+  },
+  Unicorn: {
+    backgroundFileName: "unicorn.png",
+    isDark: false
+  },
+  Black: {
+    backgroundFileName: "black.png",
+    isDark: true
+  },
+  BlueGreenBlur: {
+    backgroundFileName: "blue-green-blur.png",
+    isDark: false
+  },
+  RedBlueBlur: {
+    backgroundFileName: "red-blue-blur.png",
+    isDark: true
+  },
+  OceanWave: {
+    backgroundFileName: "ocean-wave.png",
+    isDark: true
+  },
+  Circus: {
+    backgroundFileName: "circus.png",
+    isDark: false
+  },
+  GreenBlurLight: {
+    backgroundFileName: "green-blur.png",
+    isDark: false
+  },
+  PinkClouds: {
+    backgroundFileName: "pink-clouds.png",
+    isDark: false
+  },
+  PinkCyanSwirl: {
+    backgroundFileName: "pink-cyan-swirl.png",
+    isDark: true
+  },
+  PurpleYellowBlur: {
+    backgroundFileName: "purple-yellow-blur.png",
+    isDark: false
+  },
+  RainColor: {
+    backgroundFileName: "rain-color.png",
+    isDark: false
+  },
+  Sunrise: {
+    backgroundFileName: "sunrise.png",
     isDark: true
   }
 };
@@ -22,7 +114,10 @@ export const TEMPLATE_THEME_SELECTION = {
 // themeHeadingFont
 
 export const FONT_SELECTION: string[] = [
-  "Default",
-  "Funnel Display",
-  "Moon Dance"
+  "Calistoga",
+  "Instrument Serif",
+  "Montserrat",
+  "Martian Mono",
+  "Bagel Fat One",
+  "Rozha One"
 ];

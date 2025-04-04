@@ -36,7 +36,7 @@ export default function WithTemplateTheme({
           left: 0,
           zIndex: -999,
           backgroundImage: theme.backgroundFileName
-            ? `url(/templates/background/${theme.backgroundFileName})`
+            ? `url(/templates/background/${theme.isDark ? "dark/" : "light/"}${theme.backgroundFileName})`
             : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center"

@@ -157,22 +157,21 @@ export default function ClubJoin() {
 
           <JoinButton club={r.data!} />
 
+          {r.data!.eventCalendarUrl && (
+            <SecondaryButton
+              includeIcon
+              onClick={() => window.open(r.data!.eventCalendarUrl!)}
+              mt={"sm"}
+            >
+              Come to an event
+            </SecondaryButton>
+          )}
+
           <ClubDisplayImageGallery club={r.data!} mt={"xs"} />
 
           <ContributingMembersLink club={r.data!} />
 
           <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
-
-          {r.data!.eventCalendarUrl && (
-            <SecondaryButton
-              w={"80%"}
-              includeIcon
-              onClick={() => window.open(r.data!.eventCalendarUrl!)}
-              mt={"md"}
-            >
-              Come to an event
-            </SecondaryButton>
-          )}
 
           <Text mt={48}>Powered by BuildIRL</Text>
         </Stack>
