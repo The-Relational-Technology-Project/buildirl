@@ -21,8 +21,4 @@ export const TEMPLATE_THEME_SELECTION = {
 
 // themeHeadingFont
 
-export const FONT_SELECTION: string[] = [
-  "Default",
-  "Funnel Display",
-  "Moon Dance"
-];
+export const FONT_SELECTION: string[] = ["Funnel Display", "Moon Dance"];

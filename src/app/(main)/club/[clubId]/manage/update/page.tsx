@@ -15,7 +15,6 @@ import { safeValidateSchema } from "~/utils/zod";
 import {
   Button,
   Group,
-  Select,
   Stack,
   Text,
   Textarea,
@@ -30,7 +29,7 @@ import { isLoaded } from "~/client/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
 import ThemeSelector from "~/app/(main)/club/[clubId]/manage/update/_components/ThemeSelector";
-import { FONT_SELECTION, TemplateThemeSchema } from "~/client/theme/templates";
+import { TemplateThemeSchema } from "~/client/theme/templates";
 import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_components/ClubDisplayImageUpload";
 import { z } from "zod";
 import FontSelector from "~/app/(main)/club/[clubId]/manage/update/_components/FontSelector";
@@ -183,7 +182,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
         </Stack>
 
         <Stack gap={12} mt={6}>
-          <Title order={6}>Theme</Title>
+          <Title order={6}>Background</Title>
           <ThemeSelector
             value={form.values.theme}
             onChange={(theme) => form.setFieldValue("theme", theme)}
@@ -193,13 +192,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
         <Stack gap={12} mt={6}>
           <Title order={6}>Font</Title>
           <FontSelector
-            value={form.values.themeHeadingFont ?? "Default"}
-            onChange={(font) =>
-              form.setFieldValue(
-                "themeHeadingFont",
-                font === "Default" ? null : font
-              )
-            }
+            value={form.values.themeHeadingFont}
+            onChange={(font) => form.setFieldValue("themeHeadingFont", font)}
           />
         </Stack>
 

@@ -25,8 +25,8 @@ function CheckIcon() {
       size={24}
       style={{
         position: "absolute",
-        top: 8,
-        right: 8
+        top: 12,
+        right: 12
       }}
     >
       <IconCircleCheckFilled />
@@ -40,7 +40,7 @@ type ThemeSelectorProps = {
 };
 
 export default function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
-  const size = useMatches({ base: 100, md: 150 });
+  const size = useMatches({ base: 80, md: 100 });
   const textSize = useMatches({ base: "lg", md: "xl" });
   const mantineTheme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
@@ -64,17 +64,10 @@ export default function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
               style={{
                 cursor: "pointer",
                 border: "1px solid",
-                position: "relative"
+                position: "relative",
+                borderRadius: 360
               }}
             >
-              <Text
-                size={textSize}
-                style={{
-                  textAlign: "center"
-                }}
-              >
-                Default
-              </Text>
               {value === null && <CheckIcon />}
             </Center>
           </Carousel.Slide>
@@ -94,17 +87,10 @@ export default function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
                     backgroundPosition: "center",
                     color: theme.isDark ? mantineTheme.colors.dark[1] : "black",
                     border: `1px solid ${colorScheme === "dark" ? mantineTheme.colors.dark[1] : "black"}`,
+                    borderRadius: 360,
                     position: "relative"
                   }}
                 >
-                  <Text
-                    size={textSize}
-                    style={{
-                      textAlign: "center"
-                    }}
-                  >
-                    {themeName}
-                  </Text>
                   {value?.backgroundFileName === theme.backgroundFileName && (
                     <CheckIcon />
                   )}
