@@ -105,7 +105,7 @@ export default function ClubJoin() {
 
           <Stack align={"center"} gap={0} mb={8}>
             <Title
-              fz={{ base: 42, md: 50 }}
+              fz={{ base: 32, md: 45 }}
               style={{
                 // TODO apply this dynamically across all headings
                 fontFamily: r.data!.themeHeadingFont ?? "inherit",
@@ -115,7 +115,7 @@ export default function ClubJoin() {
               {r.data!.name}
             </Title>
 
-            <Stack align={"center"} gap={8}>
+            <Stack align={"center"} gap={8} mt={4}>
               <Text ta={"center"} size={"lg"}>
                 {r.data!.tagLine}
               </Text>
