@@ -62,7 +62,7 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
           key={form.key("email")}
           {...form.getInputProps("email")}
         />
-        <Button type="submit" mt="sm">
+        <Button type="submit" mt="sm" disabled={form.submitting}>
           {"Send code"}
         </Button>
         <Anchor
@@ -121,7 +121,7 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
           key={form.key("code")}
           {...form.getInputProps("code")}
         />
-        <Button type="submit" mt="sm">
+        <Button type="submit" mt="sm" disabled={form.submitting}>
           {"Login"}
         </Button>
         <Anchor
