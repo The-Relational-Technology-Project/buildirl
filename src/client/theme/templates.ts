@@ -9,57 +9,77 @@ export const TemplateThemeSchema = z.object({
 export type TemplateTheme = z.infer<typeof TemplateThemeSchema>;
 
 export const TEMPLATE_THEME_SELECTION = {
-  BlackPaint: {
-    backgroundFileName: "black-paint.png",
-    isDark: true
-  },
-  Black: {
-    backgroundFileName: "black.png",
-    isDark: true
+  WaterColors: {
+    backgroundFileName: "water-colors.png",
+    isDark: false
   },
   BlueStars: {
     backgroundFileName: "blue-stars.png",
     isDark: true
   },
-  GreenBlurDark: {
-    backgroundFileName: "green-blur.png",
+  NostalgicClouds: {
+    backgroundFileName: "nostalgic-clouds.png",
+    isDark: false
+  },
+  Shine: {
+    backgroundFileName: "shine.png",
+    isDark: false
+  },
+  BlueZebra: {
+    backgroundFileName: "blue-zebra.png",
+    isDark: false
+  },
+  PixelGrass: {
+    backgroundFileName: "pixel-grass.png",
+    isDark: false
+  },
+  PurpleStars: {
+    backgroundFileName: "purple-stars.png",
     isDark: true
   },
-  OceanWave: {
-    backgroundFileName: "ocean-wave.png",
-    isDark: true
-  },
-  PinkCyanSwirl: {
-    backgroundFileName: "pink-cyan-swirl.png",
+  BlackPaint: {
+    backgroundFileName: "black-paint.png",
     isDark: true
   },
   PurpleBlueSwirl: {
     backgroundFileName: "purple-blue-swirl.png",
     isDark: true
   },
+  GreenBlurDark: {
+    backgroundFileName: "green-blur.png",
+    isDark: true
+  },
+  YellowCurve: {
+    backgroundFileName: "yellow-curve.png",
+    isDark: false
+  },
   PurpleCurves: {
     backgroundFileName: "purple-curves.png",
     isDark: true
   },
-  PurpleStars: {
-    backgroundFileName: "purple-stars.png",
-    isDark: true
+  RuledPaper: {
+    backgroundFileName: "ruled-paper.png",
+    isDark: false
   },
-  RedBlueBlur: {
-    backgroundFileName: "red-blue-blur.png",
-    isDark: true
+  Unicorn: {
+    backgroundFileName: "unicorn.png",
+    isDark: false
   },
-  Sunrise: {
-    backgroundFileName: "sunrise.png",
+  Black: {
+    backgroundFileName: "black.png",
     isDark: true
   },
   BlueGreenBlur: {
     backgroundFileName: "blue-green-blur.png",
     isDark: false
   },
-  BlueZebra: {
-    backgroundFileName: "blue-zebra.png",
-    isDark: false
+  RedBlueBlur: {
+    backgroundFileName: "red-blue-blur.png",
+    isDark: true
+  },
+  OceanWave: {
+    backgroundFileName: "ocean-wave.png",
+    isDark: true
   },
   Circus: {
     backgroundFileName: "circus.png",
@@ -69,17 +89,13 @@ export const TEMPLATE_THEME_SELECTION = {
     backgroundFileName: "green-blur.png",
     isDark: false
   },
-  NostalgicClouds: {
-    backgroundFileName: "nostalgic-clouds.png",
-    isDark: false
-  },
   PinkClouds: {
     backgroundFileName: "pink-clouds.png",
     isDark: false
   },
-  PixelGrass: {
-    backgroundFileName: "pixel-grass.png",
-    isDark: false
+  PinkCyanSwirl: {
+    backgroundFileName: "pink-cyan-swirl.png",
+    isDark: true
   },
   PurpleYellowBlur: {
     backgroundFileName: "purple-yellow-blur.png",
@@ -89,25 +105,9 @@ export const TEMPLATE_THEME_SELECTION = {
     backgroundFileName: "rain-color.png",
     isDark: false
   },
-  RuledPaper: {
-    backgroundFileName: "ruled-paper.png",
-    isDark: false
-  },
-  Shine: {
-    backgroundFileName: "shine.png",
-    isDark: false
-  },
-  Unicorn: {
-    backgroundFileName: "unicorn.png",
-    isDark: false
-  },
-  WaterColors: {
-    backgroundFileName: "water-colors.png",
-    isDark: false
-  },
-  YellowCurve: {
-    backgroundFileName: "yellow-curve.png",
-    isDark: false
+  Sunrise: {
+    backgroundFileName: "sunrise.png",
+    isDark: true
   }
 };
 
