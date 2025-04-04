@@ -6,6 +6,7 @@ import {
   Center,
   Text,
   ThemeIcon,
+  Title,
   useMantineColorScheme,
   useMantineTheme,
   useMatches
@@ -66,14 +67,14 @@ export default function FontSelector({ value, onChange }: FontSelectorProps) {
                 borderRadius: 180
               }}
             >
-              <Text
+              <Title
                 size={textSize}
                 style={{
                   textAlign: "center"
                 }}
               >
-                Default
-              </Text>
+                Unbounded
+              </Title>
               {value === null && <CheckIcon />}
             </Center>
           </Carousel.Slide>

@@ -3,7 +3,7 @@ import "@mantine/notifications/styles.css";
 import "@mantine/carousel/styles.css";
 import "src/client/styles/globals.css";
 
-import { Manrope } from "next/font/google";
+import { Unbounded, Work_Sans } from "next/font/google";
 
 import { type Metadata } from "next";
 
@@ -24,7 +24,8 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }]
 };
 
-const manrope = Manrope({ subsets: ["latin"] });
+const unbounded = Unbounded({ subsets: ["latin"] });
+const workSans = Work_Sans({ subsets: ["latin"] });
 
 export default function RootLayout({
   children
@@ -52,7 +53,7 @@ export default function RootLayout({
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
       />
-      <body className={manrope.className}>
+      <body className={`${unbounded.className} ${workSans.className}`}>
         <TRPCReactProvider>
           <MantineProvider theme={theme} defaultColorScheme={"light"}>
             <HydrateClient>{children}</HydrateClient>
