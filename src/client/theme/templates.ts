@@ -9,7 +9,6 @@ export const TemplateThemeSchema = z.object({
 export type TemplateTheme = z.infer<typeof TemplateThemeSchema>;
 
 export const TEMPLATE_THEME_SELECTION = {
-  // Dark themes
   BlackPaint: {
     backgroundFileName: "black-paint.png",
     isDark: true
@@ -54,8 +53,6 @@ export const TEMPLATE_THEME_SELECTION = {
     backgroundFileName: "sunrise.png",
     isDark: true
   },
-
-  // Light themes
   BlueGreenBlur: {
     backgroundFileName: "blue-green-blur.png",
     isDark: false
