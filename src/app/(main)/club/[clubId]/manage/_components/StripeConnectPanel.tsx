@@ -4,14 +4,11 @@ import {
   Button,
   Stack,
   Text,
-  Title,
   List,
   Box,
   Tooltip,
-  Paper,
   Group,
-  ThemeIcon,
-  GroupProps
+  ThemeIcon
 } from "@mantine/core";
 import React from "react";
 import { api } from "~/trpc/react";
@@ -20,7 +17,6 @@ import { AccountStatus } from "~/server/payments/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { IconAlertCircle } from "@tabler/icons-react";
-import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
 
 type CreateStripeConnectAccountProps = {
   clubId: number;
@@ -66,7 +62,9 @@ function MissingRequirementsMessage({
 
   return (
     <Group gap={2}>
-      <Text size={"sm"}>Account set up not complete. See details.</Text>
+      <Text size={"sm"} c={"red"}>
+        Account set up not complete. See details.
+      </Text>
       <Tooltip
         label={
           <Stack gap={4} p={8}>
@@ -81,9 +79,9 @@ function MissingRequirementsMessage({
           </Stack>
         }
       >
-        <ColorSchemeAwareThemeIcon size={"xs"}>
+        <ThemeIcon size={"xs"} c={"red"}>
           <IconAlertCircle />
-        </ColorSchemeAwareThemeIcon>
+        </ThemeIcon>
       </Tooltip>
     </Group>
   );
@@ -114,6 +112,7 @@ function ManageStripeConnectAccount({
           component="a"
           href="https://dashboard.stripe.com/"
           target="_blank"
+          color={"green"}
         >
           Manage Stripe Dashboard
         </Button>
