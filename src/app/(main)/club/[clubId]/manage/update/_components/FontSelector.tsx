@@ -51,6 +51,7 @@ export default function FontSelector({ value, onChange }: FontSelectorProps) {
           slideGap={"md"}
           align="start"
           withControls={true}
+          loop={true}
         >
           <Carousel.Slide key={"none"}>
             <Center

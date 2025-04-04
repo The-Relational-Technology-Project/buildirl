@@ -51,6 +51,7 @@ export default function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
           slideSize={size}
           slideGap={"md"}
           align="start"
+          loop={true}
           withControls={true}
         >
           <Carousel.Slide key={"none"}>
