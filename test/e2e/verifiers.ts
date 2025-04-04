@@ -40,6 +40,7 @@ function createVerifiers() {
       eventCalendarUrl: club.eventCalendarUrl,
       applicationQuestions: club.applicationQuestions,
       theme: club.theme,
+      themeHeadingFont: club.themeHeadingFont,
       displayImageUrls: club.displayImageUrls,
       membershipTiers: club.membershipTiers
     };

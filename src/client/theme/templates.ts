@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+// theme
+
 export const TemplateThemeSchema = z.object({
   backgroundFileName: z.string().min(3, "Length must be >= 3"),
   isDark: z.boolean()
@@ -16,3 +18,7 @@ export const TEMPLATE_THEME_SELECTION = {
     isDark: true
   }
 };
+
+// themeHeadingFont
+
+export const FONT_SELECTION: string[] = ["Funnel Display", "Moon Dance"];

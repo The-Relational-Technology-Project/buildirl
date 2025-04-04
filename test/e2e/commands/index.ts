@@ -35,7 +35,10 @@ import DeleteMembershipTierCommand from "./deleteMembershipTierCommand";
 import PublishMembershipTierCommand from "./publishMembershipTierCommand";
 import UnpublishMembershipTierCommand from "./unpublishMembershipTierCommand";
 import DeleteClubCommand from "./deleteClubCommand";
-import { TEMPLATE_THEME_SELECTION } from "~/client/theme/templates";
+import {
+  FONT_SELECTION,
+  TEMPLATE_THEME_SELECTION
+} from "~/client/theme/templates";
 import UpdateClubDisplayImageUrlsCommand from "./updateClubDisplayImageUrlsCommand";
 import SetMembershipAsWelcomedCommand from "./setMembershipAsWelcomedCommand";
 import CreateStripeAccountCommand from "./createStripeAccountCommand";
@@ -145,7 +148,10 @@ function updateClubCommands() {
     theme: option(
       oneof(...Object.values(TEMPLATE_THEME_SELECTION).map(constant)),
       { freq: 4 }
-    )
+    ),
+    themeHeadingFont: option(oneof(...FONT_SELECTION.map(constant)), {
+      freq: 4
+    })
   }).map(
     (i) =>
       new UpdateClubCommand(
@@ -157,7 +163,8 @@ function updateClubCommands() {
           websiteUrl: i.websiteUrl,
           instagramHandle: i.instagramHandle,
           eventCalendarUrl: i.eventCalendarUrl,
-          theme: i.theme
+          theme: i.theme,
+          themeHeadingFont: i.themeHeadingFont
         },
         i.clubIdSelector
       )
