@@ -107,6 +107,8 @@ export default function ClubJoin() {
             <Title
               fz={{ base: 42, md: 50 }}
               style={{
+                // TODO apply this dynamically across all headings
+                fontFamily: r.data!.themeHeadingFont ?? "inherit",
                 textAlign: "center"
               }}
             >
@@ -157,10 +159,7 @@ export default function ClubJoin() {
 
           <ClubDisplayImageGallery club={r.data!} mt={"xs"} />
 
-          <ContributingMembersLink
-            clubId={r.data!.id}
-            clubPublicId={r.data!.publicId}
-          />
+          <ContributingMembersLink club={r.data!} />
 
           <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
 
@@ -183,16 +182,14 @@ export default function ClubJoin() {
 }
 
 type ContributingMembersLinkProps = {
-  clubId: number;
-  clubPublicId: string;
+  club: Club;
 };
 
 function ContributingMembersLink({
-  clubId,
-  clubPublicId
+  club
 }: ContributingMembersLinkProps & GroupProps) {
   const router = useRouter();
-  const r = api.main.clubStatistics.useQuery({ clubId: clubId });
+  const r = api.main.clubStatistics.useQuery({ clubId: club.id });
 
   QueryError.check({
     result: r,
@@ -202,10 +199,17 @@ function ContributingMembersLink({
   return (
     isLoaded(r) && (
       <Stack align={"center"} gap={4}>
-        <Title order={1}>We are the club</Title>
+        <Title
+          order={1}
+          style={{
+            fontFamily: club.themeHeadingFont ?? "inherit"
+          }}
+        >
+          We are the club
+        </Title>
         <Text
           style={{ cursor: "pointer" }}
-          onClick={() => router.push(`/join/${clubPublicId}/members`)}
+          onClick={() => router.push(`/join/${club.publicId}/members`)}
           size={"md"}
         >
           {`${r.data!.memberCount} contributing member${r.data!.memberCount > 1 ? "s" : ""} >`}
