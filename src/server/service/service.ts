@@ -83,6 +83,7 @@ export function createMainService(
     eventCalendarUrl: true,
     applicationQuestions: true,
     theme: true,
+    themeHeadingFont: true,
     displayImageUrls: true,
     membershipTiers: {
       select: MEMBERSHIP_TIER_SELECT
@@ -169,6 +170,7 @@ export function createMainService(
         FormQuestionsSchema
       ),
       theme: parseAsZodType(r.theme, TemplateThemeSchema.nullable()),
+      themeHeadingFont: r.themeHeadingFont,
       displayImageUrls: parseAsZodType(r.displayImageUrls, z.array(UrlSchema)),
       membershipTiers: orderedByCost(
         r.membershipTiers.map((t) => asMembershipTier(t))

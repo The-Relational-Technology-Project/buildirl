@@ -40,6 +40,7 @@ type ClubState = {
   eventCalendarUrl: Maybe<Url>;
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
+  themeHeadingFont: Maybe<string>;
   displayImageUrls: Url[];
   membershipTierIds: number[];
   hasStripeAccount: boolean;
@@ -175,6 +176,7 @@ export class SystemState {
       eventCalendarUrl: clubState.eventCalendarUrl,
       applicationQuestions: clubState.applicationQuestions,
       theme: clubState.theme,
+      themeHeadingFont: clubState.themeHeadingFont,
       displayImageUrls: clubState.displayImageUrls,
       membershipTiers: this.orderedByCost(
         clubState.membershipTierIds.map((id) => this.getMembershipTier(id))
@@ -235,6 +237,7 @@ export class SystemState {
       // empty to start
       applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
       theme: null,
+      themeHeadingFont: null,
       displayImageUrls: [],
       membershipTierIds: [],
       // default false

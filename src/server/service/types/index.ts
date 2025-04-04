@@ -47,6 +47,7 @@ export type Club = {
   eventCalendarUrl: Maybe<Url>;
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
+  themeHeadingFont: Maybe<string>;
   displayImageUrls: Url[];
   membershipTiers: MembershipTier[];
 };
@@ -209,7 +210,8 @@ export const UpdateClubInputSchema = z.object({
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable(),
   // update-only fields
-  theme: TemplateThemeSchema.nullable()
+  theme: TemplateThemeSchema.nullable(),
+  themeHeadingFont: z.string().nullable()
 });
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;
 

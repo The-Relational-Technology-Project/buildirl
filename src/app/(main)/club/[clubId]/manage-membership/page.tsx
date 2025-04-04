@@ -116,10 +116,15 @@ export default function ManageMembership() {
         </Paper>
 
         <Stack w={"100%"} align={"center"} mt={"md"}>
-          <Button w={150} color={"orange"} onClick={handleDeactivateMembership}>
+          <Button
+            w={180}
+            color={"orange"}
+            onClick={handleDeactivateMembership}
+            loading={deactivateMembership.isPending}
+          >
             Cancel Membership
           </Button>
-          <Text size={"sm"} w={300} style={{ textAlign: "center" }}>
+          <Text size={"sm"} w={360} style={{ textAlign: "center" }}>
             Your membership will be canceled and you will not be charged after
             the remaining period. Re-joining will require a re-application.
           </Text>

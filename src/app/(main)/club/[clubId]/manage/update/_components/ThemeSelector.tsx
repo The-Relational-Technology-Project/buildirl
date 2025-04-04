@@ -8,7 +8,6 @@ import {
   Center,
   Text,
   ThemeIcon,
-  Title,
   useMantineColorScheme,
   useMantineTheme,
   useMatches
@@ -40,11 +39,7 @@ type ThemeSelectorProps = {
   onChange: (theme: Maybe<TemplateTheme>) => void;
 };
 
-export default function ThemeSelector({
-  value,
-  onChange,
-  ...props
-}: ThemeSelectorProps & BoxProps) {
+export default function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
   const size = useMatches({ base: 100, md: 150 });
   const textSize = useMatches({ base: "lg", md: "xl" });
   const mantineTheme = useMantineTheme();
@@ -53,7 +48,7 @@ export default function ThemeSelector({
 
   return (
     mounted && (
-      <Box {...props}>
+      <Box>
         <Carousel
           slideSize={size}
           slideGap={"md"}
@@ -72,7 +67,14 @@ export default function ThemeSelector({
                 position: "relative"
               }}
             >
-              <Text>Default</Text>
+              <Text
+                size={textSize}
+                style={{
+                  textAlign: "center"
+                }}
+              >
+                Default
+              </Text>
               {value === null && <CheckIcon />}
             </Center>
           </Carousel.Slide>
@@ -95,15 +97,14 @@ export default function ThemeSelector({
                     position: "relative"
                   }}
                 >
-                  <Title
+                  <Text
                     size={textSize}
                     style={{
-                      textAlign: "center",
-                      fontFamily: theme.headingFontFamily
+                      textAlign: "center"
                     }}
                   >
                     {themeName}
-                  </Title>
+                  </Text>
                   {value?.backgroundFileName === theme.backgroundFileName && (
                     <CheckIcon />
                   )}

@@ -69,6 +69,7 @@ model Club {
   instagramHandle                     String?          @map("instagram_handle")
   applicationQuestions                Json             @map("application_questions")
   theme                               Json?
+  themeHeadingFont                    String?          @map("theme_heading_font")
   // ordered
   displayImageUrls                    String[]         @default([]) @map("display_image_urls")
   membershipTiers                     MembershipTier[]
