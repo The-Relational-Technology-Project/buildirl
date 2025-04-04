@@ -15,6 +15,7 @@ import { safeValidateSchema } from "~/utils/zod";
 import {
   Button,
   Group,
+  Select,
   Stack,
   Text,
   Textarea,
@@ -29,8 +30,9 @@ import { isLoaded } from "~/client/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
 import ThemeSelector from "~/app/(main)/club/[clubId]/manage/update/_components/ThemeSelector";
-import { TemplateThemeSchema } from "~/client/theme/templates";
+import { FONT_SELECTION, TemplateThemeSchema } from "~/client/theme/templates";
 import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_components/ClubDisplayImageUpload";
+import { z } from "zod";
 
 type UpdateClubFormProps = {
   club: Club;
@@ -58,7 +60,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       websiteUrl: club.websiteUrl ?? "",
       instagramHandle: club.instagramHandle ?? "",
       eventCalendarUrl: club.eventCalendarUrl ?? "",
-      theme: club.theme
+      theme: club.theme,
+      themeHeadingFont: club.themeHeadingFont
     },
 
     validateInputOnChange: true,
@@ -77,7 +80,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
         ),
       eventCalendarUrl: (v) =>
         safeValidateSchema(UrlSchema.nullable(), v === "" ? null : v),
-      theme: (v) => safeValidateSchema(TemplateThemeSchema.nullable(), v)
+      theme: (v) => safeValidateSchema(TemplateThemeSchema.nullable(), v),
+      themeHeadingFont: (v) => safeValidateSchema(z.string().nullable(), v)
     }
   });
 
@@ -92,7 +96,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           websiteUrl,
           instagramHandle,
           eventCalendarUrl,
-          theme
+          theme,
+          themeHeadingFont
         }) => {
           await updateClub.mutateAsync({
             id: club.id,
@@ -106,8 +111,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
               eventCalendarUrl:
                 eventCalendarUrl === "" ? null : eventCalendarUrl,
               theme: theme,
-              // TODO
-              themeHeadingFont: null
+              themeHeadingFont: themeHeadingFont
             }
           });
         }
@@ -178,10 +182,25 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
         </Stack>
 
         <Stack gap={8} mt={6}>
-          <Title order={6}>Background</Title>
+          <Title order={6}>Theme</Title>
           <ThemeSelector
             value={form.values.theme}
             onChange={(theme) => form.setFieldValue("theme", theme)}
+            mt={4}
+          />
+        </Stack>
+
+        <Stack gap={8} mt={6}>
+          <Title order={6}>Font</Title>
+          <Select
+            defaultValue={form.values.themeHeadingFont ?? "Default"}
+            data={FONT_SELECTION}
+            onChange={(font) =>
+              form.setFieldValue(
+                "themeHeadingFont",
+                font === "Default" ? null : font
+              )
+            }
             mt={4}
           />
         </Stack>
