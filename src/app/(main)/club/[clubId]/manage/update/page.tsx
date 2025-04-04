@@ -176,7 +176,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
         </Stack>
 
         <Stack gap={8} mt={6}>
-          <Title order={6}>Theme</Title>
+          <Title order={6}>Background</Title>
           <ThemeSelector
             value={form.values.theme}
             onChange={(theme) => form.setFieldValue("theme", theme)}

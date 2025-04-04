@@ -107,8 +107,6 @@ export default function ClubJoin() {
             <Title
               fz={{ base: 48, md: 60 }}
               style={{
-                // we only want to apply this theme font family to this heading not all headings
-                fontFamily: r.data!.theme?.headingFontFamily ?? "inherit",
                 textAlign: "center"
               }}
             >

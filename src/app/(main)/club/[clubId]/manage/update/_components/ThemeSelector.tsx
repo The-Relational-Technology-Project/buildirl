@@ -8,7 +8,6 @@ import {
   Center,
   Text,
   ThemeIcon,
-  Title,
   useMantineColorScheme,
   useMantineTheme,
   useMatches
@@ -72,7 +71,14 @@ export default function ThemeSelector({
                 position: "relative"
               }}
             >
-              <Text>Default</Text>
+              <Text
+                size={textSize}
+                style={{
+                  textAlign: "center"
+                }}
+              >
+                Default
+              </Text>
               {value === null && <CheckIcon />}
             </Center>
           </Carousel.Slide>
@@ -95,15 +101,14 @@ export default function ThemeSelector({
                     position: "relative"
                   }}
                 >
-                  <Title
+                  <Text
                     size={textSize}
                     style={{
-                      textAlign: "center",
-                      fontFamily: theme.headingFontFamily
+                      textAlign: "center"
                     }}
                   >
                     {themeName}
-                  </Title>
+                  </Text>
                   {value?.backgroundFileName === theme.backgroundFileName && (
                     <CheckIcon />
                   )}
