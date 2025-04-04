@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
-import { Box, Paper, Stack, Text } from "@mantine/core";
+import { Box, Paper, Stack, Text, Title } from "@mantine/core";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { strictParseBigInt } from "~/utils";
 import React from "react";
@@ -26,18 +26,15 @@ export default function IntakePaymentsPage() {
     <Box pt={{ base: 100, md: 120 }} px={{ base: undefined, md: 180 }}>
       <Paper p={"xl"}>
         <Stack>
-          <Text fw={500}>
-            Almost there! Your application is still in progress.
+          <Title order={4}>Almost there!</Title>
+
+          <Text size="sm">
+            Your support matters. Dues help keep our club alive — but don’t
+            worry, you won’t be charged until you’re officially in.
           </Text>
 
           <Text size="sm">
-            Your support matters. The dues help keep our club alive!
-          </Text>
-
-          <Text size="sm">
-            You’ll only start paying dues once you're officially in. We won’t
-            begin your contributions until your membership is accepted by the
-            club.
+            Add your payment info to finish up the application! 🎉
           </Text>
 
           <Box style={{ alignSelf: "center" }} mt={"md"}>
@@ -52,7 +49,7 @@ export default function IntakePaymentsPage() {
               size={"sm"}
               w={200}
             >
-              Submit Payment Details
+              Let's Do This!
             </PrimaryButton>
           </Box>
         </Stack>
