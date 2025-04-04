@@ -105,7 +105,7 @@ export default function ClubJoin() {
 
           <Stack align={"center"} gap={0} mb={8}>
             <Title
-              fz={{ base: 48, md: 60 }}
+              fz={{ base: 42, md: 50 }}
               style={{
                 textAlign: "center"
               }}
