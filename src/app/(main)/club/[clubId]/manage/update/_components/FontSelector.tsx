@@ -50,7 +50,7 @@ export default function FontSelector({ value, onChange }: FontSelectorProps) {
           slideSize={size}
           slideGap={"md"}
           align="start"
-          withControls={false}
+          withControls={true}
         >
           <Carousel.Slide key={"none"}>
             <Center
