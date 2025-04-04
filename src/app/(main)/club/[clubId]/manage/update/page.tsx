@@ -33,6 +33,7 @@ import ThemeSelector from "~/app/(main)/club/[clubId]/manage/update/_components/
 import { FONT_SELECTION, TemplateThemeSchema } from "~/client/theme/templates";
 import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_components/ClubDisplayImageUpload";
 import { z } from "zod";
+import FontSelector from "~/app/(main)/club/[clubId]/manage/update/_components/FontSelector";
 
 type UpdateClubFormProps = {
   club: Club;
@@ -181,27 +182,24 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           </Group>
         </Stack>
 
-        <Stack gap={8} mt={6}>
+        <Stack gap={12} mt={6}>
           <Title order={6}>Theme</Title>
           <ThemeSelector
             value={form.values.theme}
             onChange={(theme) => form.setFieldValue("theme", theme)}
-            mt={4}
           />
         </Stack>
 
-        <Stack gap={8} mt={6}>
+        <Stack gap={12} mt={6}>
           <Title order={6}>Font</Title>
-          <Select
-            defaultValue={form.values.themeHeadingFont ?? "Default"}
-            data={FONT_SELECTION}
+          <FontSelector
+            value={form.values.themeHeadingFont ?? "Default"}
             onChange={(font) =>
               form.setFieldValue(
                 "themeHeadingFont",
                 font === "Default" ? null : font
               )
             }
-            mt={4}
           />
         </Stack>
 

@@ -39,11 +39,7 @@ type ThemeSelectorProps = {
   onChange: (theme: Maybe<TemplateTheme>) => void;
 };
 
-export default function ThemeSelector({
-  value,
-  onChange,
-  ...props
-}: ThemeSelectorProps & BoxProps) {
+export default function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
   const size = useMatches({ base: 100, md: 150 });
   const textSize = useMatches({ base: "lg", md: "xl" });
   const mantineTheme = useMantineTheme();
@@ -52,7 +48,7 @@ export default function ThemeSelector({
 
   return (
     mounted && (
-      <Box {...props}>
+      <Box>
         <Carousel
           slideSize={size}
           slideGap={"md"}
