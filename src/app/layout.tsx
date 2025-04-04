@@ -44,7 +44,7 @@ export default function RootLayout({
           crossOrigin={"anonymous"}
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Moon+Dance&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Calistoga&family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@100..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Rozha+One&display=swap"
           rel="stylesheet"
         />
       </head>
