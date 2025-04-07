@@ -28,9 +28,9 @@ First time users can use the commands in the [justfile](justfile) in order to ru
 3. `just db-start` and `just start` to begin local instance. See output for the localport (defaults to `localhost:3000`)
 
 If running Stripe locally:
-4. Install and login to [Stripe CLI](https://docs.stripe.com/stripe-cli) and [preview plugin](https://docs.stripe.com/cli-preview-plugin)
+1. Install and login to [Stripe CLI](https://docs.stripe.com/stripe-cli) and [preview plugin](https://docs.stripe.com/cli-preview-plugin)
 for webhook forwarding. Follow in-prompt instructions and choose Local sandbox environment.
-5. If you need to run local Stripe integration, make sure also to run `just stripe-listen` to begin the local listener to 
+2. If you need to run local Stripe integration, make sure also to run `just stripe-listen` to begin the local listener to 
 webhook at `localhost:3000`
 
 ### Local Authentication
