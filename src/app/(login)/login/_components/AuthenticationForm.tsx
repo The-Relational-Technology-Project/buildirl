@@ -14,7 +14,7 @@ import { z } from "zod";
 import { useState } from "react";
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { logger } from "~/client/logger";
+import { logger, notifyError } from "~/client/logger";
 import { safeValidateSchema } from "~/utils/zod";
 import { EmailSchema } from "~/server/service/types";
 
@@ -49,6 +49,9 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
       toggle();
     } catch (e) {
       logger.error(e, "failed to send OTP");
+      notifyError(
+        "There was an error in sending one time passcode. Please make sure to only request once per minute."
+      );
     }
   };
 
@@ -107,6 +110,7 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
       if (error) throw error;
     } catch (e) {
       logger.error(e, `failed to verify OTP`);
+      notifyError("There was an error verifying one time passcode.");
     }
   };
 

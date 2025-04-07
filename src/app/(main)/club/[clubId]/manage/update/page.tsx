@@ -44,6 +44,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
   const updateClub = api.main.updateClub.useMutation({
     onSuccess: () => {
+      // TODO factor out these common invalidate logic for reuse across
+      //  multiple operations
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
