@@ -122,4 +122,4 @@ and knowledge debt which will slow down development in the long-term.
 
 ## Deployments
 
-We use Vercel for deployment which can be followed using this [guide](https://create.t3.gg/en/deployment/vercel)
+We use Vercel for deployment which can be followed using this [guide](https://create.t3.gg/en/deployment/vercel).
