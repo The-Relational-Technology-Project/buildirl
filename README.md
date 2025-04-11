@@ -1,4 +1,3 @@
-
 # BuildIRL
 This is the tech platform for [BuildIRL](https://www.clubs.buildirl.com/) (est., 2025)! We will supercharge the next generation
 of local community builders!
@@ -24,18 +23,27 @@ of local community builders!
 
 First time users can use the commands in the [justfile](justfile) in order to run the application locally.
 1. Install [docker desktop](https://www.docker.com/get-started/) and make sure it is running
-2. `just setup` for first time set-up of local database and dependencies
-3. `just db-start` to bring up db and generate a `.env` from `.env_example`. 
+2. Set up the Supabase Postgres image locally:
+   ```bash
+   # Pull the Supabase Postgres image
+   docker pull supabase/postgres:15.1.0.117
+   
+   # Create a local 'latest' tag for the image
+   docker tag supabase/postgres:15.1.0.117 supabase/postgres:latest
+   ```
+   This step ensures the correct Supabase image is available for the local database.
+3. `just setup` for first time set-up of local database and dependencies
+4. `just db-start` to bring up db and generate a `.env` from `.env_example`. 
     - Terminal Output --> .env file
     - DB URL -->          POSTGRES_URL
     - DB URL -->          POSTGRES_NON_POOLING 
     - API URL -->         NEXT_PUBLIC_SUPABASE_URL
     - anon key -->        NEXT_PUBLIC_SUPABASE_ANON_KEY
     - anon key -->        SUPABASE_ANON_KEY 
-4. To setup tables in local db, run `yarn db:migrate`. 
-5. `just start` to begin local instance. See output for the localport (defaults to `localhost:3000`)
-6. Open your local Supabase studio (http://localhost:54323) and enable RLS (row-level security) for all tables and add appropriate policies. See Authorization section below for more details.
-7. Open your local Supabase studio (http://localhost:54323) and follow steps in Storage section. 
+5. To setup tables in local db, run `yarn db:migrate`. 
+6. `just start` to begin local instance. See output for the localport (defaults to `localhost:3000`)
+7. Open your local Supabase studio (http://localhost:54323) and enable RLS (row-level security) for all tables and add appropriate policies. See Authorization section below for more details.
+8. Open your local Supabase studio (http://localhost:54323) and follow steps in Storage section. 
  
 If running Stripe locally:
 1. Install and login to [Stripe CLI](https://docs.stripe.com/stripe-cli) and [preview plugin](https://docs.stripe.com/cli-preview-plugin)
