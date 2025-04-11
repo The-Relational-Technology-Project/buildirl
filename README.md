@@ -34,7 +34,9 @@ First time users can use the commands in the [justfile](justfile) in order to ru
     - anon key -->        SUPABASE_ANON_KEY 
 4. To setup tables in local db, run `yarn db:migrate`. 
 5. `just start` to begin local instance. See output for the localport (defaults to `localhost:3000`)
-
+6. Open your local Supabase studio (http://localhost:54323) and enable RLS (row-level security) for all tables and add appropriate policies. See Authorization section below for more details.
+7. Open your local Supabase studio (http://localhost:54323) and follow steps in Storage section. 
+ 
 If running Stripe locally:
 1. Install and login to [Stripe CLI](https://docs.stripe.com/stripe-cli) and [preview plugin](https://docs.stripe.com/cli-preview-plugin)
 for webhook forwarding. Follow in-prompt instructions and choose Local sandbox environment.
@@ -66,17 +68,18 @@ for storage objects.
 
 ### API
 1. When a table is added via prisma migration, it is by default not secured via RLS. This means supabase UI clients can access them freely.
-It is important to immediately enable RLS to it as close to possible as the migration is applied in version control (`prisma.rls.sql`), locally (via supabase studio @ `localhost:54323`),
-[test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).
+**It is important to immediately enable RLS to it as close to possible as the migration is applied in version control (`prisma.rls.sql`), locally (via supabase studio @ `localhost:54323`),
+[test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).**
 2. RBAC/ABAC authorization on protected entities are defined via CASL abilities and applied as checks in the trpc layer. Every addition
 or change to an API must be audited to see if there are any necessary RBAC/ABAC authorization needed. By default our endpoints are open
 to all authenticated users (secured procedures), the public (public procedures), unless explicitly secured.
 
 ### Storage
-Supabase RLS is the source-of-truth for storage authorization. When new folder or bucket is created, it is important to add to storage
+Supabase RLS is the source-of-truth for storage authorization. **When new folder or bucket is created, it is important to add to storage
 RLS rules version controlled in (`prisma/rls.sql`) and apply the changes manually via the supabase management console locally 
 (via supabase studio @ `localhost:54323`), [test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and
-[prod](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies).
+[prod](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies).**
+NOTE: For first-time setup, you must create the 'images' bucket, set to Public and add the policies mentioned above. 
 
 ## Integration
 
