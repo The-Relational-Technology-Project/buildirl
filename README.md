@@ -34,14 +34,14 @@ First time users can use the commands in the [justfile](justfile) in order to ru
    This step ensures the correct Supabase image is available for the local database.
 3. `just setup` for first time set-up of local database and dependencies
 4. `just db-start` to bring up db and generate a `.env` from `.env_example`. 
-    - Terminal Output --> .env file
-    - DB URL -->          POSTGRES_URL
-    - DB URL -->          POSTGRES_NON_POOLING 
-    - API URL -->         NEXT_PUBLIC_SUPABASE_URL
-    - anon key -->        NEXT_PUBLIC_SUPABASE_ANON_KEY
-    - anon key -->        SUPABASE_ANON_KEY 
+    - Terminal Output -->   .env file
+    - `DB URL` -->          `POSTGRES_URL`
+    - `DB URL` -->          `POSTGRES_NON_POOLING`
+    - `API URL` -->         `NEXT_PUBLIC_SUPABASE_URL`
+    - `anon key` -->        `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+    - `anon key` -->        `SUPABASE_ANON_KEY`
 5. To setup tables in local db, run `yarn db:migrate`. 
-6. `just start` to begin local instance. See output for the localport (defaults to `localhost:3000`)
+6. `just start` to begin local instance. See output for the local port (defaults to `localhost:3000`)
 7. Open your local Supabase studio (http://localhost:54323) and enable RLS (row-level security) for all tables and add appropriate policies. See Authorization section below for more details.
 8. Open your local Supabase studio (http://localhost:54323) and follow steps in Storage section. 
  

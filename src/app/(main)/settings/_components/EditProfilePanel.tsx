@@ -77,8 +77,15 @@ export default function EditProfilePanel() {
 
   return (
     isLoaded(r) && (
-      <Stack mt="lg" gap={4}>
-        <Stack w="100%" maw={800} mx="auto" align="center">
+      <Stack 
+        mt="lg" 
+        gap={4}
+        w="100%" 
+        maw={800} 
+        mx="auto"
+      >
+        {/* Profile header section */}
+        <Stack align="center">
           <EditableUserAvatar 
             size={120} 
             user={r.data!} 
@@ -88,17 +95,9 @@ export default function EditProfilePanel() {
             Choose how you are displayed to other members.
           </Text>
         </Stack>
-        <Flex
-          direction={{ base: "column", md: "row" }}
-          gap="xl"
-          w="100%"
-          maw={800}
-          mx="auto"
-        >
-          <Stack w="100%">
-            <UpdateUserForm user={r.data!} />
-          </Stack>
-        </Flex>
+
+        {/* Form section */}
+        <UpdateUserForm user={r.data!} />
       </Stack>
     )
   );
