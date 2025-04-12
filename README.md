@@ -91,7 +91,7 @@ NOTE: For first-time setup, you must create the 'images' bucket, set to Public a
 
 ## Integration
 
-We use [trunk-based development](https://trunkbaseddevelopment.com/) as our integration strategy. In conjunction with
+We use [trunk-based development](https://www.atlassian.com/continuous-delivery/continuous-integration/trunk-based-development) as our integration strategy. In conjunction with
 TDD and smaller commits, this allows for increased iteration speed. We emphasize taking smaller faster steps and reducing
 the time your code is divergent from main.
 
