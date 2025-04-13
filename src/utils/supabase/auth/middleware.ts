@@ -70,13 +70,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // do not redirect for these excluded endpoints
-  if (
-    startsWith(request.nextUrl.pathname, [
-      "/api/auth/confirm",
-      "/join",
-      "/user"
-    ])
-  ) {
+  if (startsWith(request.nextUrl.pathname, ["/join", "/user"])) {
     return supabaseResponse;
   }
 

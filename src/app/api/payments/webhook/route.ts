@@ -3,7 +3,6 @@ import { rootLogger } from "~/logger";
 import { env } from "~/env";
 import { stripe } from "~/server/payments/stripe/stripe";
 import { stringify } from "~/utils";
-import Stripe from "stripe";
 import { createPaymentEventProcessor } from "~/server/payments/eventProcessor";
 import { prisma } from "~/server/prisma";
 

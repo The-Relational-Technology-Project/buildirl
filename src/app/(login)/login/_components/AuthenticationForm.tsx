@@ -17,6 +17,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { logger, notifyError } from "~/client/logger";
 import { safeValidateSchema } from "~/utils/zod";
 import { EmailSchema } from "~/server/service/types";
+import GoogleSSOButton from "~/app/(login)/login/_components/GoogleSSOButton";
 
 const OtpSchema = z.string().regex(/^\d{6}$/, "Code must be 6 digits");
 
@@ -68,6 +69,7 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
         <Button type="submit" mt="sm" disabled={form.submitting}>
           {"Send code"}
         </Button>
+        <GoogleSSOButton supabase={supabase} />
         <Anchor
           c={"dimmed"}
           component="button"
