@@ -8,6 +8,8 @@ of local community builders!
 - [GitLab](https://gitlab.com/smallworld/buildirl)
 - [Vercel](https://vercel.com/asmallworld/buildirl)
 - [Supabase](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce)
+- [Stripe](https://dashboard.stripe.com/dashboard)
+- [GCP](https://console.cloud.google.com/home/dashboard?invt=AbuU6A&project=buildirl-456321) (for SSO)
 
 ## Technologies
 
