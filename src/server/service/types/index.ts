@@ -92,10 +92,8 @@ export type ClubStatistics = {
 };
 
 export type FAQ = {
-  id: number;
   question: string;
   answer: string;
-  order: number;
 };
 
 export type FAQs = {
@@ -311,10 +309,8 @@ export const FAQAnswerSchema = z
   .max(2000, "Answer cannot exceed 2000 characters");
 
 export const FAQSchema = z.object({
-  id: z.number(),
   question: FAQQuestionSchema,
-  answer: FAQAnswerSchema,
-  order: z.number().int().min(0)
+  answer: FAQAnswerSchema
 });
 
 export const FAQsSchema = z.object({

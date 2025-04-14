@@ -24,7 +24,8 @@ import { FormQuestions, FormResponses } from "~/server/service/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
 import {
   DEFAULT_APPLICATION_QUESTIONS,
-  DEFAULT_FREE_MEMBERSHIP_TIER
+  DEFAULT_FREE_MEMBERSHIP_TIER,
+  DEFAULT_CLUB_FAQS
 } from "~/server/service/defaults";
 
 // this entities differ from api ones mostly in that nested entities
@@ -245,7 +246,7 @@ export class SystemState {
       membershipTierIds: [],
       // default false
       hasStripeAccount: false,
-      faqs: { items: [] }
+      faqs: DEFAULT_CLUB_FAQS
     });
 
     this.createFreeMembershipTier(freeMembershipTierId, clubId);

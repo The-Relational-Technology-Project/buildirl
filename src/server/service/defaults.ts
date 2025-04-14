@@ -42,3 +42,10 @@ export const DEFAULT_APPLICATION_QUESTIONS: FormQuestions = {
     }
   ]
 };
+
+export const DEFAULT_CLUB_FAQS = {
+  items: [
+    { question: "What is this club about?", answer: "Edit this answer to describe your club." },
+    { question: "How do I join?", answer: "Edit this to explain your membership process." }
+  ]
+};

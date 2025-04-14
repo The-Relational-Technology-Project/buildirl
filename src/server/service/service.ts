@@ -46,7 +46,8 @@ import { z } from "zod";
 import { StripeClient } from "~/server/payments/stripe/types";
 import {
   DEFAULT_APPLICATION_QUESTIONS,
-  DEFAULT_FREE_MEMBERSHIP_TIER
+  DEFAULT_FREE_MEMBERSHIP_TIER,
+  DEFAULT_CLUB_FAQS
 } from "~/server/service/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailClient } from "~/server/service/email/types";
@@ -181,7 +182,7 @@ export function createMainService(
       theme: parseAsZodType(r.theme, TemplateThemeSchema.nullable()),
       themeHeadingFont: r.themeHeadingFont,
       displayImageUrls: parseAsZodType(r.displayImageUrls, z.array(UrlSchema)),
-      faqs: parseAsZodType(r.faqs || { items: [] }, FAQsSchema),
+      faqs: parseAsZodType(r.faqs, FAQsSchema),
       membershipTiers: orderedByCost(
         r.membershipTiers.map((t) => asMembershipTier(t))
       )
@@ -501,7 +502,7 @@ export function createMainService(
           // default questions
           applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
           theme: Prisma.DbNull,
-          faqs: { items: [] }
+          faqs: DEFAULT_CLUB_FAQS
         },
         select: {
           id: true
