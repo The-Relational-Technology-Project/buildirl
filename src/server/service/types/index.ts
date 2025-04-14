@@ -49,6 +49,7 @@ export type Club = {
   theme: Maybe<TemplateTheme>;
   themeHeadingFont: Maybe<string>;
   displayImageUrls: Url[];
+  faqs: FAQ[];
   membershipTiers: MembershipTier[];
 };
 
@@ -88,6 +89,13 @@ export type MembershipTier = {
 
 export type ClubStatistics = {
   memberCount: number;
+};
+
+export type FAQ = {
+  id: number;
+  question: string;
+  answer: string;
+  order: number;
 };
 
 export type MainMutations = {
@@ -131,6 +139,10 @@ export type MainMutations = {
     input: DeactivateMembershipInput
   ): Promise<MutationResult>;
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
+  updateClubFAQs(
+    clubId: number,
+    input: UpdateClubFAQsInput
+  ): Promise<MutationResult>;
 };
 
 const FIRST_NAME_REGEX = /^[a-zA-Z]+$/;
@@ -283,6 +295,31 @@ export const DeactivateMembershipInputSchema = z.object({
 export type DeactivateMembershipInput = z.infer<
   typeof DeactivateMembershipInputSchema
 >;
+
+export const FAQQuestionSchema = z
+  .string()
+  .min(3, "Question must be at least 3 characters")
+  .max(200, "Question cannot exceed 200 characters");
+
+export const FAQAnswerSchema = z
+  .string()
+  .min(3, "Answer must be at least 3 characters")
+  .max(2000, "Answer cannot exceed 2000 characters");
+
+export const FAQSchema = z.object({
+  id: z.number().optional(),
+  question: FAQQuestionSchema,
+  answer: FAQAnswerSchema,
+  order: z.number().int().min(0)
+});
+
+export type FAQInput = z.infer<typeof FAQSchema>;
+
+export const UpdateClubFAQsInputSchema = z.object({
+  faqs: z.array(FAQSchema)
+});
+
+export type UpdateClubFAQsInput = z.infer<typeof UpdateClubFAQsInputSchema>;
 
 export type MutationResult = {
   createdEntityId: Maybe<Id>;
