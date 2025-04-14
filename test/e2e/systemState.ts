@@ -15,7 +15,8 @@ import {
   MembershipStatus,
   Membership,
   ClubStatistics,
-  UpdateClubDisplayImageUrlsInput
+  UpdateClubDisplayImageUrlsInput,
+  FAQs
 } from "~/server/service/types";
 import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
@@ -44,6 +45,7 @@ type ClubState = {
   displayImageUrls: Url[];
   membershipTierIds: number[];
   hasStripeAccount: boolean;
+  faqs: FAQs;
 };
 
 type MembershipState = {
@@ -178,6 +180,7 @@ export class SystemState {
       theme: clubState.theme,
       themeHeadingFont: clubState.themeHeadingFont,
       displayImageUrls: clubState.displayImageUrls,
+      faqs: clubState.faqs,
       membershipTiers: this.orderedByCost(
         clubState.membershipTierIds.map((id) => this.getMembershipTier(id))
       )
@@ -241,7 +244,8 @@ export class SystemState {
       displayImageUrls: [],
       membershipTierIds: [],
       // default false
-      hasStripeAccount: false
+      hasStripeAccount: false,
+      faqs: { items: [] }
     });
 
     this.createFreeMembershipTier(freeMembershipTierId, clubId);

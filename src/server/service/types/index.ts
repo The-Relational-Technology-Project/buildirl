@@ -49,7 +49,7 @@ export type Club = {
   theme: Maybe<TemplateTheme>;
   themeHeadingFont: Maybe<string>;
   displayImageUrls: Url[];
-  faqs: FAQ[];
+  faqs: FAQs;
   membershipTiers: MembershipTier[];
 };
 
@@ -96,6 +96,10 @@ export type FAQ = {
   question: string;
   answer: string;
   order: number;
+};
+
+export type FAQs = {
+  items: FAQ[];
 };
 
 export type MainMutations = {
@@ -307,16 +311,20 @@ export const FAQAnswerSchema = z
   .max(2000, "Answer cannot exceed 2000 characters");
 
 export const FAQSchema = z.object({
-  id: z.number().optional(),
+  id: z.number(),
   question: FAQQuestionSchema,
   answer: FAQAnswerSchema,
   order: z.number().int().min(0)
 });
 
-export type FAQInput = z.infer<typeof FAQSchema>;
+export const FAQsSchema = z.object({
+  items: z.array(FAQSchema)
+});
+
+export type FAQsInput = z.infer<typeof FAQsSchema>;
 
 export const UpdateClubFAQsInputSchema = z.object({
-  faqs: z.array(FAQSchema)
+  faqs: FAQsSchema
 });
 
 export type UpdateClubFAQsInput = z.infer<typeof UpdateClubFAQsInputSchema>;

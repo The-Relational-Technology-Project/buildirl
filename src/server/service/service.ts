@@ -22,7 +22,10 @@ import {
   MembershipStatus,
   Email,
   UpdateClubDisplayImageUrlsInput,
-  DeactivateMembershipInput
+  DeactivateMembershipInput,
+  FAQ,
+  FAQSchema,
+  UpdateClubFAQsInput
 } from "~/server/service/types";
 import {
   FormQuestionsSchema,
@@ -47,6 +50,7 @@ import {
 } from "~/server/service/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailClient } from "~/server/service/email/types";
+import { FAQsSchema } from "~/server/service/types/index";
 const logger = rootLogger.child({ module: "mainService" });
 
 // TODO it is time soon to break this file down by entities
@@ -89,6 +93,7 @@ export function createMainService(
     theme: true,
     themeHeadingFont: true,
     displayImageUrls: true,
+    faqs: true,
     membershipTiers: {
       select: MEMBERSHIP_TIER_SELECT
     }
@@ -176,6 +181,7 @@ export function createMainService(
       theme: parseAsZodType(r.theme, TemplateThemeSchema.nullable()),
       themeHeadingFont: r.themeHeadingFont,
       displayImageUrls: parseAsZodType(r.displayImageUrls, z.array(UrlSchema)),
+      faqs: parseAsZodType(r.faqs || { items: [] }, FAQsSchema),
       membershipTiers: orderedByCost(
         r.membershipTiers.map((t) => asMembershipTier(t))
       )
@@ -494,7 +500,8 @@ export function createMainService(
           ownerUserId: userId,
           // default questions
           applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
-          theme: Prisma.DbNull
+          theme: Prisma.DbNull,
+          faqs: { items: [] }
         },
         select: {
           id: true
@@ -618,6 +625,31 @@ export function createMainService(
       logger.error(
         e,
         `failed to update club application questions for club with clubId ${clubId} from input ${stringify(input)}`
+      );
+      throw e;
+    }
+  }
+
+  async function updateClubFAQs(
+    clubId: number,
+    input: UpdateClubFAQsInput
+  ): Promise<MutationResult> {
+    try {
+      // Validate FAQs structure matches expected schema
+      parseAsZodType(input.faqs, FAQsSchema);
+      
+      await prisma.club.update({
+        data: input,
+        where: { id: clubId }
+      });
+      logger.info(
+        `updated club FAQs for club with clubId ${clubId} from input ${stringify(input)}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update club FAQs for club with clubId ${clubId} from input ${stringify(input)}`
       );
       throw e;
     }
@@ -1991,6 +2023,7 @@ export function createMainService(
     deleteClub,
     updateClubApplicationQuestions,
     updateClubDisplayImageUrls,
+    updateClubFAQs,
     createMembershipTier,
     updateMembershipTier,
     deleteMembershipTier,
