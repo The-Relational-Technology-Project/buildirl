@@ -27,6 +27,7 @@ import React, { useEffect } from "react";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import ShareIconButton from "~/app/(main)/(join)/join/[publicId]/_components/ShareIconButton";
 import { useMounted } from "@mantine/hooks";
+import FAQSection from "./_components/FAQSection";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -199,6 +200,8 @@ export default function ClubJoin() {
           <ContributingMembersLink club={r.data!} />
 
           <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
+
+          <FAQSection faqs={r.data!.faqs} />
 
           <Text mt={48}>Powered by BuildIRL</Text>
         </Stack>
