@@ -1,24 +1,45 @@
-import { Email, Membership } from "../types";
+import { Email } from "../types";
 
 export type EmailClient = {
-    notifyMembershipAccepted(input: NotifyMembershipAcceptedInput, sendTo: Email): Promise<void>;
-    notifyMembershipDeclined(input: NotifyMembershipDeclinedInput, sendTo: Email): Promise<void>;
-    notifyMembershipCanceledByMember(input: NotifyMembershipCanceledByMemberInput, sendTo: Email): Promise<void>;
-    notifyMembershipCanceledByOwner(input: NotifyMembershipCanceledByOwnerInput, sendTo: Email): Promise<void>;
-}
+  notifyMembershipApproved(
+    input: NotifyMembershipApprovedInput,
+    sendTo: Email
+  ): Promise<void>;
+  notifyMembershipDeclined(
+    input: NotifyMembershipDeclinedInput,
+    sendTo: Email
+  ): Promise<void>;
+  notifyMembershipDeactivatedByMember(
+    input: NotifyMembershipDeactivatedByMemberInput,
+    sendTo: Email
+  ): Promise<void>;
+  notifyMembershipDeactivatedByOwner(
+    input: NotifyMembershipDeactivatedByOwnerInput,
+    sendTo: Email
+  ): Promise<void>;
+};
 
-export type NotifyMembershipAcceptedInput = {
-    membership: Membership;
-}
+export type NotifyMembershipApprovedInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubPublicId: string;
+};
 
 export type NotifyMembershipDeclinedInput = {
-    membership: Membership;
-}
+  membershipId: bigint;
+  clubName: string;
+};
 
-export type NotifyMembershipCanceledByMemberInput = {
-    membership: Membership;
-}
+export type NotifyMembershipDeactivatedByMemberInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+};
 
-export type NotifyMembershipCanceledByOwnerInput = {
-    membership: Membership;
-}
+export type NotifyMembershipDeactivatedByOwnerInput = {
+  membershipId: bigint;
+  clubName: string;
+};

@@ -21,7 +21,8 @@ import {
   User,
   MembershipStatus,
   Email,
-  UpdateClubDisplayImageUrlsInput
+  UpdateClubDisplayImageUrlsInput,
+  DeactivateMembershipInput
 } from "~/server/service/types";
 import {
   FormQuestionsSchema,
@@ -45,11 +46,14 @@ import {
   DEFAULT_FREE_MEMBERSHIP_TIER
 } from "~/server/service/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
+import { EmailClient } from "~/server/service/email/types";
 const logger = rootLogger.child({ module: "mainService" });
 
+// TODO it is time soon to break this file down by entities
 export function createMainService(
   prisma: PrismaClient,
   stripeClient: StripeClient,
+  emailClient: EmailClient,
   accountIdResolver: AccountIdResolver
 ): MainService {
   const USER_SELECT = {
@@ -1425,6 +1429,25 @@ export function createMainService(
     }
   }
 
+  async function getMembership(membershipId: bigint): Promise<Membership> {
+    try {
+      const result = await prisma.membership.findUniqueOrThrow({
+        select: MEMBERSHIP_SELECT,
+        where: {
+          id: membershipId
+        }
+      });
+      const memberships = asMembership(result);
+      logger.info(
+        `queried membership with id ${membershipId} with result ${stringify(memberships)}`
+      );
+      return memberships;
+    } catch (e) {
+      logger.error(e, `failed to query membership with id ${membershipId}`);
+      throw e;
+    }
+  }
+
   async function approveMembershipApplication(
     membershipId: bigint
   ): Promise<MutationResult> {
@@ -1448,6 +1471,7 @@ export function createMainService(
       });
 
       await createSubscription(membershipId, tx);
+      await notifyMembershipApproved(membershipId);
 
       logger.info(`approved membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1548,6 +1572,27 @@ export function createMainService(
     }
   }
 
+  async function notifyMembershipApproved(membershipId: bigint) {
+    const membership = await getMembership(membershipId);
+    const memberEmail = await userEmail(membership.user.id);
+    if (null === memberEmail) {
+      logger.error(
+        `failed to notify on membership approved for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipApproved(
+      {
+        membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
+        clubName: membership.club.name,
+        clubPublicId: membership.club.publicId
+      },
+      memberEmail
+    );
+  }
+
   async function declineMembershipApplication(
     membershipId: bigint
   ): Promise<MutationResult> {
@@ -1572,6 +1617,7 @@ export function createMainService(
 
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are accepted in future
+      await notifyMembershipDeclined(membershipId);
 
       logger.info(`declined membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1637,18 +1683,42 @@ export function createMainService(
     }
   }
 
+  async function notifyMembershipDeclined(membershipId: bigint) {
+    const membership = await getMembership(membershipId);
+    const memberEmail = await userEmail(membership.user.id);
+    if (null === memberEmail) {
+      logger.error(
+        `failed to notify on membership declined for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipDeclined(
+      {
+        membershipId: membershipId,
+        clubName: membership.club.name
+      },
+      memberEmail
+    );
+  }
+
   async function deactivateMembership(
-    membershipId: bigint
+    membershipId: bigint,
+    input: DeactivateMembershipInput
   ): Promise<MutationResult> {
     await checkMembershipStatus(membershipId, "ACTIVE");
 
     return prisma.$transaction(async (tx) => {
-      return deactivateMembershipInTransaction(membershipId, tx);
+      return deactivateMembershipInTransaction(
+        membershipId,
+        input.byClubOwner,
+        tx
+      );
     });
   }
 
   async function deactivateMembershipInTransaction(
     membershipId: bigint,
+    byClubOwner: boolean,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
@@ -1665,6 +1735,8 @@ export function createMainService(
       await cancelSubscription(membershipId, tx);
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are reactivated
+
+      await notifyMembershipDeactivated(membershipId, byClubOwner);
 
       logger.info(`deactivated membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1734,6 +1806,57 @@ export function createMainService(
       );
       throw e;
     }
+  }
+
+  async function notifyMembershipDeactivated(
+    membershipId: bigint,
+    byOwner: boolean
+  ) {
+    if (byOwner) {
+      await notifyMembershipDeactivatedByOwner(membershipId);
+    } else {
+      await notifyMembershipDeactivatedByMember(membershipId);
+    }
+  }
+
+  async function notifyMembershipDeactivatedByOwner(membershipId: bigint) {
+    const membership = await getMembership(membershipId);
+    const memberEmail = await userEmail(membership.user.id);
+
+    if (null === memberEmail) {
+      logger.error(
+        `failed to notify on membership deactivated by owner for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipDeactivatedByOwner(
+      {
+        membershipId: membershipId,
+        clubName: membership.club.name
+      },
+      memberEmail
+    );
+  }
+
+  async function notifyMembershipDeactivatedByMember(membershipId: bigint) {
+    const membership = await getMembership(membershipId);
+    const ownerEmail = await userEmail(membership.club.owner.id);
+
+    if (null === ownerEmail) {
+      logger.error(
+        `failed to notify on membership deactivated by owner for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipDeactivatedByMember(
+      {
+        membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
+        clubName: membership.club.name
+      },
+      ownerEmail
+    );
   }
 
   async function setMembershipAsWelcomed(

@@ -57,7 +57,8 @@ export default function ManageMembership() {
       )
     ) {
       deactivateMembership.mutateAsync({
-        membershipId: membership.id
+        membershipId: membership.id,
+        input: { byClubOwner: false }
       });
     }
   };
