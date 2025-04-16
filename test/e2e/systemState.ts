@@ -16,7 +16,8 @@ import {
   Membership,
   ClubStatistics,
   UpdateClubDisplayImageUrlsInput,
-  FAQs
+  FAQs,
+  UpdateClubFAQsInput
 } from "~/server/service/types";
 import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
