@@ -19,16 +19,17 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     sendTo: Email
   ): Promise<void> {
     try {
+      const joinPageUrl = `${process.env.NEXT_PUBLIC_APP_URL}/join/${input.clubPublicId}`;
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
         subject: `You have been accepted!`,
         text: `Welcome to ${input.clubName}, ${input.memberFirstName} ${input.memberLastName}!\n\n
-        Visit us at ${process.env.NEXT_PUBLIC_APP_URL}/join/${input.clubPublicId}`,
+        Visit us at ${joinPageUrl}`,
         html: `
           <div>
             <p>Welcome to <strong>${input.clubName}</strong>, ${input.memberFirstName} ${input.memberLastName}!</p>
-            <p>Visit us to find out <a href="${process.env.NEXT_PUBLIC_APP_URL}/join/${input.clubPublicId}">more</a>.</p>
+            <p>Visit us to find out <a href="${joinPageUrl}">more</a>.</p>
           </div>
         `
       });
@@ -78,17 +79,19 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     input: NotifyMembershipDeactivatedByMemberInput,
     sendTo: Email
   ): Promise<void> {
+    const managePeopleDashboardUrl = `process.env.NEXT_PUBLIC_APP_URL}/club/${input.clubId}/manage?tab=people`;
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
         subject: "A membership was deactivated",
         text: `${input.memberFirstName} ${input.memberLastName} has deactivated their membership for ${input.clubName}. 
-        Your club will no longer received contributions from them.`,
+        Your club will no longer received contributions from them. See membership dashboard at ${managePeopleDashboardUrl}`,
         html: `
           <div>
             <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> has deactivated their membership for <strong>${input.clubName}</strong>.</p>
             <p>Your club will no longer receive contributions from them.</p>
+            <p>See membership <a href="${managePeopleDashboardUrl}">dashboard</a>.</p>
           </div>
         `
       });
