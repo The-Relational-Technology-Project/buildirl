@@ -1,6 +1,7 @@
 import {
   Arbitrary,
   array,
+  boolean,
   constant,
   emailAddress,
   integer,
@@ -311,8 +312,14 @@ function declineMembershipApplicationCommands() {
 
 function deactivateMembershipCommands() {
   return record({
-    membershipIdSelector: itemSelector<bigint>()
-  }).map((i) => new DeactivateMembershipCommand(i.membershipIdSelector));
+    membershipIdSelector: itemSelector<bigint>(),
+    byClubOwner: boolean()
+  }).map(
+    (i) =>
+      new DeactivateMembershipCommand(i.membershipIdSelector, {
+        byClubOwner: i.byClubOwner
+      })
+  );
 }
 
 function setMembershipAsWelcomedCommands() {
