@@ -91,14 +91,28 @@ export type ClubStatistics = {
   memberCount: number;
 };
 
-export type FAQ = {
-  question: string;
-  answer: string;
-};
+export const FAQQuestionSchema = z
+  .string()
+  .min(3, "Question must be at least 3 characters")
+  .max(200, "Question cannot exceed 200 characters");
 
-export type FAQs = {
-  items: FAQ[];
-};
+export const FAQAnswerSchema = z
+  .string()
+  .min(3, "Answer must be at least 3 characters")
+  .max(2000, "Answer cannot exceed 2000 characters");
+
+export const FAQSchema = z.object({
+  question: FAQQuestionSchema,
+  answer: FAQAnswerSchema
+});
+
+export type FAQ = z.infer<typeof FAQSchema>;
+
+export const FAQsSchema = z.object({
+  items: z.array(FAQSchema)
+});
+
+export type FAQs = z.infer<typeof FAQsSchema>;
 
 export type MainMutations = {
   createUser(

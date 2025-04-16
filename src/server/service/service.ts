@@ -636,9 +636,6 @@ export function createMainService(
     input: UpdateClubFAQsInput
   ): Promise<MutationResult> {
     try {
-      // Validate FAQs structure matches expected schema
-      parseAsZodType(input.faqs, FAQsSchema);
-      
       await prisma.club.update({
         data: input,
         where: { id: clubId }

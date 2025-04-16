@@ -305,6 +305,17 @@ export class SystemState {
     });
   }
 
+  public updateClubFAQs(
+    id: number,
+    input: UpdateClubFAQsInput
+  ) {
+    const clubState = this.getClubState(id);
+    this.clubs.set(id, {
+      ...clubState,
+      faqs: input.faqs
+    });
+  }
+
   public createMembershipTier(
     membershipTierId: number,
     clubId: number,

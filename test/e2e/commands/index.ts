@@ -43,6 +43,7 @@ import {
 import UpdateClubDisplayImageUrlsCommand from "./updateClubDisplayImageUrlsCommand";
 import SetMembershipAsWelcomedCommand from "./setMembershipAsWelcomedCommand";
 import CreateStripeAccountCommand from "./createStripeAccountCommand";
+import UpdateClubFAQsCommand from "./updateClubFAQsCommand";
 
 export const allCommands = () => {
   return [
@@ -53,6 +54,7 @@ export const allCommands = () => {
     deleteClubCommands(),
     updateClubApplicationQuestionsCommands(),
     updateClubDisplayImageUrlsCommands(),
+    updateClubFAQsCommands(),
     createMembershipTierCommands(),
     updateMembershipTierCommands(),
     deleteMembershipTierCommands(),
@@ -200,6 +202,24 @@ function updateClubDisplayImageUrlsCommands() {
     (i) =>
       new UpdateClubDisplayImageUrlsCommand(
         { displayImageUrls: i.displayImageUrls },
+        i.clubIdSelector
+      )
+  );
+}
+
+function updateClubFAQsCommands() {
+  return record({
+    clubIdSelector: itemSelector<number>(),
+    faqs: record({
+      items: array(record({
+        question: string().filter(s => s.length >= 3 && s.length <= 200),
+        answer: string().filter(s => s.length >= 3 && s.length <= 2000)
+      }))
+    })
+  }).map(
+    (i) =>
+      new UpdateClubFAQsCommand(
+        { faqs: i.faqs },
         i.clubIdSelector
       )
   );

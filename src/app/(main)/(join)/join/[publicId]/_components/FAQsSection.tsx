@@ -1,18 +1,18 @@
 import { Accordion, Box, Text, Title } from "@mantine/core";
 import { FAQs } from "~/server/service/types";
 
-type FAQSectionProps = {
+type FAQsSectionProps = {
   faqs: FAQs;
 };
 
-export default function FAQSection({ faqs }: FAQSectionProps) {
+export default function FAQsSection({ faqs }: FAQsSectionProps) {
   // If there are no FAQs, don't render the section
   if (!faqs.items || faqs.items.length === 0) {
     return null;
   }
 
   return (
-    <Box mt={48} mb={48}>
+    <Box my={48}>
       <Title order={2} mb={24} ta="center">
         Frequently Asked Questions
       </Title>
