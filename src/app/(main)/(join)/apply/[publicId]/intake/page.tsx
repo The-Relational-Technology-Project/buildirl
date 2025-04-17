@@ -370,7 +370,7 @@ function ApplicationForm({
               size={"sm"}
               disabled={!shareEmail}
             >
-              Next
+              {isDefaultFreeTier ? "Submit" : "Next"}
             </PrimaryButton>
           ) : (
             <PrimaryButton
