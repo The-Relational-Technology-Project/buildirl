@@ -83,7 +83,7 @@ export default function ManageMembershipTiersPanel({
         slideSize="33.333333%"
         slideGap="md"
         align="start"
-        withControls={false}
+        withControls={true}
       >
         {publishedTiers.map((t) => (
           <Carousel.Slide key={t.id} py={4}>
