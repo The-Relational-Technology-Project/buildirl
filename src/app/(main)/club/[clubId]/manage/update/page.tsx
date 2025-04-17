@@ -11,7 +11,6 @@ import {
   FAQsSchema
 } from "~/server/service/types";
 import { api } from "~/trpc/react";
-import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
 import {
   Button,
@@ -294,13 +293,9 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           
           <Divider my="lg" />
           
-          {/* 
-            Wrap FAQSection in a div to prevent nested form issues.
-            This isolates the FAQSection's event handlers from the parent form,
-            preventing accidental form submissions when interacting with FAQ buttons.
-          */}
+
           <div>
-            <FAQSection club={club} />
+            <FAQSection />
           </div>
           
           <Box mt={32} style={{ display: 'flex', justifyContent: 'center' }}>

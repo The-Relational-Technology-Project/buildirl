@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
-import { Club, FAQSchema } from "~/server/service/types";
+import { FAQSchema } from "~/server/service/types";
 import { safeValidateSchema } from "~/utils/zod";
 import { z } from "zod";
 
@@ -22,43 +22,12 @@ import { z } from "zod";
 import { useClubFormContext } from "../form-context";
 
 /**
- * Custom hook to prevent event propagation
- * This follows the pattern of creating reusable hooks for common behaviors
+ * FAQSection component for managing club FAQs
+ * Uses form context instead of props for better maintainability
  */
-function useEventPrevention() {
-  const preventPropagation = React.useCallback(
-    <T extends (...args: any[]) => any>(handler: T) => {
-      return (e: React.SyntheticEvent, ...args: Parameters<T>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        return handler(...args);
-      };
-    },
-    []
-  );
 
-  const containerProps = {
-    onClick: (e: React.SyntheticEvent) => {
-      e.stopPropagation();
-    },
-    onSubmit: (e: React.SyntheticEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  return { preventPropagation, containerProps };
-}
-
-interface FAQSectionProps {
-  club: Club;
-}
-
-export default function FAQSection({ club }: FAQSectionProps) {
+export default function FAQSection(): React.ReactElement {
   const form = useClubFormContext();
-  
-  // Use our custom hook to handle event propagation
-  const { preventPropagation, containerProps } = useEventPrevention();
   
   // Track which FAQ item is being edited (null means adding new)
   const [editingState, setEditingState] = React.useState<{
@@ -167,8 +136,7 @@ export default function FAQSection({ club }: FAQSectionProps) {
   return (
     <Stack 
       gap={8} 
-      mt={6} 
-      {...containerProps}
+      mt={6}
     >
       <Title order={6}>Frequently Asked Questions</Title>
       <Text size="sm">Add questions and answers that potential members might have about your club.</Text>
@@ -187,17 +155,19 @@ export default function FAQSection({ club }: FAQSectionProps) {
                   <Text fw={700} size="md">{faq.question}</Text>
                   <Group gap="xs">
                     <ActionIcon 
-                      onClick={preventPropagation(() => handleEditFAQ(index))}
+                      onClick={() => handleEditFAQ(index)}
                       size="sm"
                       disabled={editingState.isEditing}
+                      type="button"
                     >
                       <IconEdit size={16} />
                     </ActionIcon>
                     <ActionIcon 
-                      onClick={preventPropagation(() => handleDeleteFAQ(index))}
+                      onClick={() => handleDeleteFAQ(index)}
                       color="red" 
                       size="sm"
                       disabled={editingState.isEditing}
+                      type="button"
                     >
                       <IconTrash size={16} />
                     </ActionIcon>
@@ -232,12 +202,14 @@ export default function FAQSection({ club }: FAQSectionProps) {
               <Group justify="flex-end">
                 <Button 
                   variant="outline" 
-                  onClick={preventPropagation(handleCancelFAQ)}
+                  onClick={handleCancelFAQ}
+                  type="button"
                 >
                   Cancel
                 </Button>
                 <Button 
-                  onClick={preventPropagation(handleSaveFAQ)}
+                  onClick={handleSaveFAQ}
+                  type="button"
                 >
                   {editingState.index !== null ? "Update" : "Add"} FAQ
                 </Button>
@@ -248,9 +220,10 @@ export default function FAQSection({ club }: FAQSectionProps) {
       ) : (
         <Box style={{ display: 'flex', justifyContent: 'center' }} mt="md">
           <Button 
-            onClick={preventPropagation(handleAddFAQ)}
+            onClick={handleAddFAQ}
             variant="outline"
             leftSection={<IconPlus size={16} />}
+            type="button"
           >
             Add FAQ
           </Button>
