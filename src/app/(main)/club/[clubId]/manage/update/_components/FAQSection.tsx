@@ -14,9 +14,8 @@ import {
 } from "@mantine/core";
 import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
-import { FAQSchema } from "~/server/service/types";
+import { FAQSchema, FAQ } from "~/server/service/types";
 import { safeValidateSchema } from "~/utils/zod";
-import { z } from "zod";
 
 // Import the context from form-context
 import { useClubFormContext } from "../form-context";
@@ -38,8 +37,8 @@ export default function FAQSection(): React.ReactElement {
     index: null
   });
   
-  // Form for the FAQ being edited - using the shared schema types
-  const faqForm = useForm<z.infer<typeof FAQSchema>>({
+  // Form for the FAQ being edited - using the exported FAQ type
+  const faqForm = useForm<FAQ>({
     initialValues: {
       question: "",
       answer: ""
@@ -60,7 +59,7 @@ export default function FAQSection(): React.ReactElement {
   });
   
   // Get the current FAQs from the main form
-  const getItems = (): z.infer<typeof FAQSchema>[] => form.values.faqs.items || [];
+  const getItems = (): FAQ[] => form.values.faqs.items || [];
   
   const handleAddFAQ = () => {
     faqForm.reset();
@@ -82,7 +81,7 @@ export default function FAQSection(): React.ReactElement {
   const handleSaveFAQ = () => {
     const validation = faqForm.validate();
     if (!validation.hasErrors) {
-      const newFAQ: z.infer<typeof FAQSchema> = {
+      const newFAQ: FAQ = {
         question: faqForm.values.question,
         answer: faqForm.values.answer
       };
