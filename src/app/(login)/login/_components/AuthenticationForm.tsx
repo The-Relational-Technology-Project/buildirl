@@ -58,7 +58,7 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
-      <Stack>
+      <Stack gap={"xs"}>
         <TextInput
           required
           label="Email"
@@ -67,18 +67,19 @@ function EmailForm({ toggle, setEmail, supabase }: EmailFormProps) {
           {...form.getInputProps("email")}
         />
         <Button type="submit" mt="sm" disabled={form.submitting}>
-          {"Send code"}
+          {"Continue with Email"}
         </Button>
-        <GoogleSSOButton supabase={supabase} />
         <Anchor
           c={"dimmed"}
           component="button"
           type="button"
           onClick={toggle}
-          size="sm"
+          size="xs"
         >
           Received code?
         </Anchor>
+        <Divider />
+        <GoogleSSOButton supabase={supabase} mt={"xs"} />
       </Stack>
     </form>
   );
@@ -118,7 +119,7 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
-      <Stack>
+      <Stack gap={"xs"}>
         <TextInput
           type="number"
           required
@@ -135,7 +136,7 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
           component="button"
           type="button"
           onClick={toggle}
-          size="sm"
+          size="xs"
         >
           Try again
         </Anchor>

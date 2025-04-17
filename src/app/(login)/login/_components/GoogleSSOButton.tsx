@@ -29,7 +29,7 @@ export default function GoogleSSOButton({
 
   return (
     <Button
-      color={"red"}
+      color={"blue"}
       {...props}
       leftSection={<IconBrandGoogleFilled size={18} />}
       onClick={handleClick}
