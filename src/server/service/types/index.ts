@@ -94,12 +94,12 @@ export type ClubStatistics = {
 export const FAQQuestionSchema = z
   .string()
   .min(3, "Question must be at least 3 characters")
-  .max(200, "Question cannot exceed 200 characters");
+  .max(2000, "Question cannot exceed 2000 characters");
 
 export const FAQAnswerSchema = z
   .string()
   .min(3, "Answer must be at least 3 characters")
-  .max(2000, "Answer cannot exceed 2000 characters");
+  .max(20000, "Answer cannot exceed 20000 characters");
 
 export const FAQSchema = z.object({
   question: FAQQuestionSchema,
@@ -155,10 +155,6 @@ export type MainMutations = {
     input: DeactivateMembershipInput
   ): Promise<MutationResult>;
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
-  updateClubFAQs(
-    clubId: number,
-    input: UpdateClubFAQsInput
-  ): Promise<MutationResult>;
 };
 
 const FIRST_NAME_REGEX = /^[a-zA-Z]+$/;
@@ -228,7 +224,9 @@ export const CreateClubInputSchema = z.object({
   description: LongTextSchema,
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
-  eventCalendarUrl: UrlSchema.nullable()
+  eventCalendarUrl: UrlSchema.nullable(),
+  // Optional FAQs - will use DEFAULT_CLUB_FAQS if not provided
+  faqs: FAQsSchema.optional()
 });
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
 
@@ -242,7 +240,8 @@ export const UpdateClubInputSchema = z.object({
   eventCalendarUrl: UrlSchema.nullable(),
   // update-only fields
   theme: TemplateThemeSchema.nullable(),
-  themeHeadingFont: z.string().nullable()
+  themeHeadingFont: z.string().nullable(),
+  faqs: FAQsSchema
 });
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;
 

@@ -14,7 +14,6 @@ import {
   SubmitMembershipApplicationInputSchema,
   UpdateClubApplicationQuestionsInputSchema,
   UpdateClubDisplayImageUrlsInputSchema,
-  UpdateClubFAQsInputSchema,
   UpdateClubInputSchema,
   UpdateMembershipTierInputSchema,
   UpdateUserInputSchema
@@ -313,22 +312,5 @@ export const mainRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.service.main.setMembershipAsWelcomed(input.membershipId);
-    }),
-
-  updateClubFAQs: securedProcedureWithAbilityFor("Club")
-    .input(
-      z.object({
-        clubId: z.number(),
-        input: UpdateClubFAQsInputSchema
-      })
-    )
-    .mutation(({ ctx, input }) => {
-      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
-      return ctx.service.main.updateClubFAQs(
-        input.clubId,
-        input.input
-      );
     })
 });

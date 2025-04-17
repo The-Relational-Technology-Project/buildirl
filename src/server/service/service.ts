@@ -502,7 +502,8 @@ export function createMainService(
           // default questions
           applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
           theme: Prisma.DbNull,
-          faqs: DEFAULT_CLUB_FAQS
+          // Use provided FAQs or default to empty
+          faqs: input.faqs || DEFAULT_CLUB_FAQS
         },
         select: {
           id: true
@@ -527,8 +528,12 @@ export function createMainService(
     input: UpdateClubInput
   ): Promise<MutationResult> {
     try {
+      // Since FAQs is now required, simplify the implementation
       await prisma.club.update({
-        data: { ...input, theme: input.theme ?? Prisma.DbNull },
+        data: { 
+          ...input, 
+          theme: input.theme ?? Prisma.DbNull,
+        },
         where: {
           id: id
         }
@@ -626,28 +631,6 @@ export function createMainService(
       logger.error(
         e,
         `failed to update club application questions for club with clubId ${clubId} from input ${stringify(input)}`
-      );
-      throw e;
-    }
-  }
-
-  async function updateClubFAQs(
-    clubId: number,
-    input: UpdateClubFAQsInput
-  ): Promise<MutationResult> {
-    try {
-      await prisma.club.update({
-        data: input,
-        where: { id: clubId }
-      });
-      logger.info(
-        `updated club FAQs for club with clubId ${clubId} from input ${stringify(input)}`
-      );
-      return NO_ID_MUTATION_RESULT;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to update club FAQs for club with clubId ${clubId} from input ${stringify(input)}`
       );
       throw e;
     }
@@ -2021,7 +2004,6 @@ export function createMainService(
     deleteClub,
     updateClubApplicationQuestions,
     updateClubDisplayImageUrls,
-    updateClubFAQs,
     createMembershipTier,
     updateMembershipTier,
     deleteMembershipTier,

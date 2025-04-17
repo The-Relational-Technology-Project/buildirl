@@ -16,8 +16,7 @@ import {
   Membership,
   ClubStatistics,
   UpdateClubDisplayImageUrlsInput,
-  FAQs,
-  UpdateClubFAQsInput
+  FAQs
 } from "~/server/service/types";
 import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
@@ -247,7 +246,8 @@ export class SystemState {
       membershipTierIds: [],
       // default false
       hasStripeAccount: false,
-      faqs: DEFAULT_CLUB_FAQS
+      // Use provided FAQs or default to empty FAQs, matching the real system behavior
+      faqs: input.faqs || DEFAULT_CLUB_FAQS
     });
 
     this.createFreeMembershipTier(freeMembershipTierId, clubId);
@@ -303,17 +303,6 @@ export class SystemState {
     this.clubs.set(id, {
       ...clubState,
       ...input
-    });
-  }
-
-  public updateClubFAQs(
-    id: number,
-    input: UpdateClubFAQsInput
-  ) {
-    const clubState = this.getClubState(id);
-    this.clubs.set(id, {
-      ...clubState,
-      faqs: input.faqs
     });
   }
 

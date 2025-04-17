@@ -43,7 +43,6 @@ import {
 import UpdateClubDisplayImageUrlsCommand from "./updateClubDisplayImageUrlsCommand";
 import SetMembershipAsWelcomedCommand from "./setMembershipAsWelcomedCommand";
 import CreateStripeAccountCommand from "./createStripeAccountCommand";
-import UpdateClubFAQsCommand from "./updateClubFAQsCommand";
 
 export const allCommands = () => {
   return [
@@ -54,7 +53,6 @@ export const allCommands = () => {
     deleteClubCommands(),
     updateClubApplicationQuestionsCommands(),
     updateClubDisplayImageUrlsCommands(),
-    updateClubFAQsCommands(),
     createMembershipTierCommands(),
     updateMembershipTierCommands(),
     deleteMembershipTierCommands(),
@@ -117,7 +115,29 @@ function createClubCommands() {
       { freq: 4 }
     ),
     eventCalendarUrl: option(webUrl(), { freq: 4 }),
-    userIdSelector: itemSelector<number>()
+    userIdSelector: itemSelector<number>(),
+    faqs: oneof(
+      record({
+        items: array(record({
+          question: string().filter(s => s.length >= 3 && s.length <= 2000),
+          answer: string().filter(s => s.length >= 3 && s.length <= 20000)
+        }), { maxLength: 5 })
+      }),
+      constant({ items: [] }),
+      constant({ 
+        items: [{ 
+          question: "abc", 
+          answer: "def" 
+        }] 
+      }),
+      constant({
+        items: [{
+          question: "This is a longer question that spans multiple paragraphs.\n\nIt has line breaks and represents a more complex question scenario that might occur in real-world usage.",
+          answer: "This is a comprehensive answer that spans multiple paragraphs.\n\nIt includes several distinct points and explanations.\n\nThe format allows for detailed responses with proper spacing between thoughts.\n\nThis tests the system's ability to handle and display structured content."
+        }]
+      }),
+      constant(undefined)
+    )
   }).map(
     (i) =>
       new CreateClubCommand(
@@ -128,7 +148,8 @@ function createClubCommands() {
           description: i.description,
           websiteUrl: i.websiteUrl,
           instagramHandle: i.instagramHandle,
-          eventCalendarUrl: i.eventCalendarUrl
+          eventCalendarUrl: i.eventCalendarUrl,
+          faqs: i.faqs
         },
         i.userIdSelector
       )
@@ -154,7 +175,43 @@ function updateClubCommands() {
     ),
     themeHeadingFont: option(oneof(...FONT_SELECTION.map(constant)), {
       freq: 4
-    })
+    }),
+    faqs: oneof(
+      record({
+        items: array(record({
+          question: string().filter(s => s.length >= 3 && s.length <= 2000),
+          answer: string().filter(s => s.length >= 3 && s.length <= 20000)
+        }), { maxLength: 10 })
+      }),
+      constant({ items: [] }),
+      constant({ 
+        items: [{ 
+          question: "abc", 
+          answer: "def" 
+        }] 
+      }),
+      constant({ 
+        items: Array(20).fill(0).map((_, i) => ({ 
+          question: `Question ${i+1}`, 
+          answer: `Answer ${i+1}` 
+        }))
+      }),
+      constant({ 
+        items: [{ 
+          question: "A very long question that spans multiple paragraphs and approaches the maximum allowed length.\n\nIt includes line breaks to test formatting and display capabilities of the interface.\n\nThis helps ensure that the UI can properly render structured content.",
+          answer: "A very long answer that spans multiple paragraphs to test the system's ability to handle extensive content.\n\nParagraph 2: Additional information that might be needed for a comprehensive answer.\n\nParagraph 3: More details about the topic at hand and how it relates to the club's activities.\n\nParagraph 4: Examples or case studies that illustrate the point being made.\n\nParagraph 5: Background information that provides context for the answer.\n\nParagraph 6: Technical details or specifications that might be relevant.\n\nParagraph 7: References or citations to external resources for further reading.\n\nParagraph 8: Concluding remarks that summarize the key points and provide a final perspective on the question."
+        }] 
+      }),
+      constant({
+        items: [
+          { question: "Short Q", answer: "Short A" },
+          { 
+            question: "Long question with detailed context that includes multiple paragraphs?\n\nThis is the second paragraph of the question.",
+            answer: "Long detailed answer that contains multiple paragraphs to test rendering and storage.\n\nSecond paragraph providing more details.\n\nThird paragraph with additional information.\n\nFourth paragraph expanding on the concept."
+          }
+        ]
+      })
+    )
   }).map(
     (i) =>
       new UpdateClubCommand(
@@ -167,7 +224,8 @@ function updateClubCommands() {
           instagramHandle: i.instagramHandle,
           eventCalendarUrl: i.eventCalendarUrl,
           theme: i.theme,
-          themeHeadingFont: i.themeHeadingFont
+          themeHeadingFont: i.themeHeadingFont,
+          faqs: i.faqs
         },
         i.clubIdSelector
       )
@@ -202,24 +260,6 @@ function updateClubDisplayImageUrlsCommands() {
     (i) =>
       new UpdateClubDisplayImageUrlsCommand(
         { displayImageUrls: i.displayImageUrls },
-        i.clubIdSelector
-      )
-  );
-}
-
-function updateClubFAQsCommands() {
-  return record({
-    clubIdSelector: itemSelector<number>(),
-    faqs: record({
-      items: array(record({
-        question: string().filter(s => s.length >= 3 && s.length <= 200),
-        answer: string().filter(s => s.length >= 3 && s.length <= 2000)
-      }))
-    })
-  }).map(
-    (i) =>
-      new UpdateClubFAQsCommand(
-        { faqs: i.faqs },
         i.clubIdSelector
       )
   );
