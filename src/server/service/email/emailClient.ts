@@ -19,7 +19,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     sendTo: Email
   ): Promise<void> {
     try {
-      const joinPageUrl = `${process.env.NEXT_PUBLIC_APP_URL}/join/${input.clubPublicId}`;
+      const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
@@ -79,7 +79,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     input: NotifyMembershipDeactivatedByMemberInput,
     sendTo: Email
   ): Promise<void> {
-    const managePeopleDashboardUrl = `process.env.NEXT_PUBLIC_APP_URL}/club/${input.clubId}/manage?tab=people`;
+    const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
