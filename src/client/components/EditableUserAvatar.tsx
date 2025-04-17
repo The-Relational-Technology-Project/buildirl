@@ -15,17 +15,19 @@ type EditableUserAvatarProps = {
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 // returns whether the file size is valid
-export function isFileSizeValid(file: File): boolean {
+export function isFileSizeValid(file: File, maxFileSizeInMbs: number): boolean {
   if (file.size === 0) {
     logger.error(`image file ${file.name} was empty`);
     notifyError("Uploaded image was empty.");
     return false;
   }
-  if (file.size > MAX_FILE_SIZE) {
+  if (file.size > maxFileSizeInMbs * 1024 * 1024) {
     logger.error(
-      `image file upload cannot be greater than 2 MB but was ${file.size / (1024 * 1024)} MB`
+      `image file upload cannot be greater than ${maxFileSizeInMbs} MB but was ${file.size / (1024 * 1024)} MB`
     );
-    notifyError("Uploaded image cannot be greater than 2 MB.");
+    notifyError(
+      `Uploaded image cannot be greater than ${maxFileSizeInMbs} MB.`
+    );
     return false;
   }
   return true;
@@ -41,7 +43,7 @@ export default function EditableUserAvatar({
       return;
     }
 
-    if (!isFileSizeValid(file)) {
+    if (!isFileSizeValid(file, 2)) {
       return;
     }
 
