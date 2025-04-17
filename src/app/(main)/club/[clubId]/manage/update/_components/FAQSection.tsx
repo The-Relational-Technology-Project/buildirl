@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, UseFormReturnType } from "@mantine/form";
+import { useForm } from "@mantine/form";
 import {
   ActionIcon,
   Button,
@@ -14,8 +14,7 @@ import {
 } from "@mantine/core";
 import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
-import { api } from "~/trpc/react";
-import { Club, FAQSchema, FAQsSchema } from "~/server/service/types";
+import { Club, FAQSchema } from "~/server/service/types";
 import { safeValidateSchema } from "~/utils/zod";
 import { z } from "zod";
 
@@ -247,7 +246,7 @@ export default function FAQSection({ club }: FAQSectionProps) {
           </div>
         </Paper>
       ) : (
-        <Box>
+        <Box style={{ display: 'flex', justifyContent: 'center' }} mt="md">
           <Button 
             onClick={preventPropagation(handleAddFAQ)}
             variant="outline"
