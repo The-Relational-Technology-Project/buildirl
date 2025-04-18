@@ -148,8 +148,9 @@ export default function MembershipApplicationTable({
           <IconListCheck size={16} />
         </ColorSchemeAwareActionIcon>
       </Table.Td>
-      <ApproveDeclineMembershipButtons clubId={clubId} membershipId={m.id} />
-      <Table.Td></Table.Td>
+      <Table.Td>
+        <ApproveDeclineMembershipButtons clubId={clubId} membershipId={m.id} />
+      </Table.Td>
     </Table.Tr>
   ));
 
