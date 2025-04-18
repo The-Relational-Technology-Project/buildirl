@@ -53,16 +53,36 @@ export function ApproveDeclineMembershipButtons({
       }
     });
 
+  const handleApproveMembership = (membershipId: bigint) => {
+    if (
+      window.confirm(
+        "Ready to approve this application? Please review the application intake form."
+      )
+    ) {
+      approveMembershipApplication.mutateAsync({
+        membershipId: membershipId
+      });
+    }
+  };
+
+  const handleDeclineMembership = (membershipId: bigint) => {
+    if (
+      window.confirm(
+        "Are you sure you want to decline this application? This action cannot be undone."
+      )
+    ) {
+      declineMembershipApplication.mutateAsync({
+        membershipId: membershipId
+      });
+    }
+  };
+
   return (
     <Group wrap={"nowrap"}>
       <Button
         color={"green"}
         size={"xs"}
-        onClick={async () =>
-          await approveMembershipApplication.mutateAsync({
-            membershipId: membershipId
-          })
-        }
+        onClick={() => handleApproveMembership(membershipId)}
         loading={approveMembershipApplication.isPending}
       >
         Approve
@@ -70,11 +90,7 @@ export function ApproveDeclineMembershipButtons({
       <Button
         color={"red"}
         size={"xs"}
-        onClick={async () =>
-          await declineMembershipApplication.mutateAsync({
-            membershipId: membershipId
-          })
-        }
+        onClick={() => handleDeclineMembership(membershipId)}
         loading={declineMembershipApplication.isPending}
       >
         Decline
