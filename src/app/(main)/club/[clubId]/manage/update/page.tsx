@@ -3,15 +3,14 @@
 import {
   Club,
   ClubNameSchema,
-  ClubPublicIdSchema,
   ClubTagLineSchema,
-  InstagramHandleSchema,
   LongTextSchema,
   UrlSchema,
+  ClubPublicIdSchema,
+  InstagramHandleSchema,
   FAQsSchema
 } from "~/server/service/types";
 import { api } from "~/trpc/react";
-import { safeValidateSchema } from "~/utils/zod";
 import {
   Button,
   Group,
@@ -38,33 +37,28 @@ import { z } from "zod";
 import FontSelector from "~/app/(main)/club/[clubId]/manage/update/_components/FontSelector";
 import FAQSection from "~/app/(main)/club/[clubId]/manage/update/_components/FAQSection";
 import { IconDeviceFloppy } from "@tabler/icons-react";
-import { ClubFormProvider, useClubFormContext, useClubForm, ClubFormValues } from "./form-context";
+import { ClubFormValues } from "./form-context";
+import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 // Basic Information section component
-interface BasicInfoSectionProps {
-  club: Club;
-}
-
-function BasicInfoSection({ club }: BasicInfoSectionProps) {
-  const form = useClubFormContext();
+function BasicInfoSection() {
+  const { register } = useFormContext<ClubFormValues>();
   
   return (
     <Stack gap={8} mt={4}>
       <TextInput
         required
         placeholder="Club name"
-        key={form.key("name")}
-        {...form.getInputProps("name")}
+        {...register("name")}
       />
       <TextInput
         placeholder="Tag line"
-        key={form.key("tagLine")}
-        {...form.getInputProps("tagLine")}
+        {...register("tagLine")}
       />
       <Textarea
         placeholder="About your club"
-        key={form.key("description")}
-        {...form.getInputProps("description")}
+        {...register("description")}
         rows={6}
       />
     </Stack>
@@ -72,42 +66,31 @@ function BasicInfoSection({ club }: BasicInfoSectionProps) {
 }
 
 // Links section component
-interface LinksSectionProps {
-  club: Club;
-}
-
-function LinksSection({ club }: LinksSectionProps) {
-  const form = useClubFormContext();
+function LinksSection() {
+  const { register } = useFormContext<ClubFormValues>();
   
   return (
     <Stack gap={8} mt={6}>
       <Title order={6}>Links</Title>
       <TextInput
         placeholder="Website link"
-        key={form.key("websiteUrl")}
-        {...form.getInputProps("websiteUrl")}
+        {...register("websiteUrl")}
       />
       <TextInput
         placeholder="Instagram tag"
-        key={form.key("instagramHandle")}
-        {...form.getInputProps("instagramHandle")}
+        {...register("instagramHandle")}
       />
       <TextInput
         placeholder="Event calendar link (e.g., Luma)"
-        key={form.key("eventCalendarUrl")}
-        {...form.getInputProps("eventCalendarUrl")}
+        {...register("eventCalendarUrl")}
       />
     </Stack>
   );
 }
 
 // Share link section component
-interface ShareLinkSectionProps {
-  club: Club;
-}
-
-function ShareLinkSection({ club }: ShareLinkSectionProps) {
-  const form = useClubFormContext();
+function ShareLinkSection() {
+  const { register } = useFormContext<ClubFormValues>();
   
   return (
     <Stack gap={8} mt={6}>
@@ -117,8 +100,7 @@ function ShareLinkSection({ club }: ShareLinkSectionProps) {
         <TextInput
           required
           placeholder="club-tag"
-          key={form.key("publicId")}
-          {...form.getInputProps("publicId")}
+          {...register("publicId")}
         />
       </Group>
     </Stack>
@@ -126,38 +108,32 @@ function ShareLinkSection({ club }: ShareLinkSectionProps) {
 }
 
 // Theme section component
-interface ThemeSectionProps {
-  club: Club;
-}
-
-function ThemeSection({ club }: ThemeSectionProps) {
-  const form = useClubFormContext();
+function ThemeSection() {
+  const { watch, setValue } = useFormContext<ClubFormValues>();
+  const theme = watch("theme");
   
   return (
     <Stack gap={12} mt={6}>
       <Title order={6}>Background</Title>
       <ThemeSelector
-        value={form.values.theme}
-        onChange={(theme) => form.setFieldValue("theme", theme)}
+        value={theme}
+        onChange={(newTheme) => setValue("theme", newTheme)}
       />
     </Stack>
   );
 }
 
 // Font section component
-interface FontSectionProps {
-  club: Club;
-}
-
-function FontSection({ club }: FontSectionProps) {
-  const form = useClubFormContext();
+function FontSection() {
+  const { watch, setValue } = useFormContext<ClubFormValues>();
+  const font = watch("themeHeadingFont");
   
   return (
     <Stack gap={12} mt={6}>
       <Title order={6}>Font</Title>
       <FontSelector
-        value={form.values.themeHeadingFont}
-        onChange={(font) => form.setFieldValue("themeHeadingFont", font)}
+        value={font}
+        onChange={(newFont) => setValue("themeHeadingFont", newFont)}
       />
     </Stack>
   );
@@ -186,9 +162,23 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
   const utils = api.useUtils();
   const router = useRouter();
   
-  // Create form with integrated FAQ state
-  const form = useClubForm({
-    initialValues: {
+  // Create the validation schema - Final version with fixes
+  const validationSchema = z.object({
+    publicId: ClubPublicIdSchema,
+    name: ClubNameSchema,
+    tagLine: ClubTagLineSchema,
+    description: LongTextSchema,
+    websiteUrl: z.union([z.literal(""), UrlSchema]).nullable().transform(v => v === null ? "" : v),
+    instagramHandle: z.union([z.literal(""), InstagramHandleSchema]).nullable().transform(v => v === null ? "" : v),
+    eventCalendarUrl: z.union([z.literal(""), UrlSchema]).nullable().transform(v => v === null ? "" : v),
+    theme: TemplateThemeSchema.nullable(),
+    themeHeadingFont: z.string().nullable(),
+    faqs: FAQsSchema
+  });
+  
+  // Create form with react-hook-form
+  const methods = useForm<ClubFormValues>({
+    defaultValues: {
       publicId: club.publicId,
       name: club.name,
       tagLine: club.tagLine,
@@ -200,80 +190,66 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       themeHeadingFont: club.themeHeadingFont,
       faqs: club.faqs
     },
-    validateInputOnChange: true,
-    validate: {
-      description: (v) => safeValidateSchema(LongTextSchema, v),
-      publicId: (v) => safeValidateSchema(ClubPublicIdSchema, v),
-      name: (v) => safeValidateSchema(ClubNameSchema, v),
-      tagLine: (v) => safeValidateSchema(ClubTagLineSchema, v),
-      websiteUrl: (v) =>
-        safeValidateSchema(UrlSchema.nullable(), v === "" ? null : v),
-      instagramHandle: (v) =>
-        safeValidateSchema(
-          InstagramHandleSchema.nullable(),
-          v === "" ? null : v
-        ),
-      eventCalendarUrl: (v) =>
-        safeValidateSchema(UrlSchema.nullable(), v === "" ? null : v),
-      theme: (v) => safeValidateSchema(TemplateThemeSchema.nullable(), v),
-      themeHeadingFont: (v) => safeValidateSchema(z.string().nullable(), v),
-      faqs: (v) => safeValidateSchema(FAQsSchema, v)
-    }
+    resolver: zodResolver(validationSchema),
+    mode: "onChange"
   });
 
   const updateClub = api.main.updateClub.useMutation();
-
-  const handleSubmit = form.onSubmit((values: ClubFormValues) => {
-    const saveChanges = async () => {
-      try {
-        // Now include faqs in the main update
-        await updateClub.mutateAsync({
-          id: club.id,
-          input: {
-            publicId: values.publicId,
-            name: values.name,
-            tagLine: values.tagLine,
-            description: values.description,
-            websiteUrl: values.websiteUrl === "" ? null : values.websiteUrl,
-            instagramHandle: values.instagramHandle === "" ? null : values.instagramHandle,
-            eventCalendarUrl: values.eventCalendarUrl === "" ? null : values.eventCalendarUrl,
-            theme: values.theme,
-            themeHeadingFont: values.themeHeadingFont,
-            faqs: values.faqs // Include FAQs in the main update
-          }
-        });
-        
-        // Invalidate queries to refresh data
-        utils.main.club.invalidate({ id: club.id });
-        utils.main.clubByPublicId.invalidate({ publicId: values.publicId });
-        utils.main.userOwnedClubs.invalidate();
-        
-        // Show success notification
-        notifications.show({
-          title: 'Changes saved',
-          message: 'Your club has been updated successfully',
-          color: 'green'
-        });
-        
-        // Navigate back
-        router.push(`/club/${club.id}/manage`);
-      } catch (error) {
-        console.error("Error updating club:", error);
-        // Show error notification
-        notifications.show({
-          title: 'Error',
-          message: 'Failed to save changes. Please try again.',
-          color: 'red'
-        });
+  
+  const onSubmit = async (values: ClubFormValues) => {
+    // Make a copy and transform empty strings to null for server validation
+    const cleanedValues = {
+      ...values,
+      websiteUrl: values.websiteUrl === "" ? null : values.websiteUrl,
+      instagramHandle: values.instagramHandle === "" ? null : values.instagramHandle,
+      eventCalendarUrl: values.eventCalendarUrl === "" ? null : values.eventCalendarUrl,
+      faqs: {
+        items: values.faqs.items.map(({ question, answer }) => ({ 
+          question, 
+          answer 
+        }))
       }
     };
-    
-    saveChanges();
-  });
+
+    // Re-enable the mutation call
+    try {
+      await updateClub.mutateAsync({
+        id: club.id,
+        input: cleanedValues
+      });
+      
+      // Invalidate queries to refresh data
+      utils.main.club.invalidate({ id: club.id });
+      utils.main.clubByPublicId.invalidate({ publicId: values.publicId });
+      utils.main.userOwnedClubs.invalidate();
+      
+      // Show success notification
+      notifications.show({
+        title: 'Changes saved',
+        message: 'Your club has been updated successfully',
+        color: 'green'
+      });
+      
+      // Navigate back
+      router.push(`/club/${club.id}/manage`);
+    } catch (error) {
+      console.error("Error updating club:", error);
+      // Show error notification
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to save changes. Please try again.',
+        color: 'red'
+      });
+    }
+  };
 
   return (
-    <ClubFormProvider form={form}>
-      <form onSubmit={handleSubmit}>
+    <FormProvider {...methods}>
+      <form 
+        onSubmit={(e) => {
+          return methods.handleSubmit(onSubmit)(e);
+        }}
+      >
         <Stack gap={16}>
           <EditableClubImage
             club={club}
@@ -284,16 +260,15 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
             }}
           />
 
-          <BasicInfoSection club={club} />
-          <LinksSection club={club} />
-          <ShareLinkSection club={club} />
-          <ThemeSection club={club} />
-          <FontSection club={club} />
+          <BasicInfoSection />
+          <LinksSection />
+          <ShareLinkSection />
+          <ThemeSection />
+          <FontSection />
           <ImagesSection club={club} />
           
           <Divider my="lg" />
           
-
           <div>
             <FAQSection />
           </div>
@@ -302,8 +277,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
             <Button
               w={100}
               type="submit"
-              disabled={!form.isValid()}
-              loading={updateClub.isPending}
+              disabled={updateClub.isPending} // Re-enabled
+              loading={updateClub.isPending} // Re-enabled
               leftSection={<IconDeviceFloppy size={16} />}
             >
               Save
@@ -311,7 +286,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           </Box>
         </Stack>
       </form>
-    </ClubFormProvider>
+    </FormProvider>
   );
 }
 

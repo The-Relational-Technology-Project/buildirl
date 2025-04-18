@@ -1,4 +1,3 @@
-import { createFormContext } from "@mantine/form";
 import { z } from "zod";
 import { TemplateThemeSchema } from "~/client/theme/templates";
 import { FAQsSchema } from "~/server/service/types";
@@ -15,8 +14,4 @@ export type ClubFormValues = {
   theme: z.infer<typeof TemplateThemeSchema> | null;
   themeHeadingFont: string | null;
   faqs: z.infer<typeof FAQsSchema>;
-};
-
-// Create form context
-export const [ClubFormProvider, useClubFormContext, useClubForm] = 
-  createFormContext<ClubFormValues>(); 
+}; 
