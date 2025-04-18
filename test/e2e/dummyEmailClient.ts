@@ -1,5 +1,6 @@
 import {
   EmailClient,
+  NotifyMembershipApplicationSubmittedInput,
   NotifyMembershipApprovedInput,
   NotifyMembershipDeactivatedByMemberInput,
   NotifyMembershipDeactivatedByOwnerInput,
@@ -8,6 +9,13 @@ import {
 import { Email } from "~/server/service/types";
 
 export function createDummyEmailClient(): EmailClient {
+  async function notifyMembershipApplicationSubmitted(
+    _: NotifyMembershipApplicationSubmittedInput,
+    __: Email
+  ): Promise<void> {
+    return;
+  }
+
   async function notifyMembershipApproved(
     _: NotifyMembershipApprovedInput,
     __: Email
@@ -37,6 +45,7 @@ export function createDummyEmailClient(): EmailClient {
   }
 
   return {
+    notifyMembershipApplicationSubmitted,
     notifyMembershipApproved,
     notifyMembershipDeclined,
     notifyMembershipDeactivatedByOwner,

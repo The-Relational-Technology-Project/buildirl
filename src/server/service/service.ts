@@ -1280,6 +1280,7 @@ export function createMainService(
       });
 
       await createStripeCustomer(id, tx);
+      await notifyMembershipApplicationSubmitted(id);
 
       logger.info(
         `created pending membership from input ${stringify(input)} with membershipId ${id}`
@@ -1386,6 +1387,9 @@ export function createMainService(
       logger.info(
         `updated membership to pending membership from input ${stringify(input)} with membershipId ${id}`
       );
+
+      await notifyMembershipApplicationSubmitted(id);
+
       // need to return id as this is considered creation
       return { createdEntityId: id };
     } catch (e) {
@@ -1395,6 +1399,28 @@ export function createMainService(
       );
       throw e;
     }
+  }
+
+  async function notifyMembershipApplicationSubmitted(membershipId: bigint) {
+    const membership = await getMembership(membershipId);
+    const ownerEmail = await userEmail(membership.club.owner.id);
+
+    if (null === ownerEmail) {
+      logger.error(
+        `failed to notify on membership application submitted for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipApplicationSubmitted(
+      {
+        membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
+        clubName: membership.club.name,
+        clubId: membership.club.id
+      },
+      ownerEmail
+    );
   }
 
   async function membershipStatus(

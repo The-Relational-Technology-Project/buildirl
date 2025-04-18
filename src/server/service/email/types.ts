@@ -1,6 +1,10 @@
 import { Email } from "../types";
 
 export type EmailClient = {
+  notifyMembershipApplicationSubmitted(
+    input: NotifyMembershipApplicationSubmittedInput,
+    sendTo: Email
+  ): Promise<void>;
   notifyMembershipApproved(
     input: NotifyMembershipApprovedInput,
     sendTo: Email
@@ -17,6 +21,14 @@ export type EmailClient = {
     input: NotifyMembershipDeactivatedByOwnerInput,
     sendTo: Email
   ): Promise<void>;
+};
+
+export type NotifyMembershipApplicationSubmittedInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
 };
 
 export type NotifyMembershipApprovedInput = {

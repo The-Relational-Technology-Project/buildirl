@@ -4,7 +4,8 @@ import {
   NotifyMembershipApprovedInput,
   NotifyMembershipDeclinedInput,
   NotifyMembershipDeactivatedByMemberInput,
-  NotifyMembershipDeactivatedByOwnerInput
+  NotifyMembershipDeactivatedByOwnerInput,
+  NotifyMembershipApplicationSubmittedInput
 } from "./types";
 import { Email } from "../types";
 import { rootLogger } from "~/logger";
@@ -13,6 +14,37 @@ const logger = rootLogger.child({ module: "emailClient" });
 
 export function createEmailClient(mailTransport: Transporter): EmailClient {
   const FROM_EMAIL = "outbound@buildirl.com";
+
+  async function notifyMembershipApplicationSubmitted(
+    input: NotifyMembershipApplicationSubmittedInput,
+    sendTo: Email
+  ): Promise<void> {
+    const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
+    try {
+      await mailTransport.sendMail({
+        from: FROM_EMAIL,
+        to: sendTo,
+        subject: "An membership application was submitted!",
+        text: `${input.memberFirstName} ${input.memberLastName} has submitted their membership application for ${input.clubName}. 
+        Review their application in the membership dashboard at ${managePeopleDashboardUrl}`,
+        html: `
+          <div>
+            <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> has submitted their membership application for <strong>${input.clubName}</strong>.</p>
+            <p>Review their application in the membership <a href="${managePeopleDashboardUrl}">dashboard</a>.</p>
+          </div>
+        `
+      });
+
+      logger.info(
+        `sent membership application submitted email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+      );
+    } catch (error) {
+      logger.error(
+        error,
+        `failed to send membership application submitted email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+      );
+    }
+  }
 
   async function notifyMembershipApproved(
     input: NotifyMembershipApprovedInput,
@@ -137,6 +169,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   }
 
   return {
+    notifyMembershipApplicationSubmitted,
     notifyMembershipApproved,
     notifyMembershipDeclined,
     notifyMembershipDeactivatedByMember,
