@@ -24,7 +24,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: "An membership application was submitted! 🎉",
+        subject: "A membership application was submitted! 🎉",
         text: `${input.memberFirstName} ${input.memberLastName} has submitted their membership application for ${input.clubName}. 
         Review their application in the membership dashboard at ${managePeopleDashboardUrl}`,
         html: `
@@ -116,7 +116,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: "A membership was deactivated 😔",
+        subject: "A membership was deactivated",
         text: `${input.memberFirstName} ${input.memberLastName} has deactivated their membership for ${input.clubName}. 
         Your club will no longer received contributions from them. See membership dashboard at ${managePeopleDashboardUrl}`,
         html: `
