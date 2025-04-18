@@ -1,4 +1,3 @@
-
 # BuildIRL
 This is the tech platform for [BuildIRL](https://www.clubs.buildirl.com/) (est., 2025)! We will supercharge the next generation
 of local community builders!
@@ -26,9 +25,28 @@ of local community builders!
 
 First time users can use the commands in the [justfile](justfile) in order to run the application locally.
 1. Install [docker desktop](https://www.docker.com/get-started/) and make sure it is running
-2. `just setup` for first time set-up of local database and dependencies
-3. `just db-start` and `just start` to begin local instance. See output for the localport (defaults to `localhost:3000`)
-
+2. Set up the Supabase Postgres image locally:
+   ```bash
+   # Pull the Supabase Postgres image
+   docker pull supabase/postgres:15.1.0.117
+   
+   # Create a local 'latest' tag for the image
+   docker tag supabase/postgres:15.1.0.117 supabase/postgres:latest
+   ```
+   This step ensures the correct Supabase image is available for the local database.
+3. `just setup` for first time set-up of local database and dependencies
+4. `just db-start` to bring up db and generate a `.env` from `.env_example`. 
+    - Terminal Output -->   .env file
+    - `DB URL` -->          `POSTGRES_URL`
+    - `DB URL` -->          `POSTGRES_NON_POOLING`
+    - `API URL` -->         `NEXT_PUBLIC_SUPABASE_URL`
+    - `anon key` -->        `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+    - `anon key` -->        `SUPABASE_ANON_KEY`
+5. To setup tables in local db, run `yarn db:migrate`. 
+6. `just start` to begin local instance. See output for the local port (defaults to `localhost:3000`)
+7. Open your local Supabase studio (http://localhost:54323) and enable RLS (row-level security) for all tables and add appropriate policies. See Authorization section below for more details.
+8. Open your local Supabase studio (http://localhost:54323) and follow steps in Storage section. 
+ 
 If running Stripe locally:
 1. Install and login to [Stripe CLI](https://docs.stripe.com/stripe-cli) and [preview plugin](https://docs.stripe.com/cli-preview-plugin)
 for webhook forwarding. Follow in-prompt instructions and choose Local sandbox environment.
@@ -60,21 +78,22 @@ for storage objects.
 
 ### API
 1. When a table is added via prisma migration, it is by default not secured via RLS. This means supabase UI clients can access them freely.
-It is important to immediately enable RLS to it as close to possible as the migration is applied in version control (`prisma.rls.sql`), locally (via supabase studio @ `localhost:54323`),
-[test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).
+**It is important to immediately enable RLS to it as close to possible as the migration is applied in version control (`prisma.rls.sql`), locally (via supabase studio @ `localhost:54323`),
+[test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).**
 2. RBAC/ABAC authorization on protected entities are defined via CASL abilities and applied as checks in the trpc layer. Every addition
 or change to an API must be audited to see if there are any necessary RBAC/ABAC authorization needed. By default our endpoints are open
 to all authenticated users (secured procedures), the public (public procedures), unless explicitly secured.
 
 ### Storage
-Supabase RLS is the source-of-truth for storage authorization. When new folder or bucket is created, it is important to add to storage
+Supabase RLS is the source-of-truth for storage authorization. **When new folder or bucket is created, it is important to add to storage
 RLS rules version controlled in (`prisma/rls.sql`) and apply the changes manually via the supabase management console locally 
 (via supabase studio @ `localhost:54323`), [test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and
-[prod](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies).
+[prod](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies).**
+NOTE: For first-time setup, you must create the 'images' bucket, set to Public and add the policies mentioned above. 
 
 ## Integration
 
-We use [trunk-based development](https://trunkbaseddevelopment.com/) as our integration strategy. In conjunction with
+We use [trunk-based development](https://www.atlassian.com/continuous-delivery/continuous-integration/trunk-based-development) as our integration strategy. In conjunction with
 TDD and smaller commits, this allows for increased iteration speed. We emphasize taking smaller faster steps and reducing
 the time your code is divergent from main.
 

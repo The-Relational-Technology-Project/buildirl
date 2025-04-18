@@ -26,7 +26,7 @@ export default function EditableClubImage({
       return;
     }
 
-    if (!isFileSizeValid(file)) {
+    if (!isFileSizeValid(file, 2)) {
       return;
     }
 

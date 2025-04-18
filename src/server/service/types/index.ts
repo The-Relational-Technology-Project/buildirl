@@ -126,7 +126,10 @@ export type MainMutations = {
   ): Promise<MutationResult>;
   approveMembershipApplication(membershipId: bigint): Promise<MutationResult>;
   declineMembershipApplication(membershipId: bigint): Promise<MutationResult>;
-  deactivateMembership(membershipId: bigint): Promise<MutationResult>;
+  deactivateMembership(
+    membershipId: bigint,
+    input: DeactivateMembershipInput
+  ): Promise<MutationResult>;
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
 };
 
@@ -271,6 +274,14 @@ export const SubmitMembershipApplicationInputSchema = z.object({
 });
 export type SubmitMembershipApplicationInput = z.infer<
   typeof SubmitMembershipApplicationInputSchema
+>;
+
+export const DeactivateMembershipInputSchema = z.object({
+  // is club owner deactivating or is user deactivating membership?
+  byClubOwner: z.boolean()
+});
+export type DeactivateMembershipInput = z.infer<
+  typeof DeactivateMembershipInputSchema
 >;
 
 export type MutationResult = {

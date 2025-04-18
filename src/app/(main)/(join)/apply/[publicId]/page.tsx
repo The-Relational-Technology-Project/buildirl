@@ -28,6 +28,9 @@ export default function Apply() {
 
   return (
     isLoaded(r) && (
+      // TODO there is an edge case with anonymous users signing up with Google SSO
+      //  clicking back here causing issues. I haven't thought of an elegant way to
+      //  handle this
       <WithLocalNavigationHeader>
         <Center pt={30} px={40}>
           <Stack align="center" gap="lg">

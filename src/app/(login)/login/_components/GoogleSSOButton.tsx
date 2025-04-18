@@ -15,7 +15,13 @@ export default function GoogleSSOButton({
   const handleClick = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google"
+        provider: "google",
+        options: {
+          // redirect back here with the same search params
+          // so that middleware can properly route them
+          // back to the right page
+          redirectTo: window.location.href
+        }
       });
 
       if (error) throw error;
@@ -29,7 +35,7 @@ export default function GoogleSSOButton({
 
   return (
     <Button
-      color={"red"}
+      color={"blue"}
       {...props}
       leftSection={<IconBrandGoogleFilled size={18} />}
       onClick={handleClick}

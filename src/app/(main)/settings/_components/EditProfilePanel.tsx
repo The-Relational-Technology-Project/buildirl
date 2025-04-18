@@ -6,7 +6,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import EditableUserAvatar from "~/client/components/EditableUserAvatar";
 import React from "react";
-import { Button, Flex, Stack, Text, Textarea, Title } from "@mantine/core";
+import { Button, Stack, Text, Textarea, Title } from "@mantine/core";
 
 type UserFormProps = {
   user: User;
@@ -25,9 +25,7 @@ function UpdateUserForm({ user }: UserFormProps) {
     initialValues: {
       description: user.description
     },
-
     validateInputOnChange: true,
-
     validate: {
       description: (v) => safeValidateSchema(LongTextSchema, v)
     }
@@ -39,14 +37,12 @@ function UpdateUserForm({ user }: UserFormProps) {
         await updateUser.mutateAsync({ id: user.id, input: { description } });
       })}
     >
-      <Stack w={{ base: undefined, md: 400 }}>
-        <Title order={6} mt={8}>
-          Name
-        </Title>
-        <Text>{`${user.firstName} ${user.lastName}`}</Text>
-        <Title order={6} mt={8}>
-          Bio
-        </Title>
+      <Stack w="100%" miw={{ base: 300, md: 400 }} gap="md">
+        <Stack gap={2}>
+          <Title order={6}>Name</Title>
+          <Text>{`${user.firstName} ${user.lastName}`}</Text>
+        </Stack>
+
         <Textarea
           placeholder={
             "Share a little about who you are and how you will add to the community!"
@@ -55,13 +51,17 @@ function UpdateUserForm({ user }: UserFormProps) {
           {...form.getInputProps("description")}
           autosize
           minRows={3}
+          maxRows={8}
+          w="100%"
         />
+
         <Button
           type="submit"
           w={100}
-          mt={"sm"}
+          mt="sm"
           disabled={!form.isValid()}
           loading={updateUser.isPending}
+          style={{ alignSelf: "center" }}
         >
           Save
         </Button>
@@ -80,16 +80,18 @@ export default function EditProfilePanel() {
 
   return (
     isLoaded(r) && (
-      <Stack mt={"lg"} gap={4}>
-        <Title order={4}>Your Profile</Title>
-        <Text size={"md"}>Choose how you are displayed to other members.</Text>
-        <Flex justify={"flex-start"} direction={"row"} gap={"xl"}>
-          <UpdateUserForm user={r.data!} />
-          <Stack gap={"xs"}>
-            <Title order={6}>Profile Picture</Title>
-            <EditableUserAvatar size={120} user={r.data!} />
+      <Stack mt="lg" gap="md" w="100%" maw={800} mx="auto">
+        <Stack align="center" gap="md">
+          <EditableUserAvatar size={120} user={r.data!} />
+          <Stack gap={2} align="center">
+            <Title order={4}>Your Profile</Title>
+            <Text size="md">
+              Choose how you are displayed to other members.
+            </Text>
           </Stack>
-        </Flex>
+        </Stack>
+
+        <UpdateUserForm user={r.data!} />
       </Stack>
     )
   );

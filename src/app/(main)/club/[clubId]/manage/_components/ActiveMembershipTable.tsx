@@ -24,18 +24,15 @@ import UserAvatar from "~/client/components/UserAvatar";
 import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
 import { isDefaultFreeTier } from "~/utils/types";
 
-type ActiveMembershipTableProps = {
+type DeactivateMembershipButtonProps = {
   clubId: number;
+  membershipId: bigint;
 };
 
-export default function ActiveMembershipTable({
-  clubId
-}: ActiveMembershipTableProps) {
-  const theme = useMantineTheme();
-  const { colorScheme } = useMantineColorScheme();
-
-  const router = useRouter();
-
+export function DeactivateMembershipButton({
+  clubId,
+  membershipId
+}: DeactivateMembershipButtonProps) {
   const utils = api.useUtils();
   const deactivateMembership = api.main.deactivateMembership.useMutation({
     onSuccess: async () => {
@@ -49,6 +46,43 @@ export default function ActiveMembershipTable({
     }
   });
 
+  const handleDeactivateMembership = (membershipId: bigint) => {
+    if (
+      window.confirm(
+        "Are you sure you want to cancel this membership? This action cannot be undone."
+      )
+    ) {
+      deactivateMembership.mutateAsync({
+        membershipId: membershipId,
+        input: { byClubOwner: true }
+      });
+    }
+  };
+
+  return (
+    <Button
+      color={"red"}
+      size={"xs"}
+      onClick={() => handleDeactivateMembership(membershipId)}
+      loading={deactivateMembership.isPending}
+    >
+      Cancel
+    </Button>
+  );
+}
+
+type ActiveMembershipTableProps = {
+  clubId: number;
+};
+
+export default function ActiveMembershipTable({
+  clubId
+}: ActiveMembershipTableProps) {
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+
+  const router = useRouter();
+
   const r = api.main.activeMembershipsForClubWithEmail.useQuery({
     clubId: clubId
   });
@@ -61,18 +95,6 @@ export default function ActiveMembershipTable({
   if (!isLoaded(r)) {
     return null;
   }
-
-  const handleDeactivateMembership = (membershipId: bigint) => {
-    if (
-      window.confirm(
-        "Are you sure you want to cancel this membership? This action cannot be undone."
-      )
-    ) {
-      deactivateMembership.mutateAsync({
-        membershipId: membershipId
-      });
-    }
-  };
 
   const rows = r.data!.map((m) => (
     <Table.Tr key={m.id}>
@@ -106,14 +128,7 @@ export default function ActiveMembershipTable({
       </Table.Td>
 
       <Table.Td>
-        <Button
-          color={"red"}
-          size={"xs"}
-          onClick={() => handleDeactivateMembership(m.id)}
-          loading={deactivateMembership.isPending}
-        >
-          Cancel
-        </Button>
+        <DeactivateMembershipButton clubId={clubId} membershipId={m.id} />
       </Table.Td>
       <Table.Td>
         <Center h={"100%"}>

@@ -21,7 +21,8 @@ import {
   User,
   MembershipStatus,
   Email,
-  UpdateClubDisplayImageUrlsInput
+  UpdateClubDisplayImageUrlsInput,
+  DeactivateMembershipInput
 } from "~/server/service/types";
 import {
   FormQuestionsSchema,
@@ -45,11 +46,14 @@ import {
   DEFAULT_FREE_MEMBERSHIP_TIER
 } from "~/server/service/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
+import { EmailClient } from "~/server/service/email/types";
 const logger = rootLogger.child({ module: "mainService" });
 
+// TODO it is time soon to break this file down by entities
 export function createMainService(
   prisma: PrismaClient,
   stripeClient: StripeClient,
+  emailClient: EmailClient,
   accountIdResolver: AccountIdResolver
 ): MainService {
   const USER_SELECT = {
@@ -221,6 +225,15 @@ export function createMainService(
   }
 
   async function userEmail(userId: number): Promise<Maybe<Email>> {
+    return prisma.$transaction(async (tx) => {
+      return userEmailInTransaction(userId, tx);
+    });
+  }
+
+  async function userEmailInTransaction(
+    userId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<Maybe<Email>> {
     try {
       const userSettings = await prisma.userSettings.findUniqueOrThrow({
         where: {
@@ -1276,6 +1289,7 @@ export function createMainService(
       });
 
       await createStripeCustomer(id, tx);
+      await notifyMembershipApplicationSubmittedInTransaction(id, tx);
 
       logger.info(
         `created pending membership from input ${stringify(input)} with membershipId ${id}`
@@ -1382,6 +1396,9 @@ export function createMainService(
       logger.info(
         `updated membership to pending membership from input ${stringify(input)} with membershipId ${id}`
       );
+
+      await notifyMembershipApplicationSubmitted(id);
+
       // need to return id as this is considered creation
       return { createdEntityId: id };
     } catch (e) {
@@ -1391,6 +1408,43 @@ export function createMainService(
       );
       throw e;
     }
+  }
+
+  async function notifyMembershipApplicationSubmitted(membershipId: bigint) {
+    return prisma.$transaction(async (tx) => {
+      return notifyMembershipApplicationSubmittedInTransaction(
+        membershipId,
+        tx
+      );
+    });
+  }
+
+  async function notifyMembershipApplicationSubmittedInTransaction(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const ownerEmail = await userEmailInTransaction(
+      membership.club.owner.id,
+      tx
+    );
+
+    if (null === ownerEmail) {
+      logger.error(
+        `failed to notify on membership application submitted for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipApplicationSubmitted(
+      {
+        membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
+        clubName: membership.club.name,
+        clubId: membership.club.id
+      },
+      ownerEmail
+    );
   }
 
   async function membershipStatus(
@@ -1425,6 +1479,28 @@ export function createMainService(
     }
   }
 
+  async function getMembership(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<Membership> {
+    try {
+      const result = await tx.membership.findUniqueOrThrow({
+        select: MEMBERSHIP_SELECT,
+        where: {
+          id: membershipId
+        }
+      });
+      const memberships = asMembership(result);
+      logger.info(
+        `queried membership with id ${membershipId} with result ${stringify(memberships)}`
+      );
+      return memberships;
+    } catch (e) {
+      logger.error(e, `failed to query membership with id ${membershipId}`);
+      throw e;
+    }
+  }
+
   async function approveMembershipApplication(
     membershipId: bigint
   ): Promise<MutationResult> {
@@ -1448,6 +1524,7 @@ export function createMainService(
       });
 
       await createSubscription(membershipId, tx);
+      await notifyMembershipApproved(membershipId, tx);
 
       logger.info(`approved membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1548,6 +1625,30 @@ export function createMainService(
     }
   }
 
+  async function notifyMembershipApproved(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
+    if (null === memberEmail) {
+      logger.error(
+        `failed to notify on membership approved for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipApproved(
+      {
+        membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
+        clubName: membership.club.name,
+        clubPublicId: membership.club.publicId
+      },
+      memberEmail
+    );
+  }
+
   async function declineMembershipApplication(
     membershipId: bigint
   ): Promise<MutationResult> {
@@ -1572,6 +1673,7 @@ export function createMainService(
 
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are accepted in future
+      await notifyMembershipDeclined(membershipId, tx);
 
       logger.info(`declined membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1637,18 +1739,45 @@ export function createMainService(
     }
   }
 
+  async function notifyMembershipDeclined(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
+    if (null === memberEmail) {
+      logger.error(
+        `failed to notify on membership declined for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipDeclined(
+      {
+        membershipId: membershipId,
+        clubName: membership.club.name
+      },
+      memberEmail
+    );
+  }
+
   async function deactivateMembership(
-    membershipId: bigint
+    membershipId: bigint,
+    input: DeactivateMembershipInput
   ): Promise<MutationResult> {
     await checkMembershipStatus(membershipId, "ACTIVE");
 
     return prisma.$transaction(async (tx) => {
-      return deactivateMembershipInTransaction(membershipId, tx);
+      return deactivateMembershipInTransaction(
+        membershipId,
+        input.byClubOwner,
+        tx
+      );
     });
   }
 
   async function deactivateMembershipInTransaction(
     membershipId: bigint,
+    byClubOwner: boolean,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
@@ -1665,6 +1794,8 @@ export function createMainService(
       await cancelSubscription(membershipId, tx);
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are reactivated
+
+      await notifyMembershipDeactivated(membershipId, byClubOwner, tx);
 
       logger.info(`deactivated membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1734,6 +1865,94 @@ export function createMainService(
       );
       throw e;
     }
+  }
+
+  async function notifyMembershipDeactivated(
+    membershipId: bigint,
+    byOwner: boolean,
+    tx: Prisma.TransactionClient
+  ) {
+    if (byOwner) {
+      await notifyMembershipDeactivatedByOwner(membershipId, tx);
+    } else {
+      await notifyMembershipDeactivatedByMemberToOwner(membershipId, tx);
+      // sorry to see you go email
+      await notifyMembershipDeactivatedByMemberToMember(membershipId, tx);
+    }
+  }
+
+  async function notifyMembershipDeactivatedByOwner(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
+
+    if (null === memberEmail) {
+      logger.error(
+        `failed to notify on membership deactivated by owner for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipDeactivatedByOwner(
+      {
+        membershipId: membershipId,
+        clubName: membership.club.name
+      },
+      memberEmail
+    );
+  }
+
+  async function notifyMembershipDeactivatedByMemberToMember(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
+
+    if (null === memberEmail) {
+      logger.error(
+        `failed to notify on membership deactivated by member to member for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipDeactivatedByMemberToMember(
+      {
+        membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
+        clubName: membership.club.name
+      },
+      memberEmail
+    );
+  }
+
+  async function notifyMembershipDeactivatedByMemberToOwner(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const ownerEmail = await userEmailInTransaction(
+      membership.club.owner.id,
+      tx
+    );
+
+    if (null === ownerEmail) {
+      logger.error(
+        `failed to notify on membership deactivated by member to owner for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipDeactivatedByMemberToOwner(
+      {
+        membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
+        clubName: membership.club.name,
+        clubId: membership.club.id
+      },
+      ownerEmail
+    );
   }
 
   async function setMembershipAsWelcomed(

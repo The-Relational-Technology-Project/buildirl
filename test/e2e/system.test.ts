@@ -16,6 +16,7 @@ import {
   PaymentEventProcessor
 } from "~/server/payments/eventProcessor";
 import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
+import { createDummyEmailClient } from "./dummyEmailClient";
 
 export type Services = {
   main: MainService;
@@ -58,6 +59,7 @@ describe("mainService", () => {
     mainService = createMainService(
       prisma,
       fakeStripeClient,
+      createDummyEmailClient(),
       accountIdResolver
     );
     paymentService = createPaymentService(

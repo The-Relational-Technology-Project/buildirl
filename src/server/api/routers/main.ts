@@ -10,6 +10,7 @@ import {
   CreateClubInputSchema,
   CreateMembershipTierInputSchema,
   CreateUserInputSchema,
+  DeactivateMembershipInputSchema,
   SubmitMembershipApplicationInputSchema,
   UpdateClubApplicationQuestionsInputSchema,
   UpdateClubDisplayImageUrlsInputSchema,
@@ -278,8 +279,13 @@ export const mainRouter = createTRPCRouter({
     }),
 
   deactivateMembership: securedProcedureWithAbilityFor("Membership")
-    .input(z.object({ membershipId: z.bigint() }))
-    .mutation(({ ctx, input }) => {
+    .input(
+      z.object({
+        membershipId: z.bigint(),
+        input: DeactivateMembershipInputSchema
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
       if (
         !ctx.ability.can(
           "manage",
@@ -288,7 +294,10 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.deactivateMembership(input.membershipId);
+      return ctx.service.main.deactivateMembership(
+        input.membershipId,
+        input.input
+      );
     }),
 
   setMembershipAsWelcomed: securedProcedureWithAbilityFor("Membership")

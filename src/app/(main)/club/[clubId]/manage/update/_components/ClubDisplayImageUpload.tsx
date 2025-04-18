@@ -44,7 +44,7 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
   const handleUpload = async (file: Maybe<File>) => {
     if (!file) return;
 
-    if (!isFileSizeValid(file)) {
+    if (!isFileSizeValid(file, 5)) {
       return;
     }
 
