@@ -24,13 +24,13 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: "An membership application was submitted!",
+        subject: "An membership application was submitted! 🎉",
         text: `${input.memberFirstName} ${input.memberLastName} has submitted their membership application for ${input.clubName}. 
         Review their application in the membership dashboard at ${managePeopleDashboardUrl}`,
         html: `
           <div>
             <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> has submitted their membership application for <strong>${input.clubName}</strong>.</p>
-            <p>Review their application in the membership <a href="${managePeopleDashboardUrl}">dashboard</a>.</p>
+            <p>Review their application in the <a href="${managePeopleDashboardUrl}">membership dashboard</a>.</p>
           </div>
         `
       });
@@ -55,13 +55,13 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: `You have been accepted!`,
+        subject: `Your membership application has been accepted! 🎉`,
         text: `Welcome to ${input.clubName}, ${input.memberFirstName} ${input.memberLastName}!\n\n
         Visit us at ${joinPageUrl}`,
         html: `
           <div>
             <p>Welcome to <strong>${input.clubName}</strong>, ${input.memberFirstName} ${input.memberLastName}!</p>
-            <p>Visit us to find out <a href="${joinPageUrl}">more</a>.</p>
+            <p>Click <a href="${joinPageUrl}">here</a> to see more!</p>
           </div>
         `
       });
@@ -85,7 +85,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: `Sorry, your application was not accepted.`,
+        subject: `Sorry, your application was not accepted 😔`,
         text: `Unfortunately, your application to ${input.clubName} was not accepted as this time. 
         You will not be charged if you submitted payment details.`,
         html: `
@@ -116,14 +116,14 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: "A membership was deactivated",
+        subject: "A membership was deactivated 😔",
         text: `${input.memberFirstName} ${input.memberLastName} has deactivated their membership for ${input.clubName}. 
         Your club will no longer received contributions from them. See membership dashboard at ${managePeopleDashboardUrl}`,
         html: `
           <div>
             <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> has deactivated their membership for <strong>${input.clubName}</strong>.</p>
             <p>Your club will no longer receive contributions from them.</p>
-            <p>See membership <a href="${managePeopleDashboardUrl}">dashboard</a>.</p>
+            <p>Review <a href="${managePeopleDashboardUrl}">membership dashboard</a>.</p>
           </div>
         `
       });
@@ -147,7 +147,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: "Sorry, your membership was deactivated.",
+        subject: "Sorry, your membership was deactivated",
         text: `Your membership to ${input.clubName} was deactivated. You will no longer be charged if you were contributing.`,
         html: `
           <div>
