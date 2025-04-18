@@ -24,18 +24,15 @@ import UserAvatar from "~/client/components/UserAvatar";
 import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
 import { isDefaultFreeTier } from "~/utils/types";
 
-type ActiveMembershipTableProps = {
+type DeactivateMembershipButtonProps = {
   clubId: number;
+  membershipId: bigint;
 };
 
-export default function ActiveMembershipTable({
-  clubId
-}: ActiveMembershipTableProps) {
-  const theme = useMantineTheme();
-  const { colorScheme } = useMantineColorScheme();
-
-  const router = useRouter();
-
+export function DeactivateMembershipButton({
+  clubId,
+  membershipId
+}: DeactivateMembershipButtonProps) {
   const utils = api.useUtils();
   const deactivateMembership = api.main.deactivateMembership.useMutation({
     onSuccess: async () => {
@@ -49,19 +46,6 @@ export default function ActiveMembershipTable({
     }
   });
 
-  const r = api.main.activeMembershipsForClubWithEmail.useQuery({
-    clubId: clubId
-  });
-
-  QueryError.check({
-    result: r,
-    fieldName: "activeMembershipsForClubWithEmail"
-  });
-
-  if (!isLoaded(r)) {
-    return null;
-  }
-
   const handleDeactivateMembership = (membershipId: bigint) => {
     if (
       window.confirm(
@@ -74,6 +58,43 @@ export default function ActiveMembershipTable({
       });
     }
   };
+
+  return (
+    <Button
+      color={"red"}
+      size={"xs"}
+      onClick={() => handleDeactivateMembership(membershipId)}
+      loading={deactivateMembership.isPending}
+    >
+      Cancel
+    </Button>
+  );
+}
+
+type ActiveMembershipTableProps = {
+  clubId: number;
+};
+
+export default function ActiveMembershipTable({
+  clubId
+}: ActiveMembershipTableProps) {
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+
+  const router = useRouter();
+
+  const r = api.main.activeMembershipsForClubWithEmail.useQuery({
+    clubId: clubId
+  });
+
+  QueryError.check({
+    result: r,
+    fieldName: "activeMembershipsForClubWithEmail"
+  });
+
+  if (!isLoaded(r)) {
+    return null;
+  }
 
   const rows = r.data!.map((m) => (
     <Table.Tr key={m.id}>
@@ -107,14 +128,7 @@ export default function ActiveMembershipTable({
       </Table.Td>
 
       <Table.Td>
-        <Button
-          color={"red"}
-          size={"xs"}
-          onClick={() => handleDeactivateMembership(m.id)}
-          loading={deactivateMembership.isPending}
-        >
-          Cancel
-        </Button>
+        <DeactivateMembershipButton clubId={clubId} membershipId={m.id} />
       </Table.Td>
       <Table.Td>
         <Center h={"100%"}>

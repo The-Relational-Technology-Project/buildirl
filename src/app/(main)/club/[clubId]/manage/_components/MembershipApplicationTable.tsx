@@ -19,15 +19,15 @@ import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import UserAvatar from "~/client/components/UserAvatar";
 
-type MembershipApplicationTableProps = {
+type ApproveDeclineMembershipButtonsProps = {
   clubId: number;
+  membershipId: bigint;
 };
 
-export default function MembershipApplicationTable({
-  clubId
-}: MembershipApplicationTableProps) {
-  const router = useRouter();
-
+export function ApproveDeclineMembershipButtons({
+  clubId,
+  membershipId
+}: ApproveDeclineMembershipButtonsProps) {
   const utils = api.useUtils();
   const approveMembershipApplication =
     api.main.approveMembershipApplication.useMutation({
@@ -53,6 +53,44 @@ export default function MembershipApplicationTable({
       }
     });
 
+  return (
+    <Group wrap={"nowrap"}>
+      <Button
+        color={"green"}
+        size={"xs"}
+        onClick={async () =>
+          await approveMembershipApplication.mutateAsync({
+            membershipId: membershipId
+          })
+        }
+        loading={approveMembershipApplication.isPending}
+      >
+        Approve
+      </Button>
+      <Button
+        color={"red"}
+        size={"xs"}
+        onClick={async () =>
+          await declineMembershipApplication.mutateAsync({
+            membershipId: membershipId
+          })
+        }
+        loading={declineMembershipApplication.isPending}
+      >
+        Decline
+      </Button>
+    </Group>
+  );
+}
+
+type MembershipApplicationTableProps = {
+  clubId: number;
+};
+
+export default function MembershipApplicationTable({
+  clubId
+}: MembershipApplicationTableProps) {
+  const router = useRouter();
   const r = api.main.membershipApplicationsForClub.useQuery({ clubId: clubId });
 
   QueryError.check({
@@ -94,35 +132,8 @@ export default function MembershipApplicationTable({
           <IconListCheck size={16} />
         </ColorSchemeAwareActionIcon>
       </Table.Td>
-
-      <Table.Td>
-        <Group wrap={"nowrap"}>
-          <Button
-            color={"green"}
-            size={"xs"}
-            onClick={async () =>
-              await approveMembershipApplication.mutateAsync({
-                membershipId: m.id
-              })
-            }
-            loading={approveMembershipApplication.isPending}
-          >
-            Approve
-          </Button>
-          <Button
-            color={"red"}
-            size={"xs"}
-            onClick={async () =>
-              await declineMembershipApplication.mutateAsync({
-                membershipId: m.id
-              })
-            }
-            loading={declineMembershipApplication.isPending}
-          >
-            Decline
-          </Button>
-        </Group>
-      </Table.Td>
+      <ApproveDeclineMembershipButtons clubId={clubId} membershipId={m.id} />
+      <Table.Td></Table.Td>
     </Table.Tr>
   ));
 
