@@ -3,7 +3,7 @@ import {
   EmailClient,
   NotifyMembershipApprovedInput,
   NotifyMembershipDeclinedInput,
-  NotifyMembershipDeactivatedByMemberInput,
+  NotifyMembershipDeactivatedByMemberToOwnerInput,
   NotifyMembershipDeactivatedByOwnerInput,
   NotifyMembershipApplicationSubmittedInput
 } from "./types";
@@ -107,8 +107,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function notifyMembershipDeactivatedByMember(
-    input: NotifyMembershipDeactivatedByMemberInput,
+  async function notifyMembershipDeactivatedByMemberToOwner(
+    input: NotifyMembershipDeactivatedByMemberToOwnerInput,
     sendTo: Email
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -129,12 +129,42 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       });
 
       logger.info(
-        `sent membership deactivated email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `sent membership deactivated email by member to club owner at ${sendTo} for membership with id ${input.membershipId}`
       );
     } catch (error) {
       logger.error(
         error,
-        `failed to send membership deactivated email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `failed to send membership deactivated by member email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+      );
+    }
+  }
+
+  async function notifyMembershipDeactivatedByMemberToMember(
+    input: NotifyMembershipDeactivatedByMemberToOwnerInput,
+    sendTo: Email
+  ): Promise<void> {
+    try {
+      await mailTransport.sendMail({
+        from: FROM_EMAIL,
+        to: sendTo,
+        subject: "Sorry to see you go! 👋",
+        text: `The ${input.clubName} will miss you, ${input.memberFirstName} ${input.memberLastName}! 
+        Thank-you for being a contributing member! 🙏`,
+        html: `
+          <div>
+            <p>The <strong>${input.clubName}</strong> will miss you, ${input.memberFirstName} ${input.memberLastName}!</p>
+            <p>Thank-you for being a contributing member! 🙏</p>
+          </div>
+        `
+      });
+
+      logger.info(
+        `sent membership deactivated email by member to member at ${sendTo} for membership with id ${input.membershipId}`
+      );
+    } catch (error) {
+      logger.error(
+        error,
+        `failed to send membership deactivated email by member to member at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
@@ -158,12 +188,12 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       });
 
       logger.info(
-        `sent membership deactivated email to member at ${sendTo} for membership with id ${input.membershipId}`
+        `sent membership deactivated email by owner to member at ${sendTo} for membership with id ${input.membershipId}`
       );
     } catch (error) {
       logger.error(
         error,
-        `failed to send membership deactivated email to member at ${sendTo} for membership with id ${input.membershipId}`
+        `failed to send membership deactivated email by owner to member at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
@@ -172,7 +202,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     notifyMembershipApplicationSubmitted,
     notifyMembershipApproved,
     notifyMembershipDeclined,
-    notifyMembershipDeactivatedByMember,
+    notifyMembershipDeactivatedByMemberToOwner,
+    notifyMembershipDeactivatedByMemberToMember,
     notifyMembershipDeactivatedByOwner
   };
 }

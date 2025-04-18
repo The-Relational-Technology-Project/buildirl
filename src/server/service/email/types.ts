@@ -13,8 +13,12 @@ export type EmailClient = {
     input: NotifyMembershipDeclinedInput,
     sendTo: Email
   ): Promise<void>;
-  notifyMembershipDeactivatedByMember(
-    input: NotifyMembershipDeactivatedByMemberInput,
+  notifyMembershipDeactivatedByMemberToOwner(
+    input: NotifyMembershipDeactivatedByMemberToOwnerInput,
+    sendTo: Email
+  ): Promise<void>;
+  notifyMembershipDeactivatedByMemberToMember(
+    input: NotifyMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email
   ): Promise<void>;
   notifyMembershipDeactivatedByOwner(
@@ -44,12 +48,19 @@ export type NotifyMembershipDeclinedInput = {
   clubName: string;
 };
 
-export type NotifyMembershipDeactivatedByMemberInput = {
+export type NotifyMembershipDeactivatedByMemberToOwnerInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
   clubName: string;
   clubId: number;
+};
+
+export type NotifyMembershipDeactivatedByMemberToMemberInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
 };
 
 export type NotifyMembershipDeactivatedByOwnerInput = {

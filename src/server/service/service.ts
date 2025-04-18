@@ -1875,7 +1875,9 @@ export function createMainService(
     if (byOwner) {
       await notifyMembershipDeactivatedByOwner(membershipId, tx);
     } else {
-      await notifyMembershipDeactivatedByMember(membershipId, tx);
+      await notifyMembershipDeactivatedByMemberToOwner(membershipId, tx);
+      // sorry to see you go email
+      await notifyMembershipDeactivatedByMemberToMember(membershipId, tx);
     }
   }
 
@@ -1901,7 +1903,31 @@ export function createMainService(
     );
   }
 
-  async function notifyMembershipDeactivatedByMember(
+  async function notifyMembershipDeactivatedByMemberToMember(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
+
+    if (null === memberEmail) {
+      logger.error(
+        `failed to notify on membership deactivated by member to member for membership with id ${membershipId} because no email was found`
+      );
+      return;
+    }
+    await emailClient.notifyMembershipDeactivatedByMemberToMember(
+      {
+        membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
+        clubName: membership.club.name
+      },
+      memberEmail
+    );
+  }
+
+  async function notifyMembershipDeactivatedByMemberToOwner(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
@@ -1913,11 +1939,11 @@ export function createMainService(
 
     if (null === ownerEmail) {
       logger.error(
-        `failed to notify on membership deactivated by owner for membership with id ${membershipId} because no email was found`
+        `failed to notify on membership deactivated by member to owner for membership with id ${membershipId} because no email was found`
       );
       return;
     }
-    await emailClient.notifyMembershipDeactivatedByMember(
+    await emailClient.notifyMembershipDeactivatedByMemberToOwner(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
