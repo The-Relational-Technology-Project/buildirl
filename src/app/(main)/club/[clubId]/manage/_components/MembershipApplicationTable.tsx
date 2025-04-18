@@ -56,7 +56,7 @@ export function ApproveDeclineMembershipButtons({
   const handleApproveMembership = (membershipId: bigint) => {
     if (
       window.confirm(
-        "Ready to approve this application? Please review the application intake form."
+        "Ready to approve this application? Don't forget to review the application intake form before approving."
       )
     ) {
       approveMembershipApplication.mutateAsync({
