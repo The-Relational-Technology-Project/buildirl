@@ -6,7 +6,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import EditableUserAvatar from "~/client/components/EditableUserAvatar";
 import React from "react";
-import { Box, Button, Flex, Stack, Text, Textarea, Title } from "@mantine/core";
+import { Button, Stack, Text, Textarea, Title } from "@mantine/core";
 
 type UserFormProps = {
   user: User;
