@@ -225,6 +225,15 @@ export function createMainService(
   }
 
   async function userEmail(userId: number): Promise<Maybe<Email>> {
+    return prisma.$transaction(async (tx) => {
+      return userEmailInTransaction(userId, tx);
+    });
+  }
+
+  async function userEmailInTransaction(
+    userId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<Maybe<Email>> {
     try {
       const userSettings = await prisma.userSettings.findUniqueOrThrow({
         where: {
@@ -1280,7 +1289,7 @@ export function createMainService(
       });
 
       await createStripeCustomer(id, tx);
-      await notifyMembershipApplicationSubmitted(id);
+      await notifyMembershipApplicationSubmittedInTransaction(id, tx);
 
       logger.info(
         `created pending membership from input ${stringify(input)} with membershipId ${id}`
@@ -1402,8 +1411,23 @@ export function createMainService(
   }
 
   async function notifyMembershipApplicationSubmitted(membershipId: bigint) {
-    const membership = await getMembership(membershipId);
-    const ownerEmail = await userEmail(membership.club.owner.id);
+    return prisma.$transaction(async (tx) => {
+      return notifyMembershipApplicationSubmittedInTransaction(
+        membershipId,
+        tx
+      );
+    });
+  }
+
+  async function notifyMembershipApplicationSubmittedInTransaction(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const ownerEmail = await userEmailInTransaction(
+      membership.club.owner.id,
+      tx
+    );
 
     if (null === ownerEmail) {
       logger.error(
@@ -1455,9 +1479,12 @@ export function createMainService(
     }
   }
 
-  async function getMembership(membershipId: bigint): Promise<Membership> {
+  async function getMembership(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<Membership> {
     try {
-      const result = await prisma.membership.findUniqueOrThrow({
+      const result = await tx.membership.findUniqueOrThrow({
         select: MEMBERSHIP_SELECT,
         where: {
           id: membershipId
@@ -1497,7 +1524,7 @@ export function createMainService(
       });
 
       await createSubscription(membershipId, tx);
-      await notifyMembershipApproved(membershipId);
+      await notifyMembershipApproved(membershipId, tx);
 
       logger.info(`approved membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1598,9 +1625,12 @@ export function createMainService(
     }
   }
 
-  async function notifyMembershipApproved(membershipId: bigint) {
-    const membership = await getMembership(membershipId);
-    const memberEmail = await userEmail(membership.user.id);
+  async function notifyMembershipApproved(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
     if (null === memberEmail) {
       logger.error(
         `failed to notify on membership approved for membership with id ${membershipId} because no email was found`
@@ -1643,7 +1673,7 @@ export function createMainService(
 
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are accepted in future
-      await notifyMembershipDeclined(membershipId);
+      await notifyMembershipDeclined(membershipId, tx);
 
       logger.info(`declined membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1709,9 +1739,12 @@ export function createMainService(
     }
   }
 
-  async function notifyMembershipDeclined(membershipId: bigint) {
-    const membership = await getMembership(membershipId);
-    const memberEmail = await userEmail(membership.user.id);
+  async function notifyMembershipDeclined(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
     if (null === memberEmail) {
       logger.error(
         `failed to notify on membership declined for membership with id ${membershipId} because no email was found`
@@ -1762,7 +1795,7 @@ export function createMainService(
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are reactivated
 
-      await notifyMembershipDeactivated(membershipId, byClubOwner);
+      await notifyMembershipDeactivated(membershipId, byClubOwner, tx);
 
       logger.info(`deactivated membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1836,18 +1869,22 @@ export function createMainService(
 
   async function notifyMembershipDeactivated(
     membershipId: bigint,
-    byOwner: boolean
+    byOwner: boolean,
+    tx: Prisma.TransactionClient
   ) {
     if (byOwner) {
-      await notifyMembershipDeactivatedByOwner(membershipId);
+      await notifyMembershipDeactivatedByOwner(membershipId, tx);
     } else {
-      await notifyMembershipDeactivatedByMember(membershipId);
+      await notifyMembershipDeactivatedByMember(membershipId, tx);
     }
   }
 
-  async function notifyMembershipDeactivatedByOwner(membershipId: bigint) {
-    const membership = await getMembership(membershipId);
-    const memberEmail = await userEmail(membership.user.id);
+  async function notifyMembershipDeactivatedByOwner(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
 
     if (null === memberEmail) {
       logger.error(
@@ -1864,9 +1901,15 @@ export function createMainService(
     );
   }
 
-  async function notifyMembershipDeactivatedByMember(membershipId: bigint) {
-    const membership = await getMembership(membershipId);
-    const ownerEmail = await userEmail(membership.club.owner.id);
+  async function notifyMembershipDeactivatedByMember(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const ownerEmail = await userEmailInTransaction(
+      membership.club.owner.id,
+      tx
+    );
 
     if (null === ownerEmail) {
       logger.error(
