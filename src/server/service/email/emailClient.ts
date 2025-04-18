@@ -178,11 +178,13 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
         from: FROM_EMAIL,
         to: sendTo,
         subject: "Sorry, your membership was deactivated",
-        text: `Your membership to ${input.clubName} was deactivated. You will no longer be charged if you were contributing.`,
+        text: `Your membership to ${input.clubName} was deactivated. You will no longer be charged if you had monetary contributions. 
+        Thank-you for being a contributing member. 🙏`,
         html: `
           <div>
             <p>Your membership to <strong>${input.clubName}</strong> was deactivated.</p>
-            <p>You will no longer be charged if you were contributing.</p>
+            <p>You will no longer be charged if you had monetary contributions.</p>
+            <p>Thank-you for being a contributing member. 🙏</p>
           </div>
         `
       });
