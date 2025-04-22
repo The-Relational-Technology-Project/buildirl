@@ -13,7 +13,7 @@ export default function FAQs({ faqs }: FAQsProps) {
   return (
     <Box my={48}>
       <Title order={2} mb={24} ta="center">
-        Frequently Asked Questions
+        FAQs
       </Title>
       <Accordion>
         <Divider mb={-1} />
@@ -30,4 +30,4 @@ export default function FAQs({ faqs }: FAQsProps) {
       </Accordion>
     </Box>
   );
-} 
+}

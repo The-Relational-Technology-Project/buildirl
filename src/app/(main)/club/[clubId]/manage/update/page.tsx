@@ -23,7 +23,7 @@ import {
   Box,
   Divider
 } from "@mantine/core";
-import { notifications } from '@mantine/notifications';
+import { notifications } from "@mantine/notifications";
 import EditableClubImage from "~/client/components/EditableClubImage";
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -43,18 +43,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 function BasicInfoSection() {
   const { register } = useFormContext<Club>();
-  
+
   return (
     <Stack gap={8} mt={4}>
-      <TextInput
-        required
-        placeholder="Club name"
-        {...register("name")}
-      />
-      <TextInput
-        placeholder="Tag line"
-        {...register("tagLine")}
-      />
+      <TextInput required placeholder="Club name" {...register("name")} />
+      <TextInput placeholder="Tag line" {...register("tagLine")} />
       <Textarea
         placeholder="About your club"
         {...register("description")}
@@ -66,18 +59,12 @@ function BasicInfoSection() {
 
 function LinksSection() {
   const { register } = useFormContext<Club>();
-  
+
   return (
     <Stack gap={8} mt={6}>
       <Title order={6}>Links</Title>
-      <TextInput
-        placeholder="Website link"
-        {...register("websiteUrl")}
-      />
-      <TextInput
-        placeholder="Instagram tag"
-        {...register("instagramHandle")}
-      />
+      <TextInput placeholder="Website link" {...register("websiteUrl")} />
+      <TextInput placeholder="Instagram tag" {...register("instagramHandle")} />
       <TextInput
         placeholder="Event calendar link (e.g., Luma)"
         {...register("eventCalendarUrl")}
@@ -88,17 +75,13 @@ function LinksSection() {
 
 function ShareLinkSection() {
   const { register } = useFormContext<Club>();
-  
+
   return (
     <Stack gap={8} mt={6}>
       <Title order={6}>Share link</Title>
       <Group gap={4} wrap={"nowrap"}>
         <Text size={"sm"}>clubs.buildirl.com/join/</Text>
-        <TextInput
-          required
-          placeholder="club-tag"
-          {...register("publicId")}
-        />
+        <TextInput required placeholder="club-tag" {...register("publicId")} />
       </Group>
     </Stack>
   );
@@ -107,7 +90,7 @@ function ShareLinkSection() {
 function ThemeSection() {
   const { watch, setValue } = useFormContext<Club>();
   const theme = watch("theme");
-  
+
   return (
     <Stack gap={12} mt={6}>
       <Title order={6}>Background</Title>
@@ -122,7 +105,7 @@ function ThemeSection() {
 function FontSection() {
   const { watch, setValue } = useFormContext<Club>();
   const font = watch("themeHeadingFont");
-  
+
   return (
     <Stack gap={12} mt={6}>
       <Title order={6}>Font</Title>
@@ -157,14 +140,23 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
     name: ClubNameSchema,
     tagLine: ClubTagLineSchema,
     description: LongTextSchema,
-    websiteUrl: z.union([z.literal(""), UrlSchema]).nullable().transform(v => v === null ? "" : v),
-    instagramHandle: z.union([z.literal(""), InstagramHandleSchema]).nullable().transform(v => v === null ? "" : v),
-    eventCalendarUrl: z.union([z.literal(""), UrlSchema]).nullable().transform(v => v === null ? "" : v),
+    websiteUrl: z
+      .union([z.literal(""), UrlSchema])
+      .nullable()
+      .transform((v) => (v === null ? "" : v)),
+    instagramHandle: z
+      .union([z.literal(""), InstagramHandleSchema])
+      .nullable()
+      .transform((v) => (v === null ? "" : v)),
+    eventCalendarUrl: z
+      .union([z.literal(""), UrlSchema])
+      .nullable()
+      .transform((v) => (v === null ? "" : v)),
     theme: TemplateThemeSchema.nullable(),
     themeHeadingFont: z.string().nullable(),
     faqs: FAQsSchema
   });
-  
+
   const methods = useForm<Club>({
     defaultValues: {
       publicId: club.publicId,
@@ -184,31 +176,35 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
   const utils = api.useUtils();
   const router = useRouter();
-  
+
+  // TODO we should use this variables pattern and extract out common mutations /
+  //  invalidations for reuse
   const updateClub = api.main.updateClub.useMutation({
     onSuccess: (_, variables) => {
       utils.main.club.invalidate({ id: club.id });
-      utils.main.clubByPublicId.invalidate({ publicId: variables.input.publicId });
-      utils.main.userOwnedClubs.invalidate();
-      
-      notifications.show({
-        title: 'Changes saved',
-        message: 'Your club has been updated successfully',
-        color: 'green'
+      utils.main.clubByPublicId.invalidate({
+        publicId: variables.input.publicId
       });
-      
+      utils.main.userOwnedClubs.invalidate();
+
+      notifications.show({
+        title: "Changes saved",
+        message: "Your club has been updated successfully",
+        color: "green"
+      });
+
       router.push(`/club/${club.id}/manage`);
     },
     onError: (error) => {
       console.error("Error updating club:", error);
       notifications.show({
-        title: 'Error',
-        message: 'Failed to save changes. Please try again.',
-        color: 'red'
+        title: "Error",
+        message: "Failed to save changes. Please try again.",
+        color: "red"
       });
     }
   });
-  
+
   const onSubmit = (values: Club) => {
     updateClub.mutate({
       id: club.id,
@@ -216,12 +212,14 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
         ...values,
         // we need to coerce these to null to match server validation
         websiteUrl: values.websiteUrl === "" ? null : values.websiteUrl,
-        instagramHandle: values.instagramHandle === "" ? null : values.instagramHandle,
-        eventCalendarUrl: values.eventCalendarUrl === "" ? null : values.eventCalendarUrl,
+        instagramHandle:
+          values.instagramHandle === "" ? null : values.instagramHandle,
+        eventCalendarUrl:
+          values.eventCalendarUrl === "" ? null : values.eventCalendarUrl,
         faqs: {
-          items: values.faqs.items.map(({ question, answer }: FAQ) => ({ 
-            question, 
-            answer 
+          items: values.faqs.items.map(({ question, answer }: FAQ) => ({
+            question,
+            answer
           }))
         }
       }
@@ -230,7 +228,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
   return (
     <FormProvider {...methods}>
-      <form 
+      <form
         onSubmit={(e) => {
           return methods.handleSubmit(onSubmit)(e);
         }}
@@ -251,16 +249,16 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           <ThemeSection />
           <FontSection />
           <ShowcaseImagesSection club={club} />
-          
+
           <Divider my="lg" />
           <FAQsFormSection mt={6} />
-          
-          <Box mt={32} style={{ display: 'flex', justifyContent: 'center' }}>
+
+          <Box mt={32} style={{ display: "flex", justifyContent: "center" }}>
             <Button
               w={100}
               type="submit"
-              disabled={updateClub.isPending} 
-              loading={updateClub.isPending} 
+              disabled={updateClub.isPending}
+              loading={updateClub.isPending}
               leftSection={<IconDeviceFloppy size={16} />}
             >
               Save

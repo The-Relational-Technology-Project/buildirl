@@ -221,11 +221,12 @@ export const CreateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
   tagLine: ClubTagLineSchema,
+  // TODO: reduce code! remove these as well to just the fields the client needs
   description: LongTextSchema,
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable()
-  // faqs will be defaulted in the backend
+  // additional fields (e.g, themes, faqs, etc) will be defaulted in the backend
 });
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
 
@@ -308,12 +309,6 @@ export const DeactivateMembershipInputSchema = z.object({
 export type DeactivateMembershipInput = z.infer<
   typeof DeactivateMembershipInputSchema
 >;
-
-export const UpdateClubFAQsInputSchema = z.object({
-  faqs: FAQsSchema
-});
-
-export type UpdateClubFAQsInput = z.infer<typeof UpdateClubFAQsInputSchema>;
 
 export type MutationResult = {
   createdEntityId: Maybe<Id>;
