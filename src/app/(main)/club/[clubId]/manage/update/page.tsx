@@ -36,7 +36,7 @@ import { TemplateThemeSchema } from "~/client/theme/templates";
 import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_components/ClubDisplayImageUpload";
 import { z } from "zod";
 import FontSelector from "~/app/(main)/club/[clubId]/manage/update/_components/FontSelector";
-import FAQsFormSection from "~/app/(main)/club/[clubId]/manage/update/_components/FAQsFormSection";
+import FAQsSection from "~/app/(main)/club/[clubId]/manage/update/_components/FAQsSection";
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -251,7 +251,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           <ShowcaseImagesSection club={club} />
 
           <Divider my="lg" />
-          <FAQsFormSection mt={6} />
+          <FAQsSection mt={6} />
 
           <Box mt={32} style={{ display: "flex", justifyContent: "center" }}>
             <Button

@@ -13,7 +13,7 @@ import { IconPlus, IconX } from "@tabler/icons-react";
 import { Club } from "~/server/service/types";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
-export default function FAQsFormSection(props: StackProps): React.ReactElement {
+export default function FAQsSection(props: StackProps): React.ReactElement {
   const {
     control,
     formState: { errors }
