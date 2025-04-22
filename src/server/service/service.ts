@@ -239,7 +239,7 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<Maybe<Email>> {
     try {
-      const userSettings = await prisma.userSettings.findUniqueOrThrow({
+      const userSettings = await tx.userSettings.findUniqueOrThrow({
         where: {
           userId: userId
         }
@@ -524,9 +524,9 @@ export function createMainService(
   ): Promise<MutationResult> {
     try {
       await prisma.club.update({
-        data: { 
-          ...input, 
-          theme: input.theme ?? Prisma.DbNull,
+        data: {
+          ...input,
+          theme: input.theme ?? Prisma.DbNull
         },
         where: {
           id: id

@@ -19,8 +19,6 @@ import { api } from "~/trpc/react";
 import { Maybe } from "~/utils/types";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import ClubImage, { DefaultClubImage } from "~/client/components/ClubImage";
-import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
-import { IconChevronRight } from "@tabler/icons-react";
 
 type ClubCardProps = {
   club: Club;
