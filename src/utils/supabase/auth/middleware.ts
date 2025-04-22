@@ -1,10 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { type User } from "@supabase/auth-js";
 import { createMiddlewareClient } from "~/utils/supabase/auth/client";
-import { logger } from "~/client/logger";
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
+  const supabaseResponse = NextResponse.next({
     request
   });
 

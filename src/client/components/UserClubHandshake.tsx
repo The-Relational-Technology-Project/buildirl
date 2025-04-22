@@ -25,7 +25,11 @@ export default function UserClubHandshake({
         bottom={{ base: -10, md: -20 }}
         style={{ zIndex: 3 }}
       >
-        <Image src={"/images/thumbs-up.svg"} w={{ base: 50, md: 80 }} />
+        <Image
+          src={"/images/thumbs-up.svg"}
+          alt={"thumbs up"}
+          w={{ base: 50, md: 80 }}
+        />
       </Box>
       <Box pos="absolute" left={imageSize - OVERLAP_SIZE} style={{ zIndex: 1 }}>
         <ClubImage size={imageSize} club={club} />

@@ -86,7 +86,7 @@ export const BigIntStringSchema = z.string().refine(
     try {
       BigInt(val);
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   },
