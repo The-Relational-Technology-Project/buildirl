@@ -6,7 +6,6 @@ import {
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { NextRequest, NextResponse } from "next/server";
 import { Maybe } from "~/utils/types";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 // https://supabase.com/docs/guides/auth/server-side/nextjs
 /**
@@ -21,9 +20,12 @@ export function createApiClient(req: NextApiRequest, res: NextApiResponse) {
     {
       cookies: {
         getAll() {
-          return Object.entries(req.cookies)
-            .filter(([_, value]) => value !== undefined)
-            .map(([name, value]) => ({ name, value: value! }));
+          return (
+            Object.entries(req.cookies)
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              .filter(([_, value]) => value !== undefined)
+              .map(([name, value]) => ({ name, value: value! }))
+          );
         },
         setAll(cookiesToSet) {
           res.setHeader(
@@ -72,7 +74,7 @@ export function createMiddlewareClient(
           if (null === res) {
             return;
           }
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             req.cookies.set(name, value)
           );
           res = NextResponse.next({

@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-wrapper-object-types */
+
 import { z } from "zod";
 import { Maybe } from "~/utils/types";
 
 export function parseAsZodType<T, Schema extends z.ZodType<T>>(
-  o: Maybe<object>,
+  o: Maybe<Object>,
   schema: Schema
 ): z.infer<Schema> {
   try {
@@ -15,7 +17,7 @@ export function parseAsZodType<T, Schema extends z.ZodType<T>>(
 }
 
 export function isZodType<T, Schema extends z.ZodType<T>>(
-  o: object,
+  o: Object,
   schema: Schema
 ): boolean {
   try {

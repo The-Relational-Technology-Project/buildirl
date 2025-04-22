@@ -29,7 +29,7 @@ export function strictParseBigInt(s: Maybe<string>): bigint {
   return BigInt(s);
 }
 
-export function assertAsString(value: any): string {
+export function assertAsString(value: unknown): string {
   if (typeof value === "string") {
     return value;
   }
