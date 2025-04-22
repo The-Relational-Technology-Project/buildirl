@@ -1319,6 +1319,7 @@ export function createMainService(
       const membership = await tx.membership.findUniqueOrThrow({
         where: { id: membershipId },
         select: {
+          stripeCustomerId: true,
           membershipTier: {
             select: {
               costPerMonthInUSD: true
@@ -1336,6 +1337,11 @@ export function createMainService(
           }
         }
       });
+
+      if (membership.stripeCustomerId !== null) {
+        // already have a stripeCustomerId, no need to create a new one
+        return;
+      }
 
       if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
         // no Stripe customer needed for default free tier
@@ -1384,9 +1390,27 @@ export function createMainService(
     input: SubmitMembershipApplicationInput,
     membershipId: bigint,
     isDefaultFreeTier: boolean
+  ) {
+    return prisma.$transaction(async (tx) => {
+      return updateMembershipWithNewApplicationInTransaction(
+        membershipTierId,
+        input,
+        membershipId,
+        isDefaultFreeTier,
+        tx
+      );
+    });
+  }
+
+  async function updateMembershipWithNewApplicationInTransaction(
+    membershipTierId: number,
+    input: SubmitMembershipApplicationInput,
+    membershipId: bigint,
+    isDefaultFreeTier: boolean,
+    tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
-      const { id } = await prisma.membership.update({
+      const { id } = await tx.membership.update({
         data: {
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
@@ -1404,6 +1428,7 @@ export function createMainService(
         `updated membership to pending membership from input ${stringify(input)} with membershipId ${id}`
       );
 
+      await createStripeCustomer(id, tx);
       await notifyMembershipApplicationSubmitted(id);
 
       // need to return id as this is considered creation
