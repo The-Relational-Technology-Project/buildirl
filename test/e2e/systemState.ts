@@ -38,7 +38,7 @@ type ClubState = {
   description: string;
   ownerUserId: number;
   websiteUrl: Maybe<Url>;
-  instagramHandle: Maybe<InstagramHandle>;
+  instagramHandle: Maybe<InstagramHandle>; 
   eventCalendarUrl: Maybe<Url>;
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
@@ -238,16 +238,13 @@ export class SystemState {
       id: clubId,
       ...input,
       ownerUserId: userId,
-      // empty to start
       applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
       theme: null,
       themeHeadingFont: null,
       displayImageUrls: [],
       membershipTierIds: [],
-      // default false
       hasStripeAccount: false,
-      // Use provided FAQs or default to empty FAQs, matching the real system behavior
-      faqs: input.faqs || DEFAULT_CLUB_FAQS
+      faqs: DEFAULT_CLUB_FAQS
     });
 
     this.createFreeMembershipTier(freeMembershipTierId, clubId);

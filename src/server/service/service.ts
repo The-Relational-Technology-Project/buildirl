@@ -22,10 +22,7 @@ import {
   MembershipStatus,
   Email,
   UpdateClubDisplayImageUrlsInput,
-  DeactivateMembershipInput,
-  FAQ,
-  FAQSchema,
-  UpdateClubFAQsInput
+  DeactivateMembershipInput
 } from "~/server/service/types";
 import {
   FormQuestionsSchema,
@@ -499,11 +496,9 @@ export function createMainService(
         data: {
           ...input,
           ownerUserId: userId,
-          // default questions
           applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
           theme: Prisma.DbNull,
-          // Use provided FAQs or default to empty
-          faqs: input.faqs || DEFAULT_CLUB_FAQS
+          faqs: DEFAULT_CLUB_FAQS
         },
         select: {
           id: true
@@ -528,7 +523,6 @@ export function createMainService(
     input: UpdateClubInput
   ): Promise<MutationResult> {
     try {
-      // Since FAQs is now required, simplify the implementation
       await prisma.club.update({
         data: { 
           ...input, 

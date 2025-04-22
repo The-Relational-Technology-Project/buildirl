@@ -201,7 +201,7 @@ export default function ClubJoin() {
 
           <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
 
-          <FAQsSection faqs={r.data!.faqs} />
+          <FAQs faqs={r.data!.faqs} />
 
           <Text mt={48}>Powered by BuildIRL</Text>
         </Stack>

@@ -18,7 +18,7 @@ import {
   Text,
   Card
 } from "@mantine/core";
-import { IconPlus, IconX } from "@tabler/icons-react";
+import { IconPlus, IconX, IconDeviceFloppy } from "@tabler/icons-react";
 import {
   FormQuestionType,
   FormQuestionsSchema,
@@ -108,6 +108,7 @@ export default function ManageIntakePanel({ club }: ManageIntakePanelProps) {
               type="submit"
               disabled={Object.keys(errors).length > 0}
               loading={updateClubApplicationQuestions.isPending}
+              leftSection={<IconDeviceFloppy size={16} />}
               w={150}
               style={{ alignSelf: "center" }}
             >
@@ -183,7 +184,7 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
               label="Question Type"
               data={QUESTION_TYPES}
               error={
-                //@ts-ignore too much to get the typing of these complex error objects right ¯\_(ツ)_/¯
+                //@ts-expect-error too much to get the typing of these complex error objects right ¯\_(ツ)_/¯
                 errors.questions?.[index]?.type?.message
               }
               {...field}
@@ -236,13 +237,13 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
                         </ColorSchemeAwareActionIcon>
                       </Group>
                       {
-                        // @ts-ignore
+                        // @ts-expect-error
                         errors.questions?.[index]?.metadata?.choices?.[
                           choiceIndex
                         ] && (
                           <Text c="red" size="sm">
                             {
-                              // @ts-ignore
+                              // @ts-expect-error
                               errors.questions?.[index]?.metadata?.choices?.[
                                 choiceIndex
                               ]?.message
@@ -262,11 +263,11 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
                     Add Choice
                   </Button>
                   {
-                    // @ts-ignore
+                    // @ts-expect-error
                     errors.questions?.[index]?.metadata?.choices && (
                       <Text c="red" size="sm" mt="xs">
                         {
-                          // @ts-ignore
+                          // @ts-expect-error 
                           errors.questions?.[index]?.metadata?.choices?.message
                         }
                       </Text>

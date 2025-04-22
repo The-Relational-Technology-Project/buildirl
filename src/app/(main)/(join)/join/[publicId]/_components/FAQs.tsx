@@ -1,12 +1,11 @@
-import { Accordion, Box, Text, Title } from "@mantine/core";
-import { FAQs } from "~/server/service/types";
+import { Accordion, Box, Text, Title, Divider } from "@mantine/core";
+import { FAQs as FAQsType } from "~/server/service/types";
 
-type FAQsSectionProps = {
-  faqs: FAQs;
+type FAQsProps = {
+  faqs: FAQsType;
 };
 
-export default function FAQsSection({ faqs }: FAQsSectionProps) {
-  // If there are no FAQs, don't render the section
+export default function FAQs({ faqs }: FAQsProps) {
   if (!faqs.items || faqs.items.length === 0) {
     return null;
   }
@@ -17,6 +16,7 @@ export default function FAQsSection({ faqs }: FAQsSectionProps) {
         Frequently Asked Questions
       </Title>
       <Accordion>
+        <Divider mb={-1} />
         {faqs.items.map((faq, index) => (
           <Accordion.Item key={index} value={`faq-${index}`}>
             <Accordion.Control>

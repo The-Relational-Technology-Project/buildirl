@@ -8,7 +8,8 @@ import {
   UrlSchema,
   ClubPublicIdSchema,
   InstagramHandleSchema,
-  FAQsSchema
+  FAQsSchema,
+  FAQ
 } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import {
@@ -35,15 +36,13 @@ import { TemplateThemeSchema } from "~/client/theme/templates";
 import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_components/ClubDisplayImageUpload";
 import { z } from "zod";
 import FontSelector from "~/app/(main)/club/[clubId]/manage/update/_components/FontSelector";
-import FAQSection from "~/app/(main)/club/[clubId]/manage/update/_components/FAQSection";
+import FAQsFormSection from "~/app/(main)/club/[clubId]/manage/update/_components/FAQsFormSection";
 import { IconDeviceFloppy } from "@tabler/icons-react";
-import { ClubFormValues } from "./form-context";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// Basic Information section component
 function BasicInfoSection() {
-  const { register } = useFormContext<ClubFormValues>();
+  const { register } = useFormContext<Club>();
   
   return (
     <Stack gap={8} mt={4}>
@@ -65,9 +64,8 @@ function BasicInfoSection() {
   );
 }
 
-// Links section component
 function LinksSection() {
-  const { register } = useFormContext<ClubFormValues>();
+  const { register } = useFormContext<Club>();
   
   return (
     <Stack gap={8} mt={6}>
@@ -88,9 +86,8 @@ function LinksSection() {
   );
 }
 
-// Share link section component
 function ShareLinkSection() {
-  const { register } = useFormContext<ClubFormValues>();
+  const { register } = useFormContext<Club>();
   
   return (
     <Stack gap={8} mt={6}>
@@ -107,9 +104,8 @@ function ShareLinkSection() {
   );
 }
 
-// Theme section component
 function ThemeSection() {
-  const { watch, setValue } = useFormContext<ClubFormValues>();
+  const { watch, setValue } = useFormContext<Club>();
   const theme = watch("theme");
   
   return (
@@ -123,9 +119,8 @@ function ThemeSection() {
   );
 }
 
-// Font section component
 function FontSection() {
-  const { watch, setValue } = useFormContext<ClubFormValues>();
+  const { watch, setValue } = useFormContext<Club>();
   const font = watch("themeHeadingFont");
   
   return (
@@ -139,12 +134,11 @@ function FontSection() {
   );
 }
 
-// Images section component
-interface ImagesSectionProps {
+interface ShowcaseImagesSectionProps {
   club: Club;
 }
 
-function ImagesSection({ club }: ImagesSectionProps) {
+function ShowcaseImagesSection({ club }: ShowcaseImagesSectionProps) {
   return (
     <Stack gap={8} mt={6}>
       <Title order={6}>Showcase Images</Title>
@@ -153,16 +147,11 @@ function ImagesSection({ club }: ImagesSectionProps) {
   );
 }
 
-// Main form component
 interface UpdateClubFormProps {
   club: Club;
 }
 
 function UpdateClubForm({ club }: UpdateClubFormProps) {
-  const utils = api.useUtils();
-  const router = useRouter();
-  
-  // Create the validation schema - Final version with fixes
   const validationSchema = z.object({
     publicId: ClubPublicIdSchema,
     name: ClubNameSchema,
@@ -176,8 +165,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
     faqs: FAQsSchema
   });
   
-  // Create form with react-hook-form
-  const methods = useForm<ClubFormValues>({
+  const methods = useForm<Club>({
     defaultValues: {
       publicId: club.publicId,
       name: club.name,
@@ -194,53 +182,50 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
     mode: "onChange"
   });
 
-  const updateClub = api.main.updateClub.useMutation();
+  const utils = api.useUtils();
+  const router = useRouter();
   
-  const onSubmit = async (values: ClubFormValues) => {
-    // Make a copy and transform empty strings to null for server validation
-    const cleanedValues = {
-      ...values,
-      websiteUrl: values.websiteUrl === "" ? null : values.websiteUrl,
-      instagramHandle: values.instagramHandle === "" ? null : values.instagramHandle,
-      eventCalendarUrl: values.eventCalendarUrl === "" ? null : values.eventCalendarUrl,
-      faqs: {
-        items: values.faqs.items.map(({ question, answer }) => ({ 
-          question, 
-          answer 
-        }))
-      }
-    };
-
-    // Re-enable the mutation call
-    try {
-      await updateClub.mutateAsync({
-        id: club.id,
-        input: cleanedValues
-      });
-      
-      // Invalidate queries to refresh data
+  const updateClub = api.main.updateClub.useMutation({
+    onSuccess: (_, variables) => {
       utils.main.club.invalidate({ id: club.id });
-      utils.main.clubByPublicId.invalidate({ publicId: values.publicId });
+      utils.main.clubByPublicId.invalidate({ publicId: variables.input.publicId });
       utils.main.userOwnedClubs.invalidate();
       
-      // Show success notification
       notifications.show({
         title: 'Changes saved',
         message: 'Your club has been updated successfully',
         color: 'green'
       });
       
-      // Navigate back
       router.push(`/club/${club.id}/manage`);
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error("Error updating club:", error);
-      // Show error notification
       notifications.show({
         title: 'Error',
         message: 'Failed to save changes. Please try again.',
         color: 'red'
       });
     }
+  });
+  
+  const onSubmit = (values: Club) => {
+    updateClub.mutate({
+      id: club.id,
+      input: {
+        ...values,
+        // we need to coerce these to null to match server validation
+        websiteUrl: values.websiteUrl === "" ? null : values.websiteUrl,
+        instagramHandle: values.instagramHandle === "" ? null : values.instagramHandle,
+        eventCalendarUrl: values.eventCalendarUrl === "" ? null : values.eventCalendarUrl,
+        faqs: {
+          items: values.faqs.items.map(({ question, answer }: FAQ) => ({ 
+            question, 
+            answer 
+          }))
+        }
+      }
+    });
   };
 
   return (
@@ -265,20 +250,17 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           <ShareLinkSection />
           <ThemeSection />
           <FontSection />
-          <ImagesSection club={club} />
+          <ShowcaseImagesSection club={club} />
           
           <Divider my="lg" />
-          
-          <div>
-            <FAQSection />
-          </div>
+          <FAQsFormSection mt={6} />
           
           <Box mt={32} style={{ display: 'flex', justifyContent: 'center' }}>
             <Button
               w={100}
               type="submit"
-              disabled={updateClub.isPending} // Re-enabled
-              loading={updateClub.isPending} // Re-enabled
+              disabled={updateClub.isPending} 
+              loading={updateClub.isPending} 
               leftSection={<IconDeviceFloppy size={16} />}
             >
               Save
