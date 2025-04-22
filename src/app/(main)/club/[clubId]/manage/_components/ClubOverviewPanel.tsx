@@ -10,9 +10,6 @@ import {
   useMatches
 } from "@mantine/core";
 import React from "react";
-import { notifications } from "@mantine/notifications";
-import { IconCheck } from "@tabler/icons-react";
-import { logger, notifyError } from "~/client/logger";
 import { useRouter } from "next/navigation";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import AlertMessage from "~/client/components/AlertMessage";
@@ -24,7 +21,14 @@ type ClubOverviewPanelProps = {
 
 export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
   const router = useRouter();
-  const editButtonText = useMatches({ base: "Edit", md: "Edit Club Page" });
+  const editButtonText = useMatches({
+    base: "Edit Page",
+    md: "Edit Club Page"
+  });
+  const visitButtonText = useMatches({
+    base: "Go to Page",
+    md: "Go to Club Page"
+  });
 
   return (
     <Stack>
@@ -64,11 +68,9 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
               </Button>
               <Button
                 mt={"sm"}
-                onClick={async () => {
-                  await copyToClipboard(club.publicId);
-                }}
+                onClick={() => router.push(`/join/${club.publicId}/`)}
               >
-                Share
+                {visitButtonText}
               </Button>
             </Group>
           </Stack>
@@ -76,22 +78,4 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
       </Paper>
     </Stack>
   );
-}
-
-async function copyToClipboard(clubPublicId: string): Promise<void> {
-  const url = `${window.location.origin}/join/${clubPublicId}`;
-
-  try {
-    await navigator.clipboard.writeText(url);
-    notifications.show({
-      title: "Link copied",
-      message: "Share link has been copied to clipboard",
-      color: "green",
-      icon: <IconCheck size="1.1rem" />,
-      autoClose: 3000
-    });
-  } catch (e) {
-    logger.error(e, "failed to copy to clipboard");
-    notifyError("Failed to copy share link to clipboard.");
-  }
 }
