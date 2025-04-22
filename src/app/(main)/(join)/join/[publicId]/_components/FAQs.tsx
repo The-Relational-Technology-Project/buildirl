@@ -1,17 +1,17 @@
-import { Accordion, Box, Text, Title, Divider } from "@mantine/core";
+import { Accordion, Box, Text, Title, Divider, BoxProps } from "@mantine/core";
 import { FAQs as FAQsType } from "~/server/service/types";
 
 type FAQsProps = {
   faqs: FAQsType;
 };
 
-export default function FAQs({ faqs }: FAQsProps) {
+export default function FAQs({ faqs, ...props }: FAQsProps & BoxProps) {
   if (!faqs.items || faqs.items.length === 0) {
     return null;
   }
 
   return (
-    <Box my={48}>
+    <Box {...props}>
       <Title order={2} mb={24} ta="center">
         FAQs
       </Title>
