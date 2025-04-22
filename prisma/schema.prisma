@@ -72,7 +72,7 @@ model Club {
   themeHeadingFont                    String?          @map("theme_heading_font")
   // ordered
   displayImageUrls                    String[]         @default([]) @map("display_image_urls")
-  faqs                                Json?            @map("faqs")
+  faqs                                Json             @map("faqs")
   membershipTiers                     MembershipTier[]
   stripeConnectAccountId              String?          @unique @map("stripe_connect_account_id")
   stripeCustomerPortalConfigurationId String?          @unique @map("stripe_customer_portal_configuration_id")
