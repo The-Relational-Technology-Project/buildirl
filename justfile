@@ -23,8 +23,12 @@ db-migrate:
 # drop data and re-seed the database from seed.ts
 # note, if you do this, you must reapply grant permissions:
 # https://stackoverflow.com/questions/67551593/supabase-client-permission-denied-for-schema-public
+# Run the following commands in the Supabase SQL Editor:
+#   GRANT USAGE ON SCHEMA public TO postgres, anon, authenticated, service_role;
+#   GRANT ALL ON SCHEMA public TO postgres, anon, authenticated, service_role;
+#   GRANT SELECT ON TABLE public.user TO anon, authenticated, service_role;
 db-reset-hard:
-   prisma migrate reset
+  prisma migrate reset
 
 start:
 	yarn dev

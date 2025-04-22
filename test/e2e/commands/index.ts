@@ -133,6 +133,18 @@ function createClubCommands() {
   );
 }
 
+function faqsArbitrary() {
+  return record({
+    items: array(
+      record({
+        question: string().filter((s) => s.length >= 3 && s.length <= 2000),
+        answer: string().filter((s) => s.length >= 3 && s.length <= 20000)
+      }),
+      { maxLength: 5 }
+    )
+  });
+}
+
 function updateClubCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
@@ -152,7 +164,8 @@ function updateClubCommands() {
     ),
     themeHeadingFont: option(oneof(...FONT_SELECTION.map(constant)), {
       freq: 4
-    })
+    }),
+    faqs: faqsArbitrary()
   }).map(
     (i) =>
       new UpdateClubCommand(
@@ -165,7 +178,8 @@ function updateClubCommands() {
           instagramHandle: i.instagramHandle,
           eventCalendarUrl: i.eventCalendarUrl,
           theme: i.theme,
-          themeHeadingFont: i.themeHeadingFont
+          themeHeadingFont: i.themeHeadingFont,
+          faqs: i.faqs
         },
         i.clubIdSelector
       )

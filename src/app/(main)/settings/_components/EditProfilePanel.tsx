@@ -39,10 +39,12 @@ function UpdateUserForm({ user }: UserFormProps) {
     >
       <Stack w="100%" miw={{ base: 300, md: 400 }} gap="md">
         <Stack gap={2}>
-          <Title order={6}>Name</Title>
+          <Title order={6}>
+            Name
+          </Title>
           <Text>{`${user.firstName} ${user.lastName}`}</Text>
         </Stack>
-
+        
         <Textarea
           placeholder={
             "Share a little about who you are and how you will add to the community!"
@@ -80,9 +82,18 @@ export default function EditProfilePanel() {
 
   return (
     isLoaded(r) && (
-      <Stack mt="lg" gap="md" w="100%" maw={800} mx="auto">
+      <Stack 
+        mt="lg" 
+        gap="md"
+        w="100%" 
+        maw={800} 
+        mx="auto"
+      >
         <Stack align="center" gap="md">
-          <EditableUserAvatar size={120} user={r.data!} />
+          <EditableUserAvatar 
+            size={120} 
+            user={r.data!} 
+          />
           <Stack gap={2} align="center">
             <Title order={4}>Your Profile</Title>
             <Text size="md">
