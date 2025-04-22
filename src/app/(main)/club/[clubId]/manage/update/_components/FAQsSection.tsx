@@ -14,6 +14,7 @@ import {
 } from "@mantine/core";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { Club } from "~/server/service/types";
+import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
 export default function FAQsSection(props: StackProps): React.ReactElement {
   const {
@@ -39,15 +40,11 @@ export default function FAQsSection(props: StackProps): React.ReactElement {
               {index > 0 && <Divider my="xs" />}
               <Box>
                 <Group justify="flex-end" mb={8}>
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    onClick={() => remove(index)}
-                  >
+                  <ColorSchemeAwareActionIcon onClick={() => remove(index)}>
                     <IconX size={16} />
-                  </ActionIcon>
+                  </ColorSchemeAwareActionIcon>
                 </Group>
-                
+
                 <Stack gap="xs">
                   <Controller
                     control={control}
@@ -67,7 +64,7 @@ export default function FAQsSection(props: StackProps): React.ReactElement {
                     render={({ field }) => (
                       <Textarea
                         placeholder="Answer"
-                        minRows={3}
+                        minRows={5}
                         error={errors.faqs?.items?.[index]?.answer?.message}
                         {...field}
                       />
@@ -82,7 +79,6 @@ export default function FAQsSection(props: StackProps): React.ReactElement {
 
       <Button
         onClick={() => append({ question: "", answer: "" })}
-        variant="outline"
         leftSection={<IconPlus size={16} />}
         type="button"
         mt="md"

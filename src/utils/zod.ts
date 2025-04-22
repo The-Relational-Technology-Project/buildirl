@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-wrapper-object-types */
+// we need Object type to wrap but object as well as string and other primitives
 
 import { z } from "zod";
 import { Maybe } from "~/utils/types";
