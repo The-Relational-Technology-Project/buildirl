@@ -237,13 +237,13 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
                         </ColorSchemeAwareActionIcon>
                       </Group>
                       {
-                        // @ts-expect-error
+                        // @ts-expect-error too much to get the typing of these complex error objects right
                         errors.questions?.[index]?.metadata?.choices?.[
                           choiceIndex
                         ] && (
                           <Text c="red" size="sm">
                             {
-                              // @ts-expect-error
+                              // @ts-expect-error too much to get the typing of these complex error objects right
                               errors.questions?.[index]?.metadata?.choices?.[
                                 choiceIndex
                               ]?.message
@@ -263,11 +263,11 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
                     Add Choice
                   </Button>
                   {
-                    // @ts-expect-error
+                    // @ts-expect-error too much to get the typing of these complex error objects right
                     errors.questions?.[index]?.metadata?.choices && (
                       <Text c="red" size="sm" mt="xs">
                         {
-                          // @ts-expect-error 
+                          // @ts-expect-error too much to get the typing of these complex error objects right
                           errors.questions?.[index]?.metadata?.choices?.message
                         }
                       </Text>

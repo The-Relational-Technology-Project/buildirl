@@ -100,7 +100,7 @@ export default function Welcome() {
         </Title>
 
         <Stack align="center" gap="md" w={"100%"}>
-          <PrimaryButton onClick={onShare}>Share</PrimaryButton>
+          <PrimaryButton onClick={onShare}>{"Share"}</PrimaryButton>
 
           <SecondaryButton
             onClick={async () => {

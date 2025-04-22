@@ -39,7 +39,7 @@ export default function Apply() {
             <DefaultClubImage size={240} />
 
             <Title order={2} fw={500} ta="center">
-              Let's See If We're A Fit!
+              {"Let's See If We're A Fit!"}
             </Title>
 
             <PrimaryButton
@@ -50,7 +50,7 @@ export default function Apply() {
                 );
               }}
             >
-              Let's Go!
+              {"Let's Go!"}
             </PrimaryButton>
           </Stack>
         </Center>

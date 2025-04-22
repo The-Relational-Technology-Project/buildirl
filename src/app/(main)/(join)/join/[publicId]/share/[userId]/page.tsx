@@ -40,7 +40,7 @@ export default function Share() {
     <Center pt={50}>
       <Stack align="center" gap="xl" mt={"xl"}>
         <Title order={1} ta={"center"}>
-          I'M A PROUD JOINER!
+          {"I'M A PROUD JOINER!"}
         </Title>
 
         <UserClubHandshake user={u.data!} club={r.data!} />

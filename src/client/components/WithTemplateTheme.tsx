@@ -12,18 +12,19 @@ export default function WithTemplateTheme({
   children,
   theme
 }: WithTemplateThemeProps) {
-  if (null === theme) {
-    return children;
-  }
   // set color scheme based on if theme `isDark`
   const { setColorScheme } = useMantineColorScheme();
   useEffect(() => {
-    setColorScheme(theme.isDark ? "dark" : "light");
+    setColorScheme(null === theme || !theme.isDark ? "light" : "dark");
     return () => {
       // revert to default color scheme
       setColorScheme("light");
     };
   }, [theme]);
+
+  if (null === theme) {
+    return children;
+  }
 
   return (
     <Box pos="relative" w={"100%"} h={"100%"}>
