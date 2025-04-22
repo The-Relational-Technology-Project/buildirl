@@ -8,7 +8,6 @@ import {
   Paper,
   Flex,
   useMatches,
-  Space,
   Box,
   TitleOrder
 } from "@mantine/core";
@@ -37,29 +36,17 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
   }
 
   const isMobile = useMatches({ base: true, md: false });
-  const editMembershipText = useMatches({
+  const titleOrder = useMatches<TitleOrder>({ base: 6, md: 4 });
+  const buttonWidth = useMatches({ base: 130, md: 200 });
+  const manageMembershipText = useMatches({
     base: "Membership",
     md: "Manage Membership"
   });
-  const chevronSize = useMatches({ base: 16, md: 32 });
-  const titleOrder = useMatches<TitleOrder>({ base: 6, md: 4 });
-  const buttonSize = useMatches({ base: "xs", md: "md" });
 
   const router = useRouter();
 
   return (
-    <Paper
-      p={{ base: "md", md: "xl" }}
-      h={{ base: 120, md: 220 }}
-      onClick={(e) => {
-        // don't navigate if clicking on child buttons
-        if ((e.target as HTMLElement).closest("button")) {
-          e.stopPropagation();
-          return;
-        }
-        router.push(`/join/${club.publicId}`);
-      }}
-    >
+    <Paper p={{ base: "lg", md: "xl" }} h={{ base: 180, md: 220 }}>
       <Flex
         direction={"row"}
         h={"100%"}
@@ -67,9 +54,9 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
         align={"center"}
         gap={{ base: 0, md: "md" }}
       >
-        <ClubImage club={club} size={{ base: 80, md: 120 }} />
+        <ClubImage club={club} size={{ base: 110, md: 120 }} />
 
-        <Stack h={"100%"} justify="space-between" ml={{ base: "md", md: "xl" }}>
+        <Stack h={"100%"} justify="space-between" ml={{ base: "lg", md: "xl" }}>
           <Stack gap={6}>
             <Title order={titleOrder} lineClamp={1}>
               {club.name}
@@ -89,32 +76,36 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
             )}
           </Stack>
 
-          <Box>
-            {isOwned ? (
+          <Flex direction={{ base: "column", md: "row" }} gap={"xs"}>
+            <Box>
+              {isOwned ? (
+                <Button
+                  w={buttonWidth}
+                  onClick={() => router.push(`/club/${club.id}/manage`)}
+                >
+                  Manage Club
+                </Button>
+              ) : (
+                <Button
+                  w={buttonWidth}
+                  onClick={() =>
+                    router.push(`/club/${club.id}/manage-membership`)
+                  }
+                >
+                  {manageMembershipText}
+                </Button>
+              )}
+            </Box>
+            <Box>
               <Button
-                size={buttonSize}
-                onClick={() => router.push(`/club/${club.id}/manage`)}
+                w={buttonWidth}
+                onClick={() => router.push(`/join/${club.publicId}`)}
               >
-                Manage Club
+                Go to Club
               </Button>
-            ) : (
-              <Button
-                size={buttonSize}
-                onClick={() =>
-                  router.push(`/club/${club.id}/manage-membership`)
-                }
-              >
-                {editMembershipText}
-              </Button>
-            )}
-          </Box>
+            </Box>
+          </Flex>
         </Stack>
-
-        <Space style={{ flex: 1 }} />
-
-        <ColorSchemeAwareThemeIcon>
-          <IconChevronRight size={chevronSize} />
-        </ColorSchemeAwareThemeIcon>
       </Flex>
     </Paper>
   );
