@@ -9,8 +9,7 @@ import {
   Title,
   StackProps,
   Group,
-  Divider,
-  ActionIcon
+  Divider
 } from "@mantine/core";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { Club } from "~/server/service/types";
