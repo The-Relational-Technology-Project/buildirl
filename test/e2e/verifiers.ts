@@ -42,6 +42,7 @@ function createVerifiers() {
       theme: club.theme,
       themeHeadingFont: club.themeHeadingFont,
       displayImageUrls: club.displayImageUrls,
+      faqs: club.faqs,
       membershipTiers: club.membershipTiers
     };
   }

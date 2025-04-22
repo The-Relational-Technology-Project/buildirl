@@ -29,12 +29,12 @@ export default function IntakePaymentsPage() {
           <Title order={4}>Almost there!</Title>
 
           <Text size="sm">
-            Your support matters. Dues help keep our club alive — but don’t
-            worry, you won’t be charged until you’re officially in.
+            {`Your support matters. Dues help keep our club alive — but don’t
+            worry, you won’t be charged until you’re officially in.`}
           </Text>
 
           <Text size="sm">
-            Add your payment info to finish up the application! 🎉
+            {"Add your payment info to finish up the application! 🎉"}
           </Text>
 
           <Box style={{ alignSelf: "center" }} mt={"md"}>
@@ -49,7 +49,7 @@ export default function IntakePaymentsPage() {
               size={"sm"}
               w={200}
             >
-              Let's Do This!
+              {"Let's Do This!"}
             </PrimaryButton>
           </Box>
         </Stack>

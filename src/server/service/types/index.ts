@@ -35,6 +35,29 @@ export type User = {
   createdAt: Date;
 };
 
+export const FAQQuestionSchema = z
+  .string()
+  .min(3, "Question must be at least 3 characters")
+  .max(200, "Question cannot exceed 200 characters");
+
+export const FAQAnswerSchema = z
+  .string()
+  .min(3, "Answer must be at least 3 characters")
+  .max(2000, "Answer cannot exceed 2000 characters");
+
+export const FAQSchema = z.object({
+  question: FAQQuestionSchema,
+  answer: FAQAnswerSchema
+});
+
+export type FAQ = z.infer<typeof FAQSchema>;
+
+export const FAQsSchema = z.object({
+  items: z.array(FAQSchema)
+});
+
+export type FAQs = z.infer<typeof FAQsSchema>;
+
 export type Club = {
   id: number;
   publicId: string;
@@ -49,6 +72,7 @@ export type Club = {
   theme: Maybe<TemplateTheme>;
   themeHeadingFont: Maybe<string>;
   displayImageUrls: Url[];
+  faqs: FAQs;
   membershipTiers: MembershipTier[];
 };
 
@@ -197,10 +221,12 @@ export const CreateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
   tagLine: ClubTagLineSchema,
+  // TODO: reduce code! remove these as well to just the fields the client needs
   description: LongTextSchema,
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable()
+  // additional fields (e.g, themes, faqs, etc) will be defaulted in the backend
 });
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
 
@@ -212,9 +238,9 @@ export const UpdateClubInputSchema = z.object({
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable(),
-  // update-only fields
   theme: TemplateThemeSchema.nullable(),
-  themeHeadingFont: z.string().nullable()
+  themeHeadingFont: z.string().nullable(),
+  faqs: FAQsSchema
 });
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;
 

@@ -109,6 +109,8 @@ deployed to the [production environment](https://clubs.buildirl.com/).
 and [production](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce) databases respectively
 3. Newly created tables need to be secured in all environments by turning on RLS (see Authorization section). It is ideal to do this
 as closely to when the table creation migration is applied.
+4. Then use `just generate-prisma`. See [Prisma Generation](https://www.prisma.io/docs/orm/reference/prisma-cli-reference#generate)
+5. If trouble still persists, consider spinning down and up the DB with `just db-start` and `just db-stop`. 
 
 ## Other Readings
 

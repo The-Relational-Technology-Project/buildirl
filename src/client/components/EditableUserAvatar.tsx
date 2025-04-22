@@ -11,9 +11,6 @@ type EditableUserAvatarProps = {
   user: User;
 };
 
-// 2 megabytes
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-
 // returns whether the file size is valid
 export function isFileSizeValid(file: File, maxFileSizeInMbs: number): boolean {
   if (file.size === 0) {

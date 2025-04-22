@@ -5,7 +5,6 @@ import {
   useMantineTheme
 } from "@mantine/core";
 import React from "react";
-import { IconLink } from "@tabler/icons-react";
 
 type ColorSchemeAwareActionIconProps = {
   onClick: () => void;

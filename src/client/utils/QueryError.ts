@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// TODO resolve this linting error
+
 import { type UseTRPCQueryResult } from "@trpc/react-query/shared";
 import { type TRPCClientErrorLike } from "@trpc/client";
 import { stringify } from "~/utils";

@@ -15,7 +15,8 @@ import {
   MembershipStatus,
   Membership,
   ClubStatistics,
-  UpdateClubDisplayImageUrlsInput
+  UpdateClubDisplayImageUrlsInput,
+  FAQs
 } from "~/server/service/types";
 import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
@@ -23,7 +24,8 @@ import { FormQuestions, FormResponses } from "~/server/service/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
 import {
   DEFAULT_APPLICATION_QUESTIONS,
-  DEFAULT_FREE_MEMBERSHIP_TIER
+  DEFAULT_FREE_MEMBERSHIP_TIER,
+  DEFAULT_CLUB_FAQS
 } from "~/server/service/defaults";
 
 // this entities differ from api ones mostly in that nested entities
@@ -36,7 +38,7 @@ type ClubState = {
   description: string;
   ownerUserId: number;
   websiteUrl: Maybe<Url>;
-  instagramHandle: Maybe<InstagramHandle>;
+  instagramHandle: Maybe<InstagramHandle>; 
   eventCalendarUrl: Maybe<Url>;
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
@@ -44,6 +46,7 @@ type ClubState = {
   displayImageUrls: Url[];
   membershipTierIds: number[];
   hasStripeAccount: boolean;
+  faqs: FAQs;
 };
 
 type MembershipState = {
@@ -178,6 +181,7 @@ export class SystemState {
       theme: clubState.theme,
       themeHeadingFont: clubState.themeHeadingFont,
       displayImageUrls: clubState.displayImageUrls,
+      faqs: clubState.faqs,
       membershipTiers: this.orderedByCost(
         clubState.membershipTierIds.map((id) => this.getMembershipTier(id))
       )
@@ -234,14 +238,13 @@ export class SystemState {
       id: clubId,
       ...input,
       ownerUserId: userId,
-      // empty to start
       applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
       theme: null,
       themeHeadingFont: null,
       displayImageUrls: [],
       membershipTierIds: [],
-      // default false
-      hasStripeAccount: false
+      hasStripeAccount: false,
+      faqs: DEFAULT_CLUB_FAQS
     });
 
     this.createFreeMembershipTier(freeMembershipTierId, clubId);

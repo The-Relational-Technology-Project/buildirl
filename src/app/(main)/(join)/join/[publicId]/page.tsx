@@ -1,7 +1,15 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Stack, Title, Text, Group, GroupProps } from "@mantine/core";
+import {
+  Stack,
+  Title,
+  Text,
+  Group,
+  GroupProps,
+  Box,
+  useMatches
+} from "@mantine/core";
 import { IconBrandInstagram, IconWorld } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -17,6 +25,9 @@ import SecondaryButton from "~/client/components/SecondaryButton";
 import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/MemberCarousel";
 import React, { useEffect } from "react";
 import PrimaryButton from "~/client/components/PrimaryButton";
+import FAQs from "./_components/FAQs";
+import { useMounted } from "@mantine/hooks";
+import ShareIconButton from "./_components/ShareIconButton";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -69,6 +80,9 @@ function WithRedirectToWelcomePage({
 }
 
 export default function ClubJoin() {
+  const mounted = useMounted();
+  const shareButtonRightPosition = useMatches({ base: -12, md: 120 });
+
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
   const router = useRouter();
@@ -88,6 +102,7 @@ export default function ClubJoin() {
   });
 
   return (
+    mounted &&
     isAllLoaded([r, s]) && (
       <>
         {s.data! && <WithRedirectToWelcomePage publicId={publicId} />}
@@ -101,6 +116,19 @@ export default function ClubJoin() {
           align={"center"}
           gap={"lg"}
         >
+          <Box
+            style={{
+              position: "absolute",
+              top: 20,
+              right: shareButtonRightPosition
+            }}
+          >
+            <ShareIconButton
+              clubPublicId={r.data!.publicId}
+              clubName={r.data!.name}
+            />
+          </Box>
+
           <ClubImage club={r.data!} size={{ base: 320, md: 360 }} />
 
           <Stack align={"center"} gap={0} mb={8}>
@@ -172,6 +200,8 @@ export default function ClubJoin() {
           <ContributingMembersLink club={r.data!} />
 
           <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
+
+          <FAQs faqs={r.data!.faqs} />
 
           <Text mt={48}>Powered by BuildIRL</Text>
         </Stack>

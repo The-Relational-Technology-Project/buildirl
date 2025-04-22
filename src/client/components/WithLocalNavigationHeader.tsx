@@ -69,7 +69,11 @@ export default function WithLocalNavigationHeader({
       >
         <NavigationButton
           onClick={() => {
-            navigateTo === null ? router.back() : router.push("/");
+            if (navigateTo === null) {
+              router.back();
+            } else {
+              router.push("/");
+            }
           }}
           icon={<IconChevronLeft />}
           mt={"lg"}

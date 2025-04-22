@@ -43,10 +43,12 @@ import { z } from "zod";
 import { StripeClient } from "~/server/payments/stripe/types";
 import {
   DEFAULT_APPLICATION_QUESTIONS,
-  DEFAULT_FREE_MEMBERSHIP_TIER
+  DEFAULT_FREE_MEMBERSHIP_TIER,
+  DEFAULT_CLUB_FAQS
 } from "~/server/service/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailClient } from "~/server/service/email/types";
+import { FAQsSchema } from "~/server/service/types/index";
 const logger = rootLogger.child({ module: "mainService" });
 
 // TODO it is time soon to break this file down by entities
@@ -89,6 +91,7 @@ export function createMainService(
     theme: true,
     themeHeadingFont: true,
     displayImageUrls: true,
+    faqs: true,
     membershipTiers: {
       select: MEMBERSHIP_TIER_SELECT
     }
@@ -176,6 +179,7 @@ export function createMainService(
       theme: parseAsZodType(r.theme, TemplateThemeSchema.nullable()),
       themeHeadingFont: r.themeHeadingFont,
       displayImageUrls: parseAsZodType(r.displayImageUrls, z.array(UrlSchema)),
+      faqs: parseAsZodType(r.faqs, FAQsSchema),
       membershipTiers: orderedByCost(
         r.membershipTiers.map((t) => asMembershipTier(t))
       )
@@ -235,7 +239,7 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<Maybe<Email>> {
     try {
-      const userSettings = await prisma.userSettings.findUniqueOrThrow({
+      const userSettings = await tx.userSettings.findUniqueOrThrow({
         where: {
           userId: userId
         }
@@ -492,9 +496,9 @@ export function createMainService(
         data: {
           ...input,
           ownerUserId: userId,
-          // default questions
           applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
-          theme: Prisma.DbNull
+          theme: Prisma.DbNull,
+          faqs: DEFAULT_CLUB_FAQS
         },
         select: {
           id: true
@@ -520,7 +524,10 @@ export function createMainService(
   ): Promise<MutationResult> {
     try {
       await prisma.club.update({
-        data: { ...input, theme: input.theme ?? Prisma.DbNull },
+        data: {
+          ...input,
+          theme: input.theme ?? Prisma.DbNull
+        },
         where: {
           id: id
         }

@@ -42,3 +42,7 @@ export const DEFAULT_APPLICATION_QUESTIONS: FormQuestions = {
     }
   ]
 };
+
+export const DEFAULT_CLUB_FAQS = {
+  items: []
+};

@@ -78,7 +78,7 @@ export default function Welcome() {
       {/* in desktop, we need to decrease margin top for vertical centering*/}
       <Stack align="center" gap="xl" mt={{ base: "xl", md: 0 }}>
         <Title order={1} ta={"center"}>
-          YOU'VE BEEN APPROVED!
+          {"YOU'VE BEEN APPROVED!"}
         </Title>
 
         <UserClubHandshake user={u.data!} club={r.data!} />
@@ -88,7 +88,7 @@ export default function Welcome() {
             Welcome {u.data!.firstName}!
           </Title>
           <Title order={3} fw={400}>
-            You Are Now a Member Of
+            {"You Are Now a Member Of"}
           </Title>
           <Title order={3} style={{ textAlign: "center" }}>
             {r.data!.name}!
@@ -96,11 +96,11 @@ export default function Welcome() {
         </Stack>
 
         <Title order={3} fw={400}>
-          Celebrate Publicly!
+          {"Celebrate Publicly!"}
         </Title>
 
         <Stack align="center" gap="md" w={"100%"}>
-          <PrimaryButton onClick={onShare}>Share</PrimaryButton>
+          <PrimaryButton onClick={onShare}>{"Share"}</PrimaryButton>
 
           <SecondaryButton
             onClick={async () => {
@@ -114,7 +114,7 @@ export default function Welcome() {
               router.push(`/join/${publicId}?fromWelcome=true`);
             }}
           >
-            Enter
+            {"Enter"}
           </SecondaryButton>
         </Stack>
       </Stack>
