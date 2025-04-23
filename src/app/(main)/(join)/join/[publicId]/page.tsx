@@ -15,7 +15,6 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
-import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
 import { activeMembershipForClub, membershipForClub } from "~/utils/types";
 import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
@@ -157,9 +156,7 @@ export default function ClubJoin() {
                 {"Read more >"}
               </Text>
 
-              <MemberCountStatistic clubId={r.data!.id} textSize={"md"} />
-
-              <Group>
+              <Group mt={"xs"}>
                 {r.data!.websiteUrl && (
                   <ActionIconBox
                     onClick={() => window.open(`${r.data!.websiteUrl}`)}
