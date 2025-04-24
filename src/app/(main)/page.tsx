@@ -14,7 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import { isAllLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
-import type { Club } from "~/server/service/types";
+import type { Club, Membership } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import { Maybe } from "~/utils/types";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
@@ -109,60 +109,32 @@ function ClubCard({ club, isOwned, membershipId }: ClubCardProps) {
   );
 }
 
-export default function Home() {
-  const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
-
-  const r = api.main.userOwnedClubs.useQuery();
-  const m = api.main.userMemberships.useQuery();
+function EmptyClubs() {
   const router = useRouter();
-
-  QueryError.check({
-    result: r,
-    fieldName: "userOwnedClubs"
-  });
-
-  QueryError.check({
-    result: m,
-    fieldName: "userMemberships"
-  });
-
-  if (!isAllLoaded([r, m])) {
-    return null;
-  }
-
-  const activeMemberships = m.data!.filter((m) => m.status === "ACTIVE");
-
-  if (r.data!.length === 0 && activeMemberships.length === 0) {
-    return (
-      <Stack mt={"xl"} justify="center" style={{ minHeight: "60vh" }}>
-        <Title order={titleOrder} mb={"md"}>
-          Clubs
-        </Title>
-        <Stack justify="center" align="center" gap={"xs"} style={{ flex: 1 }}>
-          <DefaultClubImage size={150} />
-          <Title order={3} mt={"lg"}>
-            You are not part of any clubs!
-          </Title>
-          <Text size={"md"}>Join clubs or create one of your own</Text>
-          <Button
-            onClick={() => router.push("/club/create")}
-            mt={"md"}
-            size={"lg"}
-          >
-            Create club
-          </Button>
-        </Stack>
-      </Stack>
-    );
-  }
-
   return (
-    <Stack my={"xl"}>
-      <Title order={titleOrder} mb={"sm"}>
-        Clubs
+    <Stack justify="center" align="center" gap={"xs"} style={{ flex: 1 }}>
+      <DefaultClubImage size={150} />
+      <Title order={3} mt={"lg"}>
+        You are not part of any clubs!
       </Title>
-      {r
-        .data!.sort((c1, c2) => c1.id - c2.id)
+      <Text size={"md"}>Join clubs or create one of your own</Text>
+      <Button onClick={() => router.push("/club/create")} mt={"md"} size={"lg"}>
+        Create club
+      </Button>
+    </Stack>
+  );
+}
+
+type JoinedClubsProps = {
+  ownedClubs: Club[];
+  activeMemberships: Membership[];
+};
+
+function JoinedClubs({ ownedClubs, activeMemberships }: JoinedClubsProps) {
+  return (
+    <Stack>
+      {ownedClubs
+        .sort((c1, c2) => c1.id - c2.id)
         .map((c) => (
           <ClubCard key={c.id} club={c} isOwned={true} membershipId={null} />
         ))}
@@ -187,6 +159,45 @@ export default function Home() {
         </a>{" "}
         one of your own.
       </Text>
+    </Stack>
+  );
+}
+
+export default function Home() {
+  const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
+
+  const r = api.main.userOwnedClubs.useQuery();
+  const m = api.main.userMemberships.useQuery();
+
+  QueryError.check({
+    result: r,
+    fieldName: "userOwnedClubs"
+  });
+
+  QueryError.check({
+    result: m,
+    fieldName: "userMemberships"
+  });
+
+  if (!isAllLoaded([r, m])) {
+    return null;
+  }
+
+  const activeMemberships = m.data!.filter((m) => m.status === "ACTIVE");
+
+  return (
+    <Stack my={"xl"} justify="center" style={{ minHeight: "60vh" }}>
+      <Title order={titleOrder} mb={"sm"}>
+        Clubs
+      </Title>
+      {r.data!.length === 0 && activeMemberships.length === 0 ? (
+        <EmptyClubs />
+      ) : (
+        <JoinedClubs
+          ownedClubs={r.data!}
+          activeMemberships={activeMemberships}
+        />
+      )}
     </Stack>
   );
 }
