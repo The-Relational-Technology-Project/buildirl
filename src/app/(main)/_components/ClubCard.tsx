@@ -13,32 +13,57 @@ import { useRouter } from "next/navigation";
 import ClubImage from "~/client/components/ClubImage";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
-import { Maybe } from "~/utils/types";
 
-type ClubCardProps = {
-  club: Club;
-  isOwned: boolean;
-  // null if isOwned is true
-  membershipId: Maybe<bigint>;
+type ClubStatus = "OWNED" | "JOINED" | "APPLIED";
+
+type ManageButtonProps = {
+  clubId: number;
+  status: ClubStatus;
+  width: number;
 };
 
-export default function ClubCard({
-  club,
-  isOwned,
-  membershipId
-}: ClubCardProps) {
-  // defensive check
-  if (!isOwned && null === membershipId) {
-    throw new Error("require membershipId for unowned club");
-  }
-
-  const isMobile = useMatches({ base: true, md: false });
-  const titleOrder = useMatches<TitleOrder>({ base: 6, md: 4 });
-  const buttonWidth = useMatches({ base: 130, md: 200 });
+function ManageButton({ clubId, status, width }: ManageButtonProps) {
   const manageMembershipText = useMatches({
     base: "Membership",
     md: "Manage Membership"
   });
+  const router = useRouter();
+
+  if (status === "OWNED") {
+    return (
+      <Box>
+        <Button w={width} onClick={() => router.push(`/club/${clubId}/manage`)}>
+          Manage Club
+        </Button>
+      </Box>
+    );
+  }
+  if (status === "JOINED") {
+    return (
+      <Box>
+        <Button
+          w={width}
+          onClick={() => router.push(`/club/${clubId}/manage-membership`)}
+        >
+          {manageMembershipText}
+        </Button>
+      </Box>
+    );
+  }
+
+  // no action button for applied, etc
+  return null;
+}
+
+type ClubCardProps = {
+  club: Club;
+  status: ClubStatus;
+};
+
+export default function ClubCard({ club, status }: ClubCardProps) {
+  const isMobile = useMatches({ base: true, md: false });
+  const titleOrder = useMatches<TitleOrder>({ base: 6, md: 4 });
+  const buttonWidth = useMatches({ base: 130, md: 200 });
 
   const router = useRouter();
 
@@ -74,25 +99,11 @@ export default function ClubCard({
           </Stack>
 
           <Flex direction={{ base: "column", md: "row" }} gap={"xs"}>
-            <Box>
-              {isOwned ? (
-                <Button
-                  w={buttonWidth}
-                  onClick={() => router.push(`/club/${club.id}/manage`)}
-                >
-                  Manage Club
-                </Button>
-              ) : (
-                <Button
-                  w={buttonWidth}
-                  onClick={() =>
-                    router.push(`/club/${club.id}/manage-membership`)
-                  }
-                >
-                  {manageMembershipText}
-                </Button>
-              )}
-            </Box>
+            <ManageButton
+              clubId={club.id}
+              status={status}
+              width={buttonWidth}
+            />
             <Box>
               <Button
                 w={buttonWidth}

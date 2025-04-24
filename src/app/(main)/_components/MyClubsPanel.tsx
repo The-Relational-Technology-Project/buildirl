@@ -23,28 +23,23 @@ function EmptyClubs() {
   );
 }
 
-type JoinedClubsProps = {
+type MyClubsProps = {
   ownedClubs: Club[];
   activeMemberships: Membership[];
 };
 
-function JoinedClubs({ ownedClubs, activeMemberships }: JoinedClubsProps) {
+function MyClubs({ ownedClubs, activeMemberships }: MyClubsProps) {
   return (
     <Stack>
       {ownedClubs
         .sort((c1, c2) => c1.id - c2.id)
         .map((c) => (
-          <ClubCard key={c.id} club={c} isOwned={true} membershipId={null} />
+          <ClubCard key={c.id} club={c} status={"OWNED"} />
         ))}
       {activeMemberships
         .sort((m1, m2) => m1.club.id - m2.club.id)
         .map((m) => (
-          <ClubCard
-            key={m.club.id}
-            club={m.club}
-            isOwned={false}
-            membershipId={m.id}
-          />
+          <ClubCard key={m.club.id} club={m.club} status={"JOINED"} />
         ))}
       <Text
         size={"sm"}
@@ -61,7 +56,7 @@ function JoinedClubs({ ownedClubs, activeMemberships }: JoinedClubsProps) {
   );
 }
 
-export default function JoinedClubsPanel() {
+export default function MyClubsPanel() {
   const r = api.main.userOwnedClubs.useQuery();
   const m = api.main.userMemberships.useQuery();
 
@@ -85,7 +80,5 @@ export default function JoinedClubsPanel() {
     return <EmptyClubs />;
   }
 
-  return (
-    <JoinedClubs ownedClubs={r.data!} activeMemberships={activeMemberships} />
-  );
+  return <MyClubs ownedClubs={r.data!} activeMemberships={activeMemberships} />;
 }
