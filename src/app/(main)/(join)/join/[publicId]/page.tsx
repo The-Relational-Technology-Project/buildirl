@@ -228,7 +228,8 @@ function ContributingMembersLink({
         <Title
           order={1}
           style={{
-            fontFamily: club.themeHeadingFont ?? "inherit"
+            fontFamily: club.themeHeadingFont ?? "inherit",
+            textAlign: "center"
           }}
         >
           We are the club
