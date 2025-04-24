@@ -312,5 +312,31 @@ export const mainRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.service.main.setMembershipAsWelcomed(input.membershipId);
+    }),
+
+  clubFollowers: securedProcedureWithAbilityFor("Club")
+    .input(z.object({ clubId: z.number() }))
+    .query(({ ctx, input }) => {
+      // only club managers can read emails
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.main.getClubFollowers(input.clubId);
+    }),
+
+  userFollowedClubs: securedProcedure.query(({ ctx }) => {
+    return ctx.service.main.getUserFollowedClubs(ctx.user.userId);
+  }),
+
+  followClub: securedProcedure
+    .input(z.object({ clubId: z.number() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.service.main.followClub(ctx.user.userId, input.clubId);
+    }),
+
+  unfollowClub: securedProcedure
+    .input(z.object({ clubId: z.number() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.service.main.unfollowClub(ctx.user.userId, input.clubId);
     })
 });

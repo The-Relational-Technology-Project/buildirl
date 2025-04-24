@@ -14,6 +14,7 @@ export type MainQueries = {
   // top-level
   getUser(id: number): Promise<User>;
   getUserOwnedClubs(userId: number): Promise<Club[]>;
+  getUserFollowedClubs(userId: number): Promise<Club[]>;
   // all memberships, regardless of status
   getUserMemberships(userId: number): Promise<Membership[]>;
   getClubByPublicId(publicId: string): Promise<Club>;
@@ -22,6 +23,7 @@ export type MainQueries = {
     includeEmail: boolean
   ): Promise<Membership[]>;
   getMembershipApplicationsForClub(clubId: number): Promise<Membership[]>;
+  getClubFollowers(clubId: number): Promise<User[]>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   // entities
   getClub(id: number): Promise<Club>;
@@ -132,6 +134,8 @@ export type MainMutations = {
     input: DeactivateMembershipInput
   ): Promise<MutationResult>;
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
+  followClub(userId: number, clubId: number): Promise<MutationResult>;
+  unfollowClub(userId: number, clubId: number): Promise<MutationResult>;
 };
 
 const FIRST_NAME_REGEX = /^[a-zA-Z]+$/;
