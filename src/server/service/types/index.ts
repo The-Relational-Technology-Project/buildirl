@@ -157,8 +157,8 @@ export type MainMutations = {
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
 };
 
-const FIRST_NAME_REGEX = /^[a-zA-Z]+$/;
-const LAST_NAME_REGEX = /^[a-zA-Z-']+$/;
+const FIRST_NAME_REGEX = /^[a-zA-Z,.'-]+$/;
+const LAST_NAME_REGEX = /^[a-zA-Z,.'-]+$/;
 const CLUB_PUBLIC_ID_REGEX = /^[a-zA-Z0-9_-]+$/;
 const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._]{0,29}$/;
 
