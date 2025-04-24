@@ -25,7 +25,11 @@ export default function ClubAbout() {
         <Stack px={{ base: 0, md: "xl" }}>
           <Title order={3}>{r.data!.name}</Title>
           {r.data!.description.length > 0 && (
-            <Text size={"md"} mb={{ base: "sm", md: "lg" }}>
+            <Text 
+              size={"md"} 
+              mb={{ base: "sm", md: "lg" }}
+              style={{ whiteSpace: "pre-line" }}
+            >
               {r.data!.description}
             </Text>
           )}
