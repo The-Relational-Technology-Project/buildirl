@@ -34,19 +34,22 @@ import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 function BasicInfoSection() {
-  const { register, formState: { errors } } = useFormContext<UpdateClubInput>();
+  const {
+    register,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
 
   return (
     <Stack gap={8} mt={4}>
-      <TextInput 
-        required 
-        placeholder="Club name" 
-        {...register("name")} 
+      <TextInput
+        required
+        placeholder="Club name"
+        {...register("name")}
         error={errors.name?.message}
       />
-      <TextInput 
-        placeholder="Tag line" 
-        {...register("tagLine")} 
+      <TextInput
+        placeholder="Tag line"
+        {...register("tagLine")}
         error={errors.tagLine?.message}
       />
       <Textarea
@@ -60,19 +63,22 @@ function BasicInfoSection() {
 }
 
 function LinksSection() {
-  const { register, formState: { errors } } = useFormContext<UpdateClubInput>();
+  const {
+    register,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
 
   return (
     <Stack gap={8} mt={6}>
       <Title order={6}>Links</Title>
-      <TextInput 
-        placeholder="Website link" 
-        {...register("websiteUrl")} 
+      <TextInput
+        placeholder="Website link"
+        {...register("websiteUrl")}
         error={errors.websiteUrl?.message}
       />
-      <TextInput 
-        placeholder="Instagram tag" 
-        {...register("instagramHandle")} 
+      <TextInput
+        placeholder="Instagram tag"
+        {...register("instagramHandle")}
         error={errors.instagramHandle?.message}
       />
       <TextInput
@@ -85,17 +91,20 @@ function LinksSection() {
 }
 
 function ShareLinkSection() {
-  const { register, formState: { errors } } = useFormContext<UpdateClubInput>();
+  const {
+    register,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
 
   return (
     <Stack gap={8} mt={6}>
       <Title order={6}>Share link</Title>
       <Group gap={4} wrap={"nowrap"}>
         <Text size={"sm"}>clubs.buildirl.com/join/</Text>
-        <TextInput 
-          required 
-          placeholder="club-tag" 
-          {...register("publicId")} 
+        <TextInput
+          required
+          placeholder="club-tag"
+          {...register("publicId")}
           error={errors.publicId?.message}
         />
       </Group>
@@ -104,7 +113,7 @@ function ShareLinkSection() {
 }
 
 function ThemeSection() {
-  const { watch, setValue, formState: { errors } } = useFormContext<UpdateClubInput>();
+  const { watch, setValue } = useFormContext<UpdateClubInput>();
   const theme = watch("theme");
 
   return (
@@ -114,15 +123,12 @@ function ThemeSection() {
         value={theme}
         onChange={(newTheme) => setValue("theme", newTheme)}
       />
-      {errors.theme?.message && (
-        <Text c="red" size="sm">{errors.theme.message}</Text>
-      )}
     </Stack>
   );
 }
 
 function FontSection() {
-  const { watch, setValue, formState: { errors } } = useFormContext<UpdateClubInput>();
+  const { watch, setValue } = useFormContext<UpdateClubInput>();
   const font = watch("themeHeadingFont");
 
   return (
@@ -132,9 +138,6 @@ function FontSection() {
         value={font}
         onChange={(newFont) => setValue("themeHeadingFont", newFont)}
       />
-      {errors.themeHeadingFont?.message && (
-        <Text c="red" size="sm">{errors.themeHeadingFont.message}</Text>
-      )}
     </Stack>
   );
 }
@@ -231,7 +234,6 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
     <FormProvider {...methods}>
       <form
         onSubmit={(e) => {
-          e.preventDefault(); // Prevent default form submission
           return methods.handleSubmit(onSubmit)(e);
         }}
       >
