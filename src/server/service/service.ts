@@ -2007,14 +2007,158 @@ export function createMainService(
     }
   }
 
+  async function getUserFollowedClubs(userId: number): Promise<Club[]> {
+    try {
+      const results = await prisma.clubFollowing.findMany({
+        where: {
+          userId: userId
+        },
+        select: {
+          club: {
+            select: CLUB_SELECT
+          }
+        }
+      });
+
+      const clubs = results.map((r) => asClub(r.club));
+      logger.info(
+        `queried followed clubs for user with userId ${userId} with result ${stringify(clubs)}`
+      );
+      return clubs;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query followed clubs for user with userId ${userId}`
+      );
+      throw e;
+    }
+  }
+
+  async function getClubFollowers(clubId: number): Promise<User[]> {
+    try {
+      const results = await prisma.clubFollowing.findMany({
+        where: {
+          clubId: clubId
+        },
+        select: {
+          user: {
+            select: USER_SELECT
+          }
+        }
+      });
+
+      const users = results.map((r) => r.user);
+      logger.info(
+        `queried followers for club with clubId ${clubId} with result ${stringify(users)}`
+      );
+      return users;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query followers for club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
+  async function isUserFollowingClub(
+    userId: number,
+    clubId: number
+  ): Promise<boolean> {
+    try {
+      const count = await prisma.clubFollowing.count({
+        where: {
+          userId: userId,
+          clubId: clubId
+        }
+      });
+
+      return count > 0;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query if user with userId ${userId} is following club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
+  async function followClub(
+    userId: number,
+    clubId: number
+  ): Promise<MutationResult> {
+    if (await isUserFollowingClub(userId, clubId)) {
+      logger.info(
+        `user with userId ${userId} already follows club with clubId ${clubId}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    }
+
+    try {
+      await prisma.clubFollowing.create({
+        data: {
+          userId: userId,
+          clubId: clubId
+        }
+      });
+
+      logger.info(
+        `created club following between user with userId ${userId} and club with clubId ${clubId}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create club following between user with userId ${userId} and club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
+  async function unfollowClub(
+    userId: number,
+    clubId: number
+  ): Promise<MutationResult> {
+    if (!(await isUserFollowingClub(userId, clubId))) {
+      logger.info(
+        `user with userId ${userId} does not follow club with clubId ${clubId}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    }
+
+    try {
+      await prisma.clubFollowing.delete({
+        where: {
+          userId_clubId: {
+            userId,
+            clubId
+          }
+        }
+      });
+
+      logger.info(
+        `deleted club following between user with userId ${userId} and club with clubId ${clubId}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to delete club following between user with userId ${userId} and club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
   return {
     getUser,
     getUserOwnedClubs,
+    getUserFollowedClubs,
     getUserMemberships,
     getClubByPublicId,
     getClub,
     getActiveMembershipsForClub,
     getMembershipApplicationsForClub,
+    getClubFollowers,
     getClubStatistics,
     createUser,
     updateUser,
@@ -2032,6 +2176,8 @@ export function createMainService(
     approveMembershipApplication,
     declineMembershipApplication,
     deactivateMembership,
-    setMembershipAsWelcomed
+    setMembershipAsWelcomed,
+    followClub,
+    unfollowClub
   };
 }
