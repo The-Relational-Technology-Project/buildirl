@@ -23,7 +23,7 @@ export type MainQueries = {
     includeEmail: boolean
   ): Promise<Membership[]>;
   getMembershipApplicationsForClub(clubId: number): Promise<Membership[]>;
-  getClubFollowers(clubId: number): Promise<User[]>;
+  getClubFollowers(clubId: number): Promise<ClubFollower[]>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   // entities
   getClub(id: number): Promise<Club>;
@@ -91,6 +91,12 @@ export type MembershipTier = {
 
 export type ClubStatistics = {
   memberCount: number;
+};
+
+export type ClubFollower = {
+  user: User;
+  email: Email;
+  createdAt: Date;
 };
 
 export type MainMutations = {

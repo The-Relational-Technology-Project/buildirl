@@ -22,7 +22,8 @@ import {
   MembershipStatus,
   Email,
   UpdateClubDisplayImageUrlsInput,
-  DeactivateMembershipInput
+  DeactivateMembershipInput,
+  ClubFollower
 } from "~/server/service/types";
 import {
   FormQuestionsSchema,
@@ -48,7 +49,8 @@ import {
 } from "~/server/service/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailClient } from "~/server/service/email/types";
-import { FAQsSchema } from "~/server/service/types/index";
+import { FAQsSchema } from "~/server/service/types";
+import UserGetPayload = Prisma.UserGetPayload;
 const logger = rootLogger.child({ module: "mainService" });
 
 // TODO it is time soon to break this file down by entities
@@ -2034,7 +2036,22 @@ export function createMainService(
     }
   }
 
-  async function getClubFollowers(clubId: number): Promise<User[]> {
+  async function asClubFollower(
+    r: UserGetPayload<{ select: typeof USER_SELECT }>,
+    createdAt: Date
+  ): Promise<ClubFollower> {
+    const email = await userEmail(r.id);
+    if (!email) {
+      throw new Error(`expected to find email for user ${r.id} but found none`);
+    }
+    return {
+      user: r,
+      email: email,
+      createdAt: createdAt
+    };
+  }
+
+  async function getClubFollowers(clubId: number): Promise<ClubFollower[]> {
     try {
       const results = await prisma.clubFollowing.findMany({
         where: {
@@ -2043,15 +2060,18 @@ export function createMainService(
         select: {
           user: {
             select: USER_SELECT
-          }
+          },
+          createdAt: true
         }
       });
 
-      const users = results.map((r) => r.user);
-      logger.info(
-        `queried followers for club with clubId ${clubId} with result ${stringify(users)}`
+      const followers = await Promise.all(
+        results.map((r) => asClubFollower(r.user, r.createdAt))
       );
-      return users;
+      logger.info(
+        `queried followers for club with clubId ${clubId} with result ${stringify(followers)}`
+      );
+      return followers;
     } catch (e) {
       logger.error(
         e,
