@@ -20,7 +20,11 @@ export default function FollowToggle({
   redirectTo
 }: FollowToggleProps & BoxProps) {
   const router = useRouter();
-  const isAuthenticated = api.main.isUserAuthenticated.useQuery();
+  const isAuthenticated = api.main.isUserAuthenticated.useQuery(undefined, {
+    // we want to ensure when users are redirected back after login that
+    // they immediately have the authenticated follow toggle
+    staleTime: 0
+  });
 
   QueryError.check({
     result: isAuthenticated,
