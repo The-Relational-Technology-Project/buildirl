@@ -1557,6 +1557,10 @@ export function createMainService(
         where: { id: membershipId }
       });
 
+      // accepted members no longer need to be following
+      // external communications
+      await unfollowClubForMembership(membershipId, tx);
+
       await createSubscription(membershipId, tx);
       await notifyMembershipApproved(membershipId, tx);
 
@@ -1564,6 +1568,35 @@ export function createMainService(
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(e, `failed to approve membership with id ${membershipId}`);
+      throw e;
+    }
+  }
+
+  async function unfollowClubForMembership(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getClubIdAndUserIdForMembership(membershipId, tx);
+    await unfollowClubInTransaction(membership.userId, membership.clubId, tx);
+  }
+
+  async function getClubIdAndUserIdForMembership(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<{ userId: number; clubId: number }> {
+    try {
+      const result = await tx.membership.findUniqueOrThrow({
+        select: {
+          userId: true,
+          membershipTier: { select: { clubId: true } }
+        },
+        where: { id: membershipId }
+      });
+
+      logger.info(`queried userId and clubId for ${membershipId}`);
+      return { userId: result.userId, clubId: result.membershipTier.clubId };
+    } catch (e) {
+      logger.error(e, `failed to query userId and clubId for ${membershipId}`);
       throw e;
     }
   }
@@ -2085,8 +2118,18 @@ export function createMainService(
     userId: number,
     clubId: number
   ): Promise<boolean> {
+    return prisma.$transaction(async (tx) => {
+      return isUserFollowingClubInTransaction(userId, clubId, tx);
+    });
+  }
+
+  async function isUserFollowingClubInTransaction(
+    userId: number,
+    clubId: number,
+    tx: Prisma.TransactionClient
+  ) {
     try {
-      const count = await prisma.clubFollowing.count({
+      const count = await tx.clubFollowing.count({
         where: {
           userId: userId,
           clubId: clubId
@@ -2135,11 +2178,18 @@ export function createMainService(
     }
   }
 
-  async function unfollowClub(
+  async function unfollowClub(userId: number, clubId: number) {
+    return prisma.$transaction(async (tx) => {
+      return unfollowClubInTransaction(userId, clubId, tx);
+    });
+  }
+
+  async function unfollowClubInTransaction(
     userId: number,
-    clubId: number
+    clubId: number,
+    tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
-    if (!(await isUserFollowingClub(userId, clubId))) {
+    if (!(await isUserFollowingClubInTransaction(userId, clubId, tx))) {
       logger.info(
         `user with userId ${userId} does not follow club with clubId ${clubId}`
       );
@@ -2147,7 +2197,7 @@ export function createMainService(
     }
 
     try {
-      await prisma.clubFollowing.delete({
+      await tx.clubFollowing.delete({
         where: {
           userId_clubId: {
             userId,
