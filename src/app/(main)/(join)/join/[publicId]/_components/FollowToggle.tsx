@@ -3,7 +3,7 @@
 import { Modal, Text, Box, Stack, Button, BoxProps } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { api } from "~/trpc/react";
-import { isLoaded } from "~/client/utils";
+import { isAllLoaded } from "~/client/utils";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { QueryError } from "~/client/utils/QueryError";
 
@@ -17,13 +17,25 @@ export default function FollowToggle({
 }: FollowToggleProps & BoxProps) {
   const [opened, { open, close }] = useDisclosure(false);
 
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
-  const r = api.main.userFollowedClubs.useQuery();
+  const followedClubs = api.main.userFollowedClubs.useQuery();
+  const ownedClubs = api.main.userOwnedClubs.useQuery();
+  const memberships = api.main.userMemberships.useQuery();
 
   QueryError.check({
-    result: r,
+    result: followedClubs,
     fieldName: "userFollowedClubs"
+  });
+
+  QueryError.check({
+    result: ownedClubs,
+    fieldName: "userOwnedClubs"
+  });
+
+  QueryError.check({
+    result: memberships,
+    fieldName: "userMemberships"
   });
 
   const followMutation = api.main.followClub.useMutation({
@@ -40,11 +52,21 @@ export default function FollowToggle({
     }
   });
 
-  if (!isLoaded(r)) {
+  if (!isAllLoaded([followedClubs, ownedClubs, memberships])) {
     return null;
   }
 
-  const isFollowing = r.data!.some((club) => club.id === clubId);
+  const isOwner = ownedClubs.data!.some((c) => c.id === clubId);
+  const isActiveMember = memberships.data!.some(
+    (m) => m.club.id === clubId && m.status === "ACTIVE"
+  );
+
+  // owners or active members cannot follow the club
+  if (isOwner || isActiveMember) {
+    return null;
+  }
+
+  const isFollowing = followedClubs.data!.some((c) => c.id === clubId);
 
   const handleConfirm = () => {
     if (isFollowing) {

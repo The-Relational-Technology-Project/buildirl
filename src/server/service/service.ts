@@ -2150,6 +2150,9 @@ export function createMainService(
     userId: number,
     clubId: number
   ): Promise<MutationResult> {
+    await checkUserIsNotClubOwner(userId, clubId);
+    await checkUserDoesNotHaveActiveMembershipForClub(userId, clubId);
+
     if (await isUserFollowingClub(userId, clubId)) {
       logger.info(
         `user with userId ${userId} already follows club with clubId ${clubId}`

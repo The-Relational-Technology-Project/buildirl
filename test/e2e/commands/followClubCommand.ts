@@ -23,7 +23,20 @@ export default class FollowClubCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasUsers() && m.hasClubs();
+    return (
+      m.hasUsers() &&
+      m.hasClubs() &&
+      this.userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(m)
+    );
+  }
+
+  private userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(
+    m: Readonly<SystemState>
+  ): boolean {
+    // check ahead for selection, this should be deterministic between check and run
+    const clubId = this.clubIdSelector.select(m.getClubIds());
+    const userId = this.userIdSelector.select(m.getUserIds());
+    return m.userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(userId, clubId);
   }
 
   async run(m: SystemState, r: Services): Promise<void> {
