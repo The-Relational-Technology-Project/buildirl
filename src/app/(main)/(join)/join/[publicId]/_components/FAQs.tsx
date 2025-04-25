@@ -1,18 +1,32 @@
 import { Accordion, Box, Text, Title, Divider, BoxProps } from "@mantine/core";
 import { FAQs as FAQsType } from "~/server/service/types";
+import { Maybe } from "~/utils/types";
 
 type FAQsProps = {
   faqs: FAQsType;
+  themeHeadingFont: Maybe<string>;
 };
 
-export default function FAQs({ faqs, ...props }: FAQsProps & BoxProps) {
+export default function FAQs({
+  faqs,
+  themeHeadingFont,
+  ...props
+}: FAQsProps & BoxProps) {
   if (!faqs.items || faqs.items.length === 0) {
     return null;
   }
 
   return (
     <Box {...props} w={{ base: "300", md: "500" }}>
-      <Title order={2} mb={"lg"} ta="center">
+      <Title
+        order={1}
+        mb={"lg"}
+        ta="center"
+        style={{
+          fontFamily: themeHeadingFont ?? "inherit",
+          textAlign: "center"
+        }}
+      >
         FAQs
       </Title>
       <Accordion>
