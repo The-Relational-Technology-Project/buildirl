@@ -25,6 +25,7 @@ export default function ClubTiers() {
   const isMobile = useMatches({ base: true, md: false });
   const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
   const titleAndCardGap = useMatches({ base: "lg", md: "xl" });
+  const withCarouselControls = useMatches({ base: false, md: true });
   const { colorScheme } = useMantineColorScheme();
   const mounted = useMounted();
 
@@ -62,7 +63,7 @@ export default function ClubTiers() {
             slideSize="33.333333%"
             slideGap="md"
             align="center"
-            withControls={false}
+            withControls={withCarouselControls}
             // we need indicators for mobile because
             // the next and previous card are not visible
             withIndicators={isMobile && publishedTiers.length > 1}
