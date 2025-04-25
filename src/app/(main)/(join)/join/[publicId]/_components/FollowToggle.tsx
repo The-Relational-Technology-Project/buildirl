@@ -3,37 +3,73 @@
 import { Modal, Text, Box, Stack, Button, BoxProps } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { api } from "~/trpc/react";
-import { isAllLoaded } from "~/client/utils";
+import { isAllLoaded, isLoaded } from "~/client/utils";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { QueryError } from "~/client/utils/QueryError";
 import { useRouter } from "next/navigation";
 
-interface FollowToggleProps {
+type FollowToggleProps = {
   clubId: number;
   // the path they will be redirect back to if they are after authentication
   // this should just be the path of the page displaying this toggle
   redirectTo: string;
-}
+};
 
 export default function FollowToggle({
   clubId,
-  redirectTo,
-  ...props
+  redirectTo
 }: FollowToggleProps & BoxProps) {
-  const [opened, { open, close }] = useDisclosure(false);
   const router = useRouter();
-
-  const utils = api.useUtils();
-
   const isAuthenticated = api.main.isUserAuthenticated.useQuery();
-  const followedClubs = api.main.userFollowedClubs.useQuery();
-  const ownedClubs = api.main.userOwnedClubs.useQuery();
-  const memberships = api.main.userMemberships.useQuery();
 
   QueryError.check({
     result: isAuthenticated,
     fieldName: "isUserAuthenticated"
   });
+
+  if (!isLoaded(isAuthenticated)) {
+    return null;
+  }
+
+  return isAuthenticated.data ? (
+    <AuthenticatedFollowToggle clubId={clubId} />
+  ) : (
+    <FollowToggleButton
+      isFollowing={false}
+      onClick={() =>
+        router.push(`/login?redirect=${encodeURIComponent(redirectTo)}`)
+      }
+    />
+  );
+}
+
+type FollowToggleButtonProps = {
+  isFollowing: boolean;
+  onClick: () => void;
+};
+
+function FollowToggleButton({ isFollowing, onClick }: FollowToggleButtonProps) {
+  return (
+    <Button variant={"transparent"} size={"md"} onClick={onClick}>
+      <Text>{isFollowing ? "Unfollow 🚪" : "Curious? 👀 Follow us 🔔"}</Text>
+    </Button>
+  );
+}
+
+type AuthenticatedFollowToggleProps = {
+  clubId: number;
+};
+
+function AuthenticatedFollowToggle({
+  clubId,
+  ...props
+}: AuthenticatedFollowToggleProps & BoxProps) {
+  const [opened, { open, close }] = useDisclosure(false);
+  const utils = api.useUtils();
+
+  const followedClubs = api.main.userFollowedClubs.useQuery();
+  const ownedClubs = api.main.userOwnedClubs.useQuery();
+  const memberships = api.main.userMemberships.useQuery();
 
   QueryError.check({
     result: followedClubs,
@@ -64,7 +100,7 @@ export default function FollowToggle({
     }
   });
 
-  if (!isAllLoaded([isAuthenticated, followedClubs, ownedClubs, memberships])) {
+  if (!isAllLoaded([followedClubs, ownedClubs, memberships])) {
     return null;
   }
 
@@ -80,15 +116,6 @@ export default function FollowToggle({
 
   const isFollowing = followedClubs.data!.some((c) => c.id === clubId);
 
-  const handleToggleClick = () => {
-    if (!isAuthenticated.data) {
-      // redirect them to login
-      router.push(`/login?redirect=${encodeURIComponent(redirectTo)}`);
-    } else {
-      open();
-    }
-  };
-
   const handleConfirm = () => {
     if (isFollowing) {
       unfollowMutation.mutate({ clubId });
@@ -99,9 +126,7 @@ export default function FollowToggle({
 
   return (
     <Box {...props}>
-      <Button variant={"transparent"} size={"md"} onClick={handleToggleClick}>
-        <Text>{isFollowing ? "Unfollow 🚪" : "Curious? 👀 Follow us 🔔"}</Text>
-      </Button>
+      <FollowToggleButton isFollowing={isFollowing} onClick={open} />
 
       <Modal opened={opened} onClose={close} centered>
         <Stack p={"sm"} align={"center"}>
