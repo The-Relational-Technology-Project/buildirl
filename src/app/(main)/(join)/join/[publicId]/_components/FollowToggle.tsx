@@ -6,22 +6,34 @@ import { api } from "~/trpc/react";
 import { isAllLoaded } from "~/client/utils";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { QueryError } from "~/client/utils/QueryError";
+import { useRouter } from "next/navigation";
 
 interface FollowToggleProps {
   clubId: number;
+  // the path they will be redirect back to if they are after authentication
+  // this should just be the path of the page displaying this toggle
+  redirectTo: string;
 }
 
 export default function FollowToggle({
   clubId,
+  redirectTo,
   ...props
 }: FollowToggleProps & BoxProps) {
   const [opened, { open, close }] = useDisclosure(false);
+  const router = useRouter();
 
   const utils = api.useUtils();
 
+  const isAuthenticated = api.main.isUserAuthenticated.useQuery();
   const followedClubs = api.main.userFollowedClubs.useQuery();
   const ownedClubs = api.main.userOwnedClubs.useQuery();
   const memberships = api.main.userMemberships.useQuery();
+
+  QueryError.check({
+    result: isAuthenticated,
+    fieldName: "isUserAuthenticated"
+  });
 
   QueryError.check({
     result: followedClubs,
@@ -52,7 +64,7 @@ export default function FollowToggle({
     }
   });
 
-  if (!isAllLoaded([followedClubs, ownedClubs, memberships])) {
+  if (!isAllLoaded([isAuthenticated, followedClubs, ownedClubs, memberships])) {
     return null;
   }
 
@@ -68,6 +80,15 @@ export default function FollowToggle({
 
   const isFollowing = followedClubs.data!.some((c) => c.id === clubId);
 
+  const handleToggleClick = () => {
+    if (!isAuthenticated.data) {
+      // redirect them to login
+      router.push(`/login?redirect=${encodeURIComponent(redirectTo)}`);
+    } else {
+      open();
+    }
+  };
+
   const handleConfirm = () => {
     if (isFollowing) {
       unfollowMutation.mutate({ clubId });
@@ -78,7 +99,7 @@ export default function FollowToggle({
 
   return (
     <Box {...props}>
-      <Button variant={"transparent"} size={"md"} onClick={open}>
+      <Button variant={"transparent"} size={"md"} onClick={handleToggleClick}>
         <Text>{isFollowing ? "Unfollow 🚪" : "Curious? 👀 Follow us 🔔"}</Text>
       </Button>
 

@@ -193,7 +193,11 @@ export default function ClubJoin() {
             </SecondaryButton>
           )}
 
-          <FollowToggle clubId={r.data!.id} mb={-10} />
+          <FollowToggle
+            clubId={r.data!.id}
+            mb={-10}
+            redirectTo={`/join/${publicId}`}
+          />
 
           <ClubDisplayImageGallery club={r.data!} mt={"xs"} />
 
