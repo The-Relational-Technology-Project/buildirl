@@ -82,7 +82,7 @@ describe("mainService", () => {
   it("should run system", async () => {
     await assert(
       asyncProperty(
-        commands(allCommands(), { size: "medium" }),
+        commands(allCommands(), { size: "large" }),
         async (cmds) => {
           const s = () => ({
             model: new SystemState(),

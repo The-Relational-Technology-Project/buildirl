@@ -38,7 +38,7 @@ type ClubState = {
   description: string;
   ownerUserId: number;
   websiteUrl: Maybe<Url>;
-  instagramHandle: Maybe<InstagramHandle>; 
+  instagramHandle: Maybe<InstagramHandle>;
   eventCalendarUrl: Maybe<Url>;
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
@@ -73,12 +73,15 @@ export class SystemState {
   private readonly clubs: Map<number, ClubState>;
   private readonly membershipTiers: Map<number, MembershipTier>;
   private readonly memberships: Map<bigint, MembershipState>;
+  // clubIds to all following userIds
+  private readonly clubFollowing: Map<number, Set<number>>;
 
   constructor() {
     this.users = new Map();
     this.clubs = new Map();
     this.membershipTiers = new Map();
     this.memberships = new Map();
+    this.clubFollowing = new Map();
   }
 
   // use this only for internal operations as it also contains
@@ -271,6 +274,8 @@ export class SystemState {
 
   public deleteClub(id: number) {
     this.deleteMembershipTiersForClub(id);
+    // cascading delete
+    this.clubFollowing.delete(id);
     this.clubs.delete(id);
   }
 
@@ -622,6 +627,7 @@ export class SystemState {
 
   public approveMembershipApplication(membershipId: bigint) {
     const membershipState = this.getMembershipState(membershipId);
+    this.unfollowClub(membershipState.userId, membershipState.clubId);
     this.memberships.set(membershipId, {
       ...membershipState,
       status: "ACTIVE"
@@ -670,5 +676,64 @@ export class SystemState {
     return Array.from(this.clubs.values())
       .filter((c) => c.hasStripeAccount)
       .map((c) => c.id);
+  }
+
+  public followClub(userId: number, clubId: number) {
+    if (!this.clubFollowing.has(clubId)) {
+      this.clubFollowing.set(clubId, new Set());
+    }
+    this.clubFollowing.get(clubId)!.add(userId);
+  }
+
+  public unfollowClub(userId: number, clubId: number) {
+    if (this.clubFollowing.has(clubId)) {
+      const followers = this.clubFollowing.get(clubId)!;
+      followers.delete(userId);
+
+      if (followers.size === 0) {
+        this.clubFollowing.delete(clubId);
+      }
+    }
+  }
+
+  public hasClubFollowings(): boolean {
+    for (const [, followers] of this.clubFollowing.entries()) {
+      if (followers.size > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public getClubFollowers(
+    clubId: number
+  ): OmitRecursively<User, "createdAt">[] {
+    if (!this.clubFollowing.has(clubId)) {
+      return [];
+    }
+    const followerUserIds = this.clubFollowing.get(clubId)!;
+    return Array.from(followerUserIds).map((userId) => this.getUser(userId));
+  }
+
+  public getUserFollowedClubs(
+    userId: number
+  ): OmitRecursively<Club, "createdAt">[] {
+    const clubIds: number[] = [];
+
+    for (const [clubId, followers] of this.clubFollowing.entries()) {
+      if (followers.has(userId)) {
+        clubIds.push(clubId);
+      }
+    }
+
+    return clubIds.map((clubId) => this.getClub(clubId));
+  }
+
+  public getFollowedClubIds(): number[] {
+    return Array.from(this.clubFollowing.keys());
+  }
+
+  public getFollowingUserIdsForClub(clubId: number): number[] {
+    return [...this.clubFollowing.get(clubId)!];
   }
 }
