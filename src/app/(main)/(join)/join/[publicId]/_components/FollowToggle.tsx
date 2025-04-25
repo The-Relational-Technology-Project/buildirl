@@ -4,7 +4,6 @@ import { Modal, Text, Box, Stack, Button, BoxProps } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
-import SecondaryButton from "~/client/components/SecondaryButton";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { QueryError } from "~/client/utils/QueryError";
 

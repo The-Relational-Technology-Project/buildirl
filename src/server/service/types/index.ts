@@ -144,30 +144,18 @@ export type MainMutations = {
   unfollowClub(userId: number, clubId: number): Promise<MutationResult>;
 };
 
-const FIRST_NAME_REGEX = /^[a-zA-Z,.'-]+$/;
-const LAST_NAME_REGEX = /^[a-zA-Z,.'-]+$/;
 const CLUB_PUBLIC_ID_REGEX = /^[a-zA-Z0-9_-]+$/;
 const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._]{0,29}$/;
 
-export const FirstNameSchema = z
-  .string()
-  .min(1, "Required")
-  .min(2, "Length must be >= 2")
-  .regex(FIRST_NAME_REGEX, "Invalid characters");
-
-export const LastNameSchema = z
-  .string()
-  .min(1, "Required")
-  .min(2, "Length must be >= 2")
-  .regex(LAST_NAME_REGEX, "Invalid characters");
+export const RequiredStringSchema = z.string().min(1, "Required");
 
 export const LongTextSchema = z
   .string()
   .max(2000, "Cannot be more than 2000 characters");
 
 export const CreateUserInputSchema = z.object({
-  firstName: FirstNameSchema,
-  lastName: LastNameSchema,
+  firstName: RequiredStringSchema,
+  lastName: RequiredStringSchema,
   description: LongTextSchema
 });
 export type CreateUserInput = z.infer<typeof CreateUserInputSchema>;

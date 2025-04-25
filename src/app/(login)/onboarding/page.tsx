@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
-import { FirstNameSchema, LastNameSchema } from "~/server/service/types";
+import { RequiredStringSchema } from "~/server/service/types";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
@@ -35,8 +35,8 @@ function CreateUserForm(props: StackProps) {
     validateInputOnChange: true,
 
     validate: {
-      firstName: (v) => safeValidateSchema(FirstNameSchema, v),
-      lastName: (v) => safeValidateSchema(LastNameSchema, v)
+      firstName: (v) => safeValidateSchema(RequiredStringSchema, v),
+      lastName: (v) => safeValidateSchema(RequiredStringSchema, v)
     }
   });
 

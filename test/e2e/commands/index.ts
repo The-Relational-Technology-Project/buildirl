@@ -16,9 +16,8 @@ import CreateUserCommand from "./createUserCommand";
 import {
   ClubNameSchema,
   ClubPublicIdSchema,
-  FirstNameSchema,
-  InstagramHandleSchema,
-  LastNameSchema
+  RequiredStringSchema,
+  InstagramHandleSchema
 } from "~/server/service/types";
 import UpdateUserCommand from "./updateUserCommand";
 import itemSelector from "../utils/itemSelector";
@@ -73,8 +72,8 @@ export const allCommands = () => {
 
 function createUserCommands() {
   return record({
-    firstName: string().filter((s) => isZodType(s, FirstNameSchema)),
-    lastName: string().filter((s) => isZodType(s, LastNameSchema)),
+    firstName: string().filter((s) => isZodType(s, RequiredStringSchema)),
+    lastName: string().filter((s) => isZodType(s, RequiredStringSchema)),
     description: string(),
     authUserId: uuid(),
     authEmail: emailAddress()
