@@ -68,6 +68,23 @@ export async function updateSession(request: NextRequest) {
     return !!result.data;
   }
 
+  // this goes first because if user is logged-in, we always redirect to onboarding
+  // if needed even if they are on a page that doesn't require authentication
+  if (user) {
+    const onboarded = await isOnboarded(user);
+    if (onboarded && request.nextUrl.pathname.startsWith("/onboarding")) {
+      // redirect from onboarding if already onboarded
+      return redirectToRedirectUrlIfItExistsOtherwiseRedirectToRoot();
+    }
+    if (!onboarded && !request.nextUrl.pathname.startsWith("/onboarding")) {
+      // redirect to onboarding if not yet onboarded
+      //
+      // retain query params including redirect url, so we can redirect
+      // the user to their original route after onboarding completion
+      return redirect("/onboarding", {}, true);
+    }
+  }
+
   // do not redirect for these excluded endpoints
   if (startsWith(request.nextUrl.pathname, ["/join", "/user"])) {
     return supabaseResponse;
@@ -89,21 +106,6 @@ export async function updateSession(request: NextRequest) {
   if (user && request.nextUrl.pathname.startsWith("/login")) {
     // redirect from login if already logged in
     return redirectToRedirectUrlIfItExistsOtherwiseRedirectToRoot();
-  }
-
-  if (user) {
-    const onboarded = await isOnboarded(user);
-    if (onboarded && request.nextUrl.pathname.startsWith("/onboarding")) {
-      // redirect from onboarding if already onboarded
-      return redirectToRedirectUrlIfItExistsOtherwiseRedirectToRoot();
-    }
-    if (!onboarded && !request.nextUrl.pathname.startsWith("/onboarding")) {
-      // redirect to onboarding if not yet onboarded
-      //
-      // retain query params including redirect url, so we can redirect
-      // the user to their original route after onboarding completion
-      return redirect("/onboarding", {}, true);
-    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
