@@ -136,12 +136,37 @@ function createVerifiers() {
     ).toEqual(orderByBigIntId(m.getUserMemberships(userId)));
   }
 
+  async function verifyClubFollowers(
+    clubId: number,
+    r: MainService,
+    m: SystemState
+  ) {
+    const followers = await r.getClubFollowers(clubId);
+    expect(
+      // we only compare user not email or createdAt dates
+      orderByNumberId(followers.map((f) => userWithoutCreatedAt(f.user)))
+    ).toEqual(orderByNumberId(m.getClubFollowers(clubId)));
+  }
+
+  async function verifyUserFollowedClubs(
+    userId: number,
+    r: MainService,
+    m: SystemState
+  ) {
+    const followedClubs = await r.getUserFollowedClubs(userId);
+    expect(
+      orderByNumberId(followedClubs.map((c) => clubWithoutCreatedAt(c)))
+    ).toEqual(orderByNumberId(m.getUserFollowedClubs(userId)));
+  }
+
   return {
     verifyUser,
     verifyClub,
     verifyUserOwnedClub,
     verifyClubMemberships,
-    verifyUserMemberships
+    verifyUserMemberships,
+    verifyClubFollowers,
+    verifyUserFollowedClubs
   };
 }
 

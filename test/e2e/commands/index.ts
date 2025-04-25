@@ -43,6 +43,8 @@ import {
 import UpdateClubDisplayImageUrlsCommand from "./updateClubDisplayImageUrlsCommand";
 import SetMembershipAsWelcomedCommand from "./setMembershipAsWelcomedCommand";
 import CreateStripeAccountCommand from "./createStripeAccountCommand";
+import FollowClubCommand from "./followClubCommand";
+import UnfollowClubCommand from "./unfollowClubCommand";
 
 export const allCommands = () => {
   return [
@@ -63,7 +65,9 @@ export const allCommands = () => {
     declineMembershipApplicationCommands(),
     deactivateMembershipCommands(),
     setMembershipAsWelcomedCommands(),
-    createStripeAccountCommands()
+    createStripeAccountCommands(),
+    followClubCommands(),
+    unfollowClubCommands()
   ];
 };
 
@@ -346,4 +350,18 @@ function createStripeAccountCommands() {
   return record({
     clubIdSelector: itemSelector<number>()
   }).map((i) => new CreateStripeAccountCommand(i.clubIdSelector));
+}
+
+function followClubCommands() {
+  return record({
+    clubIdSelector: itemSelector<number>(),
+    userIdSelector: itemSelector<number>()
+  }).map((i) => new FollowClubCommand(i.clubIdSelector, i.userIdSelector));
+}
+
+function unfollowClubCommands() {
+  return record({
+    clubIdSelector: itemSelector<number>(),
+    userIdSelector: itemSelector<number>()
+  }).map((i) => new UnfollowClubCommand(i.clubIdSelector, i.userIdSelector));
 }

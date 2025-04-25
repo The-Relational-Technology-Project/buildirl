@@ -22,7 +22,8 @@ import {
   MembershipStatus,
   Email,
   UpdateClubDisplayImageUrlsInput,
-  DeactivateMembershipInput
+  DeactivateMembershipInput,
+  ClubFollower
 } from "~/server/service/types";
 import {
   FormQuestionsSchema,
@@ -48,7 +49,8 @@ import {
 } from "~/server/service/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailClient } from "~/server/service/email/types";
-import { FAQsSchema } from "~/server/service/types/index";
+import { FAQsSchema } from "~/server/service/types";
+import UserGetPayload = Prisma.UserGetPayload;
 const logger = rootLogger.child({ module: "mainService" });
 
 // TODO it is time soon to break this file down by entities
@@ -1555,6 +1557,10 @@ export function createMainService(
         where: { id: membershipId }
       });
 
+      // accepted members no longer need to be following
+      // external communications
+      await unfollowClubForMembership(membershipId, tx);
+
       await createSubscription(membershipId, tx);
       await notifyMembershipApproved(membershipId, tx);
 
@@ -1562,6 +1568,35 @@ export function createMainService(
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(e, `failed to approve membership with id ${membershipId}`);
+      throw e;
+    }
+  }
+
+  async function unfollowClubForMembership(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getClubIdAndUserIdForMembership(membershipId, tx);
+    await unfollowClubInTransaction(membership.userId, membership.clubId, tx);
+  }
+
+  async function getClubIdAndUserIdForMembership(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<{ userId: number; clubId: number }> {
+    try {
+      const result = await tx.membership.findUniqueOrThrow({
+        select: {
+          userId: true,
+          membershipTier: { select: { clubId: true } }
+        },
+        where: { id: membershipId }
+      });
+
+      logger.info(`queried userId and clubId for ${membershipId}`);
+      return { userId: result.userId, clubId: result.membershipTier.clubId };
+    } catch (e) {
+      logger.error(e, `failed to query userId and clubId for ${membershipId}`);
       throw e;
     }
   }
@@ -2007,14 +2042,193 @@ export function createMainService(
     }
   }
 
+  async function getUserFollowedClubs(userId: number): Promise<Club[]> {
+    try {
+      const results = await prisma.clubFollowing.findMany({
+        where: {
+          userId: userId
+        },
+        select: {
+          club: {
+            select: CLUB_SELECT
+          }
+        }
+      });
+
+      const clubs = results.map((r) => asClub(r.club));
+      logger.info(
+        `queried followed clubs for user with userId ${userId} with result ${stringify(clubs)}`
+      );
+      return clubs;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query followed clubs for user with userId ${userId}`
+      );
+      throw e;
+    }
+  }
+
+  async function asClubFollower(
+    r: UserGetPayload<{ select: typeof USER_SELECT }>,
+    createdAt: Date
+  ): Promise<ClubFollower> {
+    const email = await userEmail(r.id);
+    if (!email) {
+      throw new Error(`expected to find email for user ${r.id} but found none`);
+    }
+    return {
+      user: r,
+      email: email,
+      createdAt: createdAt
+    };
+  }
+
+  async function getClubFollowers(clubId: number): Promise<ClubFollower[]> {
+    try {
+      const results = await prisma.clubFollowing.findMany({
+        where: {
+          clubId: clubId
+        },
+        select: {
+          user: {
+            select: USER_SELECT
+          },
+          createdAt: true
+        }
+      });
+
+      const followers = await Promise.all(
+        results.map((r) => asClubFollower(r.user, r.createdAt))
+      );
+      logger.info(
+        `queried followers for club with clubId ${clubId} with result ${stringify(followers)}`
+      );
+      return followers;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query followers for club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
+  async function isUserFollowingClub(
+    userId: number,
+    clubId: number
+  ): Promise<boolean> {
+    return prisma.$transaction(async (tx) => {
+      return isUserFollowingClubInTransaction(userId, clubId, tx);
+    });
+  }
+
+  async function isUserFollowingClubInTransaction(
+    userId: number,
+    clubId: number,
+    tx: Prisma.TransactionClient
+  ) {
+    try {
+      const count = await tx.clubFollowing.count({
+        where: {
+          userId: userId,
+          clubId: clubId
+        }
+      });
+
+      return count > 0;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query if user with userId ${userId} is following club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
+  async function followClub(
+    userId: number,
+    clubId: number
+  ): Promise<MutationResult> {
+    if (await isUserFollowingClub(userId, clubId)) {
+      logger.info(
+        `user with userId ${userId} already follows club with clubId ${clubId}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    }
+
+    try {
+      await prisma.clubFollowing.create({
+        data: {
+          userId: userId,
+          clubId: clubId
+        }
+      });
+
+      logger.info(
+        `created club following between user with userId ${userId} and club with clubId ${clubId}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create club following between user with userId ${userId} and club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
+  async function unfollowClub(userId: number, clubId: number) {
+    return prisma.$transaction(async (tx) => {
+      return unfollowClubInTransaction(userId, clubId, tx);
+    });
+  }
+
+  async function unfollowClubInTransaction(
+    userId: number,
+    clubId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
+    if (!(await isUserFollowingClubInTransaction(userId, clubId, tx))) {
+      logger.info(
+        `user with userId ${userId} does not follow club with clubId ${clubId}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    }
+
+    try {
+      await tx.clubFollowing.delete({
+        where: {
+          userId_clubId: {
+            userId,
+            clubId
+          }
+        }
+      });
+
+      logger.info(
+        `deleted club following between user with userId ${userId} and club with clubId ${clubId}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to delete club following between user with userId ${userId} and club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
   return {
     getUser,
     getUserOwnedClubs,
+    getUserFollowedClubs,
     getUserMemberships,
     getClubByPublicId,
     getClub,
     getActiveMembershipsForClub,
     getMembershipApplicationsForClub,
+    getClubFollowers,
     getClubStatistics,
     createUser,
     updateUser,
@@ -2032,6 +2246,8 @@ export function createMainService(
     approveMembershipApplication,
     declineMembershipApplication,
     deactivateMembership,
-    setMembershipAsWelcomed
+    setMembershipAsWelcomed,
+    followClub,
+    unfollowClub
   };
 }

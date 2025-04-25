@@ -14,6 +14,7 @@ export type MainQueries = {
   // top-level
   getUser(id: number): Promise<User>;
   getUserOwnedClubs(userId: number): Promise<Club[]>;
+  getUserFollowedClubs(userId: number): Promise<Club[]>;
   // all memberships, regardless of status
   getUserMemberships(userId: number): Promise<Membership[]>;
   getClubByPublicId(publicId: string): Promise<Club>;
@@ -22,6 +23,7 @@ export type MainQueries = {
     includeEmail: boolean
   ): Promise<Membership[]>;
   getMembershipApplicationsForClub(clubId: number): Promise<Membership[]>;
+  getClubFollowers(clubId: number): Promise<ClubFollower[]>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   // entities
   getClub(id: number): Promise<Club>;
@@ -34,29 +36,6 @@ export type User = {
   description: string;
   createdAt: Date;
 };
-
-export const FAQQuestionSchema = z
-  .string()
-  .min(3, "Question must be at least 3 characters")
-  .max(200, "Question cannot exceed 200 characters");
-
-export const FAQAnswerSchema = z
-  .string()
-  .min(3, "Answer must be at least 3 characters")
-  .max(2000, "Answer cannot exceed 2000 characters");
-
-export const FAQSchema = z.object({
-  question: FAQQuestionSchema,
-  answer: FAQAnswerSchema
-});
-
-export type FAQ = z.infer<typeof FAQSchema>;
-
-export const FAQsSchema = z.object({
-  items: z.array(FAQSchema)
-});
-
-export type FAQs = z.infer<typeof FAQsSchema>;
 
 export type Club = {
   id: number;
@@ -114,6 +93,12 @@ export type ClubStatistics = {
   memberCount: number;
 };
 
+export type ClubFollower = {
+  user: User;
+  email: Email;
+  createdAt: Date;
+};
+
 export type MainMutations = {
   createUser(
     input: CreateUserInput,
@@ -155,6 +140,8 @@ export type MainMutations = {
     input: DeactivateMembershipInput
   ): Promise<MutationResult>;
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
+  followClub(userId: number, clubId: number): Promise<MutationResult>;
+  unfollowClub(userId: number, clubId: number): Promise<MutationResult>;
 };
 
 const FIRST_NAME_REGEX = /^[a-zA-Z,.'-]+$/;
@@ -229,6 +216,29 @@ export const CreateClubInputSchema = z.object({
   // additional fields (e.g, themes, faqs, etc) will be defaulted in the backend
 });
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
+
+export const FAQQuestionSchema = z
+  .string()
+  .min(3, "Question must be at least 3 characters")
+  .max(200, "Question cannot exceed 200 characters");
+
+export const FAQAnswerSchema = z
+  .string()
+  .min(3, "Answer must be at least 3 characters")
+  .max(2000, "Answer cannot exceed 2000 characters");
+
+export const FAQSchema = z.object({
+  question: FAQQuestionSchema,
+  answer: FAQAnswerSchema
+});
+
+export type FAQ = z.infer<typeof FAQSchema>;
+
+export const FAQsSchema = z.object({
+  items: z.array(FAQSchema)
+});
+
+export type FAQs = z.infer<typeof FAQsSchema>;
 
 export const UpdateClubInputSchema = z.object({
   name: ClubNameSchema,

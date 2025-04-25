@@ -28,17 +28,18 @@ enum MembershipTierStatus {
 }
 
 model User {
-  id          Int           @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   // internal-only
-  authUserId  String        @unique @map("auth_user_id") @db.Uuid
-  firstName   String        @map("first_name")
-  lastName    String        @map("last_name")
+  authUserId  String          @unique @map("auth_user_id") @db.Uuid
+  firstName   String          @map("first_name")
+  lastName    String          @map("last_name")
   description String
   settings    UserSettings?
   memberships Membership[]
   club        Club[]
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
+  following   ClubFollowing[]
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
 
   // for rls look-ups
   @@index([authUserId])
@@ -74,6 +75,7 @@ model Club {
   displayImageUrls                    String[]         @default([]) @map("display_image_urls")
   faqs                                Json             @map("faqs")
   membershipTiers                     MembershipTier[]
+  following                           ClubFollowing[]
   stripeConnectAccountId              String?          @unique @map("stripe_connect_account_id")
   stripeCustomerPortalConfigurationId String?          @unique @map("stripe_customer_portal_configuration_id")
   createdAt                           DateTime         @default(now()) @map("created_at")
@@ -123,4 +125,18 @@ model Membership {
   @@index([userId])
   @@index([membershipTierId])
   @@map("membership")
+}
+
+model ClubFollowing {
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  clubId    Int      @map("club_id")
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, clubId])
+  @@index([userId])
+  @@index([clubId])
+  @@map("club_following")
 }
