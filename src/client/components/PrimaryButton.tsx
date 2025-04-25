@@ -7,12 +7,14 @@ import { useMounted } from "@mantine/hooks";
 type PrimaryButtonProps = {
   children: React.ReactNode;
   includeIcon?: boolean;
+  color?: string;
   onClick?: (e: React.MouseEvent) => void;
   type?: "submit" | "reset" | "button";
 };
 
 export default function PrimaryButton({
   children,
+  color = "lilac",
   // default no-op
   onClick = () => {},
   includeIcon = false,
@@ -37,7 +39,7 @@ export default function PrimaryButton({
           borderRadius: 360,
           boxShadow: `4px 4px 0px ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`
         }}
-        color={"lilac"}
+        color={color}
         {...props}
       >
         {children}

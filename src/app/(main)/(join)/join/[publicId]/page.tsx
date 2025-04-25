@@ -27,6 +27,7 @@ import PrimaryButton from "~/client/components/PrimaryButton";
 import FAQs from "./_components/FAQs";
 import { useMounted } from "@mantine/hooks";
 import ShareIconButton from "./_components/ShareIconButton";
+import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -191,6 +192,8 @@ export default function ClubJoin() {
               Come to an event
             </SecondaryButton>
           )}
+
+          <FollowToggle clubId={r.data!.id} mb={-10} />
 
           <ClubDisplayImageGallery club={r.data!} mt={"xs"} />
 
