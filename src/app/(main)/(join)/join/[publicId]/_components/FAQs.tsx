@@ -11,8 +11,8 @@ export default function FAQs({ faqs, ...props }: FAQsProps & BoxProps) {
   }
 
   return (
-    <Box {...props}>
-      <Title order={2} mb={24} ta="center">
+    <Box {...props} w={{ base: "300", md: "500" }}>
+      <Title order={2} mb={"lg"} ta="center">
         FAQs
       </Title>
       <Accordion>
@@ -23,7 +23,7 @@ export default function FAQs({ faqs, ...props }: FAQsProps & BoxProps) {
               <Text fw={600}>{faq.question}</Text>
             </Accordion.Control>
             <Accordion.Panel>
-              <Text>{faq.answer}</Text>
+              <Text style={{ whiteSpace: "pre-line" }}>{faq.answer}</Text>
             </Accordion.Panel>
           </Accordion.Item>
         ))}

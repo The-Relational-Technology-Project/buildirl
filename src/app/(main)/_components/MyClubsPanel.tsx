@@ -12,7 +12,7 @@ function EmptyClubs() {
   return (
     <Stack justify="center" align="center" gap={"xs"} mih={"60vh"}>
       <DefaultClubImage size={150} />
-      <Title order={3} mt={"lg"}>
+      <Title order={3} mt={"lg"} style={{ textAlign: "center" }}>
         You are not part of any clubs!
       </Title>
       <Text size={"md"}>Join clubs or create one of your own</Text>
