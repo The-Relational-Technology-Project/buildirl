@@ -3,7 +3,7 @@ import { isAllLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { Button, Stack, Text, Title } from "@mantine/core";
-import { DefaultClubImage } from "~/client/components/ClubImage";
+import { WelcomeImage } from "~/client/components/ClubImage";
 import { Club, Membership } from "~/server/service/types";
 import ClubCard from "~/app/(main)/_components/ClubCard";
 
@@ -11,13 +11,18 @@ function EmptyClubs() {
   const router = useRouter();
   return (
     <Stack justify="center" align="center" gap={"xs"} mih={"60vh"}>
-      <DefaultClubImage size={200} />
+      <WelcomeImage size={200} />
       <Title order={3} mt={"lg"} style={{ textAlign: "center" }}>
-        You are not part of any clubs!
+        You&apos;re not a part of any clubs. Let&apos;s fix that! 🎉
       </Title>
-      <Text size={"md"}>Join clubs or create one of your own</Text>
-      <Button onClick={() => router.push("/club/create")} mt={"md"} size={"lg"}>
-        Create club
+      <Text size={"md"}>Join clubs or build one of your own.</Text>
+      <Button 
+        onClick={() => router.push("/club/create")} 
+        mt={"md"} 
+        size={"lg"}
+        radius="xl"
+      >
+        Build a club
       </Button>
     </Stack>
   );

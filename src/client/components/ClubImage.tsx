@@ -29,6 +29,26 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
   );
 }
 
+export function WelcomeImage({ size }: DefaultClubImageProps) {
+  // Calculate a larger size (1.5x) based on the input size
+  const largerSize = typeof size === 'number' ? size * 1.5 : size;
+  
+  return (
+    <Box w={largerSize} h={largerSize}>
+      <Image
+        h={"100%"}
+        w={"100%"}
+        src={"/images/welcome_hi.svg"}
+        fit={"contain"}
+        alt={"welcome image"}
+        style={{
+          borderRadius: 10
+        }}
+      ></Image>
+    </Box>
+  );
+}
+
 export type ClubImageProps = {
   club: Club;
   size: number;
