@@ -42,7 +42,8 @@ export default function Home() {
         >
           <Tabs.List>
             <Tabs.Tab value={"clubs"}>My Clubs</Tabs.Tab>
-            <Tabs.Tab value={"interested"}>Interested</Tabs.Tab>
+            {/* TODO! change the tab name after the showcase bazaar on 4/30 */}
+            <Tabs.Tab value={"interested"}>Following</Tabs.Tab>
           </Tabs.List>
 
           <Divider />
