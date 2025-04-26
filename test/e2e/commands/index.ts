@@ -16,9 +16,8 @@ import CreateUserCommand from "./createUserCommand";
 import {
   ClubNameSchema,
   ClubPublicIdSchema,
-  FirstNameSchema,
-  InstagramHandleSchema,
-  LastNameSchema
+  RequiredStringSchema,
+  InstagramHandleSchema
 } from "~/server/service/types";
 import UpdateUserCommand from "./updateUserCommand";
 import itemSelector from "../utils/itemSelector";
@@ -43,6 +42,8 @@ import {
 import UpdateClubDisplayImageUrlsCommand from "./updateClubDisplayImageUrlsCommand";
 import SetMembershipAsWelcomedCommand from "./setMembershipAsWelcomedCommand";
 import CreateStripeAccountCommand from "./createStripeAccountCommand";
+import FollowClubCommand from "./followClubCommand";
+import UnfollowClubCommand from "./unfollowClubCommand";
 
 export const allCommands = () => {
   return [
@@ -63,14 +64,16 @@ export const allCommands = () => {
     declineMembershipApplicationCommands(),
     deactivateMembershipCommands(),
     setMembershipAsWelcomedCommands(),
-    createStripeAccountCommands()
+    createStripeAccountCommands(),
+    followClubCommands(),
+    unfollowClubCommands()
   ];
 };
 
 function createUserCommands() {
   return record({
-    firstName: string().filter((s) => isZodType(s, FirstNameSchema)),
-    lastName: string().filter((s) => isZodType(s, LastNameSchema)),
+    firstName: string().filter((s) => isZodType(s, RequiredStringSchema)),
+    lastName: string().filter((s) => isZodType(s, RequiredStringSchema)),
     description: string(),
     authUserId: uuid(),
     authEmail: emailAddress()
@@ -346,4 +349,18 @@ function createStripeAccountCommands() {
   return record({
     clubIdSelector: itemSelector<number>()
   }).map((i) => new CreateStripeAccountCommand(i.clubIdSelector));
+}
+
+function followClubCommands() {
+  return record({
+    clubIdSelector: itemSelector<number>(),
+    userIdSelector: itemSelector<number>()
+  }).map((i) => new FollowClubCommand(i.clubIdSelector, i.userIdSelector));
+}
+
+function unfollowClubCommands() {
+  return record({
+    clubIdSelector: itemSelector<number>(),
+    userIdSelector: itemSelector<number>()
+  }).map((i) => new UnfollowClubCommand(i.clubIdSelector, i.userIdSelector));
 }

@@ -15,7 +15,6 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
-import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
 import { activeMembershipForClub, membershipForClub } from "~/utils/types";
 import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
@@ -28,6 +27,7 @@ import PrimaryButton from "~/client/components/PrimaryButton";
 import FAQs from "./_components/FAQs";
 import { useMounted } from "@mantine/hooks";
 import ShareIconButton from "./_components/ShareIconButton";
+import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -157,9 +157,7 @@ export default function ClubJoin() {
                 {"Read more >"}
               </Text>
 
-              <MemberCountStatistic clubId={r.data!.id} textSize={"md"} />
-
-              <Group>
+              <Group mt={"xs"}>
                 {r.data!.websiteUrl && (
                   <ActionIconBox
                     onClick={() => window.open(`${r.data!.websiteUrl}`)}
@@ -195,13 +193,23 @@ export default function ClubJoin() {
             </SecondaryButton>
           )}
 
+          <FollowToggle
+            clubId={r.data!.id}
+            mb={-10}
+            redirectTo={`/join/${publicId}`}
+          />
+
           <ClubDisplayImageGallery club={r.data!} mt={"xs"} />
 
           <ContributingMembersLink club={r.data!} />
 
           <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
 
-          <FAQs faqs={r.data!.faqs} mt={"lg"} />
+          <FAQs
+            faqs={r.data!.faqs}
+            themeHeadingFont={r.data!.themeHeadingFont}
+            mt={"lg"}
+          />
 
           <Text mt={48}>Powered by BuildIRL</Text>
         </Stack>
@@ -231,7 +239,8 @@ function ContributingMembersLink({
         <Title
           order={1}
           style={{
-            fontFamily: club.themeHeadingFont ?? "inherit"
+            fontFamily: club.themeHeadingFont ?? "inherit",
+            textAlign: "center"
           }}
         >
           We are the club

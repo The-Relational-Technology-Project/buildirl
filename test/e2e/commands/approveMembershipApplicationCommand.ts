@@ -28,8 +28,11 @@ export default class ApproveMembershipApplicationCommand
     m.approveMembershipApplication(this.membershipId);
     const clubId = m.getClubIdForMembership(this.membershipId);
     await verifiers.verifyClubMemberships(clubId, r.main, m);
+    await verifiers.verifyClubFollowers(clubId, r.main, m);
+
     const userId = m.getUserIdForMembership(this.membershipId);
     await verifiers.verifyUserMemberships(userId, r.main, m);
+    await verifiers.verifyUserFollowedClubs(userId, r.main, m);
   }
 
   toString() {

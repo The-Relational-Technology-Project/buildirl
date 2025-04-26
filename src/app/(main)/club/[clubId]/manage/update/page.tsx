@@ -2,14 +2,8 @@
 
 import {
   Club,
-  ClubNameSchema,
-  ClubTagLineSchema,
-  LongTextSchema,
-  UrlSchema,
-  ClubPublicIdSchema,
-  InstagramHandleSchema,
-  FAQsSchema,
-  FAQ
+  UpdateClubInput,
+  UpdateClubInputSchema
 } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import {
@@ -32,9 +26,7 @@ import { isLoaded } from "~/client/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
 import ThemeSelector from "~/app/(main)/club/[clubId]/manage/update/_components/ThemeSelector";
-import { TemplateThemeSchema } from "~/client/theme/templates";
 import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_components/ClubDisplayImageUpload";
-import { z } from "zod";
 import FontSelector from "~/app/(main)/club/[clubId]/manage/update/_components/FontSelector";
 import FAQsSection from "~/app/(main)/club/[clubId]/manage/update/_components/FAQsSection";
 import { IconDeviceFloppy } from "@tabler/icons-react";
@@ -42,53 +34,86 @@ import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 function BasicInfoSection() {
-  const { register } = useFormContext<Club>();
+  const {
+    register,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
 
   return (
     <Stack gap={8} mt={4}>
-      <TextInput required placeholder="Club name" {...register("name")} />
-      <TextInput placeholder="Tag line" {...register("tagLine")} />
+      <TextInput
+        required
+        placeholder="Club name"
+        {...register("name")}
+        error={errors.name?.message}
+      />
+      <TextInput
+        placeholder="Tag line"
+        {...register("tagLine")}
+        error={errors.tagLine?.message}
+      />
       <Textarea
         placeholder="About your club"
         {...register("description")}
         rows={6}
+        error={errors.description?.message}
       />
     </Stack>
   );
 }
 
 function LinksSection() {
-  const { register } = useFormContext<Club>();
+  const {
+    register,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
 
   return (
     <Stack gap={8} mt={6}>
       <Title order={6}>Links</Title>
-      <TextInput placeholder="Website link" {...register("websiteUrl")} />
-      <TextInput placeholder="Instagram tag" {...register("instagramHandle")} />
+      <TextInput
+        placeholder="Website link"
+        {...register("websiteUrl")}
+        error={errors.websiteUrl?.message}
+      />
+      <TextInput
+        placeholder="Instagram tag"
+        {...register("instagramHandle")}
+        error={errors.instagramHandle?.message}
+      />
       <TextInput
         placeholder="Event calendar link (e.g., Luma)"
         {...register("eventCalendarUrl")}
+        error={errors.eventCalendarUrl?.message}
       />
     </Stack>
   );
 }
 
 function ShareLinkSection() {
-  const { register } = useFormContext<Club>();
+  const {
+    register,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
 
   return (
     <Stack gap={8} mt={6}>
       <Title order={6}>Share link</Title>
       <Group gap={4} wrap={"nowrap"}>
         <Text size={"sm"}>clubs.buildirl.com/join/</Text>
-        <TextInput required placeholder="club-tag" {...register("publicId")} />
+        <TextInput
+          required
+          placeholder="club-tag"
+          {...register("publicId")}
+          error={errors.publicId?.message}
+        />
       </Group>
     </Stack>
   );
 }
 
 function ThemeSection() {
-  const { watch, setValue } = useFormContext<Club>();
+  const { watch, setValue } = useFormContext<UpdateClubInput>();
   const theme = watch("theme");
 
   return (
@@ -103,7 +128,7 @@ function ThemeSection() {
 }
 
 function FontSection() {
-  const { watch, setValue } = useFormContext<Club>();
+  const { watch, setValue } = useFormContext<UpdateClubInput>();
   const font = watch("themeHeadingFont");
 
   return (
@@ -135,34 +160,13 @@ interface UpdateClubFormProps {
 }
 
 function UpdateClubForm({ club }: UpdateClubFormProps) {
-  const validationSchema = z.object({
-    publicId: ClubPublicIdSchema,
-    name: ClubNameSchema,
-    tagLine: ClubTagLineSchema,
-    description: LongTextSchema,
-    websiteUrl: z
-      .union([z.literal(""), UrlSchema])
-      .nullable()
-      .transform((v) => (v === null ? "" : v)),
-    instagramHandle: z
-      .union([z.literal(""), InstagramHandleSchema])
-      .nullable()
-      .transform((v) => (v === null ? "" : v)),
-    eventCalendarUrl: z
-      .union([z.literal(""), UrlSchema])
-      .nullable()
-      .transform((v) => (v === null ? "" : v)),
-    theme: TemplateThemeSchema.nullable(),
-    themeHeadingFont: z.string().nullable(),
-    faqs: FAQsSchema
-  });
-
-  const methods = useForm<Club>({
+  const methods = useForm<UpdateClubInput>({
     defaultValues: {
       publicId: club.publicId,
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
+      // transform for input display
       websiteUrl: club.websiteUrl ?? "",
       instagramHandle: club.instagramHandle ?? "",
       eventCalendarUrl: club.eventCalendarUrl ?? "",
@@ -170,8 +174,22 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       themeHeadingFont: club.themeHeadingFont,
       faqs: club.faqs
     },
-    resolver: zodResolver(validationSchema),
-    mode: "onChange"
+    resolver: (data, context, options) => {
+      return zodResolver(UpdateClubInputSchema)(
+        {
+          ...data,
+          // transform empty strings to null before validation
+          websiteUrl: data.websiteUrl === "" ? null : data.websiteUrl,
+          instagramHandle:
+            data.instagramHandle === "" ? null : data.instagramHandle,
+          eventCalendarUrl:
+            data.eventCalendarUrl === "" ? null : data.eventCalendarUrl
+        },
+        context,
+        options
+      );
+    },
+    mode: "onBlur"
   });
 
   const utils = api.useUtils();
@@ -196,7 +214,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       router.push(`/club/${club.id}/manage`);
     },
     onError: (error) => {
-      console.error("Error updating club:", error);
+      console.error("error updating club:", error);
       notifications.show({
         title: "Error",
         message: "Failed to save changes. Please try again.",
@@ -205,24 +223,10 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
     }
   });
 
-  const onSubmit = (values: Club) => {
+  const onSubmit = (values: UpdateClubInput) => {
     updateClub.mutate({
       id: club.id,
-      input: {
-        ...values,
-        // we need to coerce these to null to match server validation
-        websiteUrl: values.websiteUrl === "" ? null : values.websiteUrl,
-        instagramHandle:
-          values.instagramHandle === "" ? null : values.instagramHandle,
-        eventCalendarUrl:
-          values.eventCalendarUrl === "" ? null : values.eventCalendarUrl,
-        faqs: {
-          items: values.faqs.items.map(({ question, answer }: FAQ) => ({
-            question,
-            answer
-          }))
-        }
-      }
+      input: values
     });
   };
 
