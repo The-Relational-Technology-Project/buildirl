@@ -13,9 +13,9 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
       <Image
         h={"100%"}
         w={"100%"}
-        src={"/images/rising-sun.png"}
+        src={"/images/good-club.png"}
         fit={"cover"}
-        alt={"rising sun door"}
+        alt={"club image"}
         style={{
           borderBottomLeftRadius: "10%",
           borderBottomRightRadius: "10%",
@@ -38,7 +38,7 @@ export function WelcomeImage({ size }: DefaultClubImageProps) {
       <Image
         h={"100%"}
         w={"100%"}
-        src={"/images/welcome_hi.svg"}
+        src={"/images/welcome-hi.svg"}
         fit={"contain"}
         alt={"welcome image"}
         style={{
@@ -66,7 +66,7 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
     >
       <Image
         src={storageClient.clubProfileImageUrl(club.id)}
-        fallbackSrc="/images/rising-sun.png"
+        fallbackSrc="/images/good-club.png"
         h={"100%"}
         w={"100%"}
         fit={"cover"}
