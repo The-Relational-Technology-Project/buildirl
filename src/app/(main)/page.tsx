@@ -14,7 +14,7 @@ import {
 import MyClubsPanel from "~/app/(main)/_components/MyClubsPanel";
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AppliedClubsPanel from "~/app/(main)/_components/AppliedClubsPanel";
+import InterestedClubsPanel from "~/app/(main)/_components/InterestedClubsPanel";
 import { useMounted } from "@mantine/hooks";
 
 export default function Home() {
@@ -42,7 +42,7 @@ export default function Home() {
         >
           <Tabs.List>
             <Tabs.Tab value={"clubs"}>My Clubs</Tabs.Tab>
-            <Tabs.Tab value={"applied"}>Applied</Tabs.Tab>
+            <Tabs.Tab value={"interested"}>Interested</Tabs.Tab>
           </Tabs.List>
 
           <Divider />
@@ -51,8 +51,8 @@ export default function Home() {
             <Tabs.Panel value={"clubs"}>
               <MyClubsPanel />
             </Tabs.Panel>
-            <Tabs.Panel value={"applied"}>
-              <AppliedClubsPanel />
+            <Tabs.Panel value={"interested"}>
+              <InterestedClubsPanel />
             </Tabs.Panel>
           </Box>
         </Tabs>

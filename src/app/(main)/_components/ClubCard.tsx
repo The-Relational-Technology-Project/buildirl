@@ -14,7 +14,7 @@ import ClubImage from "~/client/components/ClubImage";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
 
-type ClubStatus = "OWNED" | "JOINED" | "APPLIED";
+type ClubStatus = "OWNED" | "JOINED" | "APPLIED" | "FOLLOWING";
 
 type ManageButtonProps = {
   clubId: number;
@@ -51,7 +51,7 @@ function ManageButton({ clubId, status, width }: ManageButtonProps) {
     );
   }
 
-  // no action button for applied, etc
+  // no action button for applied, following, etc
   return null;
 }
 
@@ -68,7 +68,7 @@ export default function ClubCard({ club, status }: ClubCardProps) {
   const router = useRouter();
 
   return (
-    <Paper p={{ base: "lg", md: "xl" }} h={{ base: 180, md: 220 }}>
+    <Paper p={{ base: "lg", md: "xl" }} h={{ base: 160, md: 220 }}>
       <Flex
         direction={"row"}
         h={"100%"}
