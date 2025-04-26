@@ -22,6 +22,7 @@ import ActiveMembershipTable from "~/app/(main)/club/[clubId]/manage/_components
 import ManageIntakePanel from "~/app/(main)/club/[clubId]/manage/_components/ManageIntakePanel";
 import { useMounted } from "@mantine/hooks";
 import StripeConnectPanel from "~/app/(main)/club/[clubId]/manage/_components/StripeConnectPanel";
+import ClubFollowerTable from "~/app/(main)/club/[clubId]/manage/_components/ClubFollowerTable";
 
 export default function ManageClub() {
   const { colorScheme } = useMantineColorScheme();
@@ -100,6 +101,7 @@ function ManagePeoplePanel({ clubId }: ManagePeoplePanelProps) {
     <Stack gap={0} pb={"xl"}>
       <MembershipApplicationTable clubId={clubId} />
       <ActiveMembershipTable clubId={clubId} />
+      <ClubFollowerTable clubId={clubId} />
     </Stack>
   );
 }
