@@ -65,7 +65,7 @@ function CreateClubForm(props: StackProps) {
           {...form.getInputProps("name")}
         />
         <Title order={6} mt={4}>
-          Choose a share link.
+          Claim your club link.
         </Title>
         <Group gap={4} wrap={"nowrap"}>
           <Text size={"sm"}>clubs.buildirl.com/join/</Text>
@@ -78,8 +78,9 @@ function CreateClubForm(props: StackProps) {
         </Group>
         <Button
           type="submit"
-          w={100}
+          w={150}
           mt={"sm"}
+          radius="xl"
           style={{ alignSelf: "center" }}
           disabled={!form.isValid()}
           loading={createUser.isPending}
@@ -95,7 +96,7 @@ export default function CreateClub() {
   return (
     <AbsoluteCenter adjustForHeader>
       <Paper p="xl" w={{ base: 300, md: 400 }}>
-        <Title order={4}>Create a club</Title>
+        <Title order={4}>Build a club</Title>
         <CreateClubForm mt={"md"} />
       </Paper>
     </AbsoluteCenter>
