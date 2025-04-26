@@ -11,7 +11,6 @@ import {
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import ClubImage from "~/client/components/ClubImage";
-import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import { Club } from "~/server/service/types";
 
 type ClubStatus = "OWNED" | "JOINED" | "APPLIED" | "FOLLOWING";
@@ -93,7 +92,6 @@ export default function ClubCard({ club, status }: ClubCardProps) {
                 >
                   {club.tagLine}
                 </Text>
-                <MemberCountStatistic clubId={club.id} />
               </>
             )}
           </Stack>
