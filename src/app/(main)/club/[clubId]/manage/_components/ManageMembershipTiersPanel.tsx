@@ -200,7 +200,7 @@ export function ManageMembershipTierCard({
 
         <Stack style={{ overflowY: "auto" }}>
           <Stack gap={4}>
-            <Title order={6}>Benefits</Title>
+            <Title order={6}>Our member experience</Title>
             <Box mih={60}>
               {membershipTier.benefitDescription === "" ? (
                 <AlertMessage
@@ -213,7 +213,7 @@ export function ManageMembershipTierCard({
             </Box>
 
             <Stack gap={4} mt={4}>
-              <Title order={6}>Contributions</Title>
+              <Title order={6}>Your contribution is key!</Title>
               <Box mih={60}>
                 {membershipTier.contributionDescription === "" ? (
                   <AlertMessage
