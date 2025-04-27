@@ -120,7 +120,7 @@ export default function ClubJoin() {
           <Box
             style={{
               position: "absolute",
-              top: 20,
+              top:60,
               right: shareButtonRightPosition
             }}
           >
