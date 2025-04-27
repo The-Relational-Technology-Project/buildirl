@@ -306,7 +306,7 @@ function ApplicationForm({
       <HideablePaper hidden={totalQuestions === 1}>
         <Stepper
           color="lilac"
-          active={activeStep}
+          active={activeStep + 1}
           hidden={totalQuestions === 1}
           // hacky way to get the stepper to look like a bar!
           styles={{

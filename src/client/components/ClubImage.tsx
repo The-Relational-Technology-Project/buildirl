@@ -29,6 +29,23 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
   );
 }
 
+export function FitCheckImage({ size }: DefaultClubImageProps) {
+  // Calculate a larger size (1.2x) based on the input size to give more space for the image
+  const imageSize = typeof size === 'number' ? size * 1.2 : size;
+  
+  return (
+    <Box w={imageSize} h={imageSize}>
+      <Image
+        h={"100%"}
+        w={"100%"}
+        src={"/images/let-see-if-we-are-fit-image.svg"}
+        fit={"contain"}
+        alt={"let's see if we're a fit image"}
+      ></Image>
+    </Box>
+  );
+}
+
 export function WelcomeImage({ size }: DefaultClubImageProps) {
   // Calculate a larger size (1.5x) based on the input size
   const largerSize = typeof size === 'number' ? size * 1.5 : size;
