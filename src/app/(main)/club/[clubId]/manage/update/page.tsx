@@ -71,22 +71,39 @@ function LinksSection() {
 
   return (
     <Stack gap={8} mt={6}>
-      <Title order={6}>Links</Title>
+      <Title order={6}>Club Social Links</Title>
       <TextInput
         placeholder="Website link"
         {...register("websiteUrl")}
         error={errors.websiteUrl?.message}
       />
-      <TextInput
-        placeholder="Instagram tag"
-        {...register("instagramHandle")}
-        error={errors.instagramHandle?.message}
-      />
-      <TextInput
-        placeholder="Event calendar link (e.g., Luma)"
-        {...register("eventCalendarUrl")}
-        error={errors.eventCalendarUrl?.message}
-      />
+      <Stack gap={4}>
+        <Group gap={0} wrap="nowrap">
+          <Text size={"sm"} style={{ background: "#f1f3f5", padding: "8px 8px", borderRadius: "4px 0 0 4px", border: "1px solid #ced4da", borderRight: "none" }}>
+            instagram.com/
+          </Text>
+          <TextInput
+            placeholder="username"
+            style={{ flex: 1 }}
+            styles={{
+              input: {
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+              }
+            }}
+            {...register("instagramHandle")}
+            error={errors.instagramHandle?.message}
+          />
+        </Group>
+      </Stack>
+      <Stack gap={4} mt={6}>
+        <Title order={6}>Share Your Club&apos;s Events</Title>
+        <TextInput
+          placeholder="Event calendar or next gathering, (e.g. Luma, Partiful, Eventbrite, etc.)"
+          {...register("eventCalendarUrl")}
+          error={errors.eventCalendarUrl?.message}
+        />
+      </Stack>
     </Stack>
   );
 }
@@ -99,12 +116,21 @@ function ShareLinkSection() {
 
   return (
     <Stack gap={8} mt={6}>
-      <Title order={6}>Share link</Title>
-      <Group gap={4} wrap={"nowrap"}>
-        <Text size={"sm"}>clubs.buildirl.com/join/</Text>
+      <Title order={6}>Club Link</Title>
+      <Group gap={0} wrap={"nowrap"}>
+        <Text size={"sm"} style={{ background: "#f1f3f5", padding: "8px 8px", borderRadius: "4px 0 0 4px", border: "1px solid #ced4da", borderRight: "none" }}>
+          clubs.buildirl.com/join/
+        </Text>
         <TextInput
           required
           placeholder="club-tag"
+          style={{ flex: 1 }}
+          styles={{
+            input: {
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: 0,
+            }
+          }}
           {...register("publicId")}
           error={errors.publicId?.message}
         />
@@ -150,7 +176,7 @@ interface ShowcaseImagesSectionProps {
 function ShowcaseImagesSection({ club }: ShowcaseImagesSectionProps) {
   return (
     <Stack gap={8} mt={6}>
-      <Title order={6}>Showcase Images</Title>
+      <Title order={6}>Showcase Photos</Title>
       <ClubImageUploader club={club} />
     </Stack>
   );
