@@ -9,13 +9,15 @@ import {
   Text,
   Title,
   useMatches,
-  Anchor
+  Anchor,
+  Box
 } from "@mantine/core";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import AlertMessage from "~/client/components/AlertMessage";
 import ClubImage from "~/client/components/ClubImage";
+import ShareButton from "./ShareButton";
 
 type ClubOverviewPanelProps = {
   club: Club;
@@ -43,11 +45,20 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
           justify={"flex-start"}
           align={{ base: "center", md: "stretch" }}
           gap={40}
+          style={{ position: "relative" }}
         >
           <Box style={{ alignSelf: "center" }}>
             <ClubImage club={club} size={clubImageSize} />
           </Box>
           <Stack justify={"space-between"} style={{ flex: 1 }}>
+            <Box style={{ position: "absolute", top: 0, right: 0, zIndex: 1 }}>
+              <ShareButton 
+                clubPublicId={club.publicId}
+                clubName={club.name}
+                size="sm"
+              />
+            </Box>
+            
             <Stack gap={6}>
               <Title order={4}>Club Details</Title>
               <Title order={5} mt={6}>
