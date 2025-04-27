@@ -8,9 +8,10 @@ import {
   Stack,
   Text,
   Title,
-  useMatches
+  useMatches,
+  Anchor
 } from "@mantine/core";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import AlertMessage from "~/client/components/AlertMessage";
@@ -22,6 +23,8 @@ type ClubOverviewPanelProps = {
 
 export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
   const router = useRouter();
+  const [memberCount, setMemberCount] = useState<number | null>(null);
+  
   const editButtonText = useMatches({
     base: "Edit Page",
     md: "Edit Club Page"
@@ -55,13 +58,24 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
               <Title order={5}>Tagline</Title>
               {club.tagLine === "" ? (
                 <AlertMessage
-                  message={"Please enter tagline and other basic information."}
+                  message={"Please add tagline and basic information."}
                 />
               ) : (
                 <Text>{club.tagLine}</Text>
               )}
 
-              <MemberCountStatistic clubId={club.id} mt={"sm"} />
+              <MemberCountStatistic 
+                clubId={club.id} 
+                mt={"sm"} 
+                onMemberCountChange={setMemberCount}
+              />
+              
+              {memberCount === 1 && (
+                <AlertMessage
+                  message={"Customize your membership tiers and intake tabs, then share your club link to invite your first members."}
+                  mt={4}
+                />
+              )}
             </Stack>
             <Group grow>
               <Button
@@ -79,6 +93,15 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
             </Group>
           </Stack>
         </Flex>
+      </Paper>
+      
+      <Paper p="lg" mb={20}>
+        <Stack gap="xs">
+          <Title order={5}>Getting Started?</Title>
+          <Text>
+            Check out our <Anchor href="https://www.notion.so/buildirl/guide" target="_blank">quick set up guide</Anchor>.
+          </Text>
+        </Stack>
       </Paper>
     </Stack>
   );
