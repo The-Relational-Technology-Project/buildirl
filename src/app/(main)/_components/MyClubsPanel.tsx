@@ -2,10 +2,11 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
-import { Button, Stack, Text, Title } from "@mantine/core";
+import { Button, Stack, Text, Title, Box } from "@mantine/core";
 import { WelcomeImage } from "~/client/components/ClubImage";
 import { Club, Membership } from "~/server/service/types";
 import ClubCard from "~/app/(main)/_components/ClubCard";
+import PrimaryButton from "~/client/components/PrimaryButton";
 
 function EmptyClubs() {
   const router = useRouter();
@@ -34,6 +35,7 @@ type MyClubsProps = {
 };
 
 function MyClubs({ ownedClubs, activeMemberships }: MyClubsProps) {
+  const router = useRouter();
   return (
     <Stack>
       {ownedClubs
@@ -46,17 +48,16 @@ function MyClubs({ ownedClubs, activeMemberships }: MyClubsProps) {
         .map((m) => (
           <ClubCard key={m.club.id} club={m.club} status={"JOINED"} />
         ))}
-      <Text
-        size={"sm"}
-        style={{ alignSelf: "center", textAlign: "center" }}
-        mt={10}
-      >
-        {"Join a club or "}
-        <a href="/club/create" style={{ color: "inherit" }}>
-          create
-        </a>{" "}
-        one of your own.
-      </Text>
+      <Box mt={10} style={{ alignSelf: "center" }}>
+        <PrimaryButton
+          onClick={() => router.push("/club/create")}
+          size={"lg"}
+          color="violet"
+          includeIcon
+        >
+          Build a club
+        </PrimaryButton>
+      </Box>
     </Stack>
   );
 }
