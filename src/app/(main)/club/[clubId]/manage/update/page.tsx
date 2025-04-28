@@ -160,38 +160,6 @@ interface UpdateClubFormProps {
 }
 
 function UpdateClubForm({ club }: UpdateClubFormProps) {
-  const methods = useForm<UpdateClubInput>({
-    defaultValues: {
-      publicId: club.publicId,
-      name: club.name,
-      tagLine: club.tagLine,
-      description: club.description,
-      // transform for input display
-      websiteUrl: club.websiteUrl ?? "",
-      instagramHandle: club.instagramHandle ?? "",
-      eventCalendarUrl: club.eventCalendarUrl ?? "",
-      theme: club.theme,
-      themeHeadingFont: club.themeHeadingFont,
-      faqs: club.faqs
-    },
-    resolver: (data, context, options) => {
-      return zodResolver(UpdateClubInputSchema)(
-        {
-          ...data,
-          // transform empty strings to null before validation
-          websiteUrl: data.websiteUrl === "" ? null : data.websiteUrl,
-          instagramHandle:
-            data.instagramHandle === "" ? null : data.instagramHandle,
-          eventCalendarUrl:
-            data.eventCalendarUrl === "" ? null : data.eventCalendarUrl
-        },
-        context,
-        options
-      );
-    },
-    mode: "onBlur"
-  });
-
   const utils = api.useUtils();
   const router = useRouter();
 
@@ -230,6 +198,42 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
     });
   };
 
+  const methods = useForm<UpdateClubInput>({
+    defaultValues: {
+      publicId: club.publicId,
+      name: club.name,
+      tagLine: club.tagLine,
+      description: club.description,
+      // transform for input display
+      websiteUrl: club.websiteUrl ?? "",
+      instagramHandle: club.instagramHandle ?? "",
+      eventCalendarUrl: club.eventCalendarUrl ?? "",
+      theme: club.theme,
+      themeHeadingFont: club.themeHeadingFont,
+      faqs: club.faqs
+    },
+    resolver: (data, context, options) => {
+      return zodResolver(UpdateClubInputSchema)(
+        {
+          ...data,
+          // transform empty strings to null before validation
+          websiteUrl: data.websiteUrl === "" ? null : data.websiteUrl,
+          instagramHandle:
+            data.instagramHandle === "" ? null : data.instagramHandle,
+          eventCalendarUrl:
+            data.eventCalendarUrl === "" ? null : data.eventCalendarUrl
+        },
+        context,
+        options
+      );
+    },
+    mode: "onBlur"
+  });
+
+  const {
+    formState: { errors }
+  } = methods;
+
   return (
     <FormProvider {...methods}>
       <form
@@ -261,7 +265,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
             <Button
               w={100}
               type="submit"
-              disabled={updateClub.isPending}
+              disabled={Object.keys(errors).length > 0}
               loading={updateClub.isPending}
               leftSection={<IconDeviceFloppy size={16} />}
             >
