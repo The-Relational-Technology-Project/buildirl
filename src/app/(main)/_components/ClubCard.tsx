@@ -63,6 +63,7 @@ export default function ClubCard({ club, status }: ClubCardProps) {
   const isMobile = useMatches({ base: true, md: false });
   const titleOrder = useMatches<TitleOrder>({ base: 6, md: 4 });
   const buttonWidth = useMatches({ base: 130, md: 200 });
+  const clubImageSize = useMatches({ base: 110, md: 120 });
 
   const router = useRouter();
 
@@ -75,7 +76,7 @@ export default function ClubCard({ club, status }: ClubCardProps) {
         align={"center"}
         gap={{ base: 0, md: "md" }}
       >
-        <ClubImage club={club} size={{ base: 110, md: 120 }} />
+        <ClubImage club={club} size={clubImageSize} />
 
         <Stack h={"100%"} justify="space-between" ml={{ base: "lg", md: "xl" }}>
           <Stack gap={6}>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { type Maybe } from "~/utils/types";
-import { ActionIcon, Box, BoxProps, FileInput, StyleProp } from "@mantine/core";
+import { ActionIcon, Box, BoxProps, FileInput } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
 import createStorageClient from "~/client/utils/storageClient";
 import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
@@ -10,7 +10,7 @@ import { logger, notifyError } from "~/client/logger";
 
 type EditableClubImageProps = {
   club: Club;
-  size: StyleProp<React.CSSProperties["width"]>;
+  size: number;
 };
 
 export default function EditableClubImage({
@@ -42,7 +42,7 @@ export default function EditableClubImage({
 
   return (
     <Box w={size} h={size} p={8} style={{ position: "relative" }} {...props}>
-      <ClubImage club={club} size={"100%"} key={imageVersion} />
+      <ClubImage club={club} size={size} key={imageVersion} />
       <FileInput
         accept="image/*"
         id={"club-profile-picture-input"}

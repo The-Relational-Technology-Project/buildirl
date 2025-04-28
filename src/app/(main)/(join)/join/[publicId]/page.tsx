@@ -82,6 +82,7 @@ function WithRedirectToWelcomePage({
 export default function ClubJoin() {
   const mounted = useMounted();
   const shareButtonRightPosition = useMatches({ base: -12, md: 120 });
+  const clubImageSize = useMatches({ base: 320, md: 360 });
 
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
@@ -129,7 +130,7 @@ export default function ClubJoin() {
             />
           </Box>
 
-          <ClubImage club={r.data!} size={{ base: 320, md: 360 }} />
+          <ClubImage club={r.data!} size={clubImageSize} />
 
           <Stack align={"center"} gap={0} mb={8}>
             <Title

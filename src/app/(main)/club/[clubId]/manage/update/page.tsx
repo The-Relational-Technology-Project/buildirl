@@ -15,7 +15,8 @@ import {
   TextInput,
   Title,
   Box,
-  Divider
+  Divider,
+  useMatches
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import EditableClubImage from "~/client/components/EditableClubImage";
@@ -160,6 +161,7 @@ interface UpdateClubFormProps {
 }
 
 function UpdateClubForm({ club }: UpdateClubFormProps) {
+  const clubImageSize = useMatches({ base: 180, md: 300 });
   const utils = api.useUtils();
   const router = useRouter();
 
@@ -244,7 +246,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
         <Stack gap={16}>
           <EditableClubImage
             club={club}
-            size={{ base: 180, md: 300 }}
+            size={clubImageSize}
             style={{
               alignSelf: "center",
               position: "relative"
