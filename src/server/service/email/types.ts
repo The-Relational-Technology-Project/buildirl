@@ -45,6 +45,7 @@ export type NotifyMembershipApprovedInput = {
 
 export type NotifyMembershipDeclinedInput = {
   membershipId: bigint;
+  memberFirstName: string;
   clubName: string;
 };
 

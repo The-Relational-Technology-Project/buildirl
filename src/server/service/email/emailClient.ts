@@ -9,6 +9,8 @@ import {
 } from "./types";
 import { Email } from "../types";
 import { rootLogger } from "~/logger";
+import fs from "fs";
+import path from "path";
 
 const logger = rootLogger.child({ module: "emailClient" });
 
@@ -25,12 +27,12 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
         from: FROM_EMAIL,
         to: sendTo,
         subject: "A membership application was submitted! 🎉",
-        text: `${input.memberFirstName} ${input.memberLastName} has submitted their membership application for ${input.clubName}. 
-        Review their application in the membership dashboard at ${managePeopleDashboardUrl}`,
+        text: `${input.memberFirstName} ${input.memberLastName} just applied to join ${input.clubName} Club. 
+        Review their application and see if they are a fit: ${managePeopleDashboardUrl}`,
         html: `
           <div>
-            <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> has submitted their membership application for <strong>${input.clubName}</strong>.</p>
-            <p>Review their application in the <a href="${managePeopleDashboardUrl}">membership dashboard</a>.</p>
+            <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> just applied to join <strong>${input.clubName} Club</strong>.</p>
+            <p><a href="${managePeopleDashboardUrl}">Review their application</a> and see if they are a fit.</p>
           </div>
         `
       });
@@ -52,18 +54,45 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   ): Promise<void> {
     try {
       const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
+      
+      // Get path to the celebration image
+      const imagePath = path.join(process.cwd(), 'public', 'images', 'you-are-in-hands-clapping.jpeg');
+      let imageAttachment = null;
+      
+      // Try to read the image file
+      try {
+        const imageContent = fs.readFileSync(imagePath);
+        imageAttachment = {
+          filename: 'celebration.jpeg',
+          content: imageContent,
+          cid: 'membership-approved-image'  // Content ID to reference in HTML
+        };
+      } catch (fileError) {
+        // Log error but continue sending the email without the image
+        logger.error(
+          fileError,
+          `Failed to read celebration image for membership approval email. Will send without image.`
+        );
+      }
+      
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: `Your membership application has been accepted! 🎉`,
-        text: `Welcome to ${input.clubName}, ${input.memberFirstName} ${input.memberLastName}!\n\n
-        Visit us at ${joinPageUrl}`,
+        subject: `You're in! Welcome to Our Club! 🎉`,
+        text: `Hey ${input.memberFirstName} — amazing news: you're officially a member of ${input.clubName} Club! 🎉\n\n
+        We're hyped to have you! 🥳\n\n
+        👉 Click here to see more! ${joinPageUrl}`,
         html: `
           <div>
-            <p>Welcome to <strong>${input.clubName}</strong>, ${input.memberFirstName} ${input.memberLastName}!</p>
-            <p>Click <a href="${joinPageUrl}">here</a> to see more!</p>
+            <p>Hey <strong>${input.memberFirstName}</strong> — amazing news: you're officially a member of <strong>${input.clubName} Club</strong>! 🎉</p>
+            <p>We're hyped to have you! 🥳</p>
+            <p>👉 <a href="${joinPageUrl}">Click here to see more!</a></p>
+            ${imageAttachment ? `<div style="text-align: center; margin-top: 20px;">
+              <img src="cid:membership-approved-image" alt="You're in! Celebration image" style="width: 350px; max-width: 100%; border-radius: 8px;" />
+            </div>` : ''}
           </div>
-        `
+        `,
+        attachments: imageAttachment ? [imageAttachment] : []
       });
 
       logger.info(
@@ -85,13 +114,15 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: `Sorry, your application was not accepted 😔`,
-        text: `Unfortunately, your application to ${input.clubName} was not accepted as this time. 
-        You will not be charged if you submitted payment details.`,
+        subject: `Sorry, your application was not accepted this time`,
+        text: `Hey ${input.memberFirstName} — thanks for applying to the ${input.clubName} Club. 
+        We couldn't accept your application this time. 💌 Plenty more clubs to explore — go find your people.
+        P.S. If you shared payment info, no worries — you won't be charged.`,
         html: `
           <div>
-            <p>Unfortunately, your application to <strong>${input.clubName}</strong> was not accepted at this time.</p>
-            <p>You will not be charged if you submitted payment details.</p>
+            <p>Hey <strong>${input.memberFirstName}</strong> — thanks for applying to the <strong>${input.clubName} Club</strong>.</p>
+            <p>We couldn't accept your application this time. 💌 Plenty more clubs to explore — go find your people.</p>
+            <p>P.S. If you shared payment info, no worries — you won't be charged.</p>
           </div>
         `
       });
@@ -116,14 +147,15 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: "A membership was deactivated",
-        text: `${input.memberFirstName} ${input.memberLastName} has deactivated their membership for ${input.clubName}. 
-        Your club will no longer received contributions from them. See membership dashboard at ${managePeopleDashboardUrl}`,
+        subject: "A member just left your club 👋",
+        text: `${input.memberFirstName} just deactivated their membership from ${input.clubName} Club. 
+        Your club won't receive contributions from them anymore. Don't forget to bid them a warm goodbye. 🫶 👉Check membership dashboard for more details ${managePeopleDashboardUrl}`,
         html: `
           <div>
-            <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> has deactivated their membership for <strong>${input.clubName}</strong>.</p>
-            <p>Your club will no longer receive contributions from them.</p>
-            <p>Review <a href="${managePeopleDashboardUrl}">membership dashboard</a>.</p>
+            <p><strong>${input.memberFirstName}</strong> just deactivated their membership from <strong>${input.clubName} Club</strong>.</p>
+            <p>Your club won't receive contributions from them anymore.</p>
+            <p>Don't forget to bid them a warm goodbye. 🫶</p>
+            <p>👉Check <a href="${managePeopleDashboardUrl}">membership dashboard</a> for more details.</p>
           </div>
         `
       });
