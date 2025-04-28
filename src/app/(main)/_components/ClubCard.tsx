@@ -63,7 +63,7 @@ export default function ClubCard({ club, status }: ClubCardProps) {
   const isMobile = useMatches({ base: true, md: false });
   const titleOrder = useMatches<TitleOrder>({ base: 6, md: 4 });
   const buttonWidth = useMatches({ base: 130, md: 200 });
-  const clubImageSize = useMatches({ base: 110, md: 120 });
+  const clubImageSize = useMatches({ base: 120, md: 200 });
 
   const router = useRouter();
 
