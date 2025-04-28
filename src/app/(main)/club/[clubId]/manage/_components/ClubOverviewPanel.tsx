@@ -12,12 +12,12 @@ import {
   Anchor,
   Box
 } from "@mantine/core";
-import React, { useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import AlertMessage from "~/client/components/AlertMessage";
 import ClubImage from "~/client/components/ClubImage";
 import ShareButton from "./ShareButton";
+import ClubMembershipInfo from "./ClubMembershipInfo";
 
 type ClubOverviewPanelProps = {
   club: Club;
@@ -25,7 +25,6 @@ type ClubOverviewPanelProps = {
 
 export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
   const router = useRouter();
-  const [memberCount, setMemberCount] = useState<number | null>(null);
   
   const editButtonText = useMatches({
     base: "Edit Page",
@@ -75,18 +74,10 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
                 <Text>{club.tagLine}</Text>
               )}
 
-              <MemberCountStatistic 
+              <ClubMembershipInfo 
                 clubId={club.id} 
                 mt={"sm"} 
-                onMemberCountChange={setMemberCount}
               />
-              
-              {memberCount === 1 && (
-                <AlertMessage
-                  message={"Customize your membership tiers and intake tabs, then share your club link to invite your first members."}
-                  mt={4}
-                />
-              )}
             </Stack>
             <Group grow>
               <Button

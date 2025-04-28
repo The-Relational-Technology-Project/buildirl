@@ -2,7 +2,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
-import { Button, Stack, Text, Title, Box } from "@mantine/core";
+import { Stack, Text, Title, Box } from "@mantine/core";
 import { WelcomeImage } from "~/client/components/ClubImage";
 import { Club, Membership } from "~/server/service/types";
 import ClubCard from "~/app/(main)/_components/ClubCard";
@@ -14,17 +14,16 @@ function EmptyClubs() {
     <Stack justify="center" align="center" gap={"xs"} mih={"60vh"}>
       <WelcomeImage size={200} />
       <Title order={3} mt={"lg"} style={{ textAlign: "center" }}>
-        You&apos;re not a part of any clubs. Let&apos;s fix that! 🎉
+        {"You're not a part of any clubs. Let's fix that! 🎉"}
       </Title>
       <Text size={"md"}>Join clubs or build one of your own.</Text>
-      <Button 
+      <PrimaryButton 
         onClick={() => router.push("/club/create")} 
         mt={"md"} 
         size={"lg"}
-        radius="xl"
       >
         Build a club
-      </Button>
+      </PrimaryButton>
     </Stack>
   );
 }
@@ -52,7 +51,6 @@ function MyClubs({ ownedClubs, activeMemberships }: MyClubsProps) {
         <PrimaryButton
           onClick={() => router.push("/club/create")}
           size={"lg"}
-          color="violet"
           includeIcon
         >
           Build a club
