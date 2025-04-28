@@ -41,7 +41,9 @@ export default function EditableClubImage({
   };
 
   return (
-    <Box w={size} h={size} p={8} style={{ position: "relative" }} {...props}>
+    // a bit hacky but this has to match the size of the ClubImage
+    // which is scaled by .75
+    <Box w={size} h={size * 0.75} {...props}>
       <ClubImage club={club} size={size} key={imageVersion} />
       <FileInput
         accept="image/*"
@@ -57,7 +59,7 @@ export default function EditableClubImage({
         size="sm"
         color={"black"}
         aria-label="Upload Club Profile Picture"
-        style={{ position: "absolute", right: 0, bottom: 0 }}
+        style={{ position: "absolute", right: -5, bottom: -5 }}
       >
         <IconArrowUp />
       </ActionIcon>

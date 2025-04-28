@@ -161,7 +161,7 @@ interface UpdateClubFormProps {
 }
 
 function UpdateClubForm({ club }: UpdateClubFormProps) {
-  const clubImageSize = useMatches({ base: 180, md: 300 });
+  const clubImageSize = useMatches({ base: 240, md: 360 });
   const utils = api.useUtils();
   const router = useRouter();
 
