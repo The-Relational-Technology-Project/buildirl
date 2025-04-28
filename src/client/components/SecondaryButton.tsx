@@ -27,9 +27,9 @@ export default function SecondaryButton({
       size={"xl"}
       w={{ base: 300, md: 400 }}
       style={{
-        border: "2px solid",
+        border: "1px solid",
         borderRadius: 360,
-        boxShadow: "4px 4px 0px"
+        boxShadow: "2px 2px 0px"
       }}
       color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
       {...props}

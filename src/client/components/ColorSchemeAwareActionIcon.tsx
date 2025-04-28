@@ -44,7 +44,7 @@ export function ActionIconBox({
     <ColorSchemeAwareActionIcon
       onClick={onClick}
       style={{
-        border: `2px solid`,
+        border: `1px solid`,
         borderRadius: 0
       }}
       {...props}

@@ -52,16 +52,16 @@ export const theme = createTheme({
       defaultProps: {
         withBorder: true,
         style: {
-          border: "2px solid",
-          boxShadow: "4px 4px 0px"
+          border: "1px solid",
+          boxShadow: "2px 2px 0px"
         }
       }
     },
     Card: {
       defaultProps: {
         style: {
-          border: "2px solid",
-          boxShadow: "4px 4px 0px"
+          border: "1px solid",
+          boxShadow: "2px 2px 0px"
         }
       }
     },

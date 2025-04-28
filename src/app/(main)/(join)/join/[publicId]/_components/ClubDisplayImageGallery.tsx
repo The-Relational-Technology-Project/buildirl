@@ -25,7 +25,7 @@ export default function ClubDisplayImageGallery({
           <Group w={"max-content"} px={4}>
             {club?.displayImageUrls.map((url, index) => (
               // remove the shadow
-              <Paper key={index} style={{ border: "2px solid" }}>
+              <Paper key={index} style={{ border: "1px solid" }}>
                 <Image src={url} h={size} w={size} />
               </Paper>
             ))}

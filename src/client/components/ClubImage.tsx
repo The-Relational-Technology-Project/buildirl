@@ -22,7 +22,7 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
           // max radius
           borderTopLeftRadius: 1000,
           borderTopRightRadius: 1000,
-          border: "2px solid"
+          border: "1px solid"
         }}
       ></Image>
     </Box>
@@ -59,7 +59,7 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
             // max radius
             borderTopLeftRadius: 1000,
             borderTopRightRadius: 1000,
-            border: "2px solid"
+            border: "1px solid"
           }
         }}
       />

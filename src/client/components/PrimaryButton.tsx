@@ -35,9 +35,9 @@ export default function PrimaryButton({
         size={"xl"}
         w={{ base: 300, md: 400 }}
         style={{
-          border: `2px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,
+          border: `1px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,
           borderRadius: 360,
-          boxShadow: `4px 4px 0px ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`
+          boxShadow: `2px 2px 0px ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`
         }}
         color={color}
         {...props}
