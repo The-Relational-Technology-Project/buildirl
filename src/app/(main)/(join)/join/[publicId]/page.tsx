@@ -108,7 +108,7 @@ export default function ClubJoin() {
       <>
         {s.data! && <WithRedirectToWelcomePage publicId={publicId} />}
         <Stack
-          pt="xl"
+          pt={50}
           pb={"lg"}
           px={{ base: 0, md: 150 }}
           // this page specifically, we want to fill up more space
