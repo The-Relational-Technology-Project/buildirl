@@ -4,41 +4,44 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import AlertMessage from "~/client/components/AlertMessage";
-import { Box } from "@mantine/core";
+import { Box, BoxProps } from "@mantine/core";
 
 type ClubMembershipInfoProps = {
   clubId: number;
-  mt?: string | number;
 };
 
-export default function ClubMembershipInfo({ 
-  clubId, 
-  mt 
-}: ClubMembershipInfoProps) {
-  const clubStatsQuery = api.main.clubStatistics.useQuery({ 
+export default function ClubMembershipInfo({
+  clubId,
+  ...props
+}: ClubMembershipInfoProps & BoxProps) {
+  const clubStatistics = api.main.clubStatistics.useQuery({
     clubId
   });
 
   QueryError.check({
-    result: clubStatsQuery,
+    result: clubStatistics,
     fieldName: "clubStatistics"
   });
 
-  if (!isLoaded(clubStatsQuery)) return null;
+  if (!isLoaded(clubStatistics)) {
+    return null;
+  }
 
   return (
-    <Box mt={mt}>
-      <MemberCountStatistic 
-        clubId={clubId} 
-        clubStatistics={clubStatsQuery.data}
+    <Box {...props}>
+      <MemberCountStatistic
+        clubId={clubId}
+        clubStatistics={clubStatistics.data}
       />
-      
-      {clubStatsQuery.data?.memberCount === 1 && (
+
+      {clubStatistics.data?.memberCount === 1 && (
         <AlertMessage
-          message={"Customize your membership tiers and intake tabs, then share your club link to invite your first members."}
+          message={
+            "Customize your membership tiers and intake tabs, then share your club link to invite your first members."
+          }
           mt={4}
         />
       )}
     </Box>
   );
-} 
+}
