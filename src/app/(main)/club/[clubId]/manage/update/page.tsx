@@ -8,9 +8,7 @@ import {
 import { api } from "~/trpc/react";
 import {
   Button,
-  Group,
   Stack,
-  Text,
   Textarea,
   TextInput,
   Title,
@@ -33,6 +31,7 @@ import FAQsSection from "~/app/(main)/club/[clubId]/manage/update/_components/FA
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import PrefixedInput from "~/client/components/PrefixedInput";
 
 function BasicInfoSection() {
   const {
@@ -78,26 +77,15 @@ function LinksSection() {
         error={errors.websiteUrl?.message}
       />
       <Stack gap={4}>
-        <Group gap={0} wrap="nowrap">
-          <Text size={"sm"} style={{ background: "#f1f3f5", padding: "8px 8px", borderRadius: "4px 0 0 4px", border: "1px solid #ced4da", borderRight: "none" }}>
-            instagram.com/
-          </Text>
-          <TextInput
-            placeholder="username"
-            style={{ flex: 1 }}
-            styles={{
-              input: {
-                borderTopLeftRadius: 0,
-                borderBottomLeftRadius: 0,
-              }
-            }}
-            {...register("instagramHandle")}
-            error={errors.instagramHandle?.message}
-          />
-        </Group>
+        <PrefixedInput
+          prefix="instagram.com/"
+          placeholder="username"
+          {...register("instagramHandle")}
+          error={errors.instagramHandle?.message}
+        />
       </Stack>
       <Stack gap={4} mt={6}>
-        <Title order={6}>Share Your Club&apos;s Events</Title>
+        <Title order={6}>{"Share Your Club's Events"}</Title>
         <TextInput
           placeholder="Event calendar or next gathering, (e.g. Luma, Partiful, Eventbrite, etc.)"
           {...register("eventCalendarUrl")}
@@ -117,24 +105,13 @@ function ShareLinkSection() {
   return (
     <Stack gap={8} mt={6}>
       <Title order={6}>Club Link</Title>
-      <Group gap={0} wrap={"nowrap"}>
-        <Text size={"sm"} style={{ background: "#f1f3f5", padding: "8px 8px", borderRadius: "4px 0 0 4px", border: "1px solid #ced4da", borderRight: "none" }}>
-          clubs.buildirl.com/join/
-        </Text>
-        <TextInput
-          required
-          placeholder="club-tag"
-          style={{ flex: 1 }}
-          styles={{
-            input: {
-              borderTopLeftRadius: 0,
-              borderBottomLeftRadius: 0,
-            }
-          }}
-          {...register("publicId")}
-          error={errors.publicId?.message}
-        />
-      </Group>
+      <PrefixedInput
+        prefix="clubs.buildirl.com/join/"
+        placeholder="club-tag"
+        required
+        {...register("publicId")}
+        error={errors.publicId?.message}
+      />
     </Stack>
   );
 }
