@@ -29,14 +29,14 @@ export default function IntakePaymentsPage() {
           <Title order={4}>Almost there!</Title>
 
           <Text size="sm">
-            {`Your support matters. Dues help keep our club alive — but don’t
-            worry, you won’t be charged until you’re officially in.`}
+            {`Your support matters - dues help keep our club alive.`}
           </Text>
 
           <Text size="sm">
             {"Add your payment info to finish up the application! 🎉"}
           </Text>
 
+          <Text size="sm">Don’t worry, you won’t be charged until you’re officially in.</Text>
           <Box style={{ alignSelf: "center" }} mt={"md"}>
             <PrimaryButton
               onClick={async () =>

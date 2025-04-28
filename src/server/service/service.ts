@@ -1821,6 +1821,7 @@ export function createMainService(
     await emailClient.notifyMembershipDeclined(
       {
         membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
         clubName: membership.club.name
       },
       memberEmail

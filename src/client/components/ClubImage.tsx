@@ -13,9 +13,9 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
       <Image
         h={"100%"}
         w={"100%"}
-        src={"/images/rising-sun.png"}
+        src={"/images/good-club.png"}
         fit={"cover"}
-        alt={"rising sun door"}
+        alt={"club image"}
         style={{
           borderBottomLeftRadius: "10%",
           borderBottomRightRadius: "10%",
@@ -23,6 +23,43 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
           borderTopLeftRadius: 1000,
           borderTopRightRadius: 1000,
           border: "1px solid"
+        }}
+      ></Image>
+    </Box>
+  );
+}
+
+export function FitCheckImage({ size }: DefaultClubImageProps) {
+  // Calculate a larger size (1.2x) based on the input size to give more space for the image
+  const imageSize = typeof size === 'number' ? size * 1.2 : size;
+  
+  return (
+    <Box w={imageSize} h={imageSize}>
+      <Image
+        h={"100%"}
+        w={"100%"}
+        src={"/images/let-see-if-we-are-fit-image.svg"}
+        fit={"contain"}
+        alt={"let's see if we're a fit image"}
+      ></Image>
+    </Box>
+  );
+}
+
+export function WelcomeImage({ size }: DefaultClubImageProps) {
+  // Calculate a larger size (1.5x) based on the input size
+  const largerSize = typeof size === 'number' ? size * 1.5 : size;
+  
+  return (
+    <Box w={largerSize} h={largerSize}>
+      <Image
+        h={"100%"}
+        w={"100%"}
+        src={"/images/welcome-hi.svg"}
+        fit={"contain"}
+        alt={"welcome image"}
+        style={{
+          borderRadius: 10
         }}
       ></Image>
     </Box>
@@ -46,7 +83,7 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
     >
       <Image
         src={storageClient.clubProfileImageUrl(club.id)}
-        fallbackSrc="/images/rising-sun.png"
+        fallbackSrc="/images/good-club.png"
         h={"100%"}
         w={"100%"}
         fit={"cover"}

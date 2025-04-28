@@ -4,34 +4,46 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { IconUsers } from "@tabler/icons-react";
 import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
+import React from "react";
+
+type ClubStatistics = {
+  memberCount: number;
+};
 
 type MemberCountStatisticProps = {
   clubId: number;
   textSize?: MantineSize | (string & {});
+  clubStatistics?: ClubStatistics;
 };
 
 export default function MemberCountStatistic({
   clubId,
   textSize = "sm",
+  clubStatistics,
   ...props
 }: MemberCountStatisticProps & GroupProps) {
-  const r = api.main.clubStatistics.useQuery({ clubId: clubId });
+  // Only fetch if not provided directly
+  const r = !clubStatistics ? api.main.clubStatistics.useQuery({ clubId: clubId }) : null;
 
-  QueryError.check({
-    result: r,
-    fieldName: "clubStatistics"
-  });
+  if (r) {
+    QueryError.check({
+      result: r,
+      fieldName: "clubStatistics"
+    });
+  }
+  
+  const stats = clubStatistics || (r && isLoaded(r) ? r.data : null);
+  
+  if (!stats) return null;
 
   return (
-    isLoaded(r) && (
-      <Group gap={4} {...props}>
-        <ColorSchemeAwareThemeIcon size={"xs"}>
-          <IconUsers />
-        </ColorSchemeAwareThemeIcon>
-        <Text size={textSize} fw={400}>
-          {`${r.data!.memberCount} member${r.data!.memberCount > 1 ? "s" : ""}`}
-        </Text>
-      </Group>
-    )
+    <Group gap={4} {...props}>
+      <ColorSchemeAwareThemeIcon size={"xs"}>
+        <IconUsers />
+      </ColorSchemeAwareThemeIcon>
+      <Text size={textSize} fw={400}>
+        {`${stats.memberCount} member${stats.memberCount > 1 ? "s" : ""}`}
+      </Text>
+    </Group>
   );
 }

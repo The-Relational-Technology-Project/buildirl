@@ -10,7 +10,7 @@ export default function AlertMessage({
   ...props
 }: AlertMessageProps & TextProps) {
   return (
-    <Group gap={4}>
+    <Group gap={4} wrap="nowrap" align="center">
       <ThemeIcon color={"orange.5"} size={"xs"}>
         <IconAlertTriangle />
       </ThemeIcon>

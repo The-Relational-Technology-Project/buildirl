@@ -3,7 +3,6 @@
 import { api } from "~/trpc/react";
 import {
   Stack,
-  Button,
   TextInput,
   Text,
   Group,
@@ -17,6 +16,7 @@ import React from "react";
 import { safeValidateSchema } from "~/utils/zod";
 import { useRouter } from "next/navigation";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
+import PrimaryButton from "~/client/components/PrimaryButton";
 
 function CreateClubForm(props: StackProps) {
   const router = useRouter();
@@ -65,7 +65,7 @@ function CreateClubForm(props: StackProps) {
           {...form.getInputProps("name")}
         />
         <Title order={6} mt={4}>
-          Choose a share link.
+          Claim your club link.
         </Title>
         <Group gap={4} wrap={"nowrap"}>
           <Text size={"sm"}>clubs.buildirl.com/join/</Text>
@@ -76,16 +76,20 @@ function CreateClubForm(props: StackProps) {
             {...form.getInputProps("publicId")}
           />
         </Group>
-        <Button
+        <PrimaryButton
           type="submit"
-          w={100}
-          mt={"sm"}
-          style={{ alignSelf: "center" }}
+          w={150}
+          style={{
+            alignSelf: "center",
+            border: "2px solid black",
+            borderRadius: 360,
+            boxShadow: "4px 4px 0px black"
+          }}
           disabled={!form.isValid()}
           loading={createUser.isPending}
         >
           Create
-        </Button>
+        </PrimaryButton>
       </Stack>
     </form>
   );
@@ -95,7 +99,7 @@ export default function CreateClub() {
   return (
     <AbsoluteCenter adjustForHeader>
       <Paper p="xl" w={{ base: 300, md: 400 }}>
-        <Title order={4}>Create a club</Title>
+        <Title order={4}>Build a club</Title>
         <CreateClubForm mt={"md"} />
       </Paper>
     </AbsoluteCenter>

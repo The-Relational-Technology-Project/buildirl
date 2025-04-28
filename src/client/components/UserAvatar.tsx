@@ -17,7 +17,7 @@ export function UserImage({
     <Box {...props}>
       <Image
         src={storageClient.userProfileImageUrl(user.id)}
-        fallbackSrc={"/images/smile.jpg"}
+        fallbackSrc={"/images/purple-with-glasses.svg"}
         h={"100%"}
         w={"100%"}
         fit={"cover"}
@@ -52,7 +52,7 @@ export default function UserAvatar({
     <Box h={sizeNumber} w={sizeNumber} {...props}>
       <Image
         src={storageClient.userProfileImageUrl(user.id)}
-        fallbackSrc={"/images/smile.jpg"}
+        fallbackSrc={"/images/purple-with-glasses.svg"}
         h={"100%"}
         w={"100%"}
         radius={"100%"}

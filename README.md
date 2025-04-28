@@ -48,9 +48,11 @@ First time users can use the commands in the [justfile](justfile) in order to ru
 8. Open your local Supabase studio (http://localhost:54323) and follow steps in Storage section. 
  
 If running Stripe locally:
-1. Install and login to [Stripe CLI](https://docs.stripe.com/stripe-cli) and [preview plugin](https://docs.stripe.com/cli-preview-plugin)
+1. Install and login to [Stripe CLI](https://docs.stripe.com/stripe-cli).
 for webhook forwarding. Follow in-prompt instructions and choose Local sandbox environment.
-2. If you need to run local Stripe integration, make sure also to run `just stripe-listen` to begin the local listener to 
+2. Check your Stripe dashboard for the `Secret Key` and the `Publishable Key` and copy to your `.env` file.
+3. To get your `Webhook Key`, run `stripe listen --forward-to localhost:3000/api/stripe-webhook` and copy key to your `.env`.
+4. If you need to run local Stripe integration, make sure also to run `just stripe-listen` to begin the local listener to 
 webhook at `localhost:3000`
 
 ### Local Authentication

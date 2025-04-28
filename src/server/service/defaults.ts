@@ -3,11 +3,9 @@ import { FormQuestions, FormQuestionType } from "~/server/service/types/form";
 export const DEFAULT_FREE_MEMBERSHIP_TIER = {
   name: "The Club Crew",
   benefitDescription:
-    "Weekly meetups and events, members-only WhatsApp / Slack group, awesome local deals, and a whole lot of " +
-    "opportunities to create with fellow members!",
+    "Weekly meetups (rain or shine), member-only whatsapp, IRL hangs, and sweet local perks.",
   contributionDescription:
-    "We're member-first and member-led. Help us keep the good vibes going by co-hosting, volunteering, or just chipping " +
-    "in where you can. Your dues go towards venues, snacks, and more. Your support is what makes this stay alive!",
+    "We're member-led — so co-host, pitch in, or just show up. Your dues cover venues, snacks, and all the magic-making essentials. 💛",
   costPerMonthInUSD: 0
 };
 

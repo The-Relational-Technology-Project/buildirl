@@ -8,13 +8,15 @@ import {
   Stack,
   Text,
   Title,
-  useMatches
+  useMatches,
+  Anchor
 } from "@mantine/core";
 import React from "react";
 import { useRouter } from "next/navigation";
-import MemberCountStatistic from "~/client/components/MemberCountStatistic";
 import AlertMessage from "~/client/components/AlertMessage";
 import ClubImage from "~/client/components/ClubImage";
+import ShareButton from "./ShareButton";
+import ClubMembershipInfo from "./ClubMembershipInfo";
 
 type ClubOverviewPanelProps = {
   club: Club;
@@ -22,6 +24,7 @@ type ClubOverviewPanelProps = {
 
 export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
   const router = useRouter();
+  
   const editButtonText = useMatches({
     base: "Edit Page",
     md: "Edit Club Page"
@@ -40,11 +43,20 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
           justify={"flex-start"}
           align={{ base: "center", md: "stretch" }}
           gap={40}
+          style={{ position: "relative" }}
         >
           <Box style={{ alignSelf: "center" }}>
             <ClubImage club={club} size={clubImageSize} />
           </Box>
           <Stack justify={"space-between"} style={{ flex: 1 }}>
+            <Box style={{ position: "absolute", top: 0, right: 0, zIndex: 1 }}>
+              <ShareButton 
+                clubPublicId={club.publicId}
+                clubName={club.name}
+                size="sm"
+              />
+            </Box>
+            
             <Stack gap={6}>
               <Title order={4}>Club Details</Title>
               <Title order={5} mt={6}>
@@ -55,13 +67,16 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
               <Title order={5}>Tagline</Title>
               {club.tagLine === "" ? (
                 <AlertMessage
-                  message={"Please enter tagline and other basic information."}
+                  message={"Please add tagline and basic information."}
                 />
               ) : (
                 <Text>{club.tagLine}</Text>
               )}
 
-              <MemberCountStatistic clubId={club.id} mt={"sm"} />
+              <ClubMembershipInfo 
+                clubId={club.id} 
+                mt={"sm"} 
+              />
             </Stack>
             <Group grow>
               <Button
@@ -79,6 +94,15 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
             </Group>
           </Stack>
         </Flex>
+      </Paper>
+      
+      <Paper p="lg" mb={20}>
+        <Stack gap="xs">
+          <Title order={5}>Getting Started?</Title>
+          <Text>
+            Check out our <Anchor href="https://tulip-iron-c45.notion.site/Build-IRL-Help-Center-1e2a8ae4b4d280a9a8ede144bf158764" target="_blank">quick set up guide</Anchor>.
+          </Text>
+        </Stack>
       </Paper>
     </Stack>
   );

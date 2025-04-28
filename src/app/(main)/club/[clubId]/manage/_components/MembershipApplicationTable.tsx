@@ -13,10 +13,8 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded, toDisplayDate } from "~/client/utils";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { IconListCheck } from "@tabler/icons-react";
 import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
-import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import UserAvatar from "~/client/components/UserAvatar";
 
 type ApproveDeclineMembershipButtonsProps = {
@@ -140,13 +138,13 @@ export default function MembershipApplicationTable({
         {m.email === null ? null : <EmailLink email={m.email} />}
       </Table.Td>
       <Table.Td>
-        <ColorSchemeAwareActionIcon
-          onClick={() =>
-            router.push(`/club/${clubId}/member/${m.user.id}/application`)
-          }
+        <Button
+          color="blue"
+          size="xs"
+          onClick={() => router.push(`/club/${clubId}/member/${m.user.id}/application`)}
         >
-          <IconListCheck size={16} />
-        </ColorSchemeAwareActionIcon>
+          Review
+        </Button>
       </Table.Td>
       <Table.Td>
         <ApproveDeclineMembershipButtons clubId={clubId} membershipId={m.id} />

@@ -46,7 +46,7 @@ export default function ManageClub() {
     mounted &&
     isLoaded(r) && (
       <Stack pt={"xl"}>
-        <Title order={2}>{r.data!.name}</Title>
+        <Title order={2}>{r.data!.name} Dashboard</Title>
 
         <Tabs
           // hacky but how we support dark mode with defaults
@@ -60,8 +60,8 @@ export default function ManageClub() {
           <Tabs.List>
             <Tabs.Tab value={"overview"}>Club Overview</Tabs.Tab>
             <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>
+            <Tabs.Tab value={"intake"}>Intake Form</Tabs.Tab>
             <Tabs.Tab value={"people"}>People</Tabs.Tab>
-            <Tabs.Tab value={"intake"}>Intake</Tabs.Tab>
             <Tabs.Tab value={"stripe-connect"}>Stripe Connect</Tabs.Tab>
             <Tabs.Tab value={"admin"}>Admin</Tabs.Tab>
           </Tabs.List>
