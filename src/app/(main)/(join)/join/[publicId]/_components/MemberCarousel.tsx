@@ -65,8 +65,8 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
               <Paper
                 onClick={() => router.push(`/user/${m.id}?back=true`)}
                 style={{
-                  border: "2px solid",
-                  boxShadow: "4px 4px 0px",
+                  border: "1px solid",
+                  boxShadow: "2px 2px 0px",
                   cursor: "pointer"
                 }}
               >

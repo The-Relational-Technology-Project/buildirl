@@ -36,7 +36,7 @@ export default function Apply() {
           <Stack align="center" gap="lg">
             <Title order={1}>YOU ROCK!</Title>
 
-            <DefaultClubImage size={240} />
+            <DefaultClubImage size={280} />
 
             <Title order={2} fw={500} ta="center">
               {"Let's See If We're A Fit!"}

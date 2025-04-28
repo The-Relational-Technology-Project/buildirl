@@ -82,6 +82,7 @@ function WithRedirectToWelcomePage({
 export default function ClubJoin() {
   const mounted = useMounted();
   const shareButtonRightPosition = useMatches({ base: -12, md: 120 });
+  const clubImageSize = useMatches({ base: 320, md: 400 });
 
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
@@ -107,7 +108,7 @@ export default function ClubJoin() {
       <>
         {s.data! && <WithRedirectToWelcomePage publicId={publicId} />}
         <Stack
-          pt="xl"
+          pt={50}
           pb={"lg"}
           px={{ base: 0, md: 150 }}
           // this page specifically, we want to fill up more space
@@ -129,7 +130,7 @@ export default function ClubJoin() {
             />
           </Box>
 
-          <ClubImage club={r.data!} size={{ base: 320, md: 360 }} />
+          <ClubImage club={r.data!} size={clubImageSize} />
 
           <Stack align={"center"} gap={0} mb={8}>
             <Title
@@ -149,12 +150,11 @@ export default function ClubJoin() {
               </Text>
 
               <Text
-                td={"underline"}
-                style={{ cursor: "pointer", fontStyle: "underlined" }}
+                style={{ cursor: "pointer" }}
                 onClick={() => router.push(`/join/${publicId}/about`)}
                 size={"sm"}
               >
-                {"Read more >"}
+                {"About >"}
               </Text>
 
               <Group mt={"xs"}>

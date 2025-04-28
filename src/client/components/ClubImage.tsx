@@ -1,15 +1,15 @@
 import { Club } from "~/server/service/types";
-import { ImageProps, Image, Box, StyleProp } from "@mantine/core";
+import { ImageProps, Image, Box } from "@mantine/core";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
 
 export type DefaultClubImageProps = {
-  size: StyleProp<React.CSSProperties["width"]>;
+  size: number;
 };
 
 export function DefaultClubImage({ size }: DefaultClubImageProps) {
   return (
-    <Box w={size} h={size}>
+    <Box w={size} h={size * 0.75}>
       <Image
         h={"100%"}
         w={"100%"}
@@ -17,11 +17,12 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
         fit={"cover"}
         alt={"rising sun door"}
         style={{
-          borderBottomLeftRadius: 10,
-          borderBottomRightRadius: 10,
-          borderTopLeftRadius: "100%",
-          borderTopRightRadius: "100%",
-          border: "2px solid"
+          borderBottomLeftRadius: "10%",
+          borderBottomRightRadius: "10%",
+          // max radius
+          borderTopLeftRadius: 1000,
+          borderTopRightRadius: 1000,
+          border: "1px solid"
         }}
       ></Image>
     </Box>
@@ -30,13 +31,13 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
 
 export type ClubImageProps = {
   club: Club;
-  size: StyleProp<React.CSSProperties["width"]>;
+  size: number;
 };
 
 export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
   return (
     <Box
-      h={size}
+      h={size * 0.75}
       w={size}
       style={{
         // prevents image from shrinking
@@ -55,9 +56,10 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
             // defined as percentage so shape is maintained during scaling
             borderBottomLeftRadius: "10%",
             borderBottomRightRadius: "10%",
-            borderTopLeftRadius: "100%",
-            borderTopRightRadius: "100%",
-            border: "2px solid"
+            // max radius
+            borderTopLeftRadius: 1000,
+            borderTopRightRadius: 1000,
+            border: "1px solid"
           }
         }}
       />

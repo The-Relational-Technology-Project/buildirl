@@ -119,13 +119,12 @@ function AuthenticatedFollowToggle({
     return null;
   }
 
-  const isOwner = ownedClubs.data!.some((c) => c.id === clubId);
   const isActiveMember = memberships.data!.some(
     (m) => m.club.id === clubId && m.status === "ACTIVE"
   );
 
-  // owners or active members cannot follow the club
-  if (isOwner || isActiveMember) {
+  // active members cannot follow the club
+  if (isActiveMember) {
     return null;
   }
 

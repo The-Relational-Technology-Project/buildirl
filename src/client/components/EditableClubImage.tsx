@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { type Maybe } from "~/utils/types";
-import { ActionIcon, Box, BoxProps, FileInput, StyleProp } from "@mantine/core";
+import { ActionIcon, Box, BoxProps, FileInput } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
 import createStorageClient from "~/client/utils/storageClient";
 import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
@@ -10,7 +10,7 @@ import { logger, notifyError } from "~/client/logger";
 
 type EditableClubImageProps = {
   club: Club;
-  size: StyleProp<React.CSSProperties["width"]>;
+  size: number;
 };
 
 export default function EditableClubImage({
@@ -41,8 +41,10 @@ export default function EditableClubImage({
   };
 
   return (
-    <Box w={size} h={size} p={8} style={{ position: "relative" }} {...props}>
-      <ClubImage club={club} size={"100%"} key={imageVersion} />
+    // a bit hacky but this has to match the size of the ClubImage
+    // which is scaled by .75
+    <Box w={size} h={size * 0.75} {...props}>
+      <ClubImage club={club} size={size} key={imageVersion} />
       <FileInput
         accept="image/*"
         id={"club-profile-picture-input"}
@@ -57,7 +59,7 @@ export default function EditableClubImage({
         size="sm"
         color={"black"}
         aria-label="Upload Club Profile Picture"
-        style={{ position: "absolute", right: 0, bottom: 0 }}
+        style={{ position: "absolute", right: -5, bottom: -5 }}
       >
         <IconArrowUp />
       </ActionIcon>

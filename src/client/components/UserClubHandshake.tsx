@@ -31,7 +31,15 @@ export default function UserClubHandshake({
           w={{ base: 50, md: 80 }}
         />
       </Box>
-      <Box pos="absolute" left={imageSize - OVERLAP_SIZE} style={{ zIndex: 1 }}>
+
+      <Box
+        pos="absolute"
+        left={imageSize - OVERLAP_SIZE}
+        // a bit hacky but since the club image is .75 the height of the user image,
+        // we need to adjust here to center
+        top={imageSize * 0.125}
+        style={{ zIndex: 1 }}
+      >
         <ClubImage size={imageSize} club={club} />
       </Box>
     </Box>

@@ -9,7 +9,7 @@ import ClubCard from "~/app/(main)/_components/ClubCard";
 function EmptyClubs() {
   return (
     <Stack justify="center" align="center" gap={"xs"} mih={"60vh"}>
-      <DefaultClubImage size={150} />
+      <DefaultClubImage size={200} />
       <Title order={3} mt={"lg"} style={{ textAlign: "center" }}>
         You have not followed or applied to any clubs
       </Title>
