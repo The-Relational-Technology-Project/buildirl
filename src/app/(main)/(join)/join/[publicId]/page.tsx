@@ -82,7 +82,7 @@ function WithRedirectToWelcomePage({
 export default function ClubJoin() {
   const mounted = useMounted();
   const shareButtonRightPosition = useMatches({ base: -12, md: 120 });
-  const clubImageSize = useMatches({ base: 320, md: 360 });
+  const clubImageSize = useMatches({ base: 320, md: 400 });
 
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
@@ -150,7 +150,6 @@ export default function ClubJoin() {
               </Text>
 
               <Text
-                td={"underline"}
                 style={{ cursor: "pointer" }}
                 onClick={() => router.push(`/join/${publicId}/about`)}
                 size={"sm"}
