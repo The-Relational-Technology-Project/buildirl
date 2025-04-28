@@ -154,7 +154,7 @@ export default function ClubJoin() {
                 onClick={() => router.push(`/join/${publicId}/about`)}
                 size={"sm"}
               >
-                {"Read more >"}
+                {"About >"}
               </Text>
 
               <Group mt={"xs"}>
