@@ -110,7 +110,7 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
         <Stack gap="xs">
           <Title order={5}>Getting Started?</Title>
           <Text>
-            Check out our <Anchor href="https://www.notion.so/buildirl/guide" target="_blank">quick set up guide</Anchor>.
+            Check out our <Anchor href="https://tulip-iron-c45.notion.site/Build-IRL-Help-Center-1e2a8ae4b4d280a9a8ede144bf158764" target="_blank">quick set up guide</Anchor>.
           </Text>
         </Stack>
       </Paper>
