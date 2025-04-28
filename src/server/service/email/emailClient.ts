@@ -9,8 +9,6 @@ import {
 } from "./types";
 import { Email } from "../types";
 import { rootLogger } from "~/logger";
-import fs from "fs";
-import path from "path";
 
 const logger = rootLogger.child({ module: "emailClient" });
 
@@ -55,26 +53,6 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     try {
       const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
       
-      // Get path to the celebration image
-      const imagePath = path.join(process.cwd(), 'public', 'images', 'you-are-in-hands-clapping.jpeg');
-      let imageAttachment = null;
-      
-      // Try to read the image file
-      try {
-        const imageContent = fs.readFileSync(imagePath);
-        imageAttachment = {
-          filename: 'celebration.jpeg',
-          content: imageContent,
-          cid: 'membership-approved-image'  // Content ID to reference in HTML
-        };
-      } catch (fileError) {
-        // Log error but continue sending the email without the image
-        logger.error(
-          fileError,
-          `Failed to read celebration image for membership approval email. Will send without image.`
-        );
-      }
-      
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
@@ -87,12 +65,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
             <p>Hey <strong>${input.memberFirstName}</strong> — amazing news: you're officially a member of <strong>${input.clubName} Club</strong>! 🎉</p>
             <p>We're hyped to have you! 🥳</p>
             <p>👉 <a href="${joinPageUrl}">Click here to see more!</a></p>
-            ${imageAttachment ? `<div style="text-align: center; margin-top: 20px;">
-              <img src="cid:membership-approved-image" alt="You're in! Celebration image" style="width: 350px; max-width: 100%; border-radius: 8px;" />
-            </div>` : ''}
           </div>
-        `,
-        attachments: imageAttachment ? [imageAttachment] : []
+        `
       });
 
       logger.info(

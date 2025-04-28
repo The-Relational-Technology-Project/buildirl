@@ -9,8 +9,7 @@ import {
   Text,
   Title,
   useMatches,
-  Anchor,
-  Box
+  Anchor
 } from "@mantine/core";
 import React from "react";
 import { useRouter } from "next/navigation";

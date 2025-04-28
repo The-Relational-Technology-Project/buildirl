@@ -3,7 +3,6 @@
 import { api } from "~/trpc/react";
 import {
   Stack,
-  Button,
   TextInput,
   Text,
   Group,
@@ -17,6 +16,7 @@ import React from "react";
 import { safeValidateSchema } from "~/utils/zod";
 import { useRouter } from "next/navigation";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
+import PrimaryButton from "~/client/components/PrimaryButton";
 
 function CreateClubForm(props: StackProps) {
   const router = useRouter();
@@ -76,17 +76,20 @@ function CreateClubForm(props: StackProps) {
             {...form.getInputProps("publicId")}
           />
         </Group>
-        <Button
+        <PrimaryButton
           type="submit"
           w={150}
-          mt={"sm"}
-          radius="xl"
-          style={{ alignSelf: "center" }}
+          style={{
+            alignSelf: "center",
+            border: "2px solid black",
+            borderRadius: 360,
+            boxShadow: "4px 4px 0px black"
+          }}
           disabled={!form.isValid()}
           loading={createUser.isPending}
         >
           Create
-        </Button>
+        </PrimaryButton>
       </Stack>
     </form>
   );
