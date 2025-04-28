@@ -150,7 +150,7 @@ export default function ClubJoin() {
 
               <Text
                 td={"underline"}
-                style={{ cursor: "pointer", fontStyle: "underlined" }}
+                style={{ cursor: "pointer" }}
                 onClick={() => router.push(`/join/${publicId}/about`)}
                 size={"sm"}
               >
