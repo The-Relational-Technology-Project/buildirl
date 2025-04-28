@@ -17,7 +17,7 @@ export default function FAQs({
   }
 
   return (
-    <Box {...props} w={{ base: "300", md: "500" }}>
+    <Box {...props} w={{ base: "320", md: "500" }}>
       <Title
         order={1}
         mb={"lg"}
