@@ -1,13 +1,7 @@
 import "@mantine/core/styles.css";
 
 import React from "react";
-import {
-  AppShell,
-  AppShellHeader,
-  AppShellMain,
-  Box,
-  Center
-} from "@mantine/core";
+import { AppShell, AppShellMain, Box, Center } from "@mantine/core";
 import { HEADER_BAR_HEIGHT, PAGE_WIDTH } from "~/client/components/HeaderBar";
 import HeaderBar from "~/client/components/HeaderBar";
 import { api } from "~/trpc/server";
@@ -36,10 +30,9 @@ function AuthenticatedLayout({ children }: LayoutProps) {
 
   return (
     <AppShell header={{ height: HEADER_BAR_HEIGHT }}>
-      <AppShellHeader>
-        <HeaderBar />
-      </AppShellHeader>
       <AppShellMain h={"100%"}>
+        {/* We cannot use AppShellHeader because it doesn't work with transparency */}
+        <HeaderBar />
         <WithDefaultColorSchemeOnManualRouteChange>
           <Center>
             <Box w={{ base: "100%", md: PAGE_WIDTH }} px={{ base: 30, md: 0 }}>
