@@ -1,5 +1,6 @@
 import { Club } from "~/server/service/types";
 import {
+  Box,
   Button,
   Flex,
   Group,
@@ -40,7 +41,9 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
           align={{ base: "center", md: "stretch" }}
           gap={40}
         >
-          <ClubImage club={club} size={clubImageSize} />
+          <Box style={{ alignSelf: "center" }}>
+            <ClubImage club={club} size={clubImageSize} />
+          </Box>
           <Stack justify={"space-between"} style={{ flex: 1 }}>
             <Stack gap={6}>
               <Title order={4}>Club Details</Title>

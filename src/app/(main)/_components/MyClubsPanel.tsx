@@ -46,7 +46,7 @@ function MyClubs({ ownedClubs, activeMemberships }: MyClubsProps) {
         style={{ alignSelf: "center", textAlign: "center" }}
         mt={10}
       >
-        Join a club or{" "}
+        {"Join a club or "}
         <a href="/club/create" style={{ color: "inherit" }}>
           create
         </a>{" "}
