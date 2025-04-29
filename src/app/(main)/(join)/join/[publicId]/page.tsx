@@ -283,7 +283,7 @@ type JoinButtonProps = {
   club: Club;
 };
 
-function JoinButton({ ...props }: JoinButtonProps) {
+function JoinButton({ club }: JoinButtonProps) {
   const r = api.main.isUserAuthenticated.useQuery();
 
   QueryError.check({
@@ -291,10 +291,16 @@ function JoinButton({ ...props }: JoinButtonProps) {
     fieldName: "isUserAuthenticated"
   });
 
-  if (r.data!) {
-    return <AuthenticatedJoinButton {...props} />;
+  // TODO! this is BuildIRL club in prod! this is a hack - remove this after the
+  //  launch of BuildIRL club
+  if (club.id === 77) {
+    return <PrimaryButton disabled>Coming soon!</PrimaryButton>;
   }
-  return <DefaultJoinButton {...props} />;
+
+  if (r.data!) {
+    return <AuthenticatedJoinButton club={club} />;
+  }
+  return <DefaultJoinButton club={club} />;
 }
 
 function AuthenticatedJoinButton({ club }: JoinButtonProps) {

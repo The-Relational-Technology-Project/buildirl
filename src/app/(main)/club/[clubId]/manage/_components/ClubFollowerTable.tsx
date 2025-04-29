@@ -1,4 +1,5 @@
 import {
+  Anchor,
   Group,
   Paper,
   ScrollArea,
@@ -12,7 +13,6 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded, toDisplayDate } from "~/client/utils";
 import React from "react";
 import { useRouter } from "next/navigation";
-import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import UserAvatar from "~/client/components/UserAvatar";
 
@@ -51,7 +51,9 @@ export default function ClubFollowerTable({ clubId }: ClubFollowerTableProps) {
       <Table.Td>{`${toDisplayDate(f.createdAt)}`}</Table.Td>
 
       <Table.Td>
-        <EmailLink email={f.email} />
+        <Anchor size={"sm"} c={"black"} href={`mailto:${f.email}`}>
+          {f.email}
+        </Anchor>
       </Table.Td>
     </Table.Tr>
   ));

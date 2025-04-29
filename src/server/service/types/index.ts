@@ -170,7 +170,7 @@ export const ClubPublicIdSchema = z
   .min(3, "Length must be at least 3 characters")
   .regex(
     CLUB_PUBLIC_ID_REGEX,
-    "May only contain lowercase letters, numbers, underscores"
+    "May only contain lowercase letters, numbers, underscores, and dashes"
   );
 
 export const UrlSchema = z
