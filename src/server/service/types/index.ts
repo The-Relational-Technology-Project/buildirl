@@ -144,7 +144,7 @@ export type MainMutations = {
   unfollowClub(userId: number, clubId: number): Promise<MutationResult>;
 };
 
-const CLUB_PUBLIC_ID_REGEX = /^[a-zA-Z0-9_-]+$/;
+const CLUB_PUBLIC_ID_REGEX = /^[A-Z0-9_-]+$/;
 const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._]{0,29}$/;
 
 export const RequiredStringSchema = z.string().min(1, "Required");
@@ -168,7 +168,10 @@ export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
 export const ClubPublicIdSchema = z
   .string()
   .min(3, "Length must be at least 3 characters")
-  .regex(CLUB_PUBLIC_ID_REGEX, "May only contain letters, numbers, underscores.");
+  .regex(
+    CLUB_PUBLIC_ID_REGEX,
+    "May only contain lowercase letters, numbers, underscores"
+  );
 
 export const UrlSchema = z
   .string()
