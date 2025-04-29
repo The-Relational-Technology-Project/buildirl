@@ -244,7 +244,7 @@ export function ManageMembershipTierCard({
             alignSelf: "flex-end"
           }}
         >
-          <Button onClick={open}>Review</Button>
+          <Button onClick={open}>Edit</Button>
 
           <UpdateMembershipTierModal
             club={club}
