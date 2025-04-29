@@ -36,8 +36,8 @@ export default function CreateMembershipTierModal({
   const utils = api.useUtils();
 
   const createMembershipTier = api.main.createMembershipTier.useMutation({
-    onSuccess: () => {
-      utils.main.club.invalidate({ id: club.id });
+    onSuccess: (_, v) => {
+      utils.main.club.invalidate({ id: v.clubId });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
       handleClose();

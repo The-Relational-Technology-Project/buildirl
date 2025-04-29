@@ -16,9 +16,9 @@ type UserFormProps = {
 function UpdateUserForm({ user }: UserFormProps) {
   const utils = api.useUtils();
   const updateUser = api.main.updateUser.useMutation({
-    onSuccess: async () => {
+    onSuccess: async (_, v) => {
       await utils.main.user.invalidate();
-      await utils.main.userById.invalidate({ id: user.id });
+      await utils.main.userById.invalidate({ id: v.id });
     },
     onError: handleDefaultMutationError
   });

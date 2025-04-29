@@ -169,20 +169,19 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
   const utils = api.useUtils();
   const router = useRouter();
 
-  // TODO we should use this variables pattern and extract out common mutations /
-  //  invalidations for reuse
   const updateClub = api.main.updateClub.useMutation({
-    onSuccess: (_, variables) => {
-      utils.main.club.invalidate({ id: club.id });
+    onSuccess: (_, v) => {
+      utils.main.club.invalidate({ id: v.id });
       utils.main.clubByPublicId.invalidate({
-        publicId: variables.input.publicId
+        publicId: v.input.publicId
       });
       utils.main.userOwnedClubs.invalidate();
 
       showNotification({
         title: "Changes saved",
         message: "Your club has been updated successfully",
-        color: "green"
+        color: "green",
+        autoClose: 1000
       });
 
       router.push(`/club/${club.id}/manage`);
