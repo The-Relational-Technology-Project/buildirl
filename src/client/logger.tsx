@@ -6,6 +6,15 @@ import { TRPCClientErrorLike } from "@trpc/client";
 
 export const logger = rootLogger.child({ module: "client" });
 
+export function notifySuccess(title: string, message: string) {
+  showNotification({
+    title: title,
+    message: message,
+    color: "green",
+    autoClose: 1000
+  });
+}
+
 export function notifyError(message: string = "There was an error.") {
   showNotification({
     title: "Error",
