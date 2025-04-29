@@ -169,7 +169,8 @@ export default function ActiveMembershipTable({
                 <Table.Th />
                 {/* Application Questions */}
                 <Table.Th />
-                <Table.Th>Action</Table.Th>
+                {/* Action Buttons */}
+                <Table.Th />
                 {/* Subscription Status */}
                 <Table.Th />
               </Table.Tr>

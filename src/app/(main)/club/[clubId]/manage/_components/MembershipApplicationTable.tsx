@@ -141,7 +141,9 @@ export default function MembershipApplicationTable({
         <Button
           color="blue"
           size="xs"
-          onClick={() => router.push(`/club/${clubId}/member/${m.user.id}/application`)}
+          onClick={() =>
+            router.push(`/club/${clubId}/member/${m.user.id}/application`)
+          }
         >
           Review
         </Button>
@@ -179,7 +181,8 @@ export default function MembershipApplicationTable({
                 <Table.Th />
                 {/* Application Questions */}
                 <Table.Th />
-                <Table.Th>Action</Table.Th>
+                {/* Action Buttons */}
+                <Table.Th />
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>
