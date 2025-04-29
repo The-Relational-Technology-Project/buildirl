@@ -29,10 +29,7 @@ export default function ClubMembershipInfo({
 
   return (
     <Box {...props}>
-      <MemberCountStatistic
-        clubId={clubId}
-        clubStatistics={clubStatistics.data}
-      />
+      <MemberCountStatistic clubId={clubId} />
 
       {clubStatistics.data?.memberCount === 1 && (
         <AlertMessage
