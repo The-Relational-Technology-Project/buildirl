@@ -24,14 +24,14 @@ type ClubOverviewPanelProps = {
 
 export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
   const router = useRouter();
-  
+
   const editButtonText = useMatches({
     base: "Edit Page",
     md: "Edit Club Page"
   });
   const visitButtonText = useMatches({
-    base: "Go to Page",
-    md: "Go to Club Page"
+    base: "View Page",
+    md: "View Club Page"
   });
   const clubImageSize = useMatches({ base: 240, md: 300 });
 
@@ -50,13 +50,13 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
           </Box>
           <Stack justify={"space-between"} style={{ flex: 1 }}>
             <Box style={{ position: "absolute", top: 0, right: 0, zIndex: 1 }}>
-              <ShareButton 
+              <ShareButton
                 clubPublicId={club.publicId}
                 clubName={club.name}
                 size="sm"
               />
             </Box>
-            
+
             <Stack gap={6}>
               <Title order={4}>Club Details</Title>
               <Title order={5} mt={6}>
@@ -73,10 +73,7 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
                 <Text>{club.tagLine}</Text>
               )}
 
-              <ClubMembershipInfo 
-                clubId={club.id} 
-                mt={"sm"} 
-              />
+              <ClubMembershipInfo clubId={club.id} mt={"sm"} />
             </Stack>
             <Group grow>
               <Button
@@ -95,12 +92,19 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
           </Stack>
         </Flex>
       </Paper>
-      
+
       <Paper p="lg" mb={20}>
         <Stack gap="xs">
           <Title order={5}>Getting Started?</Title>
           <Text>
-            Check out our <Anchor href="https://tulip-iron-c45.notion.site/Build-IRL-Help-Center-1e2a8ae4b4d280a9a8ede144bf158764" target="_blank">quick set up guide</Anchor>.
+            Check out our{" "}
+            <Anchor
+              href="https://tulip-iron-c45.notion.site/Build-IRL-Help-Center-1e2a8ae4b4d280a9a8ede144bf158764"
+              target="_blank"
+            >
+              quick set up guide
+            </Anchor>
+            .
           </Text>
         </Stack>
       </Paper>

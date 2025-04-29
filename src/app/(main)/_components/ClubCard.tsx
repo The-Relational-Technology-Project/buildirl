@@ -108,7 +108,7 @@ export default function ClubCard({ club, status }: ClubCardProps) {
                 w={buttonWidth}
                 onClick={() => router.push(`/join/${club.publicId}`)}
               >
-                Go to Club
+                View Club
               </Button>
             </Box>
           </Flex>
