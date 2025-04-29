@@ -2,15 +2,17 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { Stack, Text, Title } from "@mantine/core";
-import { DefaultClubImage } from "~/client/components/ClubImage";
 import { Club, Membership } from "~/server/service/types";
 import ClubCard from "~/app/(main)/_components/ClubCard";
+import { WelcomeImage } from "~/client/components/Images";
+import { useMatches } from "@mantine/core";
 
 function EmptyClubs() {
+  const imageSize = useMatches({ base: 200, md: 300 });
   return (
     <Stack justify="center" align="center" gap={"xs"} mih={"60vh"}>
-      <DefaultClubImage size={200} />
-      <Title order={3} mt={"lg"} style={{ textAlign: "center" }}>
+      <WelcomeImage size={imageSize} />
+      <Title order={3} style={{ textAlign: "center" }}>
         You have not followed or applied to any clubs
       </Title>
       <Text size={"md"}>Find clubs in your city to join!</Text>
@@ -27,10 +29,10 @@ function InterestedClubs({
   membershipApplications,
   followedClubs
 }: InterestedClubsProps) {
-  const applicationClubIds = membershipApplications.map(m => m.club.id);
+  const applicationClubIds = membershipApplications.map((m) => m.club.id);
   // filter out followed clubs that are already in applications
   const followedClubsNotInApplications = followedClubs.filter(
-    club => !applicationClubIds.includes(club.id)
+    (club) => !applicationClubIds.includes(club.id)
   );
   return (
     <Stack>
