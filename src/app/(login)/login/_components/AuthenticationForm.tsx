@@ -6,12 +6,14 @@ import {
   Stack,
   TextInput,
   Image,
-  Anchor
+  Anchor,
+  Text,
+  Box
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useToggle } from "@mantine/hooks";
 import { z } from "zod";
-import { useState } from "react";
+import React, { useState } from "react";
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { logger, notifyError } from "~/client/logger";
@@ -145,30 +147,48 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
   );
 }
 
+function TermsConditionsAndPrivacyPolicyLinks() {
+  return (
+    <Text size={"xs"} c={"dimmed"} ta={"center"}>
+      {"By signing up, you agree to our \n\n"}
+      <Anchor href="https://www.buildirl.com/terms-of-use" target="_blank">
+        {"Terms & Conditions"}
+      </Anchor>
+      {" and "}
+      <Anchor href="https://www.buildirl.com/privacy-policy" target="_blank">
+        {"Privacy Policy"}
+      </Anchor>
+    </Text>
+  );
+}
+
 export default function AuthenticationForm() {
   const [type, toggle] = useToggle(["login", "otp"]);
   const [email, setEmail] = useState("");
   const supabase = createComponentClient();
 
   return (
-    <Paper p="xl" w={300}>
-      <Group justify="center">
-        <Image src={"/images/logo.svg"} h={40} my={10} />
-      </Group>
+    <Stack w={300}>
+      <Paper p="xl" w={300}>
+        <Group justify="center">
+          <Image src={"/images/logo.svg"} h={40} my={10} />
+        </Group>
 
-      <Divider
-        label={"Sign up or sign in below"}
-        labelPosition="center"
-        my="lg"
-      />
+        <Divider
+          label={"Sign up or sign in below"}
+          labelPosition="center"
+          my="lg"
+        />
 
-      {type === "login" && (
-        <EmailForm toggle={toggle} setEmail={setEmail} supabase={supabase} />
-      )}
+        {type === "login" && (
+          <EmailForm toggle={toggle} setEmail={setEmail} supabase={supabase} />
+        )}
 
-      {type === "otp" && (
-        <OtpForm toggle={toggle} email={email} supabase={supabase} />
-      )}
-    </Paper>
+        {type === "otp" && (
+          <OtpForm toggle={toggle} email={email} supabase={supabase} />
+        )}
+      </Paper>
+      <TermsConditionsAndPrivacyPolicyLinks />
+    </Stack>
   );
 }
