@@ -186,8 +186,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
       router.push(`/club/${club.id}/manage`);
     },
-    onError: (error) => {
-      console.error("error updating club:", error);
+    onError: (e) => {
+      console.error("error updating club:", e);
       notifications.show({
         title: "Error",
         message: "Failed to save changes. Please try again.",

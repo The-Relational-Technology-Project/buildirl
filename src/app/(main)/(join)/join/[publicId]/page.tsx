@@ -317,7 +317,7 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
           includeIcon
           onClick={() => router.push(`/join/${club.publicId}/tiers`)}
         >
-          Join as a Member
+          Join as a member
         </PrimaryButton>
       );
   }
@@ -330,7 +330,7 @@ function DefaultJoinButton({ club }: JoinButtonProps) {
       includeIcon
       onClick={() => router.push(`/join/${club.publicId}/tiers`)}
     >
-      Join as a Member
+      Join as a member
     </PrimaryButton>
   );
 }
