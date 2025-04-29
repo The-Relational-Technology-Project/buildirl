@@ -43,7 +43,7 @@ class ErrorBoundary extends React.Component<
               Uh oh! Something went wrong!
             </Text>
             <Text ta={"center"}>
-              Try reloading the page or{" "}
+              {"Try reloading the page or "}
               <Anchor
                 underline={"always"}
                 fw={500}
@@ -52,8 +52,8 @@ class ErrorBoundary extends React.Component<
                 c={"black"}
               >
                 contact
-              </Anchor>{" "}
-              us if the problem persists.
+              </Anchor>
+              {" us if the problem persists."}
             </Text>
             <Button onClick={() => window.location.reload()} mt={"sm"}>
               Reload Page
