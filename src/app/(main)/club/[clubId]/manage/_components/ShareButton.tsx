@@ -1,8 +1,9 @@
 import React from "react";
 import { IconCheck, IconShare } from "@tabler/icons-react";
-import { Button, ButtonProps } from "@mantine/core";
+import { Button, ButtonProps, useMatches } from "@mantine/core";
 import { logger, notifyError } from "~/client/logger";
 import { notifications } from "@mantine/notifications";
+import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
 type ShareButtonProps = {
   clubPublicId: string;
@@ -12,6 +13,8 @@ export default function ShareButton({
   clubPublicId,
   ...props
 }: ShareButtonProps & ButtonProps) {
+  const isMobile = useMatches({ base: true, md: false });
+
   const onShare = async () => {
     const url = `${window.location.origin}/join/${clubPublicId}`;
 
@@ -30,7 +33,15 @@ export default function ShareButton({
     }
   };
 
-  return (
+  return isMobile ? (
+    <ColorSchemeAwareActionIcon
+      onClick={onShare}
+      style={{ border: "1px solid" }}
+      mr={-10}
+    >
+      <IconShare size={16} />
+    </ColorSchemeAwareActionIcon>
+  ) : (
     <Button
       leftSection={<IconShare size={16} />}
       variant="outline"

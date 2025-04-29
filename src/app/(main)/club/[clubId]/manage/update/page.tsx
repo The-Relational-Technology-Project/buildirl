@@ -87,7 +87,7 @@ function LinksSection() {
       <Stack gap={4} mt={6}>
         <Title order={6}>{"Share Your Club's Events"}</Title>
         <TextInput
-          placeholder="Event calendar or next gathering, (e.g. Luma, Partiful, Eventbrite, etc.)"
+          placeholder="Event calendar or next gathering, (e.g. Luma, Partiful, etc.)"
           {...register("eventCalendarUrl")}
           error={errors.eventCalendarUrl?.message}
         />
