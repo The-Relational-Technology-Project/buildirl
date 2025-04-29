@@ -4,6 +4,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { IconUsers } from "@tabler/icons-react";
 import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
+import React from "react";
 
 type MemberCountStatisticProps = {
   clubId: number;
@@ -15,21 +16,21 @@ export default function MemberCountStatistic({
   textSize = "sm",
   ...props
 }: MemberCountStatisticProps & GroupProps) {
-  const r = api.main.clubStatistics.useQuery({ clubId: clubId });
+  const clubStatistics = api.main.clubStatistics.useQuery({ clubId: clubId });
 
   QueryError.check({
-    result: r,
+    result: clubStatistics,
     fieldName: "clubStatistics"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(clubStatistics) && (
       <Group gap={4} {...props}>
         <ColorSchemeAwareThemeIcon size={"xs"}>
           <IconUsers />
         </ColorSchemeAwareThemeIcon>
         <Text size={textSize} fw={400}>
-          {`${r.data!.memberCount} member${r.data!.memberCount > 1 ? "s" : ""}`}
+          {`${clubStatistics.data!.memberCount} member${clubStatistics.data!.memberCount > 1 ? "s" : ""}`}
         </Text>
       </Group>
     )

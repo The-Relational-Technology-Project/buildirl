@@ -13,11 +13,10 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded, toDisplayDate } from "~/client/utils";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { IconListCheck } from "@tabler/icons-react";
 import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
-import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import UserAvatar from "~/client/components/UserAvatar";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type ApproveDeclineMembershipButtonsProps = {
   clubId: number;
@@ -42,7 +41,8 @@ export function ApproveDeclineMembershipButtons({
           clubId: clubId
         });
         await utils.main.clubStatistics.invalidate({ clubId: clubId });
-      }
+      },
+      onError: handleDefaultMutationError
     });
   const declineMembershipApplication =
     api.main.declineMembershipApplication.useMutation({
@@ -50,7 +50,8 @@ export function ApproveDeclineMembershipButtons({
         await utils.main.membershipApplicationsForClub.invalidate({
           clubId: clubId
         });
-      }
+      },
+      onError: handleDefaultMutationError
     });
 
   const handleApproveMembership = (membershipId: bigint) => {
@@ -140,13 +141,15 @@ export default function MembershipApplicationTable({
         {m.email === null ? null : <EmailLink email={m.email} />}
       </Table.Td>
       <Table.Td>
-        <ColorSchemeAwareActionIcon
+        <Button
+          color="blue"
+          size="xs"
           onClick={() =>
             router.push(`/club/${clubId}/member/${m.user.id}/application`)
           }
         >
-          <IconListCheck size={16} />
-        </ColorSchemeAwareActionIcon>
+          Review
+        </Button>
       </Table.Td>
       <Table.Td>
         <ApproveDeclineMembershipButtons clubId={clubId} membershipId={m.id} />
@@ -181,7 +184,8 @@ export default function MembershipApplicationTable({
                 <Table.Th />
                 {/* Application Questions */}
                 <Table.Th />
-                <Table.Th>Action</Table.Th>
+                {/* Action Buttons */}
+                <Table.Th />
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>

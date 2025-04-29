@@ -8,9 +8,7 @@ import {
 import { api } from "~/trpc/react";
 import {
   Button,
-  Group,
   Stack,
-  Text,
   Textarea,
   TextInput,
   Title,
@@ -18,7 +16,6 @@ import {
   Divider,
   useMatches
 } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
 import EditableClubImage from "~/client/components/EditableClubImage";
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -33,6 +30,8 @@ import FAQsSection from "~/app/(main)/club/[clubId]/manage/update/_components/FA
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import PrefixedInput from "~/client/components/PrefixedInput";
+import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 
 function BasicInfoSection() {
   const {
@@ -71,22 +70,28 @@ function LinksSection() {
 
   return (
     <Stack gap={8} mt={6}>
-      <Title order={6}>Links</Title>
+      <Title order={6}>Club Social Links</Title>
       <TextInput
         placeholder="Website link"
         {...register("websiteUrl")}
         error={errors.websiteUrl?.message}
       />
-      <TextInput
-        placeholder="Instagram tag"
-        {...register("instagramHandle")}
-        error={errors.instagramHandle?.message}
-      />
-      <TextInput
-        placeholder="Event calendar link (e.g., Luma)"
-        {...register("eventCalendarUrl")}
-        error={errors.eventCalendarUrl?.message}
-      />
+      <Stack gap={4}>
+        <PrefixedInput
+          prefix="instagram.com/"
+          placeholder="username"
+          {...register("instagramHandle")}
+          error={errors.instagramHandle?.message}
+        />
+      </Stack>
+      <Stack gap={4} mt={6}>
+        <Title order={6}>{"Share Your Club's Events"}</Title>
+        <TextInput
+          placeholder="Event calendar or next gathering, (e.g. Luma, Partiful, etc.)"
+          {...register("eventCalendarUrl")}
+          error={errors.eventCalendarUrl?.message}
+        />
+      </Stack>
     </Stack>
   );
 }
@@ -99,16 +104,14 @@ function ShareLinkSection() {
 
   return (
     <Stack gap={8} mt={6}>
-      <Title order={6}>Share link</Title>
-      <Group gap={4} wrap={"nowrap"}>
-        <Text size={"sm"}>clubs.buildirl.com/join/</Text>
-        <TextInput
-          required
-          placeholder="club-tag"
-          {...register("publicId")}
-          error={errors.publicId?.message}
-        />
-      </Group>
+      <Title order={6}>Club Link</Title>
+      <PrefixedInput
+        prefix="clubs.buildirl.com/join/"
+        placeholder="club-tag"
+        required
+        {...register("publicId")}
+        error={errors.publicId?.message}
+      />
     </Stack>
   );
 }
@@ -150,7 +153,7 @@ interface ShowcaseImagesSectionProps {
 function ShowcaseImagesSection({ club }: ShowcaseImagesSectionProps) {
   return (
     <Stack gap={8} mt={6}>
-      <Title order={6}>Showcase Images</Title>
+      <Title order={6}>Showcase Photos</Title>
       <ClubImageUploader club={club} />
     </Stack>
   );
@@ -165,32 +168,19 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
   const utils = api.useUtils();
   const router = useRouter();
 
-  // TODO we should use this variables pattern and extract out common mutations /
-  //  invalidations for reuse
   const updateClub = api.main.updateClub.useMutation({
-    onSuccess: (_, variables) => {
-      utils.main.club.invalidate({ id: club.id });
+    onSuccess: (_, v) => {
+      utils.main.club.invalidate({ id: v.id });
       utils.main.clubByPublicId.invalidate({
-        publicId: variables.input.publicId
+        publicId: v.input.publicId
       });
       utils.main.userOwnedClubs.invalidate();
 
-      notifications.show({
-        title: "Changes saved",
-        message: "Your club has been updated successfully",
-        color: "green"
-      });
+      notifySuccess("Changes saved", "Your club has been updated successfully");
 
       router.push(`/club/${club.id}/manage`);
     },
-    onError: (error) => {
-      console.error("error updating club:", error);
-      notifications.show({
-        title: "Error",
-        message: "Failed to save changes. Please try again.",
-        color: "red"
-      });
-    }
+    onError: handleDefaultMutationError
   });
 
   const onSubmit = (values: UpdateClubInput) => {

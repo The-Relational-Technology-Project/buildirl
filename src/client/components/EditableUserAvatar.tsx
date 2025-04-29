@@ -48,7 +48,7 @@ export default function EditableUserAvatar({
       await storageClient.uploadUserProfileImage(user.id, file);
     } catch (e) {
       logger.error(e, "failed to upload user profile image");
-      notifyError("Failed to upload user profile image.");
+      notifyError(`${e}`);
       return;
     }
     // TODO this will clear existing form data but we cannot implement something like

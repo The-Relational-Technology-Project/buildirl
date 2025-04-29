@@ -199,19 +199,27 @@ export class SystemState {
     return Array.from(this.clubs.keys());
   }
 
-  public hasClubsWithNoMemberships(): boolean {
-    return this.getClubIdsWithNoMemberships().length > 0;
+  public hasClubsWithNoActiveMembershipsOrMembershipApplications(): boolean {
+    return (
+      this.getClubIdsWithNoActiveMembershipsOrMembershipApplications().length >
+      0
+    );
   }
 
-  public getClubIdsWithNoMemberships(): number[] {
-    const clubsWithMemberships = this.getClubIdsWithMemberships();
+  public getClubIdsWithNoActiveMembershipsOrMembershipApplications(): number[] {
+    const clubsWithMemberships =
+      this.getClubIdsWithActiveMembershipsOrMembershipApplications();
     return Array.from(this.clubs.keys()).filter(
       (id) => !clubsWithMemberships.has(id)
     );
   }
 
-  private getClubIdsWithMemberships(): Set<number> {
-    return new Set(Array.from(this.memberships.values()).map((m) => m.clubId));
+  private getClubIdsWithActiveMembershipsOrMembershipApplications(): Set<number> {
+    return new Set(
+      Array.from(this.memberships.values())
+        .filter((m) => m.status === "ACTIVE" || m.status === "PENDING")
+        .map((m) => m.clubId)
+    );
   }
 
   public getUserOwnedClubs(

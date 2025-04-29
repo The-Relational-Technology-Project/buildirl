@@ -34,11 +34,12 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
 
   const updateClubDisplayImageUrlsMutation =
     api.main.updateClubDisplayImageUrls.useMutation({
-      onSuccess: () => {
-        utils.main.club.invalidate({ id: club.id });
+      onSuccess: (_, v) => {
+        utils.main.club.invalidate({ id: v.clubId });
         utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
         utils.main.userOwnedClubs.invalidate();
       }
+      // no error handling because try-catch around both upload and mutation handles it
     });
 
   const handleUpload = async (file: Maybe<File>) => {
@@ -61,7 +62,7 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
     } catch (e) {
       logger.error(e, `failed to upload club display image ${file.name}`);
       notifyError(
-        "Failed to upload club display image. Please ensure image is not a duplicate."
+        `Failed to upload club display image. Please ensure image is not a duplicate.\n\n${e}`
       );
       return;
     }
@@ -80,7 +81,7 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
       });
     } catch (e) {
       logger.error(e, `failed to delete club display image ${url}`);
-      notifyError("Failed to delete club display image.");
+      notifyError(`${e}`);
     }
   };
 

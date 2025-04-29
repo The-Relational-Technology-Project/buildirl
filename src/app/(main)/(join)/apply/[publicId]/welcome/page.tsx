@@ -11,6 +11,7 @@ import SecondaryButton from "~/client/components/SecondaryButton";
 import { activeMembershipForClub } from "~/utils/types";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import UserClubHandshake from "~/client/components/UserClubHandshake";
+import { handleDefaultMutationError } from "~/client/logger";
 
 export default function Welcome() {
   const params = useParams<{ publicId: string }>();
@@ -25,7 +26,8 @@ export default function Welcome() {
   const setMembershipAsWelcomed = api.main.setMembershipAsWelcomed.useMutation({
     onSuccess: () => {
       utils.main.userMemberships.invalidate();
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   QueryError.check({

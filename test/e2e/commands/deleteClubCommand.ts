@@ -17,11 +17,13 @@ export default class DeleteClubCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasClubsWithNoMemberships();
+    return m.hasClubsWithNoActiveMembershipsOrMembershipApplications();
   }
 
   async run(m: SystemState, r: Services): Promise<void> {
-    this.clubId = this.clubIdSelector.select(m.getClubIdsWithNoMemberships());
+    this.clubId = this.clubIdSelector.select(
+      m.getClubIdsWithNoActiveMembershipsOrMembershipApplications()
+    );
     await r.main.deleteClub(this.clubId);
     // get this for verification before deletion
     const ownerUserId = m.getClub(this.clubId).owner.id;

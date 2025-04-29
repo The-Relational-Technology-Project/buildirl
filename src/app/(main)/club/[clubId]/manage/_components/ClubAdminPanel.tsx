@@ -4,6 +4,7 @@ import { Alert, Button, Stack, Text } from "@mantine/core";
 import React from "react";
 import { isAllLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type ClubAdminPanelProps = {
   clubId: number;
@@ -17,7 +18,8 @@ export default function ClubAdminPanel({ clubId }: ClubAdminPanelProps) {
     onSuccess: () => {
       router.push("/");
       utils.main.userOwnedClubs.invalidate();
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   const r = api.main.activeMembershipsForClub.useQuery({

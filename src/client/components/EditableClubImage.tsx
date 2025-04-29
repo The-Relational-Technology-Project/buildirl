@@ -36,7 +36,7 @@ export default function EditableClubImage({
       setImageVersion((prev) => prev + 1);
     } catch (e) {
       logger.error(e, "failed to upload club profile image");
-      notifyError("Failed to upload club profile image.");
+      notifyError(`${e}`);
     }
   };
 

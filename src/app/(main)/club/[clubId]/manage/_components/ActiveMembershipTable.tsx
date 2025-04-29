@@ -23,6 +23,7 @@ import { IconListCheck } from "@tabler/icons-react";
 import UserAvatar from "~/client/components/UserAvatar";
 import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
 import { isDefaultFreeTier } from "~/utils/types";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type DeactivateMembershipButtonProps = {
   clubId: number;
@@ -43,7 +44,8 @@ export function DeactivateMembershipButton({
         clubId: clubId
       });
       await utils.main.clubStatistics.invalidate({ clubId: clubId });
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   const handleDeactivateMembership = (membershipId: bigint) => {
@@ -169,7 +171,8 @@ export default function ActiveMembershipTable({
                 <Table.Th />
                 {/* Application Questions */}
                 <Table.Th />
-                <Table.Th>Action</Table.Th>
+                {/* Action Buttons */}
+                <Table.Th />
                 {/* Subscription Status */}
                 <Table.Th />
               </Table.Tr>

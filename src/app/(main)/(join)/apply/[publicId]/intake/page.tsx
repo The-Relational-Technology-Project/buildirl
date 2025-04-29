@@ -37,6 +37,7 @@ import SecondaryButton from "~/client/components/SecondaryButton";
 import HideablePaper from "~/client/components/HideablePaper";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { idAsBigInt, isDefaultFreeTier, membershipTier } from "~/utils/types";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type ShareEmailQuestionProp = {
   shareEmail: boolean;
@@ -131,7 +132,8 @@ function ApplicationForm({
             ? `/apply/${clubPublicId}/completed`
             : `/apply/${clubPublicId}/payments?membershipId=${idAsBigInt(r.createdEntityId)}`
         );
-      }
+      },
+      onError: handleDefaultMutationError
     });
 
   // +1 for the share email question
@@ -306,7 +308,7 @@ function ApplicationForm({
       <HideablePaper hidden={totalQuestions === 1}>
         <Stepper
           color="lilac"
-          active={activeStep}
+          active={activeStep + 1}
           hidden={totalQuestions === 1}
           // hacky way to get the stepper to look like a bar!
           styles={{

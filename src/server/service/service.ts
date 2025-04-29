@@ -567,31 +567,36 @@ export function createMainService(
     }
   }
 
-  async function hasAnyMemberships(clubId: number) {
+  async function hasAnyActiveMembershipsOrMembershipApplications(
+    clubId: number
+  ) {
     try {
       const memberCount = await prisma.membership.count({
         where: {
           membershipTier: {
             clubId: clubId
-          }
+          },
+          status: { in: ["ACTIVE", "PENDING"] }
         }
       });
       logger.info(
-        `queried all membership count for club with clubId ${clubId} with result ${memberCount}`
+        `queried all active or pending membership count for club with clubId ${clubId} with result ${memberCount}`
       );
       return memberCount > 0;
     } catch (e) {
       logger.error(
         e,
-        `failed to query all membership count for club with clubId ${clubId}`
+        `failed to query all active or pending membership count for club with clubId ${clubId}`
       );
       throw e;
     }
   }
 
   async function deleteClub(id: number): Promise<MutationResult> {
-    if (await hasAnyMemberships(id)) {
-      throw new Error("cannot delete club if it has any memberships");
+    if (await hasAnyActiveMembershipsOrMembershipApplications(id)) {
+      throw new Error(
+        "cannot delete club if it has any active memberships or membership applications"
+      );
     }
 
     try {
@@ -1821,6 +1826,7 @@ export function createMainService(
     await emailClient.notifyMembershipDeclined(
       {
         membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
         clubName: membership.club.name
       },
       memberEmail

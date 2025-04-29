@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import WithDefaultColorSchemeOnManualRouteChange from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
+import { handleDefaultMutationError } from "~/client/logger";
 
 function CreateUserForm(props: StackProps) {
   const router = useRouter();
@@ -23,7 +24,8 @@ function CreateUserForm(props: StackProps) {
     onSuccess: () => {
       // allow middleware to redirect user to original page
       router.refresh();
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   const form = useForm({

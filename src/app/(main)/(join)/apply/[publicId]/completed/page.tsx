@@ -28,8 +28,7 @@ export default function ApplicationCompleted() {
             THANK YOU FOR APPLYING!
           </Title>
           <Text ta={"center"} size={"lg"}>
-            Your application will be reviewed as soon as possible. Please check
-            back here.
+          Your application is being reviewed. You’ll receive an email with an update soon.
           </Text>
 
           <ClubImage club={r.data!} size={240} />

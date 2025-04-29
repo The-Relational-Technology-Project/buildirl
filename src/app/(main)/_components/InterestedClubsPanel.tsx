@@ -27,6 +27,11 @@ function InterestedClubs({
   membershipApplications,
   followedClubs
 }: InterestedClubsProps) {
+  const applicationClubIds = membershipApplications.map(m => m.club.id);
+  // filter out followed clubs that are already in applications
+  const followedClubsNotInApplications = followedClubs.filter(
+    club => !applicationClubIds.includes(club.id)
+  );
   return (
     <Stack>
       {membershipApplications
@@ -34,7 +39,7 @@ function InterestedClubs({
         .map((m) => (
           <ClubCard key={m.club.id} club={m.club} status={"APPLIED"} />
         ))}
-      {followedClubs
+      {followedClubsNotInApplications
         .sort((c1, c2) => c1.id - c2.id)
         .map((c) => (
           <ClubCard key={c.id} club={c} status={"FOLLOWING"} />

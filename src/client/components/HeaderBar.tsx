@@ -9,7 +9,8 @@ import {
   Box,
   useMantineTheme,
   useMantineColorScheme,
-  BoxProps
+  BoxProps,
+  alpha
 } from "@mantine/core";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -135,7 +136,6 @@ function ProfileMenu({ ...props }: BoxProps) {
 }
 
 export default function HeaderBar() {
-  const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
   // this is required to avoid hydration error because the components are
   // rendered conditionally on colorScheme
@@ -149,10 +149,14 @@ export default function HeaderBar() {
         justify={"center"}
         w={"100vw"}
         style={{
-          position: "relative",
+          position: "fixed",
+          top: 0,
+          zIndex: 999,
           backgroundColor:
-            colorScheme === "dark" ? theme.colors.dark[7] : "beige",
-          borderBottom: `solid 1px ${colorScheme === "dark" ? theme.colors.dark[4] : "black"}`
+            colorScheme === "dark"
+              ? alpha("#000000", 0.6)
+              : // this is beige.7, color tokens do not work with alpha
+                alpha("#e7e2ca", 0.6)
         }}
       >
         <Group justify="flex-start" w={{ base: undefined, md: PAGE_WIDTH }}>

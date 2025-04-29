@@ -7,7 +7,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
-import { DefaultClubImage } from "~/client/components/ClubImage";
+import { FitCheckImage } from "~/client/components/ClubImage";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import React from "react";
 
@@ -36,10 +36,10 @@ export default function Apply() {
           <Stack align="center" gap="lg">
             <Title order={1}>YOU ROCK!</Title>
 
-            <DefaultClubImage size={280} />
+            <FitCheckImage size={280} />
 
             <Title order={2} fw={500} ta="center">
-              {"Let's See If We're A Fit!"}
+              {"Let’s see if we’re a fit."}
             </Title>
 
             <PrimaryButton

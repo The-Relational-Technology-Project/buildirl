@@ -12,6 +12,7 @@ import JoinedDate from "~/client/components/JoinedDate";
 import { isDefaultFreeTier, membershipForClub } from "~/utils/types";
 import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
 import ManagePaymentsButton from "~/app/(main)/club/[clubId]/manage-membership/_components/ManagePaymentsButton";
+import { handleDefaultMutationError } from "~/client/logger";
 
 export default function ManageMembership() {
   const params = useParams<{ clubId: string }>();
@@ -30,7 +31,8 @@ export default function ManageMembership() {
       });
       await utils.main.clubStatistics.invalidate({ clubId: clubId });
       router.push("/");
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   QueryError.check({
@@ -119,15 +121,16 @@ export default function ManageMembership() {
         <Stack w={"100%"} align={"center"} mt={"md"}>
           <Button
             w={180}
-            color={"orange"}
+            color={"red"}
             onClick={handleDeactivateMembership}
             loading={deactivateMembership.isPending}
           >
             Cancel Membership
           </Button>
           <Text size={"sm"} w={360} style={{ textAlign: "center" }}>
-            Your membership will be canceled and you will not be charged after
-            the remaining period. Re-joining will require a re-application.
+            Your membership will be canceled at the end of this billing period.
+            You will not be charged going forward if you decide to leave.
+            Re-joining will require you to re-apply.
           </Text>
         </Stack>
       </Stack>

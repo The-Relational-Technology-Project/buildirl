@@ -167,8 +167,8 @@ export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
 
 export const ClubPublicIdSchema = z
   .string()
-  .min(3, "Length must be >= 3 characters")
-  .regex(CLUB_PUBLIC_ID_REGEX, "Invalid characters");
+  .min(3, "Length must be at least 3 characters")
+  .regex(CLUB_PUBLIC_ID_REGEX, "May only contain letters, numbers, underscores.");
 
 export const UrlSchema = z
   .string()

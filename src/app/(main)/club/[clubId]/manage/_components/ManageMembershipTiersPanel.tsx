@@ -24,6 +24,7 @@ import { Carousel } from "@mantine/carousel";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type ManageMembershipsPanelProps = {
   club: Club;
@@ -173,14 +174,16 @@ export function ManageMembershipTierCard({
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
-    }
+    },
+    onError: handleDefaultMutationError
   });
   const unpublishMembershipTier = api.main.unpublishMembershipTier.useMutation({
     onSuccess: () => {
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   return (
@@ -200,7 +203,7 @@ export function ManageMembershipTierCard({
 
         <Stack style={{ overflowY: "auto" }}>
           <Stack gap={4}>
-            <Title order={6}>Benefits</Title>
+            <Title order={6}>Our member experience</Title>
             <Box mih={60}>
               {membershipTier.benefitDescription === "" ? (
                 <AlertMessage
@@ -213,7 +216,7 @@ export function ManageMembershipTierCard({
             </Box>
 
             <Stack gap={4} mt={4}>
-              <Title order={6}>Contributions</Title>
+              <Title order={6}>Your contribution is key!</Title>
               <Box mih={60}>
                 {membershipTier.contributionDescription === "" ? (
                   <AlertMessage

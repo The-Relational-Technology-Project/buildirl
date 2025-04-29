@@ -27,6 +27,7 @@ import {
 import { Club } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 
 const QUESTION_TYPES = [
   { value: FormQuestionType.SHORT_TEXT, label: "Short Text" },
@@ -44,11 +45,17 @@ export default function ManageIntakePanel({ club }: ManageIntakePanelProps) {
 
   const updateClubApplicationQuestions =
     api.main.updateClubApplicationQuestions.useMutation({
-      onSuccess: () => {
-        utils.main.club.invalidate({ id: club.id });
+      onSuccess: (_, v) => {
+        utils.main.club.invalidate({ id: v.clubId });
         utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
         utils.main.userOwnedClubs.invalidate();
-      }
+
+        notifySuccess(
+          "Changes saved",
+          "Your intake form has been updated successfully"
+        );
+      },
+      onError: handleDefaultMutationError
     });
 
   const methods = useForm<FormQuestions>({

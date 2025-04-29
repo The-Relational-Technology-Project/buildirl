@@ -115,7 +115,7 @@ function MembershipTierCard({
 }: MembershipTierCardProps) {
   const router = useRouter();
   return (
-    <Paper key={membershipTier.id} h={400} w={300} p={"lg"}>
+    <Paper key={membershipTier.id} h={425} w={300} p={"lg"}>
       <Stack h={"100%"} gap={10}>
         <Title order={3}>{membershipTier.name}</Title>
 
