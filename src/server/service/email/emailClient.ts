@@ -52,11 +52,11 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   ): Promise<void> {
     try {
       const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
-      
+
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: `You're in! Welcome to Our Club! 🎉`,
+        subject: `You're in! Welcome to ${input.clubName}! 🎉`,
         text: `Hey ${input.memberFirstName} — amazing news: you're officially a member of ${input.clubName} Club! 🎉\n\n
         We're hyped to have you! 🥳\n\n
         👉 Click here to see more! ${joinPageUrl}`,
