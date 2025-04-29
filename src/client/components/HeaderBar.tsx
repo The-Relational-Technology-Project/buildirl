@@ -154,9 +154,8 @@ export default function HeaderBar() {
           zIndex: 999,
           backgroundColor:
             colorScheme === "dark"
-              ? alpha("#000000", 0.6)
-              : // this is beige.7, color tokens do not work with alpha
-                alpha("#e7e2ca", 0.6)
+              ? alpha("#000000", 0.4)
+              : alpha("#FFFFFF", 0.6)
         }}
       >
         <Group justify="flex-start" w={{ base: undefined, md: PAGE_WIDTH }}>

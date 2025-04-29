@@ -9,7 +9,8 @@ import {
   Text,
   Title,
   useMatches,
-  Anchor
+  Anchor,
+  PaperProps
 } from "@mantine/core";
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -17,6 +18,26 @@ import AlertMessage from "~/client/components/AlertMessage";
 import ClubImage from "~/client/components/ClubImage";
 import ShareButton from "./ShareButton";
 import ClubMembershipInfo from "./ClubMembershipInfo";
+
+function GettingStartedPanel({ ...props }: PaperProps) {
+  return (
+    <Paper p="lg" {...props}>
+      <Stack gap="xs">
+        <Title order={5}>Getting Started?</Title>
+        <Text>
+          {"Check out our "}
+          <Anchor
+            href="https://tulip-iron-c45.notion.site/Build-IRL-Help-Center-1e2a8ae4b4d280a9a8ede144bf158764"
+            target="_blank"
+          >
+            quick set up guide
+          </Anchor>
+          .
+        </Text>
+      </Stack>
+    </Paper>
+  );
+}
 
 type ClubOverviewPanelProps = {
   club: Club;
@@ -89,21 +110,7 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
         </Flex>
       </Paper>
 
-      <Paper p="lg" mb={20}>
-        <Stack gap="xs">
-          <Title order={5}>Getting Started?</Title>
-          <Text>
-            {"Check out our "}
-            <Anchor
-              href="https://tulip-iron-c45.notion.site/Build-IRL-Help-Center-1e2a8ae4b4d280a9a8ede144bf158764"
-              target="_blank"
-            >
-              quick set up guide
-            </Anchor>
-            .
-          </Text>
-        </Stack>
-      </Paper>
+      <GettingStartedPanel mb={20} />
     </Stack>
   );
 }

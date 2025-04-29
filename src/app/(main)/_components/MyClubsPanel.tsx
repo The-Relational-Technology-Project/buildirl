@@ -2,18 +2,19 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
-import { Stack, Text, Title, Box } from "@mantine/core";
+import { Stack, Text, Title, Box, useMatches } from "@mantine/core";
 import { WelcomeImage } from "~/client/components/Images";
 import { Club, Membership } from "~/server/service/types";
 import ClubCard from "~/app/(main)/_components/ClubCard";
 import PrimaryButton from "~/client/components/PrimaryButton";
 
 function EmptyClubs() {
+  const imageSize = useMatches({ base: 200, md: 300 });
   const router = useRouter();
   return (
     <Stack justify="center" align="center" gap={"xs"} mih={"60vh"}>
-      <WelcomeImage size={300} />
-      <Title order={3} mt={"lg"} style={{ textAlign: "center" }}>
+      <WelcomeImage size={imageSize} />
+      <Title order={3} style={{ textAlign: "center" }}>
         {"You're not a part of any clubs. Let's fix that! 🎉"}
       </Title>
       <Text size={"md"}>Join clubs or build one of your own.</Text>
