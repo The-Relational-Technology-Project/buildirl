@@ -7,8 +7,7 @@ import {
   TextInput,
   Image,
   Anchor,
-  Text,
-  Box
+  Text
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useToggle } from "@mantine/hooks";
