@@ -6,6 +6,7 @@ import { Box, Paper, Stack, Text, Title } from "@mantine/core";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { strictParseBigInt } from "~/utils";
 import React from "react";
+import { handleDefaultMutationError } from "~/client/logger";
 
 export default function IntakePaymentsPage() {
   const searchParams = useSearchParams();
@@ -18,7 +19,8 @@ export default function IntakePaymentsPage() {
       // PENDING_INCOMPLETE -> PENDING state
       utils.main.userMemberships.invalidate();
       window.location.href = r.redirectUrl;
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   return (
@@ -36,7 +38,9 @@ export default function IntakePaymentsPage() {
             {"Add your payment info to finish up the application! 🎉"}
           </Text>
 
-          <Text size="sm">Don’t worry, you won’t be charged until you’re officially in.</Text>
+          <Text size="sm">
+            Don’t worry, you won’t be charged until you’re officially in.
+          </Text>
           <Box style={{ alignSelf: "center" }} mt={"md"}>
             <PrimaryButton
               onClick={async () =>

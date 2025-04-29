@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import UserAvatar from "~/client/components/UserAvatar";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type ApproveDeclineMembershipButtonsProps = {
   clubId: number;
@@ -40,7 +41,8 @@ export function ApproveDeclineMembershipButtons({
           clubId: clubId
         });
         await utils.main.clubStatistics.invalidate({ clubId: clubId });
-      }
+      },
+      onError: handleDefaultMutationError
     });
   const declineMembershipApplication =
     api.main.declineMembershipApplication.useMutation({
@@ -48,7 +50,8 @@ export function ApproveDeclineMembershipButtons({
         await utils.main.membershipApplicationsForClub.invalidate({
           clubId: clubId
         });
-      }
+      },
+      onError: handleDefaultMutationError
     });
 
   const handleApproveMembership = (membershipId: bigint) => {

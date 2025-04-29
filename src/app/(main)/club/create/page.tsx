@@ -18,6 +18,7 @@ import { safeValidateSchema } from "~/utils/zod";
 import { useRouter } from "next/navigation";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import PrimaryButton from "~/client/components/PrimaryButton";
+import { handleDefaultMutationError } from "~/client/logger";
 
 function CreateClubForm(props: StackProps) {
   const router = useRouter();
@@ -26,7 +27,8 @@ function CreateClubForm(props: StackProps) {
     onSuccess: async (r) => {
       await utils.main.userOwnedClubs.invalidate();
       router.push(`/club/${r.createdEntityId}/manage`);
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   const form = useForm({

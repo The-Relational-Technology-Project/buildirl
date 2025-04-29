@@ -24,6 +24,7 @@ import { Carousel } from "@mantine/carousel";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type ManageMembershipsPanelProps = {
   club: Club;
@@ -173,14 +174,16 @@ export function ManageMembershipTierCard({
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
-    }
+    },
+    onError: handleDefaultMutationError
   });
   const unpublishMembershipTier = api.main.unpublishMembershipTier.useMutation({
     onSuccess: () => {
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   return (

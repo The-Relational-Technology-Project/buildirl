@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { Alert, Loader, Stack, Text, Title } from "@mantine/core";
 import { api } from "~/trpc/react";
-import { logger } from "~/client/logger";
+import { handleDefaultMutationError } from "~/client/logger";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import { useParams } from "next/navigation";
 import { strictParseInt } from "~/utils";
@@ -16,9 +16,7 @@ export default function RefreshAccountLink() {
     onSuccess: (r) => {
       window.location.href = r.redirectUrl;
     },
-    onError: (e) => {
-      logger.error(e, "failed to refresh account link");
-    }
+    onError: handleDefaultMutationError
   });
 
   useEffect(() => {

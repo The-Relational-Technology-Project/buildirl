@@ -37,6 +37,7 @@ import SecondaryButton from "~/client/components/SecondaryButton";
 import HideablePaper from "~/client/components/HideablePaper";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { idAsBigInt, isDefaultFreeTier, membershipTier } from "~/utils/types";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type ShareEmailQuestionProp = {
   shareEmail: boolean;
@@ -131,7 +132,8 @@ function ApplicationForm({
             ? `/apply/${clubPublicId}/completed`
             : `/apply/${clubPublicId}/payments?membershipId=${idAsBigInt(r.createdEntityId)}`
         );
-      }
+      },
+      onError: handleDefaultMutationError
     });
 
   // +1 for the share email question

@@ -23,6 +23,7 @@ import { IconListCheck } from "@tabler/icons-react";
 import UserAvatar from "~/client/components/UserAvatar";
 import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
 import { isDefaultFreeTier } from "~/utils/types";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type DeactivateMembershipButtonProps = {
   clubId: number;
@@ -43,7 +44,8 @@ export function DeactivateMembershipButton({
         clubId: clubId
       });
       await utils.main.clubStatistics.invalidate({ clubId: clubId });
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   const handleDeactivateMembership = (membershipId: bigint) => {

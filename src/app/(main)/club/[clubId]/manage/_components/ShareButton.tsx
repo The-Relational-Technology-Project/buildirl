@@ -1,8 +1,8 @@
 import React from "react";
-import { IconCheck, IconShare } from "@tabler/icons-react";
+import { IconShare } from "@tabler/icons-react";
 import { Button, ButtonProps, useMatches } from "@mantine/core";
 import { logger, notifyError } from "~/client/logger";
-import { notifications } from "@mantine/notifications";
+import { showNotification } from "@mantine/notifications";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
 type ShareButtonProps = {
@@ -20,16 +20,15 @@ export default function ShareButton({
 
     try {
       await navigator.clipboard.writeText(url);
-      notifications.show({
+      showNotification({
         title: "Link copied",
         message: "Share link has been copied to clipboard",
         color: "green",
-        icon: <IconCheck size="1.1rem" />,
         autoClose: 3000
       });
     } catch (e) {
       logger.error(e, "failed to copy to clipboard");
-      notifyError("Failed to copy share link to clipboard.");
+      notifyError(`${e}`);
     }
   };
 

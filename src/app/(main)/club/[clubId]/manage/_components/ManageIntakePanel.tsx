@@ -27,6 +27,7 @@ import {
 import { Club } from "~/server/service/types";
 import { api } from "~/trpc/react";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import { handleDefaultMutationError } from "~/client/logger";
 
 const QUESTION_TYPES = [
   { value: FormQuestionType.SHORT_TEXT, label: "Short Text" },
@@ -48,7 +49,8 @@ export default function ManageIntakePanel({ club }: ManageIntakePanelProps) {
         utils.main.club.invalidate({ id: club.id });
         utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
         utils.main.userOwnedClubs.invalidate();
-      }
+      },
+      onError: handleDefaultMutationError
     });
 
   const methods = useForm<FormQuestions>({

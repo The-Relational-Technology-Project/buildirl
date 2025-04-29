@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import React from "react";
 import { api } from "~/trpc/react";
-import { logger } from "~/client/logger";
+import { handleDefaultMutationError } from "~/client/logger";
 import { AccountStatus } from "~/server/payments/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -30,9 +30,7 @@ function CreateStripeConnectAccount({
     onSuccess: () => {
       void apiUtils.payments.accountStatus.invalidate();
     },
-    onError: (e) => {
-      logger.error(e, "failed to creating Stripe Connect account");
-    }
+    onError: handleDefaultMutationError
   });
 
   return (
@@ -100,9 +98,7 @@ function ManageStripeConnectAccount({
     onSuccess: (r) => {
       window.location.href = r.redirectUrl;
     },
-    onError: (e) => {
-      logger.error(e, "failed to create account link");
-    }
+    onError: handleDefaultMutationError
   });
 
   return (

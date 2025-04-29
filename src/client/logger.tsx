@@ -1,17 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { rootLogger } from "~/logger";
 import { showNotification } from "@mantine/notifications";
-import { IconExclamationCircle } from "@tabler/icons-react";
+import { TRPCClientErrorLike } from "@trpc/client";
 
 export const logger = rootLogger.child({ module: "client" });
 
-export function notifyError(
-  userFriendlyMessage: string = "There was an error."
-) {
+export function notifyError(message: string = "There was an error.") {
   showNotification({
     title: "Error",
-    message: userFriendlyMessage,
+    message: message,
     color: "red",
-    icon: <IconExclamationCircle size={"1.1rem"} />,
     autoClose: 3000
   });
+}
+
+export function handleDefaultMutationError(error: TRPCClientErrorLike<any>) {
+  logger.error(error, "mutation failed");
+  notifyError(error.message);
 }

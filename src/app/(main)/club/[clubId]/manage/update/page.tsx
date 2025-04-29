@@ -16,7 +16,7 @@ import {
   Divider,
   useMatches
 } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
+import { showNotification } from "@mantine/notifications";
 import EditableClubImage from "~/client/components/EditableClubImage";
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -32,6 +32,7 @@ import { IconDeviceFloppy } from "@tabler/icons-react";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PrefixedInput from "~/client/components/PrefixedInput";
+import { handleDefaultMutationError } from "~/client/logger";
 
 function BasicInfoSection() {
   const {
@@ -178,7 +179,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       });
       utils.main.userOwnedClubs.invalidate();
 
-      notifications.show({
+      showNotification({
         title: "Changes saved",
         message: "Your club has been updated successfully",
         color: "green"
@@ -186,14 +187,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
       router.push(`/club/${club.id}/manage`);
     },
-    onError: (e) => {
-      console.error("error updating club:", e);
-      notifications.show({
-        title: "Error",
-        message: "Failed to save changes. Please try again.",
-        color: "red"
-      });
-    }
+    onError: handleDefaultMutationError
   });
 
   const onSubmit = (values: UpdateClubInput) => {

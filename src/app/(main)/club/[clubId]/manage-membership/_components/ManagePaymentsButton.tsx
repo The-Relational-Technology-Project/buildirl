@@ -1,7 +1,7 @@
 import { Box, BoxProps, Button } from "@mantine/core";
 import React from "react";
 import { api } from "~/trpc/react";
-import { logger } from "~/client/logger";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type ManagePaymentsButtonProps = {
   membershipId: bigint;
@@ -16,9 +16,7 @@ export default function ManagePaymentsButton({
       onSuccess: (r) => {
         window.location.href = r.redirectUrl;
       },
-      onError: (e) => {
-        logger.error(e, "failed to create customer portal session");
-      }
+      onError: handleDefaultMutationError
     });
 
   return (

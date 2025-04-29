@@ -26,6 +26,7 @@ import { isDefaultFreeTier } from "~/utils/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { z } from "zod";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type UpdateMembershipTierModalProps = {
   club: Club;
@@ -50,7 +51,8 @@ export default function UpdateMembershipTierModal({
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
       handleClose();
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   const form = useForm({
@@ -246,7 +248,8 @@ function DeleteMembershipTierButton({
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
       handleClose();
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   const membershipTierIsEligibleForDeletion =

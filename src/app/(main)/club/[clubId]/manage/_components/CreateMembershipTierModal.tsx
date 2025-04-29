@@ -18,6 +18,7 @@ import {
   Title
 } from "@mantine/core";
 import React from "react";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type CreateMembershipTierModalProps = {
   club: Club;
@@ -40,7 +41,8 @@ export default function CreateMembershipTierModal({
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userOwnedClubs.invalidate();
       handleClose();
-    }
+    },
+    onError: handleDefaultMutationError
   });
 
   const form = useForm({

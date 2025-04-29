@@ -15,6 +15,7 @@ import { isAllLoaded, isLoaded } from "~/client/utils";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { QueryError } from "~/client/utils/QueryError";
 import { useRouter } from "next/navigation";
+import { handleDefaultMutationError } from "~/client/logger";
 
 type FollowToggleProps = {
   clubId: number;
@@ -105,12 +106,20 @@ function AuthenticatedFollowToggle({
     onSuccess: () => {
       utils.main.userFollowedClubs.invalidate();
       close();
+    },
+    onError: (e) => {
+      handleDefaultMutationError(e);
+      close();
     }
   });
 
   const unfollowMutation = api.main.unfollowClub.useMutation({
     onSuccess: () => {
       utils.main.userFollowedClubs.invalidate();
+      close();
+    },
+    onError: (e) => {
+      handleDefaultMutationError(e);
       close();
     }
   });
