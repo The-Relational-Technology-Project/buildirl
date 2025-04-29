@@ -8,7 +8,11 @@ import {
   Box,
   Tooltip,
   Group,
-  ThemeIcon
+  ThemeIcon,
+  PaperProps,
+  Paper,
+  Title,
+  Anchor
 } from "@mantine/core";
 import React from "react";
 import { api } from "~/trpc/react";
@@ -134,6 +138,26 @@ function ManageStripeConnectAccount({
   );
 }
 
+function StripeGuidePanel({ ...props }: PaperProps) {
+  return (
+    <Paper p="lg" {...props}>
+      <Stack gap="xs">
+        <Title order={5}>First time with Stripe?</Title>
+        <Text>
+          {"Check out our "}
+          <Anchor
+            href="https://tulip-iron-c45.notion.site/Get-Member-Contributions-by-connecting-Stripe-in-Minutes-1e2a8ae4b4d280ce900ec09ac73fccd7"
+            target="_blank"
+          >
+            Stripe setup guide
+          </Anchor>
+          .
+        </Text>
+      </Stack>
+    </Paper>
+  );
+}
+
 type StripeConnectPanelProps = {
   clubId: number;
 };
@@ -156,15 +180,18 @@ export default function StripeConnectPanel({
 
   return (
     isLoaded(r) && (
-      <Stack mt={"xl"} gap={4} align={"center"}>
-        <Text size={"md"}>
-          Manage your Stripe Connect account to receive member contributions
-        </Text>
-        {r.data === null ? (
-          <CreateStripeConnectAccount clubId={clubId} />
-        ) : (
-          <ManageStripeConnectAccount clubId={clubId} status={r.data!} />
-        )}
+      <Stack>
+        <Stack mt={"xl"} gap={4} align={"center"}>
+          <Text size={"md"}>
+            Manage your Stripe Connect account to receive member contributions
+          </Text>
+          {r.data === null ? (
+            <CreateStripeConnectAccount clubId={clubId} />
+          ) : (
+            <ManageStripeConnectAccount clubId={clubId} status={r.data!} />
+          )}
+        </Stack>
+        <StripeGuidePanel mt={20} />
       </Stack>
     )
   );
