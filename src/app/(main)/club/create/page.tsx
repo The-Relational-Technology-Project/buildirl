@@ -1,16 +1,7 @@
 "use client";
 
 import { api } from "~/trpc/react";
-import {
-  Stack,
-  TextInput,
-  Text,
-  Group,
-  Title,
-  Paper,
-  StackProps,
-  Box
-} from "@mantine/core";
+import { Stack, TextInput, Title, Paper, StackProps, Box } from "@mantine/core";
 import { ClubNameSchema, ClubPublicIdSchema } from "~/server/service/types";
 import { useForm } from "@mantine/form";
 import React from "react";
@@ -19,6 +10,7 @@ import { useRouter } from "next/navigation";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { handleDefaultMutationError } from "~/client/logger";
+import PrefixedInput from "~/client/components/PrefixedInput";
 
 function CreateClubForm(props: StackProps) {
   const router = useRouter();
@@ -70,15 +62,13 @@ function CreateClubForm(props: StackProps) {
         <Title order={6} mt={4}>
           Claim your club link.
         </Title>
-        <Group gap={4} wrap={"nowrap"}>
-          <Text size={"sm"}>clubs.buildirl.com/join/</Text>
-          <TextInput
-            required
-            placeholder="club-tag"
-            key={form.key("publicId")}
-            {...form.getInputProps("publicId")}
-          />
-        </Group>
+        <PrefixedInput
+          prefix={"clubs.buildirl.com/join/"}
+          required
+          placeholder="club-tag"
+          key={form.key("publicId")}
+          {...form.getInputProps("publicId")}
+        />
         <Box style={{ alignSelf: "center" }}>
           <PrimaryButton
             type="submit"
