@@ -7,7 +7,8 @@ import {
   Stack,
   Button,
   BoxProps,
-  useMantineColorScheme
+  useMantineColorScheme,
+  alpha
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { api } from "~/trpc/react";
@@ -64,7 +65,14 @@ type FollowToggleButtonProps = {
 function FollowToggleButton({ isFollowing, onClick }: FollowToggleButtonProps) {
   const { colorScheme } = useMantineColorScheme();
   return (
-    <Button variant={"transparent"} size={"md"} onClick={onClick}>
+    <Button
+      variant={"filled"}
+      color={
+        colorScheme === "dark" ? alpha("#000000", 0.4) : alpha("#FFFFFF", 0.6)
+      }
+      size={"md"}
+      onClick={onClick}
+    >
       <Text c={colorScheme === "dark" ? "white" : "black"}>
         {isFollowing ? "Unfollow 🚪" : "Curious? 👀 Follow us 🔔"}
       </Text>
