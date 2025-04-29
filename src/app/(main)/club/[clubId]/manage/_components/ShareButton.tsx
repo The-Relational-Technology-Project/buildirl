@@ -1,34 +1,37 @@
 import React from "react";
-import { IconShare } from "@tabler/icons-react";
+import { IconCheck, IconShare } from "@tabler/icons-react";
 import { Button, ButtonProps } from "@mantine/core";
+import { logger, notifyError } from "~/client/logger";
+import { notifications } from "@mantine/notifications";
 
 type ShareButtonProps = {
   clubPublicId: string;
-  clubName: string;
 };
 
 export default function ShareButton({
   clubPublicId,
-  clubName,
   ...props
 }: ShareButtonProps & ButtonProps) {
-  const onShare = () => {
-    const shareUrl = `${window.location.origin}/join/${clubPublicId}/`;
-    if (navigator.share) {
-      void navigator.share({
-        title: `Join me at ${clubName}!`,
-        url: shareUrl
+  const onShare = async () => {
+    const url = `${window.location.origin}/join/${clubPublicId}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      notifications.show({
+        title: "Link copied",
+        message: "Share link has been copied to clipboard",
+        color: "green",
+        icon: <IconCheck size="1.1rem" />,
+        autoClose: 3000
       });
-    } else {
-      // Fallback - copy to clipboard
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        alert("Link copied to clipboard!");
-      });
+    } catch (e) {
+      logger.error(e, "failed to copy to clipboard");
+      notifyError("Failed to copy share link to clipboard.");
     }
   };
 
   return (
-    <Button 
+    <Button
       leftSection={<IconShare size={16} />}
       variant="outline"
       onClick={onShare}
@@ -37,4 +40,4 @@ export default function ShareButton({
       Share
     </Button>
   );
-} 
+}

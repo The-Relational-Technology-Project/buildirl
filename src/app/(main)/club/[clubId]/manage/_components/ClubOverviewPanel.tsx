@@ -50,11 +50,7 @@ export default function ClubOverviewPanel({ club }: ClubOverviewPanelProps) {
           </Box>
           <Stack justify={"space-between"} style={{ flex: 1 }}>
             <Box style={{ position: "absolute", top: 0, right: 0, zIndex: 1 }}>
-              <ShareButton
-                clubPublicId={club.publicId}
-                clubName={club.name}
-                size="sm"
-              />
+              <ShareButton clubPublicId={club.publicId} size="sm" />
             </Box>
 
             <Stack gap={6}>
