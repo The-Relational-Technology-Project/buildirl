@@ -8,7 +8,8 @@ import {
   Group,
   Title,
   Paper,
-  StackProps
+  StackProps,
+  Box
 } from "@mantine/core";
 import { ClubNameSchema, ClubPublicIdSchema } from "~/server/service/types";
 import { useForm } from "@mantine/form";
@@ -76,20 +77,17 @@ function CreateClubForm(props: StackProps) {
             {...form.getInputProps("publicId")}
           />
         </Group>
-        <PrimaryButton
-          type="submit"
-          w={150}
-          style={{
-            alignSelf: "center",
-            border: "2px solid black",
-            borderRadius: 360,
-            boxShadow: "4px 4px 0px black"
-          }}
-          disabled={!form.isValid()}
-          loading={createUser.isPending}
-        >
-          Create
-        </PrimaryButton>
+        <Box style={{ alignSelf: "center" }}>
+          <PrimaryButton
+            type="submit"
+            w={150}
+            size={"md"}
+            disabled={!form.isValid()}
+            loading={createUser.isPending}
+          >
+            Create
+          </PrimaryButton>
+        </Box>
       </Stack>
     </form>
   );
