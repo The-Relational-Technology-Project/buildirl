@@ -144,7 +144,7 @@ export type MainMutations = {
   unfollowClub(userId: number, clubId: number): Promise<MutationResult>;
 };
 
-const CLUB_PUBLIC_ID_REGEX = /^[A-Z0-9_-]+$/;
+const CLUB_PUBLIC_ID_REGEX = /^[a-z0-9_-]+$/;
 const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._]{0,29}$/;
 
 export const RequiredStringSchema = z.string().min(1, "Required");

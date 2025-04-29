@@ -6,6 +6,7 @@ import { IconArrowUp } from "@tabler/icons-react";
 import { User } from "~/server/service/types";
 import UserAvatar from "~/client/components/UserAvatar";
 import { logger, notifyError } from "~/client/logger";
+import { stringify } from "~/utils";
 
 type EditableUserAvatarProps = {
   user: User;
@@ -47,8 +48,8 @@ export default function EditableUserAvatar({
     try {
       await storageClient.uploadUserProfileImage(user.id, file);
     } catch (e) {
-      logger.error(e, "failed to upload user profile image");
-      notifyError(`${e}`);
+      logger.error(stringify(e), "failed to upload user profile image");
+      notifyError(`${stringify(e)}`);
       return;
     }
     // TODO this will clear existing form data but we cannot implement something like

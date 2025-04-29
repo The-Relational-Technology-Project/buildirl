@@ -7,6 +7,7 @@ import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
 import { Club } from "~/server/service/types";
 import ClubImage from "~/client/components/ClubImage";
 import { logger, notifyError } from "~/client/logger";
+import { stringify } from "~/utils";
 
 type EditableClubImageProps = {
   club: Club;
@@ -35,8 +36,8 @@ export default function EditableClubImage({
       // increment version to force re-render with new image URL
       setImageVersion((prev) => prev + 1);
     } catch (e) {
-      logger.error(e, "failed to upload club profile image");
-      notifyError(`${e}`);
+      logger.error(stringify(e), "failed to upload club profile image");
+      notifyError(`${stringify(e)}`);
     }
   };
 

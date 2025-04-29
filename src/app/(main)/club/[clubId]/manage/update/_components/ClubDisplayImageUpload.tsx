@@ -17,6 +17,7 @@ import { Club } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
 import { logger, notifyError } from "~/client/logger";
 import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
+import { stringify } from "~/utils";
 
 const MAX_DISPLAY_IMAGE_COUNT = 5;
 
@@ -60,10 +61,11 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
         input: { displayImageUrls: updatedUrls }
       });
     } catch (e) {
-      logger.error(e, `failed to upload club display image ${file.name}`);
-      notifyError(
-        `Failed to upload club display image. Please ensure image is not a duplicate.\n\n${e}`
+      logger.error(
+        stringify(e),
+        `failed to upload club display image ${file.name}`
       );
+      notifyError(`${stringify(e)}`);
       return;
     }
   };
@@ -80,8 +82,8 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
         input: { displayImageUrls: updatedUrls }
       });
     } catch (e) {
-      logger.error(e, `failed to delete club display image ${url}`);
-      notifyError(`${e}`);
+      logger.error(stringify(e), `failed to delete club display image ${url}`);
+      notifyError(`${stringify(e)}`);
     }
   };
 

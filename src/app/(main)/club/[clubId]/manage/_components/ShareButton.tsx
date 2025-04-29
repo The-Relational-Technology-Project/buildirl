@@ -4,6 +4,7 @@ import { Button, ButtonProps, useMatches } from "@mantine/core";
 import { logger, notifyError } from "~/client/logger";
 import { showNotification } from "@mantine/notifications";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import { stringify } from "~/utils";
 
 type ShareButtonProps = {
   clubPublicId: string;
@@ -27,8 +28,8 @@ export default function ShareButton({
         autoClose: 3000
       });
     } catch (e) {
-      logger.error(e, "failed to copy to clipboard");
-      notifyError(`${e}`);
+      logger.error(stringify(e), "failed to copy to clipboard");
+      notifyError(`${stringify(e)}`);
     }
   };
 
