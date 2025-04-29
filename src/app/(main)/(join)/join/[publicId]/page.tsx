@@ -15,8 +15,12 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
-import { Club } from "~/server/service/types";
-import { activeMembershipForClub, membershipForClub } from "~/utils/types";
+import { Club, InstagramHandle, Url } from "~/server/service/types";
+import {
+  activeMembershipForClub,
+  Maybe,
+  membershipForClub
+} from "~/utils/types";
 import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 import ClubImage from "~/client/components/ClubImage";
@@ -132,7 +136,7 @@ export default function ClubJoin() {
 
           <ClubImage club={r.data!} size={clubImageSize} />
 
-          <Stack align={"center"} gap={0} mb={8}>
+          <Stack align={"center"} gap={0}>
             <Title
               fz={{ base: 32, md: 45 }}
               style={{
@@ -145,9 +149,11 @@ export default function ClubJoin() {
             </Title>
 
             <Stack align={"center"} gap={8} mt={4}>
-              <Text ta={"center"} size={"lg"}>
-                {r.data!.tagLine}
-              </Text>
+              {r.data!.tagLine !== "" && (
+                <Text ta={"center"} size={"lg"}>
+                  {r.data!.tagLine}
+                </Text>
+              )}
 
               <Text
                 style={{ cursor: "pointer" }}
@@ -157,27 +163,10 @@ export default function ClubJoin() {
                 {"About >"}
               </Text>
 
-              <Group mt={"xs"}>
-                {r.data!.websiteUrl && (
-                  <ActionIconBox
-                    onClick={() => window.open(`${r.data!.websiteUrl}`)}
-                    icon={<IconWorld />}
-                    size={"lg"}
-                  />
-                )}
-
-                {r.data!.instagramHandle && (
-                  <ActionIconBox
-                    onClick={() =>
-                      window.open(
-                        `https://instagram.com/${r.data!.instagramHandle}`
-                      )
-                    }
-                    icon={<IconBrandInstagram />}
-                    size={"lg"}
-                  />
-                )}
-              </Group>
+              <LinkIcons
+                websiteUrl={r.data!.websiteUrl}
+                instagramHandle={r.data!.instagramHandle}
+              />
             </Stack>
           </Stack>
 
@@ -215,6 +204,39 @@ export default function ClubJoin() {
         </Stack>
       </>
     )
+  );
+}
+
+type LinkIconProps = {
+  websiteUrl: Maybe<Url>;
+  instagramHandle: Maybe<InstagramHandle>;
+};
+
+function LinkIcons({ websiteUrl, instagramHandle }: LinkIconProps) {
+  if (!websiteUrl && !instagramHandle) {
+    return null;
+  }
+
+  return (
+    <Group mt={"xs"} mb={8}>
+      {websiteUrl && (
+        <ActionIconBox
+          onClick={() => window.open(`${websiteUrl}`)}
+          icon={<IconWorld />}
+          size={"lg"}
+        />
+      )}
+
+      {instagramHandle && (
+        <ActionIconBox
+          onClick={() =>
+            window.open(`https://instagram.com/${instagramHandle}`)
+          }
+          icon={<IconBrandInstagram />}
+          size={"lg"}
+        />
+      )}
+    </Group>
   );
 }
 
