@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Group,
   Image,
@@ -29,9 +28,6 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
   const size = useMatches({ base: 120, md: 200 });
 
   const utils = api.useUtils();
-  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>(
-    club.displayImageUrls
-  );
 
   const updateClubDisplayImageUrlsMutation =
     api.main.updateClubDisplayImageUrls.useMutation({
@@ -53,8 +49,7 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
     try {
       const url = await storageClient.uploadClubDisplayImage(club.id, file);
 
-      const updatedUrls = [...uploadedImageUrls, url];
-      setUploadedImageUrls(updatedUrls);
+      const updatedUrls = [...club.displayImageUrls, url];
 
       await updateClubDisplayImageUrlsMutation.mutateAsync({
         clubId: club.id,
@@ -74,8 +69,7 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
     try {
       await storageClient.deleteClubDisplayImage(club.id, url);
 
-      const updatedUrls = uploadedImageUrls.filter((u) => u !== url);
-      setUploadedImageUrls(updatedUrls);
+      const updatedUrls = club.displayImageUrls.filter((u) => u !== url);
 
       await updateClubDisplayImageUrlsMutation.mutateAsync({
         clubId: club.id,
@@ -96,14 +90,14 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
         style={{ display: "none" }}
         id="file-upload"
         // all slots are filled
-        disabled={uploadedImageUrls.length >= 5}
+        disabled={club.displayImageUrls.length >= 5}
       />
 
       <ScrollArea type="never" h={size + 10}>
         <Group w={"max-content"}>
           {Array.from({ length: MAX_DISPLAY_IMAGE_COUNT }).map((_, index) => {
-            const url = uploadedImageUrls[index];
-            const isLeftmostEmptySlot = index === uploadedImageUrls.length;
+            const url = club.displayImageUrls[index];
+            const isLeftmostEmptySlot = index === club.displayImageUrls.length;
 
             return (
               <Center
@@ -138,7 +132,7 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
                     component="label"
                     htmlFor="file-upload"
                     variant="transparent"
-                    disabled={uploadedImageUrls.length >= 5}
+                    disabled={club.displayImageUrls.length >= 5}
                   >
                     <IconPlus size={24} />
                   </Button>
