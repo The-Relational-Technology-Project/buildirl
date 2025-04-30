@@ -26,7 +26,7 @@ type CreateMembershipTierModalProps = {
   handleClose: () => void;
 };
 
-const DEFAULT_COST_PER_MONTH_USD = 50;
+const DEFAULT_COST_PER_MONTH_USD = 20;
 
 export default function CreateMembershipTierModal({
   club,
@@ -111,7 +111,12 @@ export default function CreateMembershipTierModal({
             {...form.getInputProps("contributionDescription")}
           />
 
-          <Title order={6}>Monthly Cost</Title>
+          <Stack gap={4}>
+            <Title order={6}>Monthly Cost</Title>
+            <Text
+              size={"md"}
+            >{`$${form.values.costPerMonthInUSD}.00/month`}</Text>
+          </Stack>
           <Slider
             label={(value) => `$${value}.00/month`}
             key={form.key("costPerMonthInUSD")}
