@@ -29,6 +29,13 @@ export function strictParseBigInt(s: Maybe<string>): bigint {
   return BigInt(s);
 }
 
+export function explicitlyParseTruthyBoolean(s: Maybe<string>): boolean {
+  if (null === s) {
+    return false;
+  }
+  return s === "true";
+}
+
 export function assertAsString(value: unknown): string {
   if (typeof value === "string") {
     return value;

@@ -15,8 +15,9 @@ import { api } from "~/trpc/react";
 import { isAllLoaded, isLoaded } from "~/client/utils";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { QueryError } from "~/client/utils/QueryError";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { handleDefaultMutationError } from "~/client/logger";
+import { explicitlyParseTruthyBoolean } from "~/utils";
 
 type FollowToggleProps = {
   clubId: number;
@@ -27,7 +28,8 @@ type FollowToggleProps = {
 
 export default function FollowToggle({
   clubId,
-  redirectTo
+  redirectTo,
+  ...props
 }: FollowToggleProps & BoxProps) {
   const router = useRouter();
   const isAuthenticated = api.main.isUserAuthenticated.useQuery(undefined, {
@@ -46,14 +48,18 @@ export default function FollowToggle({
   }
 
   return isAuthenticated.data ? (
-    <AuthenticatedFollowToggle clubId={clubId} />
+    <AuthenticatedFollowToggle clubId={clubId} {...props} />
   ) : (
-    <FollowToggleButton
-      isFollowing={false}
-      onClick={() =>
-        router.push(`/login?redirect=${encodeURIComponent(redirectTo)}`)
-      }
-    />
+    <Box {...props}>
+      <FollowToggleButton
+        isFollowing={false}
+        onClick={() =>
+          router.push(
+            `/login?redirect=${encodeURIComponent(redirectTo)}&followModalOpened=true`
+          )
+        }
+      />
+    </Box>
   );
 }
 
@@ -88,7 +94,12 @@ function AuthenticatedFollowToggle({
   clubId,
   ...props
 }: AuthenticatedFollowToggleProps & BoxProps) {
-  const [opened, { open, close }] = useDisclosure(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const followModalOpened = explicitlyParseTruthyBoolean(
+    searchParams.get("followModalOpened")
+  );
+  const [opened, { open, close }] = useDisclosure(followModalOpened);
   const utils = api.useUtils();
 
   const followedClubs = api.main.userFollowedClubs.useQuery();
@@ -113,22 +124,22 @@ function AuthenticatedFollowToggle({
   const followMutation = api.main.followClub.useMutation({
     onSuccess: () => {
       utils.main.userFollowedClubs.invalidate();
-      close();
+      onClose();
     },
     onError: (e) => {
       handleDefaultMutationError(e);
-      close();
+      onClose();
     }
   });
 
   const unfollowMutation = api.main.unfollowClub.useMutation({
     onSuccess: () => {
       utils.main.userFollowedClubs.invalidate();
-      close();
+      onClose();
     },
     onError: (e) => {
       handleDefaultMutationError(e);
-      close();
+      onClose();
     }
   });
 
@@ -147,6 +158,18 @@ function AuthenticatedFollowToggle({
 
   const isFollowing = followedClubs.data!.some((c) => c.id === clubId);
 
+  const onClose = () => {
+    // change url without scrolling page to top
+    router.push(`?followModalOpened=false`, { scroll: false });
+    close();
+  };
+
+  const onOpen = () => {
+    // change url without scrolling page to top
+    router.push(`?followModalOpened=true`, { scroll: false });
+    open();
+  };
+
   const handleConfirm = () => {
     if (isFollowing) {
       unfollowMutation.mutate({ clubId });
@@ -157,9 +180,9 @@ function AuthenticatedFollowToggle({
 
   return (
     <Box {...props}>
-      <FollowToggleButton isFollowing={isFollowing} onClick={open} />
+      <FollowToggleButton isFollowing={isFollowing} onClick={onOpen} />
 
-      <Modal opened={opened} onClose={close} centered>
+      <Modal opened={opened} onClose={onClose} centered>
         <Stack p={"sm"} align={"center"}>
           <Text size="md" mb="lg">
             {isFollowing

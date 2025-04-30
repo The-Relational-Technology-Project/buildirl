@@ -123,7 +123,12 @@ export default function UpdateMembershipTierModal({
 
           {!isDefaultFreeTier(membershipTier) && (
             <Stack>
-              <Title order={6}>Monthly Cost</Title>
+              <Stack gap={4}>
+                <Title order={6}>Monthly Cost</Title>
+                <Text
+                  size={"md"}
+                >{`$${form.values.costPerMonthInUSD}.00/month`}</Text>
+              </Stack>
               <Slider
                 label={(value) => `$${value}.00/month`}
                 key={form.key("costPerMonthInUSD")}
