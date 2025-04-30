@@ -25,11 +25,11 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
         from: FROM_EMAIL,
         to: sendTo,
         subject: "A membership application was submitted! 🎉",
-        text: `${input.memberFirstName} ${input.memberLastName} just applied to join ${input.clubName} Club. 
+        text: `${input.memberFirstName} ${input.memberLastName} just applied to join ${input.clubName}. 
         Review their application and see if they are a fit: ${managePeopleDashboardUrl}`,
         html: `
           <div>
-            <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> just applied to join <strong>${input.clubName} Club</strong>.</p>
+            <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> just applied to join <strong>${input.clubName}</strong>.</p>
             <p><a href="${managePeopleDashboardUrl}">Review their application</a> and see if they are a fit.</p>
           </div>
         `
@@ -57,12 +57,12 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
         from: FROM_EMAIL,
         to: sendTo,
         subject: `You're in! Welcome to ${input.clubName}! 🎉`,
-        text: `Hey ${input.memberFirstName} — amazing news: you're officially a member of ${input.clubName} Club! 🎉\n\n
+        text: `Hey ${input.memberFirstName} — amazing news: you're officially a member of ${input.clubName}! 🎉\n\n
         We're hyped to have you! 🥳\n\n
         👉 Click here to see more! ${joinPageUrl}`,
         html: `
           <div>
-            <p>Hey <strong>${input.memberFirstName}</strong> — amazing news: you're officially a member of <strong>${input.clubName} Club</strong>! 🎉</p>
+            <p>Hey <strong>${input.memberFirstName}</strong> — amazing news: you're officially a member of <strong>${input.clubName}</strong>! 🎉</p>
             <p>We're hyped to have you! 🥳</p>
             <p>👉 <a href="${joinPageUrl}">Click here to see more!</a></p>
           </div>
@@ -89,12 +89,12 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
         from: FROM_EMAIL,
         to: sendTo,
         subject: `Sorry, your application was not accepted this time`,
-        text: `Hey ${input.memberFirstName} — thanks for applying to the ${input.clubName} Club. 
+        text: `Hey ${input.memberFirstName} — thanks for applying to the ${input.clubName}. 
         We couldn't accept your application this time. 💌 Plenty more clubs to explore — go find your people.
         P.S. If you shared payment info, no worries — you won't be charged.`,
         html: `
           <div>
-            <p>Hey <strong>${input.memberFirstName}</strong> — thanks for applying to the <strong>${input.clubName} Club</strong>.</p>
+            <p>Hey <strong>${input.memberFirstName}</strong> — thanks for applying to the <strong>${input.clubName}</strong>.</p>
             <p>We couldn't accept your application this time. 💌 Plenty more clubs to explore — go find your people.</p>
             <p>P.S. If you shared payment info, no worries — you won't be charged.</p>
           </div>
@@ -122,11 +122,11 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
         from: FROM_EMAIL,
         to: sendTo,
         subject: "A member just left your club 👋",
-        text: `${input.memberFirstName} just deactivated their membership from ${input.clubName} Club. 
+        text: `${input.memberFirstName} just deactivated their membership from ${input.clubName}. 
         Your club won't receive contributions from them anymore. Don't forget to bid them a warm goodbye. 🫶 👉Check membership dashboard for more details ${managePeopleDashboardUrl}`,
         html: `
           <div>
-            <p><strong>${input.memberFirstName}</strong> just deactivated their membership from <strong>${input.clubName} Club</strong>.</p>
+            <p><strong>${input.memberFirstName}</strong> just deactivated their membership from <strong>${input.clubName}</strong>.</p>
             <p>Your club won't receive contributions from them anymore.</p>
             <p>Don't forget to bid them a warm goodbye. 🫶</p>
             <p>👉Check <a href="${managePeopleDashboardUrl}">membership dashboard</a> for more details.</p>
