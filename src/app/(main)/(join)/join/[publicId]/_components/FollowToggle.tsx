@@ -27,7 +27,8 @@ type FollowToggleProps = {
 
 export default function FollowToggle({
   clubId,
-  redirectTo
+  redirectTo,
+  ...props
 }: FollowToggleProps & BoxProps) {
   const router = useRouter();
   const isAuthenticated = api.main.isUserAuthenticated.useQuery(undefined, {
@@ -46,13 +47,14 @@ export default function FollowToggle({
   }
 
   return isAuthenticated.data ? (
-    <AuthenticatedFollowToggle clubId={clubId} />
+    <AuthenticatedFollowToggle clubId={clubId} {...props} />
   ) : (
     <FollowToggleButton
       isFollowing={false}
       onClick={() =>
         router.push(`/login?redirect=${encodeURIComponent(redirectTo)}`)
       }
+      {...props}
     />
   );
 }

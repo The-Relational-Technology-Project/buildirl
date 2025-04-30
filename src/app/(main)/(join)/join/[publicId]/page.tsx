@@ -184,7 +184,7 @@ export default function ClubJoin() {
 
           <FollowToggle
             clubId={r.data!.id}
-            mb={-10}
+            mt={10}
             redirectTo={`/join/${publicId}`}
           />
 
