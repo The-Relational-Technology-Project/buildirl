@@ -23,7 +23,7 @@ export default function SetupStripeConnectModal({
   return (
     <Modal
       padding={"xl"}
-      yOffset={200}
+      centered
       opened={opened}
       onClose={handleClose}
       title={

@@ -79,7 +79,7 @@ export default function UpdateMembershipTierModal({
       opened={opened}
       onClose={handleClose}
       padding={"xl"}
-      yOffset={100}
+      centered
       title={
         <Text size={"xl"} fw={700}>
           Update Tier
