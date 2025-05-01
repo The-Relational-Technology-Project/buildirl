@@ -68,7 +68,7 @@ export default function CreateMembershipTierModal({
       opened={opened}
       onClose={handleClose}
       padding={"xl"}
-      yOffset={100}
+      centered
       title={
         <Text size={"xl"} fw={700}>
           Create Tier
