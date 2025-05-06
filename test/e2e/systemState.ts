@@ -249,13 +249,19 @@ export class SystemState {
       id: clubId,
       ...input,
       ownerUserId: userId,
+      // defaults
+      tagLine: "",
+      description: "",
+      websiteUrl: null,
+      instagramHandle: null,
+      eventCalendarUrl: null,
       applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
       theme: null,
       themeHeadingFont: null,
       displayImageUrls: [],
+      faqs: DEFAULT_CLUB_FAQS,
       membershipTierIds: [],
-      hasStripeAccount: false,
-      faqs: DEFAULT_CLUB_FAQS
+      hasStripeAccount: false
     });
 
     this.createFreeMembershipTier(freeMembershipTierId, clubId);

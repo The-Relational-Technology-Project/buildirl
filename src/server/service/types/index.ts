@@ -197,14 +197,8 @@ export const ClubTagLineSchema = z
 
 export const CreateClubInputSchema = z.object({
   name: ClubNameSchema,
-  publicId: ClubPublicIdSchema,
-  tagLine: ClubTagLineSchema,
-  // TODO: reduce code! remove these as well to just the fields the client needs
-  description: LongTextSchema,
-  websiteUrl: UrlSchema.nullable(),
-  instagramHandle: InstagramHandleSchema.nullable(),
-  eventCalendarUrl: UrlSchema.nullable()
-  // additional fields (e.g, themes, faqs, etc) will be defaulted in the backend
+  publicId: ClubPublicIdSchema
+  // non-required fields (e.g, description, themes, faqs, etc) will be defaulted in the backend
 });
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
 

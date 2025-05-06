@@ -498,6 +498,12 @@ export function createMainService(
         data: {
           ...input,
           ownerUserId: userId,
+          // defaults
+          tagLine: "",
+          description: "",
+          websiteUrl: null,
+          instagramHandle: null,
+          eventCalendarUrl: null,
           applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
           theme: Prisma.DbNull,
           faqs: DEFAULT_CLUB_FAQS

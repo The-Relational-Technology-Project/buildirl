@@ -42,13 +42,7 @@ function CreateClubForm(props: StackProps) {
       onSubmit={form.onSubmit(async ({ name, publicId }) => {
         await createUser.mutateAsync({
           name: name,
-          publicId: publicId,
-          // default empty
-          tagLine: "",
-          description: "",
-          websiteUrl: null,
-          instagramHandle: null,
-          eventCalendarUrl: null
+          publicId: publicId
         });
       })}
     >

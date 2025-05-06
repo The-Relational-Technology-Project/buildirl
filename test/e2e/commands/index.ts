@@ -124,12 +124,7 @@ function createClubCommands() {
       new CreateClubCommand(
         {
           name: i.name,
-          publicId: i.publicId,
-          tagLine: i.tagLine,
-          description: i.description,
-          websiteUrl: i.websiteUrl,
-          instagramHandle: i.instagramHandle,
-          eventCalendarUrl: i.eventCalendarUrl
+          publicId: i.publicId
         },
         i.userIdSelector
       )
