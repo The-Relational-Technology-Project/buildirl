@@ -27,6 +27,11 @@ enum MembershipTierStatus {
   UNPUBLISHED
 }
 
+enum EmailTemplateType {
+  ONBOARDING
+  OFFBOARDING
+}
+
 model User {
   id          Int             @id @default(autoincrement())
   // internal-only
@@ -142,4 +147,14 @@ model ClubFollowing {
   @@index([userId])
   @@index([clubId])
   @@map("club_following")
+}
+
+model EmailTemplate {
+  id          String            @id @default(uuid())
+  type        EmailTemplateType
+  subject     String
+  htmlContent String            @db.Text
+  textContent String            @db.Text
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
