@@ -43,6 +43,9 @@ export type Club = {
   publicId: string;
   name: string;
   tagLine: string;
+  // TODO we should make this non-nullable once the DB field is
+  //  made non-nullable after values are back-populated
+  // this is nullable for backwards compatibility purposes
   location: Maybe<City>;
   description: string;
   owner: User;

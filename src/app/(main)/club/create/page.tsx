@@ -11,6 +11,8 @@ import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { handleDefaultMutationError } from "~/client/logger";
 import PrefixedInput from "~/client/components/PrefixedInput";
+import LocationSelect from "~/client/components/LocationSelect";
+import { CitySchema } from "~/server/service/types/location";
 
 function CreateClubForm(props: StackProps) {
   const router = useRouter();
@@ -26,23 +28,26 @@ function CreateClubForm(props: StackProps) {
   const form = useForm({
     initialValues: {
       name: "",
-      publicId: ""
+      publicId: "",
+      location: ""
     },
 
     validateInputOnChange: true,
 
     validate: {
       name: (v) => safeValidateSchema(ClubNameSchema, v),
-      publicId: (v) => safeValidateSchema(ClubPublicIdSchema, v)
+      publicId: (v) => safeValidateSchema(ClubPublicIdSchema, v),
+      location: (v) => safeValidateSchema(CitySchema, v)
     }
   });
 
   return (
     <form
-      onSubmit={form.onSubmit(async ({ name, publicId }) => {
+      onSubmit={form.onSubmit(async ({ name, publicId, location }) => {
         await createUser.mutateAsync({
           name: name,
-          publicId: publicId
+          publicId: publicId,
+          location: location
         });
       })}
     >
@@ -52,6 +57,14 @@ function CreateClubForm(props: StackProps) {
           placeholder="Club name"
           key={form.key("name")}
           {...form.getInputProps("name")}
+        />
+        <LocationSelect
+          value={form.values.location}
+          onChange={(value) => {
+            form.setFieldValue("location", value!);
+            form.validateField("location");
+          }}
+          error={form.errors.location}
         />
         <Title order={6} mt={4}>
           Claim your club link.

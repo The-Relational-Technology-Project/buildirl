@@ -13,7 +13,6 @@ import {
   TextInput,
   Title,
   Box,
-  Divider,
   useMatches
 } from "@mantine/core";
 import EditableClubImage from "~/client/components/EditableClubImage";
@@ -32,6 +31,8 @@ import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PrefixedInput from "~/client/components/PrefixedInput";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
+import LocationSelect from "~/client/components/LocationSelect";
+import { City } from "~/server/service/types/location";
 
 function BasicInfoSection() {
   const {
@@ -40,7 +41,7 @@ function BasicInfoSection() {
   } = useFormContext<UpdateClubInput>();
 
   return (
-    <Stack gap={8} mt={4}>
+    <Stack gap={8}>
       <TextInput
         required
         placeholder="Club name"
@@ -62,6 +63,31 @@ function BasicInfoSection() {
   );
 }
 
+function LocationSection() {
+  const {
+    formState: { errors },
+    setValue,
+    watch,
+    trigger
+  } = useFormContext<UpdateClubInput>();
+  const location = watch("location");
+  return (
+    <Stack gap={8}>
+      <Title order={6}>Location</Title>
+      <LocationSelect
+        value={location}
+        // even though we by-pass the type check for null, null value
+        // will still trigger the proper react-hook-form validation
+        onChange={async (value) => {
+          setValue("location", value!);
+          await trigger("location");
+        }}
+        error={errors.location?.message}
+      />
+    </Stack>
+  );
+}
+
 function LinksSection() {
   const {
     register,
@@ -69,7 +95,7 @@ function LinksSection() {
   } = useFormContext<UpdateClubInput>();
 
   return (
-    <Stack gap={8} mt={6}>
+    <Stack gap={8}>
       <Title order={6}>Club Social Links</Title>
       <TextInput
         placeholder="Website link"
@@ -103,7 +129,7 @@ function ShareLinkSection() {
   } = useFormContext<UpdateClubInput>();
 
   return (
-    <Stack gap={8} mt={6}>
+    <Stack gap={8}>
       <Title order={6}>Club Link</Title>
       <PrefixedInput
         prefix="clubs.buildirl.com/join/"
@@ -121,7 +147,7 @@ function ThemeSection() {
   const theme = watch("theme");
 
   return (
-    <Stack gap={12} mt={6}>
+    <Stack gap={12}>
       <Title order={6}>Background</Title>
       <ThemeSelector
         value={theme}
@@ -136,7 +162,7 @@ function FontSection() {
   const font = watch("themeHeadingFont");
 
   return (
-    <Stack gap={12} mt={6}>
+    <Stack gap={12}>
       <Title order={6}>Font</Title>
       <FontSelector
         value={font}
@@ -152,7 +178,7 @@ interface ShowcaseImagesSectionProps {
 
 function ShowcaseImagesSection({ club }: ShowcaseImagesSectionProps) {
   return (
-    <Stack gap={8} mt={6}>
+    <Stack gap={8}>
       <Title order={6}>Showcase Photos</Title>
       <ClubImageUploader club={club} />
     </Stack>
@@ -196,7 +222,10 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
-      // transform for input display
+      // TODO this casting can be removed once location field is made non-nullable
+      // we cast here because the value can be null for older clubs the null value will fail at
+      // validation time, forcing the user to back-populated their location to a non-null value
+      location: club.location as City,
       websiteUrl: club.websiteUrl ?? "",
       instagramHandle: club.instagramHandle ?? "",
       eventCalendarUrl: club.eventCalendarUrl ?? "",
@@ -208,7 +237,6 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       return zodResolver(UpdateClubInputSchema)(
         {
           ...data,
-          // transform empty strings to null before validation
           websiteUrl: data.websiteUrl === "" ? null : data.websiteUrl,
           instagramHandle:
             data.instagramHandle === "" ? null : data.instagramHandle,
@@ -233,7 +261,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           return methods.handleSubmit(onSubmit)(e);
         }}
       >
-        <Stack gap={16}>
+        <Stack gap={22}>
           <EditableClubImage
             club={club}
             size={clubImageSize}
@@ -244,14 +272,17 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           />
 
           <BasicInfoSection />
+          <LocationSection />
+
           <LinksSection />
           <ShareLinkSection />
+
           <ThemeSection />
           <FontSection />
+
           <ShowcaseImagesSection club={club} />
 
-          <Divider my="lg" />
-          <FAQsSection mt={6} />
+          <FAQsSection />
 
           <Box mt={32} style={{ display: "flex", justifyContent: "center" }}>
             <Button

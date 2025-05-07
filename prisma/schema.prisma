@@ -63,7 +63,7 @@ model Club {
   name                                String
   tagLine                             String           @map("tag_line")
   description                         String
-  // TODO mark as non-nullable once every club has backfilled
+  // TODO make this non-nullable after all values have been backpopulated
   // city and state (e.g., San Francisco, CA)
   location                            String?
   owner                               User             @relation(fields: [ownerUserId], references: [id])
