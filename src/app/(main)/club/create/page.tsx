@@ -58,24 +58,27 @@ function CreateClubForm(props: StackProps) {
           key={form.key("name")}
           {...form.getInputProps("name")}
         />
-        <LocationSelect
-          value={form.values.location}
-          onChange={(value) => {
-            form.setFieldValue("location", value!);
-            form.validateField("location");
-          }}
-          error={form.errors.location}
-        />
-        <Title order={6} mt={4}>
-          Claim your club link.
-        </Title>
-        <PrefixedInput
-          prefix={"clubs.buildirl.com/join/"}
-          required
-          placeholder="club-tag"
-          key={form.key("publicId")}
-          {...form.getInputProps("publicId")}
-        />
+        <Stack gap={"xs"}>
+          <Title order={6}>Location</Title>
+          <LocationSelect
+            value={form.values.location}
+            onChange={(value) => {
+              form.setFieldValue("location", value!);
+              form.validateField("location");
+            }}
+            error={form.errors.location}
+          />
+        </Stack>
+        <Stack gap={"xs"}>
+          <Title order={6}>Claim your club link.</Title>
+          <PrefixedInput
+            prefix={"clubs.buildirl.com/join/"}
+            required
+            placeholder="club-tag"
+            key={form.key("publicId")}
+            {...form.getInputProps("publicId")}
+          />
+        </Stack>
         <Box style={{ alignSelf: "center" }}>
           <PrimaryButton
             type="submit"
