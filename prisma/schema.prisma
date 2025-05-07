@@ -84,6 +84,7 @@ model Club {
   faqs                                Json             @map("faqs")
   membershipTiers                     MembershipTier[]
   following                           ClubFollowing[]
+  emailTemplates                      EmailTemplate[]
   stripeConnectAccountId              String?          @unique @map("stripe_connect_account_id")
   stripeCustomerPortalConfigurationId String?          @unique @map("stripe_customer_portal_configuration_id")
   createdAt                           DateTime         @default(now()) @map("created_at")
@@ -151,10 +152,15 @@ model ClubFollowing {
 
 model EmailTemplate {
   id          String            @id @default(uuid())
+  clubId      Int               @map("club_id")
+  club        Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
   type        EmailTemplateType
   subject     String
-  htmlContent String            @db.Text
-  textContent String            @db.Text
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  htmlContent String            @map("html_content") @db.Text
+  textContent String            @map("text_content") @db.Text
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  @@unique([clubId, type])
+  @@map("email_template")
 }
