@@ -7,6 +7,7 @@ import {
   FormResponsesSchema
 } from "~/server/service/types/form";
 import { TemplateTheme, TemplateThemeSchema } from "~/client/theme/templates";
+import { City, CitySchema } from "./location";
 
 export type MainService = MainQueries & MainMutations;
 
@@ -42,6 +43,10 @@ export type Club = {
   publicId: string;
   name: string;
   tagLine: string;
+  // TODO we should make this non-nullable once the DB field is
+  //  made non-nullable after values are back-populated
+  // this is nullable for backwards compatibility purposes
+  location: Maybe<City>;
   description: string;
   owner: User;
   websiteUrl: Maybe<Url>;
@@ -198,13 +203,8 @@ export const ClubTagLineSchema = z
 export const CreateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
-  tagLine: ClubTagLineSchema,
-  // TODO: reduce code! remove these as well to just the fields the client needs
-  description: LongTextSchema,
-  websiteUrl: UrlSchema.nullable(),
-  instagramHandle: InstagramHandleSchema.nullable(),
-  eventCalendarUrl: UrlSchema.nullable()
-  // additional fields (e.g, themes, faqs, etc) will be defaulted in the backend
+  location: CitySchema
+  // non-required fields (e.g, description, themes, faqs, etc) will be defaulted in the backend
 });
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
 
@@ -236,6 +236,7 @@ export const UpdateClubInputSchema = z.object({
   publicId: ClubPublicIdSchema,
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
+  location: CitySchema,
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable(),

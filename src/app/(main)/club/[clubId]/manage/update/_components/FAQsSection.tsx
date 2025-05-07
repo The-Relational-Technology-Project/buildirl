@@ -7,7 +7,6 @@ import {
   TextInput,
   Textarea,
   Title,
-  StackProps,
   Group,
   Divider
 } from "@mantine/core";
@@ -15,7 +14,7 @@ import { IconPlus, IconX } from "@tabler/icons-react";
 import { Club } from "~/server/service/types";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
-export default function FAQsSection(props: StackProps): React.ReactElement {
+export default function FAQsSection() {
   const {
     control,
     formState: { errors }
@@ -27,7 +26,7 @@ export default function FAQsSection(props: StackProps): React.ReactElement {
   });
 
   return (
-    <Stack gap={8} {...props}>
+    <Stack gap={8}>
       <Title order={6} ta="left">
         Frequently Asked Questions
       </Title>
