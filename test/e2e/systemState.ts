@@ -36,6 +36,7 @@ type ClubState = {
   name: string;
   tagLine: string;
   description: string;
+  location: string;
   ownerUserId: number;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
@@ -176,6 +177,7 @@ export class SystemState {
       name: clubState.name,
       tagLine: clubState.tagLine,
       description: clubState.description,
+      location: clubState.location,
       owner: this.getUser(clubState.ownerUserId),
       websiteUrl: clubState.websiteUrl,
       instagramHandle: clubState.instagramHandle,

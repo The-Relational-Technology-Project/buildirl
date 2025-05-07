@@ -44,6 +44,7 @@ import SetMembershipAsWelcomedCommand from "./setMembershipAsWelcomedCommand";
 import CreateStripeAccountCommand from "./createStripeAccountCommand";
 import FollowClubCommand from "./followClubCommand";
 import UnfollowClubCommand from "./unfollowClubCommand";
+import { CitySchema } from "~/server/service/types/location";
 
 export const allCommands = () => {
   return [
@@ -106,10 +107,15 @@ function updateUserCommands() {
   );
 }
 
+function locationArbitrary() {
+  return oneof(...Array.from(CitySchema.options).map(constant));
+}
+
 function createClubCommands() {
   return record({
     name: string(),
     publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
+    location: locationArbitrary(),
     tagLine: string(),
     description: string(),
     websiteUrl: option(webUrl(), { freq: 4 }),
@@ -124,7 +130,8 @@ function createClubCommands() {
       new CreateClubCommand(
         {
           name: i.name,
-          publicId: i.publicId
+          publicId: i.publicId,
+          location: i.location
         },
         i.userIdSelector
       )
@@ -150,6 +157,7 @@ function updateClubCommands() {
     publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
     tagLine: string(),
     description: string(),
+    location: locationArbitrary(),
     websiteUrl: option(webUrl(), { freq: 4 }),
     instagramHandle: option(
       string().filter((s) => isZodType(s, InstagramHandleSchema)),
@@ -172,6 +180,7 @@ function updateClubCommands() {
           publicId: i.publicId,
           tagLine: i.tagLine,
           description: i.description,
+          location: i.location,
           websiteUrl: i.websiteUrl,
           instagramHandle: i.instagramHandle,
           eventCalendarUrl: i.eventCalendarUrl,

@@ -83,6 +83,7 @@ export function createMainService(
     name: true,
     tagLine: true,
     description: true,
+    location: true,
     owner: {
       select: USER_SELECT
     },
@@ -165,6 +166,7 @@ export function createMainService(
       tagLine: r.tagLine,
       description: r.description,
       owner: r.owner,
+      location: r.location,
       websiteUrl: parseAsZodType(r.websiteUrl, UrlSchema.nullable()),
       instagramHandle: parseAsZodType(
         r.instagramHandle,

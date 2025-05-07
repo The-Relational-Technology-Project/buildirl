@@ -7,6 +7,7 @@ import {
   FormResponsesSchema
 } from "~/server/service/types/form";
 import { TemplateTheme, TemplateThemeSchema } from "~/client/theme/templates";
+import { City, CitySchema } from "./location";
 
 export type MainService = MainQueries & MainMutations;
 
@@ -42,6 +43,7 @@ export type Club = {
   publicId: string;
   name: string;
   tagLine: string;
+  location: Maybe<City>;
   description: string;
   owner: User;
   websiteUrl: Maybe<Url>;
@@ -197,7 +199,8 @@ export const ClubTagLineSchema = z
 
 export const CreateClubInputSchema = z.object({
   name: ClubNameSchema,
-  publicId: ClubPublicIdSchema
+  publicId: ClubPublicIdSchema,
+  location: CitySchema
   // non-required fields (e.g, description, themes, faqs, etc) will be defaulted in the backend
 });
 export type CreateClubInput = z.infer<typeof CreateClubInputSchema>;
@@ -230,6 +233,7 @@ export const UpdateClubInputSchema = z.object({
   publicId: ClubPublicIdSchema,
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
+  location: CitySchema,
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable(),
