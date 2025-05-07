@@ -14,20 +14,20 @@ import {
  */
 type PrefixedInputProps = {
   prefix: string;
-} & TextInputProps;
+};
 
 export default function PrefixedInput({
   prefix,
   error,
   ...props
-}: PrefixedInputProps) {
+}: PrefixedInputProps & TextInputProps) {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
 
   const borderColor = isDark ? theme.colors.dark[1] : theme.colors.dark[9];
   const bgColor = isDark ? theme.colors.dark[6] : theme.colors.gray[0];
-  
+
   return (
     <Box>
       <Group gap={0} wrap="nowrap">
@@ -52,10 +52,10 @@ export default function PrefixedInput({
               border: `1px solid ${borderColor}`
             },
             error: {
-              marginTop: '5px'
+              marginTop: "5px"
             }
           }}
-          // use the error message instead as this error message will 
+          // use the error message instead as this error message will
           // mess up the layout
           error={null}
           {...props}

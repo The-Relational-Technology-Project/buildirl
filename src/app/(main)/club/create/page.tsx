@@ -11,6 +11,8 @@ import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { handleDefaultMutationError } from "~/client/logger";
 import PrefixedInput from "~/client/components/PrefixedInput";
+import LocationSelect from "~/client/components/LocationSelect";
+import { CitySchema } from "~/server/service/types/location";
 
 function CreateClubForm(props: StackProps) {
   const router = useRouter();
@@ -26,29 +28,26 @@ function CreateClubForm(props: StackProps) {
   const form = useForm({
     initialValues: {
       name: "",
-      publicId: ""
+      publicId: "",
+      location: ""
     },
 
     validateInputOnChange: true,
 
     validate: {
       name: (v) => safeValidateSchema(ClubNameSchema, v),
-      publicId: (v) => safeValidateSchema(ClubPublicIdSchema, v)
+      publicId: (v) => safeValidateSchema(ClubPublicIdSchema, v),
+      location: (v) => safeValidateSchema(CitySchema, v)
     }
   });
 
   return (
     <form
-      onSubmit={form.onSubmit(async ({ name, publicId }) => {
+      onSubmit={form.onSubmit(async ({ name, publicId, location }) => {
         await createUser.mutateAsync({
           name: name,
           publicId: publicId,
-          // default empty
-          tagLine: "",
-          description: "",
-          websiteUrl: null,
-          instagramHandle: null,
-          eventCalendarUrl: null
+          location: location
         });
       })}
     >
@@ -59,16 +58,27 @@ function CreateClubForm(props: StackProps) {
           key={form.key("name")}
           {...form.getInputProps("name")}
         />
-        <Title order={6} mt={4}>
-          Claim your club link.
-        </Title>
-        <PrefixedInput
-          prefix={"clubs.buildirl.com/join/"}
-          required
-          placeholder="club-tag"
-          key={form.key("publicId")}
-          {...form.getInputProps("publicId")}
-        />
+        <Stack gap={"xs"}>
+          <Title order={6}>Location</Title>
+          <LocationSelect
+            value={form.values.location}
+            onChange={(value) => {
+              form.setFieldValue("location", value!);
+              form.validateField("location");
+            }}
+            error={form.errors.location}
+          />
+        </Stack>
+        <Stack gap={"xs"}>
+          <Title order={6}>Claim your club link.</Title>
+          <PrefixedInput
+            prefix={"clubs.buildirl.com/join/"}
+            required
+            placeholder="club-tag"
+            key={form.key("publicId")}
+            {...form.getInputProps("publicId")}
+          />
+        </Stack>
         <Box style={{ alignSelf: "center" }}>
           <PrimaryButton
             type="submit"

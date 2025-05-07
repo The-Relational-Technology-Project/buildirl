@@ -33,6 +33,7 @@ function createVerifiers() {
       publicId: club.publicId,
       name: club.name,
       tagLine: club.tagLine,
+      location: club.location,
       description: club.description,
       owner: userWithoutCreatedAt(club.owner),
       websiteUrl: club.websiteUrl,

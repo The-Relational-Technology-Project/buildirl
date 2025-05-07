@@ -10,7 +10,7 @@ import {
   Box,
   useMatches
 } from "@mantine/core";
-import { IconBrandInstagram, IconWorld } from "@tabler/icons-react";
+import { IconBrandInstagram, IconWorld, IconMapPin } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
@@ -167,6 +167,13 @@ export default function ClubJoin() {
                 websiteUrl={r.data!.websiteUrl}
                 instagramHandle={r.data!.instagramHandle}
               />
+
+              {r.data!.location && (
+                <Group gap={6}>
+                  <IconMapPin size={18} stroke={1.5} />
+                  <Text size="sm">{r.data!.location}</Text>
+                </Group>
+              )}
             </Stack>
           </Stack>
 
