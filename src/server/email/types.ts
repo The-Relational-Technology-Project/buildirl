@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { MutationResult, RequiredStringSchema } from "~/server/service/types";
+import { Maybe } from "~/utils/types";
 
 export type EmailService = EmailQueries & EmailMutations;
 
 type EmailQueries = {
-  getEmailTemplate(id: EmailTemplateId): Promise<EmailTemplate>;
+  getEmailTemplate(id: EmailTemplateId): Promise<Maybe<EmailTemplate>>;
 };
 
 type EmailMutations = {

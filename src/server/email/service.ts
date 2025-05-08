@@ -8,6 +8,7 @@ import { PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/service/types";
 import { stringify } from "~/utils";
+import { Maybe } from "~/utils/types";
 
 const logger = rootLogger.child({ module: "emailTemplateService" });
 
@@ -19,9 +20,11 @@ export function createEmailService(prisma: PrismaClient): EmailService {
     textContent: true
   };
 
-  async function getEmailTemplate(id: EmailTemplateId): Promise<EmailTemplate> {
+  async function getEmailTemplate(
+    id: EmailTemplateId
+  ): Promise<Maybe<EmailTemplate>> {
     try {
-      const template = await prisma.emailTemplate.findUniqueOrThrow({
+      const template = await prisma.emailTemplate.findUnique({
         select: EMAIL_TEMPLATE_SELECT,
         where: {
           clubId_type: {
