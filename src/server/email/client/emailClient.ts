@@ -7,8 +7,8 @@ import {
   NotifyMembershipDeactivatedByOwnerInput,
   NotifyMembershipApplicationSubmittedInput
 } from "./types";
-import { Email } from "../types";
 import { rootLogger } from "~/logger";
+import { Email } from "~/server/service/types";
 
 const logger = rootLogger.child({ module: "emailClient" });
 

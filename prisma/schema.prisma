@@ -30,6 +30,7 @@ enum MembershipTierStatus {
 enum EmailTemplateType {
   ONBOARDING
   OFFBOARDING
+  REJECTION
 }
 
 model User {
@@ -151,7 +152,6 @@ model ClubFollowing {
 }
 
 model EmailTemplate {
-  id          String            @id @default(uuid())
   clubId      Int               @map("club_id")
   club        Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
   type        EmailTemplateType
@@ -161,6 +161,6 @@ model EmailTemplate {
   createdAt   DateTime          @default(now()) @map("created_at")
   updatedAt   DateTime          @updatedAt @map("updated_at")
 
-  @@unique([clubId, type])
+  @@id([clubId, type])
   @@map("email_template")
 }

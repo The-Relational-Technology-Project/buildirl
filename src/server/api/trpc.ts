@@ -23,8 +23,8 @@ import { createPaymentService } from "~/server/payments/service";
 import { createStripeClient } from "~/server/payments/stripe/stripeClient";
 import { stripe } from "~/server/payments/stripe/stripe";
 import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
-import { createEmailClient } from "~/server/service/email/emailClient";
-import { mailTransport } from "~/server/service/email/nodemailer";
+import { createEmailClient } from "~/server/email/client/emailClient";
+import { mailTransport } from "~/server/email/client/nodemailer";
 
 /**
  * 1. CONTEXT

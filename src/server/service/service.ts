@@ -48,7 +48,7 @@ import {
   DEFAULT_CLUB_FAQS
 } from "~/server/service/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
-import { EmailClient } from "~/server/service/email/types";
+import { EmailClient } from "~/server/email/client/types";
 import { FAQsSchema } from "~/server/service/types";
 import UserGetPayload = Prisma.UserGetPayload;
 const logger = rootLogger.child({ module: "mainService" });
