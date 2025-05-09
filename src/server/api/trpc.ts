@@ -46,17 +46,18 @@ export const createTRPCContext = async (opts: {
   const user = await authUser(opts.supabase);
   const stripeClient = createStripeClient(stripe);
   const accountIdResolver = createAccountIdResolver(prisma);
+  const emailService = createEmailService(prisma);
 
   return {
     service: {
       main: createMainService(
         prisma,
         stripeClient,
-        createEmailClient(mailTransport),
+        createEmailClient(mailTransport, emailService),
         accountIdResolver
       ),
       payment: createPaymentService(stripeClient, prisma, accountIdResolver),
-      email: createEmailService(prisma)
+      email: emailService
     },
     user: user,
     headers: opts.headers,

@@ -39,6 +39,7 @@ export type NotifyMembershipApprovedInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
+  clubId: number;
   clubName: string;
   clubPublicId: string;
 };
@@ -46,6 +47,7 @@ export type NotifyMembershipApprovedInput = {
 export type NotifyMembershipDeclinedInput = {
   membershipId: bigint;
   memberFirstName: string;
+  clubId: number;
   clubName: string;
 };
 

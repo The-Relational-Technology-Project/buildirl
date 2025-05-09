@@ -1722,6 +1722,7 @@ export function createMainService(
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
+        clubId: membership.club.id,
         clubName: membership.club.name,
         clubPublicId: membership.club.publicId
       },
@@ -1835,7 +1836,8 @@ export function createMainService(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
-        clubName: membership.club.name
+        clubName: membership.club.name,
+        clubId: membership.club.id
       },
       memberEmail
     );
