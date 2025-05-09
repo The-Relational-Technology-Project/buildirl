@@ -27,6 +27,10 @@ import {
   DEFAULT_FREE_MEMBERSHIP_TIER,
   DEFAULT_CLUB_FAQS
 } from "~/server/service/defaults";
+import { EmailTemplateType, SetEmailTemplateInput } from "~/server/email/types";
+import { EmailTemplate } from "~/server/email/types";
+import { EmailTemplateId } from "~/server/email/types";
+import { ItemSelector } from "./utils/itemSelector";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -76,6 +80,11 @@ export class SystemState {
   private readonly memberships: Map<bigint, MembershipState>;
   // clubIds to all following userIds
   private readonly clubFollowing: Map<number, Set<number>>;
+  // clubIds to template by type
+  private readonly emailTemplates: Map<
+    number,
+    Map<EmailTemplateType, EmailTemplate>
+  >;
 
   constructor() {
     this.users = new Map();
@@ -83,6 +92,7 @@ export class SystemState {
     this.membershipTiers = new Map();
     this.memberships = new Map();
     this.clubFollowing = new Map();
+    this.emailTemplates = new Map();
   }
 
   // use this only for internal operations as it also contains
@@ -293,6 +303,7 @@ export class SystemState {
     // cascading delete
     this.clubFollowing.delete(id);
     this.clubs.delete(id);
+    this.emailTemplates.delete(id);
   }
 
   private deleteMembershipTiersForClub(clubId: number) {
@@ -751,5 +762,60 @@ export class SystemState {
 
   public getFollowingUserIdsForClub(clubId: number): number[] {
     return [...this.clubFollowing.get(clubId)!];
+  }
+
+  public setEmailTemplate(id: EmailTemplateId, input: SetEmailTemplateInput) {
+    if (!this.emailTemplates.has(id.clubId)) {
+      this.emailTemplates.set(id.clubId, new Map());
+    }
+
+    const clubTemplates = this.emailTemplates.get(id.clubId)!;
+    clubTemplates.set(id.type, {
+      type: id.type,
+      ...input
+    });
+  }
+
+  public deleteEmailTemplate(id: EmailTemplateId) {
+    if (!this.emailTemplates.has(id.clubId)) {
+      throw new Error(
+        `missing email template for clubId ${id.clubId} and template type ${id.type}`
+      );
+    }
+    const clubTemplates = this.emailTemplates.get(id.clubId)!;
+    clubTemplates.delete(id.type);
+
+    if (clubTemplates.size === 0) {
+      this.emailTemplates.delete(id.clubId);
+    }
+  }
+
+  public getEmailTemplate(id: EmailTemplateId): Maybe<EmailTemplate> {
+    if (!this.emailTemplates.has(id.clubId)) {
+      return null;
+    }
+    const clubTemplates = this.emailTemplates.get(id.clubId)!;
+    const template = clubTemplates.get(id.type);
+    if (!template) {
+      return null;
+    }
+    return template;
+  }
+
+  public hasEmailTemplates(): boolean {
+    return this.emailTemplates.size > 0;
+  }
+
+  public selectEmailTemplate(
+    clubIdSelector: ItemSelector<number>,
+    templateTypeSelector: ItemSelector<EmailTemplateType>
+  ): EmailTemplateId {
+    const clubId = clubIdSelector.select(
+      Array.from(this.emailTemplates.keys())
+    );
+    const clubTemplates = this.emailTemplates.get(clubId)!;
+    const type = templateTypeSelector.select(Array.from(clubTemplates.keys()));
+
+    return { clubId, type };
   }
 }

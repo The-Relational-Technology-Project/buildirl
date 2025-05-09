@@ -9,6 +9,8 @@ export enum FormQuestionType {
 
 const FormQuestionTypeSchema = z.nativeEnum(FormQuestionType);
 
+const SelectChoiceSchema = z.string().min(2).max(100, "Length must be <= 100");
+
 const BaseFormQuestionSchema = z.object({
   question: z
     .string()
@@ -33,7 +35,7 @@ const LongTextQuestionSchema = BaseFormQuestionSchema.extend({
 
 const SelectQuestionMetadataSchema = z.object({
   choices: z
-    .array(z.string().min(2, "Length must be >= 2"))
+    .array(SelectChoiceSchema)
     .min(2, "At least two choice is required")
     .refine(
       (choices) => new Set(choices).size === choices.length,
@@ -69,23 +71,23 @@ export const FormResponseSchema = z.discriminatedUnion("type", [
     response: z
       .string()
       .min(3, "Length must be >= 3")
-      .max(150, "Length must be <= 150")
+      .max(200, "Length must be <= 200")
   }),
   LongTextQuestionSchema.extend({
     response: z
       .string()
       .min(3, "Length must be >= 3")
-      .max(1000, "Length must be <= 1000")
+      .max(2000, "Length must be <= 2000")
   }),
   MultiSelectQuestionSchema.extend({
     // no validation that the selection is one of the choices
     response: z
-      .array(z.string().min(2))
+      .array(SelectChoiceSchema)
       .min(1, "At least one choice must be selected.")
   }),
   SingleSelectQuestionSchema.extend({
     // no validation that the selection is one of the choices
-    response: z.string().min(2)
+    response: SelectChoiceSchema
   })
 ]);
 export type FormResponse = z.infer<typeof FormResponseSchema>;

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MutationResult, RequiredStringSchema } from "~/server/service/types";
+import { MutationResult } from "~/server/service/types";
 import { Maybe } from "~/utils/types";
 
 export type EmailService = EmailQueries & EmailMutations;
@@ -38,8 +38,8 @@ export type EmailTemplate = {
 };
 
 export const SetEmailTemplateInputSchema = z.object({
-  subject: RequiredStringSchema,
-  htmlContent: RequiredStringSchema,
-  textContent: RequiredStringSchema
+  subject: z.string().max(200, "Length must be <= 200"),
+  htmlContent: z.string().max(10000, "Length must be <= 10000"),
+  textContent: z.string().max(10000, "Length must be <= 10000")
 });
 export type SetEmailTemplateInput = z.infer<typeof SetEmailTemplateInputSchema>;

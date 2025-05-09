@@ -24,6 +24,7 @@ export type Services = {
   main: MainService;
   payment: PaymentService;
   paymentEvents: PaymentEventProcessor;
+  email: EmailService;
 };
 
 function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {

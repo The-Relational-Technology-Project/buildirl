@@ -16,8 +16,10 @@ import CreateUserCommand from "./createUserCommand";
 import {
   ClubNameSchema,
   ClubPublicIdSchema,
-  RequiredStringSchema,
-  InstagramHandleSchema
+  FAQAnswerSchema,
+  FAQQuestionSchema,
+  InstagramHandleSchema,
+  RequiredStringSchema
 } from "~/server/service/types";
 import UpdateUserCommand from "./updateUserCommand";
 import itemSelector from "../utils/itemSelector";
@@ -45,6 +47,9 @@ import CreateStripeAccountCommand from "./createStripeAccountCommand";
 import FollowClubCommand from "./followClubCommand";
 import UnfollowClubCommand from "./unfollowClubCommand";
 import { CitySchema } from "~/server/service/types/location";
+import { EmailTemplateType } from "~/server/email/types";
+import SetEmailTemplateCommand from "./setEmailTemplateCommand";
+import DeleteEmailTemplateCommand from "./deleteEmailTemplateCommand";
 
 export const allCommands = () => {
   return [
@@ -67,7 +72,9 @@ export const allCommands = () => {
     setMembershipAsWelcomedCommands(),
     createStripeAccountCommands(),
     followClubCommands(),
-    unfollowClubCommands()
+    unfollowClubCommands(),
+    setEmailTemplateCommands(),
+    deleteEmailTemplateCommands()
   ];
 };
 
@@ -142,8 +149,8 @@ function faqsArbitrary() {
   return record({
     items: array(
       record({
-        question: string().filter((s) => s.length >= 3 && s.length <= 2000),
-        answer: string().filter((s) => s.length >= 3 && s.length <= 20000)
+        question: string().filter((s) => isZodType(s, FAQQuestionSchema)),
+        answer: string().filter((s) => isZodType(s, FAQAnswerSchema))
       }),
       { maxLength: 5 }
     )
@@ -367,4 +374,35 @@ function unfollowClubCommands() {
     clubIdSelector: itemSelector<number>(),
     userIdSelector: itemSelector<number>()
   }).map((i) => new UnfollowClubCommand(i.clubIdSelector, i.userIdSelector));
+}
+
+function setEmailTemplateCommands() {
+  return record({
+    clubIdSelector: itemSelector<number>(),
+    templateType: oneof(
+      ...["ONBOARDING", "OFFBOARDING", "REJECTION"].map((v) =>
+        constant(v as EmailTemplateType)
+      )
+    ),
+    subject: string({ maxLength: 200 }),
+    htmlContent: string({ maxLength: 20000 }),
+    textContent: string({ maxLength: 20000 })
+  }).map(
+    (i) =>
+      new SetEmailTemplateCommand(i.clubIdSelector, i.templateType, {
+        subject: i.subject,
+        htmlContent: i.htmlContent,
+        textContent: i.textContent
+      })
+  );
+}
+
+function deleteEmailTemplateCommands() {
+  return record({
+    clubIdSelector: itemSelector<number>(),
+    templateTypeSelector: itemSelector<EmailTemplateType>()
+  }).map(
+    (i) =>
+      new DeleteEmailTemplateCommand(i.clubIdSelector, i.templateTypeSelector)
+  );
 }
