@@ -63,38 +63,42 @@ type EmailTemplateEditorProps = {
 };
 
 function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
+  // though it would simplify our state management and add client-side form validation
+  // it is complex to integrate tiptap with react-hook-forms or mantine-forms. we are accepting
+  // this trade-off given form validation is simple and the state management is minimal
+
   const [subject, setSubject] = useState("");
 
-  const r = api.email.emailTemplate.useQuery({
+  const emailTemplate = api.email.emailTemplate.useQuery({
     clubId,
     type: type
   });
-  const { data: emailTemplate } = r;
 
-  QueryError.checkNullable({ result: r, fieldName: "emailTemplate" });
+  QueryError.checkNullable({
+    result: emailTemplate,
+    fieldName: "emailTemplate"
+  });
 
   const utils = api.useContext();
-  const { mutateAsync: setEmailTemplate } =
-    api.email.setEmailTemplate.useMutation({
-      onSuccess: () => {
-        utils.email.emailTemplate.invalidate({ clubId, type: type });
-        notifySuccess("Success", "Email template has been updated");
-      },
-      onError: (e) => {
-        handleDefaultMutationError(e);
-      }
-    });
+  const setEmailTemplate = api.email.setEmailTemplate.useMutation({
+    onSuccess: () => {
+      utils.email.emailTemplate.invalidate({ clubId, type: type });
+      notifySuccess("Success", "Email template has been updated");
+    },
+    onError: (e) => {
+      handleDefaultMutationError(e);
+    }
+  });
 
-  const { mutateAsync: deleteEmailTemplate } =
-    api.email.deleteEmailTemplate.useMutation({
-      onSuccess: () => {
-        utils.email.emailTemplate.invalidate({ clubId, type: type });
-        notifySuccess("Success", "Email template has been deleted");
-      },
-      onError: (e) => {
-        handleDefaultMutationError(e);
-      }
-    });
+  const deleteEmailTemplate = api.email.deleteEmailTemplate.useMutation({
+    onSuccess: () => {
+      utils.email.emailTemplate.invalidate({ clubId, type: type });
+      notifySuccess("Success", "Email template has been deleted");
+    },
+    onError: (e) => {
+      handleDefaultMutationError(e);
+    }
+  });
 
   const editor = useEditor({
     extensions: [
@@ -106,15 +110,15 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
       Highlight,
       TextAlign.configure({ types: ["heading", "paragraph"] })
     ],
-    content: emailTemplate?.htmlContent || ""
+    content: emailTemplate.data?.htmlContent || ""
   });
 
   React.useEffect(() => {
     if (!editor) return;
-    if (!emailTemplate) return;
-    editor.commands.setContent(emailTemplate.htmlContent);
-    setSubject(emailTemplate.subject);
-  }, [editor, emailTemplate]);
+    if (!emailTemplate.data) return;
+    editor.commands.setContent(emailTemplate.data.htmlContent);
+    setSubject(emailTemplate.data.subject);
+  }, [editor, emailTemplate.data]);
 
   const handleSave = async () => {
     if (!editor) {
@@ -122,7 +126,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
       return;
     }
 
-    await setEmailTemplate({
+    await setEmailTemplate.mutateAsync({
       id: { clubId, type: type },
       input: {
         subject,
@@ -137,12 +141,12 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
       `Are you sure you want to delete this custom ${templateMetadata.label} template? This action cannot be undone.`
     );
     if (confirmed) {
-      await deleteEmailTemplate({ clubId, type: type });
+      await deleteEmailTemplate.mutateAsync({ clubId, type: type });
     }
   };
 
   const handleAdd = async () => {
-    await setEmailTemplate({
+    await setEmailTemplate.mutateAsync({
       id: { clubId, type: type },
       input: {
         subject: "",
@@ -154,12 +158,13 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
 
   const templateMetadata = TEMPLATE_METADATA.find((t) => t.value === type)!;
 
-  return isLoaded(r) && emailTemplate ? (
+  return isLoaded(emailTemplate) && emailTemplate.data !== null ? (
     <Paper withBorder p="xl">
       <Stack gap={0}>
         <ActionIcon
           c={"red"}
           onClick={handleDelete}
+          loading={deleteEmailTemplate.isPending}
           style={{ alignSelf: "flex-end" }}
         >
           <IconTrash size={20} />
@@ -226,6 +231,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
             <Button
               leftSection={<IconDeviceFloppy size={16} />}
               onClick={handleSave}
+              loading={setEmailTemplate.isPending}
             >
               Save Template
             </Button>
@@ -241,7 +247,9 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
         </Title>
         <Text size="md">{`${templateMetadata.description}`}</Text>
         <Text size="md">{}</Text>
-        <Button onClick={handleAdd}>Create Email Template</Button>
+        <Button onClick={handleAdd} loading={setEmailTemplate.isPending}>
+          Create Email Template
+        </Button>
       </Stack>
     </Paper>
   );

@@ -38,8 +38,8 @@ export type EmailTemplate = {
 };
 
 export const SetEmailTemplateInputSchema = z.object({
-  subject: z.string().max(200, "Length must be <= 200"),
-  htmlContent: z.string().max(10000, "Length must be <= 10000"),
-  textContent: z.string().max(10000, "Length must be <= 10000")
+  subject: z.string().max(500, "Length must be <= 500"),
+  htmlContent: z.string().max(15000, "Length must be <= 15000"),
+  textContent: z.string().max(10000, "Length must be <= 15000")
 });
 export type SetEmailTemplateInput = z.infer<typeof SetEmailTemplateInputSchema>;
