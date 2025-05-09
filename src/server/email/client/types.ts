@@ -64,6 +64,7 @@ export type NotifyMembershipDeactivatedByMemberToMemberInput = {
   memberFirstName: string;
   memberLastName: string;
   clubName: string;
+  clubId: number;
 };
 
 export type NotifyMembershipDeactivatedByOwnerInput = {

@@ -5,7 +5,8 @@ import {
   NotifyMembershipDeclinedInput,
   NotifyMembershipDeactivatedByMemberToOwnerInput,
   NotifyMembershipDeactivatedByOwnerInput,
-  NotifyMembershipApplicationSubmittedInput
+  NotifyMembershipApplicationSubmittedInput,
+  NotifyMembershipDeactivatedByMemberToMemberInput
 } from "./types";
 import { rootLogger } from "~/logger";
 import { Email } from "~/server/service/types";
@@ -80,11 +81,6 @@ export function createEmailClient(
         `failed to send membership application submitted email to club owner at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
-
-    await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "ONBOARDING" },
-      sendTo
-    );
   }
 
   async function notifyMembershipApproved(
@@ -119,6 +115,11 @@ export function createEmailClient(
         `failed to send membership accepted email to ${sendTo} for membership with id ${input.membershipId}`
       );
     }
+
+    await sendCustomEmailWithTemplate(
+      { clubId: input.clubId, type: "ONBOARDING" },
+      sendTo
+    );
   }
 
   async function notifyMembershipDeclined(
@@ -191,7 +192,7 @@ export function createEmailClient(
   }
 
   async function notifyMembershipDeactivatedByMemberToMember(
-    input: NotifyMembershipDeactivatedByMemberToOwnerInput,
+    input: NotifyMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email
   ): Promise<void> {
     try {
@@ -219,7 +220,7 @@ export function createEmailClient(
       );
     }
     await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "REJECTION" },
+      { clubId: input.clubId, type: "OFFBOARDING" },
       sendTo
     );
   }
