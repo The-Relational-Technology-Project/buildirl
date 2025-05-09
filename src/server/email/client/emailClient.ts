@@ -20,17 +20,16 @@ export function createEmailClient(
 ): EmailClient {
   const FROM_EMAIL = "outbound@buildirl.com";
 
-  // returns true if template sent, false if not and default needed
-  async function trySendWithEmailTemplate(
+  async function sendCustomEmailWithTemplate(
     id: EmailTemplateId,
     sendTo: Email
-  ): Promise<boolean> {
+  ): Promise<void> {
     const template = await emailService.getEmailTemplate(id);
     if (null === template) {
       logger.info(
-        `no template found for id ${stringify(id)}, falling back to default`
+        `no email template found for id ${stringify(id)}, did not send custom email`
       );
-      return false;
+      return;
     }
     try {
       await mailTransport.sendMail({
@@ -40,14 +39,15 @@ export function createEmailClient(
         text: template.textContent,
         html: template.htmlContent
       });
-      logger.info(`sent email template with id ${stringify(id)}`);
-      return true;
+      logger.info(
+        `sent custom email with email template with id ${stringify(id)}`
+      );
     } catch (e) {
       logger.error(
         e,
-        `failed to send email template with id ${stringify(id)}, falling back to default`
+        `failed to send custom email with email template with id ${stringify(id)}`
       );
-      return false;
+      return;
     }
   }
 
@@ -55,15 +55,6 @@ export function createEmailClient(
     input: NotifyMembershipApplicationSubmittedInput,
     sendTo: Email
   ): Promise<void> {
-    const sentWithTemplate = await trySendWithEmailTemplate(
-      { clubId: input.clubId, type: "ONBOARDING" },
-      sendTo
-    );
-    if (sentWithTemplate) {
-      // no need to send default if email from custom template was sent
-      return;
-    }
-
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
     try {
       await mailTransport.sendMail({
@@ -89,6 +80,11 @@ export function createEmailClient(
         `failed to send membership application submitted email to club owner at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
+
+    await sendCustomEmailWithTemplate(
+      { clubId: input.clubId, type: "ONBOARDING" },
+      sendTo
+    );
   }
 
   async function notifyMembershipApproved(
@@ -129,15 +125,6 @@ export function createEmailClient(
     input: NotifyMembershipDeclinedInput,
     sendTo: Email
   ): Promise<void> {
-    const sentWithTemplate = await trySendWithEmailTemplate(
-      { clubId: input.clubId, type: "REJECTION" },
-      sendTo
-    );
-    if (sentWithTemplate) {
-      // no need to send default if email from custom template was sent
-      return;
-    }
-
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
@@ -164,6 +151,10 @@ export function createEmailClient(
         `failed to send membership declined email to ${sendTo} for membership with id ${input.membershipId}`
       );
     }
+    await sendCustomEmailWithTemplate(
+      { clubId: input.clubId, type: "REJECTION" },
+      sendTo
+    );
   }
 
   async function notifyMembershipDeactivatedByMemberToOwner(
@@ -203,15 +194,6 @@ export function createEmailClient(
     input: NotifyMembershipDeactivatedByMemberToOwnerInput,
     sendTo: Email
   ): Promise<void> {
-    const sentWithTemplate = await trySendWithEmailTemplate(
-      { clubId: input.clubId, type: "OFFBOARDING" },
-      sendTo
-    );
-    if (sentWithTemplate) {
-      // no need to send default if email from custom template was sent
-      return;
-    }
-
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
@@ -236,6 +218,10 @@ export function createEmailClient(
         `failed to send membership deactivated email by member to member at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
+    await sendCustomEmailWithTemplate(
+      { clubId: input.clubId, type: "REJECTION" },
+      sendTo
+    );
   }
 
   async function notifyMembershipDeactivatedByOwner(
