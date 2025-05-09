@@ -34,7 +34,7 @@ export function createEmailService(prisma: PrismaClient): EmailService {
       });
 
       logger.info(
-        `queried email template for club with clubId ${id.clubId} and type ${id.type} with result ${stringify(template)}`
+        `queried email template for club with clubId ${id.clubId} and type ${id.type}`
       );
 
       return template;
