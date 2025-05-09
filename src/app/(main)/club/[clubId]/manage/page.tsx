@@ -21,7 +21,7 @@ import ManageIntakePanel from "~/app/(main)/club/[clubId]/manage/_components/Man
 import { useMounted } from "@mantine/hooks";
 import StripeConnectPanel from "~/app/(main)/club/[clubId]/manage/_components/StripeConnectPanel";
 import { ManagePeoplePanel } from "~/app/(main)/club/[clubId]/manage/_components/ManagePeoplePanel";
-import { EmailTemplatePanel } from "~/app/(main)/club/[clubId]/manage/_components/EmailTemplatePanel";
+import EmailTemplatePanel from "~/app/(main)/club/[clubId]/manage/_components/EmailTemplatePanel";
 
 export default function ManageClub() {
   const { colorScheme } = useMantineColorScheme();
