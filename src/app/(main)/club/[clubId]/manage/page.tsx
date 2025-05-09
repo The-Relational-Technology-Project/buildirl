@@ -17,12 +17,11 @@ import ClubOverviewPanel from "~/app/(main)/club/[clubId]/manage/_components/Clu
 import ClubAdminPanel from "~/app/(main)/club/[clubId]/manage/_components/ClubAdminPanel";
 import ManageMembershipTiersPanel from "~/app/(main)/club/[clubId]/manage/_components/ManageMembershipTiersPanel";
 import { strictParseInt } from "~/utils";
-import MembershipApplicationTable from "~/app/(main)/club/[clubId]/manage/_components/MembershipApplicationTable";
-import ActiveMembershipTable from "~/app/(main)/club/[clubId]/manage/_components/ActiveMembershipTable";
 import ManageIntakePanel from "~/app/(main)/club/[clubId]/manage/_components/ManageIntakePanel";
 import { useMounted } from "@mantine/hooks";
 import StripeConnectPanel from "~/app/(main)/club/[clubId]/manage/_components/StripeConnectPanel";
-import ClubFollowerTable from "~/app/(main)/club/[clubId]/manage/_components/ClubFollowerTable";
+import { ManagePeoplePanel } from "~/app/(main)/club/[clubId]/manage/_components/ManagePeoplePanel";
+import { EmailTemplatePanel } from "~/app/(main)/club/[clubId]/manage/_components/EmailTemplatePanel";
 
 export default function ManageClub() {
   const { colorScheme } = useMantineColorScheme();
@@ -62,6 +61,7 @@ export default function ManageClub() {
             <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>
             <Tabs.Tab value={"intake"}>Intake Form</Tabs.Tab>
             <Tabs.Tab value={"people"}>People</Tabs.Tab>
+            <Tabs.Tab value={"email"}>Communication</Tabs.Tab>
             <Tabs.Tab value={"stripe-connect"}>Stripe Connect</Tabs.Tab>
             <Tabs.Tab value={"admin"}>Admin</Tabs.Tab>
           </Tabs.List>
@@ -74,11 +74,14 @@ export default function ManageClub() {
           <Tabs.Panel value={"memberships"}>
             <ManageMembershipTiersPanel club={r.data!} />
           </Tabs.Panel>
+          <Tabs.Panel value={"intake"}>
+            <ManageIntakePanel club={r.data!} />
+          </Tabs.Panel>
           <Tabs.Panel value={"people"}>
             <ManagePeoplePanel clubId={r.data!.id} />
           </Tabs.Panel>
-          <Tabs.Panel value={"intake"}>
-            <ManageIntakePanel club={r.data!} />
+          <Tabs.Panel value={"email"}>
+            <EmailTemplatePanel clubId={r.data!.id} />
           </Tabs.Panel>
           <Tabs.Panel value={"stripe-connect"}>
             <StripeConnectPanel clubId={r.data!.id} />
@@ -89,19 +92,5 @@ export default function ManageClub() {
         </Tabs>
       </Stack>
     )
-  );
-}
-
-type ManagePeoplePanelProps = {
-  clubId: number;
-};
-
-function ManagePeoplePanel({ clubId }: ManagePeoplePanelProps) {
-  return (
-    <Stack gap={0} pb={"xl"}>
-      <MembershipApplicationTable clubId={clubId} />
-      <ActiveMembershipTable clubId={clubId} />
-      <ClubFollowerTable clubId={clubId} />
-    </Stack>
   );
 }
