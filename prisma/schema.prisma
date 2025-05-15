@@ -97,20 +97,22 @@ model Club {
 }
 
 model MembershipTier {
-  id                      Int                  @id @default(autoincrement())
-  name                    String
-  benefitDescription      String               @map("benefit_description")
-  contributionDescription String               @map("contribution_description")
-  costPerMonthInUSD       Decimal              @map("cost_per_month_usd")
-  club                    Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  clubId                  Int                  @map("club_id")
-  status                  MembershipTierStatus @default(PUBLISHED)
-  stripeProductId         String?              @unique @map("stripe_product_id")
+  id                           Int                  @id @default(autoincrement())
+  name                         String
+  benefitDescription           String               @map("benefit_description")
+  contributionDescription      String               @map("contribution_description")
+  costPerMonthUSD              Decimal              @map("cost_per_month_usd")
+  initiationFeeCostPerMonthUSD Decimal?             @map("initiation_fee_cost_per_month_usd")
+  club                         Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId                       Int                  @map("club_id")
+  status                       MembershipTierStatus @default(PUBLISHED)
+  stripeProductId              String?              @unique @map("stripe_product_id")
   // active price
-  stripePriceId           String?              @unique @map("stripe_price_id")
-  memberships             Membership[]
-  createdAt               DateTime             @default(now()) @map("created_at")
-  updatedAt               DateTime             @updatedAt @map("updated_at")
+  stripePriceId                String?              @unique @map("stripe_price_id")
+  initiationFeeStripePriceId   String?              @unique @map("initation_fee_stripe_price_id")
+  memberships                  Membership[]
+  createdAt                    DateTime             @default(now()) @map("created_at")
+  updatedAt                    DateTime             @updatedAt @map("updated_at")
 
   @@index([clubId])
   @@map("membership_tier")
