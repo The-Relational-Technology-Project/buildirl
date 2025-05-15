@@ -1,7 +1,7 @@
 import { UpdateMembershipTierInput } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
-import { isDefaultFreeTier, Maybe } from "~/utils/types";
+import { Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";

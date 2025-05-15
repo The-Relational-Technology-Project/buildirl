@@ -269,7 +269,8 @@ function updateMembershipTierCommands() {
     name: string(),
     benefitDescription: string(),
     contributionDescription: string(),
-    costPerMonthInUSD: monetaryValue()
+    costPerMonthInUSD: monetaryValue(),
+    initiationFeeCostInUSD: option(monetaryValue(), { freq: 4 })
   }).map(
     (i) =>
       new UpdateMembershipTierCommand(
@@ -277,7 +278,8 @@ function updateMembershipTierCommands() {
           name: i.name,
           benefitDescription: i.benefitDescription,
           contributionDescription: i.contributionDescription,
-          costPerMonthInUSD: i.costPerMonthInUSD
+          costPerMonthInUSD: i.costPerMonthInUSD,
+          initiationFeeCostInUSD: i.initiationFeeCostInUSD
         },
         i.membershipTierIdSelector
       )

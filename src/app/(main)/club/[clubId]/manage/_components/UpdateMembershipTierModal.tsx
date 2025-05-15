@@ -94,7 +94,9 @@ export default function UpdateMembershipTierModal({
               name: v.name,
               benefitDescription: v.benefitDescription,
               contributionDescription: v.contributionDescription,
-              costPerMonthInUSD: v.costPerMonthInUSD
+              costPerMonthInUSD: v.costPerMonthInUSD,
+              // TODO
+              initiationFeeCostInUSD: null
             }
           });
         })}
