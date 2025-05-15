@@ -841,6 +841,11 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
+      // IMPORTANT: it is necessary this is before the db update because
+      // we need to have a handle on the old initiation fee to determine
+      // the product and price changes
+      await upsertInitiationFeeProductAndPrice(id, input, tx);
+
       await tx.membershipTier.update({
         data: input,
         where: {
@@ -877,8 +882,7 @@ export function createMainService(
       where: { id: membershipTierId },
       select: {
         stripeProductId: true,
-        stripePriceId: true,
-        costPerMonthInUSD: true
+        stripePriceId: true
       }
     });
 
@@ -923,6 +927,212 @@ export function createMainService(
         logger.error(
           e,
           `failed to update membership tier with id ${membershipTierId} with stripePriceId ${updatedPriceId}`
+        );
+        throw e;
+      }
+    }
+  }
+
+  async function upsertInitiationFeeProductAndPrice(
+    membershipTierId: number,
+    input: UpdateMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    // free tier will not have initiation fee
+    if (isDefaultFreeTier(input)) {
+      return;
+    }
+
+    const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+      where: { id: membershipTierId },
+      select: {
+        initiationFeeStripeProductId: true,
+        initiationFeeStripePriceId: true,
+        initiationFeeCostInUSD: true
+      }
+    });
+
+    // 1. no-op if no change (both  null or both same value)
+    if (
+      input.initiationFeeCostInUSD === membershipTier.initiationFeeCostInUSD
+    ) {
+      logger.info(
+        `did not update initiationFeeCostInUSD to ${input.initiationFeeCostInUSD} because there was no change`
+      );
+      return;
+    }
+
+    // 2. clearing the existing initiation fee product and price
+    if (null === input.initiationFeeCostInUSD) {
+      await archiveInitiationFeeProductAndPrice(
+        membershipTierId,
+        membershipTier.initiationFeeStripeProductId,
+        membershipTier.initiationFeeStripePriceId,
+        tx
+      );
+      return;
+    }
+
+    // 3. creating initiation fee product and price
+    // note: this will create a new product even if an old one existed but
+    // was archived
+    if (null === membershipTier.initiationFeeCostInUSD) {
+      await createInitiationFeeProductAndPrice(
+        membershipTierId,
+        input.initiationFeeCostInUSD,
+        tx
+      );
+      return;
+    }
+
+    // 4. updating existing initiation fee product and price to new value
+    await updateExistingInitiationFeeProductAndPrice(
+      membershipTierId,
+      input.initiationFeeCostInUSD,
+      membershipTier.initiationFeeStripeProductId,
+      membershipTier.initiationFeeStripePriceId,
+      tx
+    );
+  }
+
+  async function archiveInitiationFeeProductAndPrice(
+    membershipTierId: number,
+    existingInitiationFeeStripeProductId: Maybe<string>,
+    existingInitiationFeeStripePriceId: Maybe<string>,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    if (
+      !existingInitiationFeeStripeProductId ||
+      !existingInitiationFeeStripePriceId
+    ) {
+      logger.error(
+        `membership tier ${membershipTierId} is missing initiationFeeStripeProductId or initiationFeeStripePriceId for archiving`
+      );
+      return;
+    }
+
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    await stripeClient.archiveProductAndPrice(
+      {
+        productId: existingInitiationFeeStripeProductId,
+        priceId: existingInitiationFeeStripePriceId
+      },
+      accountId
+    );
+
+    try {
+      await tx.membershipTier.update({
+        where: { id: membershipTierId },
+        data: {
+          initiationFeeStripePriceId: null,
+          initiationFeeStripeProductId: null
+        }
+      });
+      logger.info(
+        `updated initiationFeeStripePriceId and initiationFeeStripeProductId to null for membership tier with id ${membershipTierId}`
+      );
+    } catch (e) {
+      logger.info(
+        `failed to update initiationFeeStripePriceId and initiationFeeStripeProductId to null for membership tier with id ${membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
+  async function createInitiationFeeProductAndPrice(
+    membershipTierId: number,
+    initiationFeeCostInUSD: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    const { productId, priceId } = await stripeClient.createProductAndPrice(
+      {
+        // it is too much to update the name and description based on the tier name
+        name: `Initiation Fee`,
+        description: `One-time initiation fee`,
+        pricePerMonthInUSD: initiationFeeCostInUSD,
+        membershipTierId: membershipTierId
+      },
+      accountId
+    );
+
+    try {
+      await tx.membershipTier.update({
+        where: { id: membershipTierId },
+        data: {
+          initiationFeeStripeProductId: productId,
+          initiationFeeStripePriceId: priceId
+        }
+      });
+
+      logger.info(
+        `updated membership tier with id ${membershipTierId} with initiationFeeStripeProductId ${productId}, initiationFeeStripePriceId ${priceId} for membership tier`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update membership tier with id ${membershipTierId} with initiationFeeStripeProductId ${productId} and initiationFeeStripePriceId ${priceId}`
+      );
+      throw e;
+    }
+  }
+
+  async function updateExistingInitiationFeeProductAndPrice(
+    membershipTierId: number,
+    initiationFeeCostInUSD: number,
+    existingInitiationFeeStripeProductId: Maybe<string>,
+    existingInitiationFeeStripePriceId: Maybe<string>,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    if (
+      !existingInitiationFeeStripeProductId ||
+      !existingInitiationFeeStripePriceId
+    ) {
+      throw new Error(
+        `membership tier ${membershipTierId} is missing initiationFeeStripeProductId or initiationFeeStripePriceId for updating`
+      );
+    }
+
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    const { updatedPriceId } = await stripeClient.updateProductAndPrice(
+      {
+        productId: existingInitiationFeeStripeProductId,
+        priceId: existingInitiationFeeStripePriceId,
+        name: `Initiation Fee`,
+        description: "One-time initiation fee",
+        pricePerMonthInUSD: initiationFeeCostInUSD
+      },
+      accountId
+    );
+
+    // change to price id
+    if (updatedPriceId) {
+      try {
+        await tx.membershipTier.update({
+          where: { id: membershipTierId },
+          data: {
+            initiationFeeStripePriceId: updatedPriceId
+          }
+        });
+        logger.info(
+          `updated membership tier with id ${membershipTierId} with initiationFeeStripePriceId ${updatedPriceId}`
+        );
+      } catch (e) {
+        logger.error(
+          e,
+          `failed to update membership tier with id ${membershipTierId} with initiationFeeStripePriceId ${updatedPriceId}`
         );
         throw e;
       }
