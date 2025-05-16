@@ -74,7 +74,8 @@ export function createMainService(
     status: true,
     benefitDescription: true,
     contributionDescription: true,
-    costPerMonthInUSD: true
+    costPerMonthInUSD: true,
+    initiationFeeCostInUSD: true
   };
 
   const CLUB_SELECT = {
@@ -145,7 +146,11 @@ export function createMainService(
       benefitDescription: r.benefitDescription,
       contributionDescription: r.contributionDescription,
       // possible loss of precision here, but it doesn't matter for us
-      costPerMonthInUSD: r.costPerMonthInUSD.toNumber()
+      costPerMonthInUSD: r.costPerMonthInUSD.toNumber(),
+      initiationFeeCostInUSD:
+        null === r.initiationFeeCostInUSD
+          ? null
+          : r.initiationFeeCostInUSD.toNumber()
     };
   }
 

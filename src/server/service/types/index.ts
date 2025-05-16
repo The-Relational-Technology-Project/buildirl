@@ -92,6 +92,7 @@ export type MembershipTier = {
   benefitDescription: string;
   contributionDescription: string;
   costPerMonthInUSD: number;
+  initiationFeeCostInUSD: Maybe<number>;
 };
 
 export type ClubStatistics = {
