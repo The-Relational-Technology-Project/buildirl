@@ -1849,6 +1849,7 @@ export function createMainService(
             id: true,
             stripePriceId: true,
             costPerMonthInUSD: true,
+            initiationFeeStripePriceId: true,
             club: {
               select: {
                 id: true,
@@ -1871,6 +1872,8 @@ export function createMainService(
       membership.membershipTier.club.stripeConnectAccountId;
     const setupIntentId = membership.stripeSetupIntentId;
     const priceId = membership.membershipTier.stripePriceId;
+    const initiationFeeStripePriceId =
+      membership.membershipTier.initiationFeeStripePriceId;
 
     if (!customerId) {
       throw new Error(
@@ -1903,7 +1906,8 @@ export function createMainService(
         setupIntentId: setupIntentId,
         customerId: customerId,
         priceId: priceId,
-        membershipId: membershipId
+        membershipId: membershipId,
+        initiationFeePriceId: initiationFeeStripePriceId
       },
       accountId
     );

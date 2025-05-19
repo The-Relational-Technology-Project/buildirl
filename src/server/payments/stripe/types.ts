@@ -156,6 +156,8 @@ export type CreateCheckoutSessionResponse = {
 export type CreateSubscriptionInput = {
   customerId: string;
   priceId: string;
+  // null if there is no initiation fee
+  initiationFeePriceId: Maybe<string>;
   setupIntentId: string;
   membershipId: bigint;
 };
