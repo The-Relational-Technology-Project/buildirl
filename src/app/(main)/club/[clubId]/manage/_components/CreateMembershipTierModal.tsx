@@ -83,7 +83,9 @@ export default function CreateMembershipTierModal({
               name: v.name,
               benefitDescription: v.benefitDescription,
               contributionDescription: v.contributionDescription,
-              costPerMonthInUSD: v.costPerMonthInUSD
+              costPerMonthInUSD: v.costPerMonthInUSD,
+              // TODO!
+              initiationFeeCostInUSD: null
             }
           });
           form.reset();

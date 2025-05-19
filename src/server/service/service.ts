@@ -678,6 +678,13 @@ export function createMainService(
       });
 
       await createStripeProductAndPrice(id, input, tx);
+      if (input.initiationFeeCostInUSD !== null) {
+        await createInitiationFeeStripeProductAndPrice(
+          id,
+          input.initiationFeeCostInUSD,
+          tx
+        );
+      }
 
       logger.info(
         `created membership tier from input ${stringify(input)} with id ${id}`
@@ -849,7 +856,7 @@ export function createMainService(
       // IMPORTANT: it is necessary this is before the db update because
       // we need to have a handle on the old initiation fee to determine
       // the product and price changes
-      await upsertInitiationFeeProductAndPrice(id, input, tx);
+      await upsertInitiationFeeStripeProductAndPrice(id, input, tx);
 
       await tx.membershipTier.update({
         data: input,
@@ -858,7 +865,7 @@ export function createMainService(
         }
       });
 
-      await updateProductAndPrice(id, input, tx);
+      await updateStripeProductAndPrice(id, input, tx);
 
       logger.info(
         `updated membership tier with id ${id} from input ${stringify(input)}`
@@ -873,7 +880,7 @@ export function createMainService(
     }
   }
 
-  async function updateProductAndPrice(
+  async function updateStripeProductAndPrice(
     membershipTierId: number,
     input: UpdateMembershipTierInput,
     tx: Prisma.TransactionClient
@@ -938,7 +945,7 @@ export function createMainService(
     }
   }
 
-  async function upsertInitiationFeeProductAndPrice(
+  async function upsertInitiationFeeStripeProductAndPrice(
     membershipTierId: number,
     input: UpdateMembershipTierInput,
     tx: Prisma.TransactionClient
@@ -969,7 +976,7 @@ export function createMainService(
 
     // 2. clearing the existing initiation fee product and price
     if (null === input.initiationFeeCostInUSD) {
-      await archiveInitiationFeeProductAndPrice(
+      await archiveInitiationFeeStripeProductAndPrice(
         membershipTierId,
         membershipTier.initiationFeeStripeProductId,
         membershipTier.initiationFeeStripePriceId,
@@ -982,7 +989,7 @@ export function createMainService(
     // note: this will create a new product even if an old one existed but
     // was archived
     if (null === membershipTier.initiationFeeCostInUSD) {
-      await createInitiationFeeProductAndPrice(
+      await createInitiationFeeStripeProductAndPrice(
         membershipTierId,
         input.initiationFeeCostInUSD,
         tx
@@ -991,7 +998,7 @@ export function createMainService(
     }
 
     // 4. updating existing initiation fee product and price to new value
-    await updateExistingInitiationFeeProductAndPrice(
+    await updateExistingInitiationFeeStripeProductAndPrice(
       membershipTierId,
       input.initiationFeeCostInUSD,
       membershipTier.initiationFeeStripeProductId,
@@ -1000,7 +1007,7 @@ export function createMainService(
     );
   }
 
-  async function archiveInitiationFeeProductAndPrice(
+  async function archiveInitiationFeeStripeProductAndPrice(
     membershipTierId: number,
     existingInitiationFeeStripeProductId: Maybe<string>,
     existingInitiationFeeStripePriceId: Maybe<string>,
@@ -1048,7 +1055,7 @@ export function createMainService(
     }
   }
 
-  async function createInitiationFeeProductAndPrice(
+  async function createInitiationFeeStripeProductAndPrice(
     membershipTierId: number,
     initiationFeeCostInUSD: number,
     tx: Prisma.TransactionClient
@@ -1090,7 +1097,7 @@ export function createMainService(
     }
   }
 
-  async function updateExistingInitiationFeeProductAndPrice(
+  async function updateExistingInitiationFeeStripeProductAndPrice(
     membershipTierId: number,
     initiationFeeCostInUSD: number,
     existingInitiationFeeStripeProductId: Maybe<string>,
@@ -1161,7 +1168,7 @@ export function createMainService(
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
-      await archiveProductAndPrice(id, tx);
+      await archiveStripeProductAndPrice(id, tx);
 
       await tx.membershipTier.delete({
         where: {
@@ -1177,7 +1184,7 @@ export function createMainService(
     }
   }
 
-  async function archiveProductAndPrice(
+  async function archiveStripeProductAndPrice(
     membershipTierId: number,
     tx: Prisma.TransactionClient
   ): Promise<void> {
@@ -1356,7 +1363,7 @@ export function createMainService(
         }
       });
 
-      await archiveProductAndPrice(id, tx);
+      await archiveStripeProductAndPrice(id, tx);
 
       logger.info(`unpublished membership tier with id ${id}`);
       return NO_ID_MUTATION_RESULT;

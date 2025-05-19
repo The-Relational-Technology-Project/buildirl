@@ -278,7 +278,8 @@ export const CreateMembershipTierInputSchema = z.object({
   name: MembershipTierNameSchema,
   benefitDescription: LongTextSchema,
   contributionDescription: LongTextSchema,
-  costPerMonthInUSD: MonetaryValueSchema
+  costPerMonthInUSD: MonetaryValueSchema,
+  initiationFeeCostInUSD: MonetaryValueSchema.nullable()
 });
 export type CreateMembershipTierInput = z.infer<
   typeof CreateMembershipTierInputSchema

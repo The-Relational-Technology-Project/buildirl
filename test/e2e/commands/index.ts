@@ -248,7 +248,8 @@ function createMembershipTierCommands() {
     name: string(),
     benefitDescription: string(),
     contributionDescription: string(),
-    costPerMonthInUSD: monetaryValue()
+    costPerMonthInUSD: monetaryValue(),
+    initiationFeeCostPerMonthInUSD: option(monetaryValue(), { freq: 2 })
   }).map(
     (i) =>
       new CreateMembershipTierCommand(
@@ -256,7 +257,8 @@ function createMembershipTierCommands() {
           name: i.name,
           benefitDescription: i.benefitDescription,
           contributionDescription: i.contributionDescription,
-          costPerMonthInUSD: i.costPerMonthInUSD
+          costPerMonthInUSD: i.costPerMonthInUSD,
+          initiationFeeCostInUSD: i.initiationFeeCostPerMonthInUSD
         },
         i.clubIdSelector
       )

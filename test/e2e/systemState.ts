@@ -352,7 +352,7 @@ export class SystemState {
       benefitDescription: input.benefitDescription,
       contributionDescription: input.contributionDescription,
       costPerMonthInUSD: input.costPerMonthInUSD,
-      initiationFeeCostInUSD: null
+      initiationFeeCostInUSD: input.initiationFeeCostInUSD
     });
     // link the membership tier to the club
     const clubState = this.getClubState(clubId);
