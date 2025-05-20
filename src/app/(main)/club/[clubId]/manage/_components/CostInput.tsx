@@ -4,10 +4,13 @@ import { Maybe } from "~/utils/types";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
+export const DEFAULT_COST_PER_MONTH_USD = 20;
+export const DEFAULT_INITIATION_FEE_USD = 50;
+
 type CostInputProps = {
   value: number;
-  defaultValue: number;
   onChange: (value: number) => void;
+  defaultValue?: number;
   min?: number;
   max?: number;
 };

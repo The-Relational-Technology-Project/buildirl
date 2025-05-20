@@ -21,11 +21,10 @@ import { handleDefaultMutationError } from "~/client/logger";
 import { Maybe } from "~/utils/types";
 import {
   CostInput,
+  DEFAULT_COST_PER_MONTH_USD,
+  DEFAULT_INITIATION_FEE_USD,
   NullableCostInput
 } from "~/app/(main)/club/[clubId]/manage/_components/CostInput";
-
-const DEFAULT_COST_PER_MONTH_USD = 20;
-const DEFAULT_INITIATION_FEE_USD = 50;
 
 type CreateMembershipTierModalProps = {
   club: Club;
