@@ -21,16 +21,19 @@ export function createEmailClient(
 ): EmailClient {
   const FROM_EMAIL = "outbound@buildirl.com";
 
+  /**
+   * Returns boolean if custom email is sent which can be used to determine if fallback is required
+   */
   async function sendCustomEmailWithTemplate(
     id: EmailTemplateId,
     sendTo: Email
-  ): Promise<void> {
+  ): Promise<boolean> {
     const template = await emailService.getEmailTemplate(id);
     if (null === template) {
       logger.info(
         `no email template found for id ${stringify(id)}, did not send custom email`
       );
-      return;
+      return false;
     }
     try {
       await mailTransport.sendMail({
@@ -43,12 +46,13 @@ export function createEmailClient(
       logger.info(
         `sent custom email with email template with id ${stringify(id)}`
       );
+      return true;
     } catch (e) {
       logger.error(
         e,
         `failed to send custom email with email template with id ${stringify(id)}`
       );
-      return;
+      return false;
     }
   }
 
@@ -87,6 +91,14 @@ export function createEmailClient(
     input: NotifyMembershipApprovedInput,
     sendTo: Email
   ): Promise<void> {
+    const customEmailSent = await sendCustomEmailWithTemplate(
+      { clubId: input.clubId, type: "ONBOARDING" },
+      sendTo
+    );
+    if (customEmailSent) {
+      return;
+    }
+
     try {
       const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
 
@@ -115,17 +127,20 @@ export function createEmailClient(
         `failed to send membership accepted email to ${sendTo} for membership with id ${input.membershipId}`
       );
     }
-
-    await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "ONBOARDING" },
-      sendTo
-    );
   }
 
   async function notifyMembershipDeclined(
     input: NotifyMembershipDeclinedInput,
     sendTo: Email
   ): Promise<void> {
+    const customEmailSent = await sendCustomEmailWithTemplate(
+      { clubId: input.clubId, type: "REJECTION" },
+      sendTo
+    );
+    if (customEmailSent) {
+      return;
+    }
+
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
@@ -152,10 +167,6 @@ export function createEmailClient(
         `failed to send membership declined email to ${sendTo} for membership with id ${input.membershipId}`
       );
     }
-    await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "REJECTION" },
-      sendTo
-    );
   }
 
   async function notifyMembershipDeactivatedByMemberToOwner(
@@ -195,6 +206,14 @@ export function createEmailClient(
     input: NotifyMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email
   ): Promise<void> {
+    const customEmailSent = await sendCustomEmailWithTemplate(
+      { clubId: input.clubId, type: "OFFBOARDING" },
+      sendTo
+    );
+    if (customEmailSent) {
+      return;
+    }
+
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
@@ -219,10 +238,6 @@ export function createEmailClient(
         `failed to send membership deactivated email by member to member at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
-    await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "OFFBOARDING" },
-      sendTo
-    );
   }
 
   async function notifyMembershipDeactivatedByOwner(
