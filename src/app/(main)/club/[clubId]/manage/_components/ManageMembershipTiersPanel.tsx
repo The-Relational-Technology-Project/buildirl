@@ -85,6 +85,9 @@ export default function ManageMembershipTiersPanel({
         slideGap="md"
         align="start"
         withControls={true}
+        // we do not want carousel to move when arrows are pressed in
+        // update / create membership tier modals
+        withKeyboardEvents={false}
       >
         {publishedTiers.map((t) => (
           <Carousel.Slide key={t.id} py={4}>
