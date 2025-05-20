@@ -23,12 +23,25 @@ export default class UpdateMembershipTierCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasNoActiveMembersMembershipTier();
+    if (m.getMembershipTierIds().length === 0) {
+      return false;
+    }
+    // look-ahead, this is deterministic with what will be chosen at runtime
+    const membershipTierId = this.membershipTierIdSelector.select(
+      m.getMembershipTierIds()
+    );
+    const isUpdatingCost =
+      m.getMembershipTier(membershipTierId).costPerMonthInUSD !==
+      this.input.costPerMonthInUSD;
+    const hasActiveMembersOrPendingApplications =
+      m.hasActiveMembersOrPendingApplications(membershipTierId);
+    // cannot update cost on tier with active members or pending applications
+    return !(isUpdatingCost && hasActiveMembersOrPendingApplications);
   }
 
   async run(m: SystemState, r: Services): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
-      m.getNoActiveMembersMembershipTiersIds()
+      m.getMembershipTierIds()
     );
 
     if (m.isDefaultFreeTier(this.membershipTierId)) {

@@ -468,6 +468,12 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         {
           customer: input.customerId,
           items: [{ price: input.priceId }],
+          add_invoice_items:
+            // add initiation fee as item on first invoice only
+            // if there is one
+            null === input.initiationFeePriceId
+              ? undefined
+              : [{ price: input.priceId }],
           default_payment_method: paymentMethodId(setupIntent.payment_method),
           collection_method: "charge_automatically",
           // we will surface inactive status if needed but do not block

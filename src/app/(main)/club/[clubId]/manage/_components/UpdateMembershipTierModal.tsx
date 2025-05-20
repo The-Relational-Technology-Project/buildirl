@@ -12,7 +12,6 @@ import {
 import {
   Button,
   Modal,
-  Slider,
   Stack,
   Textarea,
   TextInput,
@@ -27,6 +26,11 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { z } from "zod";
 import { handleDefaultMutationError } from "~/client/logger";
+import {
+  CostInput,
+  DEFAULT_INITIATION_FEE_USD,
+  NullableCostInput
+} from "~/app/(main)/club/[clubId]/manage/_components/CostInput";
 
 type UpdateMembershipTierModalProps = {
   club: Club;
@@ -60,7 +64,8 @@ export default function UpdateMembershipTierModal({
       name: membershipTier.name,
       benefitDescription: membershipTier.benefitDescription,
       contributionDescription: membershipTier.contributionDescription,
-      costPerMonthInUSD: membershipTier.costPerMonthInUSD
+      costPerMonthInUSD: membershipTier.costPerMonthInUSD,
+      initiationFeeCostInUSD: membershipTier.initiationFeeCostInUSD
     },
 
     validateInputOnChange: true,
@@ -70,7 +75,9 @@ export default function UpdateMembershipTierModal({
       benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
       contributionDescription: (v) => safeValidateSchema(LongTextSchema, v),
       costPerMonthInUSD: (v) =>
-        safeValidateSchema(MonetaryValueSchema.or(z.literal(0)), v)
+        safeValidateSchema(MonetaryValueSchema.or(z.literal(0)), v),
+      initiationFeeCostInUSD: (v) =>
+        safeValidateSchema(MonetaryValueSchema.nullable(), v)
     }
   });
 
@@ -95,8 +102,7 @@ export default function UpdateMembershipTierModal({
               benefitDescription: v.benefitDescription,
               contributionDescription: v.contributionDescription,
               costPerMonthInUSD: v.costPerMonthInUSD,
-              // TODO!
-              initiationFeeCostInUSD: null
+              initiationFeeCostInUSD: v.initiationFeeCostInUSD
             }
           });
         })}
@@ -125,23 +131,26 @@ export default function UpdateMembershipTierModal({
 
           {!isDefaultFreeTier(membershipTier) && (
             <Stack>
-              <Stack gap={4}>
+              <Stack gap={12}>
                 <Title order={6}>Monthly Cost</Title>
-                <Text
-                  size={"md"}
-                >{`$${form.values.costPerMonthInUSD}.00/month`}</Text>
+                <CostInput
+                  value={form.values.costPerMonthInUSD}
+                  onChange={(value) =>
+                    form.setFieldValue("costPerMonthInUSD", value)
+                  }
+                />
               </Stack>
-              <Slider
-                label={(value) => `$${value}.00/month`}
-                key={form.key("costPerMonthInUSD")}
-                {...form.getInputProps("costPerMonthInUSD")}
-                color={"black"}
-                size={"xl"}
-                precision={2}
-                step={5}
-                min={5}
-                max={100}
-              />
+
+              <Stack gap={12}>
+                <Title order={6}>Initiation Fee</Title>
+                <NullableCostInput
+                  value={form.values.initiationFeeCostInUSD}
+                  onChange={(value) =>
+                    form.setFieldValue("initiationFeeCostInUSD", value)
+                  }
+                  defaultValue={DEFAULT_INITIATION_FEE_USD}
+                />
+              </Stack>
             </Stack>
           )}
 
@@ -191,30 +200,31 @@ function UpdateMembershipTierButton({
     fieldName: "membershipApplicationsForClub"
   });
 
-  const membershipTierIsEligibleForUpdate =
+  const membershipTierRequiresWarningBeforeUpdate =
     // allows button to display as disabled until ready
-    isAllLoaded([r, m]) &&
-    // only tier with no members can be deleted
-    hasNoMembershipsForMembershipTier(r.data!, membershipTierId) &&
-    hasNoMembershipsForMembershipTier(m.data!, membershipTierId);
+    (isAllLoaded([r, m]) &&
+      // tier with active members or pending applications require warning before update
+      !hasNoMembershipsForMembershipTier(r.data!, membershipTierId)) ||
+    !hasNoMembershipsForMembershipTier(m.data!, membershipTierId);
 
   return (
-    <Tooltip
-      position={"bottom"}
-      label={
-        "Only tiers with no members or pending applications can be updated."
-      }
-      hidden={membershipTierIsEligibleForUpdate}
+    <Button
+      type="submit"
+      mt="sm"
+      loading={isLoading}
+      onClick={(e) => {
+        if (
+          membershipTierRequiresWarningBeforeUpdate &&
+          !window.confirm(
+            "This tier currently has active members or pending applications. If you are making significant changes to the tier, please ensure the changes are communicated."
+          )
+        ) {
+          e.preventDefault();
+        }
+      }}
     >
-      <Button
-        type="submit"
-        mt="sm"
-        loading={isLoading}
-        disabled={!membershipTierIsEligibleForUpdate}
-      >
-        Update
-      </Button>
-    </Tooltip>
+      Update
+    </Button>
   );
 }
 
@@ -265,7 +275,7 @@ function DeleteMembershipTierButton({
     !isDefaultFreeTier(membershipTier) &&
     // allows button to display as disabled until ready
     isAllLoaded([r, m]) &&
-    // only tier with no members can be deleted
+    // only tier with no active members or pending applications can be deleted
     hasNoMembershipsForMembershipTier(r.data!, membershipTier.id) &&
     hasNoMembershipsForMembershipTier(m.data!, membershipTier.id);
 

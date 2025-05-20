@@ -85,6 +85,9 @@ export default function ManageMembershipTiersPanel({
         slideGap="md"
         align="start"
         withControls={true}
+        // we do not want carousel to move when arrows are pressed in
+        // update / create membership tier modals
+        withKeyboardEvents={false}
       >
         {publishedTiers.map((t) => (
           <Carousel.Slide key={t.id} py={4}>
@@ -151,6 +154,17 @@ export default function ManageMembershipTiersPanel({
         </Stack>
       )}
     </Stack>
+  );
+}
+
+function costDisplayText(membershipTier: MembershipTier) {
+  return (
+    "$" +
+    membershipTier.costPerMonthInUSD +
+    " / month" +
+    (null === membershipTier.initiationFeeCostInUSD
+      ? ""
+      : " + $" + membershipTier.initiationFeeCostInUSD + " initiation")
   );
 }
 
@@ -236,7 +250,7 @@ export function ManageMembershipTierCard({
         <Space flex={1} />
 
         <Text fw={700} size={"md"} mb={"sm"}>
-          ${membershipTier.costPerMonthInUSD}/month
+          {costDisplayText(membershipTier)}
         </Text>
 
         <Group

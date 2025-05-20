@@ -755,31 +755,26 @@ export function createMainService(
     );
   }
 
-  async function hasActiveMembersOnMembershipTier(membershipTierId: number) {
+  async function hasActiveMembersOrPendingApplicationsOnMembershipTier(
+    membershipTierId: number
+  ) {
     try {
       const count = await prisma.membership.count({
-        where: { membershipTierId: membershipTierId, status: "ACTIVE" }
+        where: {
+          membershipTierId: membershipTierId,
+          status: { in: ["ACTIVE", "PENDING"] }
+        }
       });
       logger.info(
-        `queried membership count ${count} for membership tier with id ${membershipTierId}`
+        `queried active membership and pending application count ${count} for membership tier with id ${membershipTierId}`
       );
       return count > 0;
     } catch (e) {
       logger.error(
         e,
-        `failed to query membership count for membership tier with id ${membershipTierId}`
+        `failed to query active membership and pending application for membership tier with id ${membershipTierId}`
       );
       throw e;
-    }
-  }
-
-  async function checkNoActiveMembersOnMembershipTier(
-    membershipTierId: number
-  ): Promise<void> {
-    if (await hasActiveMembersOnMembershipTier(membershipTierId)) {
-      throw new Error(
-        "cannot update membership tier if there are existing members subscribed to it"
-      );
     }
   }
 
@@ -834,11 +829,58 @@ export function createMainService(
     }
   }
 
+  async function isUpdateOnCostPerMonthInUSD(
+    membershipTierId: number,
+    input: UpdateMembershipTierInput
+  ): Promise<boolean> {
+    try {
+      const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
+        where: { id: membershipTierId },
+        select: { costPerMonthInUSD: true }
+      });
+
+      logger.info(
+        `queried costPerMonthInUSD for membership tier with id ${membershipTierId} with result ${membershipTier.costPerMonthInUSD.toNumber()}`
+      );
+      return (
+        membershipTier.costPerMonthInUSD.toNumber() !== input.costPerMonthInUSD
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query costPerMonthInUSD for membership tier with id ${membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
+  async function checkNotUpdatingCostPerMonthInUSDWithActiveOrPendingApplicationsOnMembershipTier(
+    membershipTierId: number,
+    input: UpdateMembershipTierInput
+  ): Promise<void> {
+    const updatingCost = await isUpdateOnCostPerMonthInUSD(
+      membershipTierId,
+      input
+    );
+    const hasActiveMembersOrPendingApplications =
+      await hasActiveMembersOrPendingApplicationsOnMembershipTier(
+        membershipTierId
+      );
+    if (updatingCost && hasActiveMembersOrPendingApplications) {
+      throw new Error(
+        "cannot update cost of membership tier if there are active members or pending applications"
+      );
+    }
+  }
+
   async function updateMembershipTier(
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
-    await checkNoActiveMembersOnMembershipTier(id);
+    await checkNotUpdatingCostPerMonthInUSDWithActiveOrPendingApplicationsOnMembershipTier(
+      id,
+      input
+    );
     await checkIsNotDefaultFreeMembershipTierAndUpdatingCost(id, input);
     await checkIsNotUpdatingMembershipTierToZeroCost(id, input);
 
@@ -1151,8 +1193,22 @@ export function createMainService(
     }
   }
 
+  async function checkNoActiveMembersOrPendingApplicationsOnMembershipTier(
+    membershipTierId: number
+  ): Promise<void> {
+    if (
+      await hasActiveMembersOrPendingApplicationsOnMembershipTier(
+        membershipTierId
+      )
+    ) {
+      throw new Error(
+        "cannot update membership tier if there are active members or pending applications"
+      );
+    }
+  }
+
   async function deleteMembershipTier(id: number): Promise<MutationResult> {
-    await checkNoActiveMembersOnMembershipTier(id);
+    await checkNoActiveMembersOrPendingApplicationsOnMembershipTier(id);
     await checkIsNotDefaultFreeMembershipTier(id);
     if (await isMembershipTierLastPublishedTier(id)) {
       throw new Error("cannot delete last published membership tier");
@@ -1849,6 +1905,7 @@ export function createMainService(
             id: true,
             stripePriceId: true,
             costPerMonthInUSD: true,
+            initiationFeeStripePriceId: true,
             club: {
               select: {
                 id: true,
@@ -1871,6 +1928,8 @@ export function createMainService(
       membership.membershipTier.club.stripeConnectAccountId;
     const setupIntentId = membership.stripeSetupIntentId;
     const priceId = membership.membershipTier.stripePriceId;
+    const initiationFeeStripePriceId =
+      membership.membershipTier.initiationFeeStripePriceId;
 
     if (!customerId) {
       throw new Error(
@@ -1903,7 +1962,8 @@ export function createMainService(
         setupIntentId: setupIntentId,
         customerId: customerId,
         priceId: priceId,
-        membershipId: membershipId
+        membershipId: membershipId,
+        initiationFeePriceId: initiationFeeStripePriceId
       },
       accountId
     );

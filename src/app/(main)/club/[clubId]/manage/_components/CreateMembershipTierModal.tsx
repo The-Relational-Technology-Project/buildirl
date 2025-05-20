@@ -10,7 +10,6 @@ import {
 import {
   Button,
   Modal,
-  Slider,
   Stack,
   Text,
   Textarea,
@@ -19,14 +18,19 @@ import {
 } from "@mantine/core";
 import React from "react";
 import { handleDefaultMutationError } from "~/client/logger";
+import { Maybe } from "~/utils/types";
+import {
+  CostInput,
+  DEFAULT_COST_PER_MONTH_USD,
+  DEFAULT_INITIATION_FEE_USD,
+  NullableCostInput
+} from "~/app/(main)/club/[clubId]/manage/_components/CostInput";
 
 type CreateMembershipTierModalProps = {
   club: Club;
   opened: boolean;
   handleClose: () => void;
 };
-
-const DEFAULT_COST_PER_MONTH_USD = 20;
 
 export default function CreateMembershipTierModal({
   club,
@@ -50,7 +54,8 @@ export default function CreateMembershipTierModal({
       name: "",
       benefitDescription: "",
       contributionDescription: "",
-      costPerMonthInUSD: DEFAULT_COST_PER_MONTH_USD
+      costPerMonthInUSD: DEFAULT_COST_PER_MONTH_USD,
+      initiationFeeCostInUSD: null as Maybe<number>
     },
 
     validateInputOnChange: true,
@@ -59,7 +64,9 @@ export default function CreateMembershipTierModal({
       name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
       benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
       contributionDescription: (v) => safeValidateSchema(LongTextSchema, v),
-      costPerMonthInUSD: (v) => safeValidateSchema(MonetaryValueSchema, v)
+      costPerMonthInUSD: (v) => safeValidateSchema(MonetaryValueSchema, v),
+      initiationFeeCostInUSD: (v) =>
+        safeValidateSchema(MonetaryValueSchema.nullable(), v)
     }
   });
 
@@ -84,8 +91,7 @@ export default function CreateMembershipTierModal({
               benefitDescription: v.benefitDescription,
               contributionDescription: v.contributionDescription,
               costPerMonthInUSD: v.costPerMonthInUSD,
-              // TODO!
-              initiationFeeCostInUSD: null
+              initiationFeeCostInUSD: v.initiationFeeCostInUSD
             }
           });
           form.reset();
@@ -113,24 +119,27 @@ export default function CreateMembershipTierModal({
             {...form.getInputProps("contributionDescription")}
           />
 
-          <Stack gap={4}>
+          <Stack gap={12}>
             <Title order={6}>Monthly Cost</Title>
-            <Text
-              size={"md"}
-            >{`$${form.values.costPerMonthInUSD}.00/month`}</Text>
+            <CostInput
+              value={form.values.costPerMonthInUSD}
+              onChange={(value) =>
+                form.setFieldValue("costPerMonthInUSD", value)
+              }
+              defaultValue={DEFAULT_COST_PER_MONTH_USD}
+            />
           </Stack>
-          <Slider
-            label={(value) => `$${value}.00/month`}
-            key={form.key("costPerMonthInUSD")}
-            {...form.getInputProps("costPerMonthInUSD")}
-            color={"black"}
-            size={"xl"}
-            defaultValue={DEFAULT_COST_PER_MONTH_USD}
-            precision={2}
-            step={5}
-            min={5}
-            max={100}
-          />
+
+          <Stack gap={12}>
+            <Title order={6}>Initiation Fee</Title>
+            <NullableCostInput
+              value={form.values.initiationFeeCostInUSD}
+              onChange={(value) =>
+                form.setFieldValue("initiationFeeCostInUSD", value)
+              }
+              defaultValue={DEFAULT_INITIATION_FEE_USD}
+            />
+          </Stack>
 
           <Button
             type="submit"
