@@ -424,21 +424,6 @@ export class SystemState {
     return membershipTier;
   }
 
-  public hasMembershipTierWithNoActiveMembersOrPendingApplications(): boolean {
-    return (
-      this.getMembershipTiersIdsWithNoActiveMembersOrPendingApplications()
-        .length > 0
-    );
-  }
-
-  public getMembershipTiersIdsWithNoActiveMembersOrPendingApplications(): number[] {
-    const membershipTierIdsWithActiveMembersOrPendingApplications =
-      this.getMembershipTierIdsWithActiveMembersOrPendingApplications();
-    return Array.from(this.membershipTiers.keys()).filter(
-      (id) => !membershipTierIdsWithActiveMembersOrPendingApplications.has(id)
-    );
-  }
-
   public hasPaidMembershipTierWithNoActiveMembersOrPendingApplicationsThatAreNotLastPublished(): boolean {
     return (
       this.getPaidMembershipTierIdsWithNoActiveMembersOrPendingApplicationsThatAreNotLastPublished()
@@ -477,6 +462,10 @@ export class SystemState {
     return isDefaultFreeTier(membershipTier);
   }
 
+  public getMembershipTierIds(): number[] {
+    return Array.from(this.membershipTiers.values()).map((t) => t.id);
+  }
+
   public hasPublishedMembershipTiers(): boolean {
     return this.getPublishedMembershipTierIds().length > 0;
   }
@@ -508,6 +497,12 @@ export class SystemState {
     return Array.from(this.membershipTiers.values())
       .filter((t) => t.status === "UNPUBLISHED")
       .map((t) => t.id);
+  }
+
+  public hasActiveMembersOrPendingApplications(membershipTierId: number) {
+    return this.getMembershipTierIdsWithActiveMembersOrPendingApplications().has(
+      membershipTierId
+    );
   }
 
   private getMembershipTierIdsWithActiveMembersOrPendingApplications(): Set<number> {
