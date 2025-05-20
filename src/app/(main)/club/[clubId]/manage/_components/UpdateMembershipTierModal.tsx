@@ -203,7 +203,7 @@ function UpdateMembershipTierButton({
   const membershipTierIsEligibleForUpdate =
     // allows button to display as disabled until ready
     isAllLoaded([r, m]) &&
-    // only tier with no members can be deleted
+    // only tier with no active members or pending applications can be updated
     hasNoMembershipsForMembershipTier(r.data!, membershipTierId) &&
     hasNoMembershipsForMembershipTier(m.data!, membershipTierId);
 
@@ -274,7 +274,7 @@ function DeleteMembershipTierButton({
     !isDefaultFreeTier(membershipTier) &&
     // allows button to display as disabled until ready
     isAllLoaded([r, m]) &&
-    // only tier with no members can be deleted
+    // only tier with no active members or pending applications can be deleted
     hasNoMembershipsForMembershipTier(r.data!, membershipTier.id) &&
     hasNoMembershipsForMembershipTier(m.data!, membershipTier.id);
 

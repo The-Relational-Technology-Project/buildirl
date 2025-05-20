@@ -755,30 +755,39 @@ export function createMainService(
     );
   }
 
-  async function hasActiveMembersOnMembershipTier(membershipTierId: number) {
+  async function hasActiveMembersOrPendingApplicationsOnMembershipTier(
+    membershipTierId: number
+  ) {
     try {
       const count = await prisma.membership.count({
-        where: { membershipTierId: membershipTierId, status: "ACTIVE" }
+        where: {
+          membershipTierId: membershipTierId,
+          status: { in: ["ACTIVE", "PENDING"] }
+        }
       });
       logger.info(
-        `queried membership count ${count} for membership tier with id ${membershipTierId}`
+        `queried active membership and pending application count ${count} for membership tier with id ${membershipTierId}`
       );
       return count > 0;
     } catch (e) {
       logger.error(
         e,
-        `failed to query membership count for membership tier with id ${membershipTierId}`
+        `failed to query active membership and pending application for membership tier with id ${membershipTierId}`
       );
       throw e;
     }
   }
 
-  async function checkNoActiveMembersOnMembershipTier(
+  async function checkNoActiveMembersOrPendingApplicationsOnMembershipTier(
     membershipTierId: number
   ): Promise<void> {
-    if (await hasActiveMembersOnMembershipTier(membershipTierId)) {
+    if (
+      await hasActiveMembersOrPendingApplicationsOnMembershipTier(
+        membershipTierId
+      )
+    ) {
       throw new Error(
-        "cannot update membership tier if there are existing members subscribed to it"
+        "cannot update membership tier if there are active members or pending applications"
       );
     }
   }
@@ -838,7 +847,7 @@ export function createMainService(
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
-    await checkNoActiveMembersOnMembershipTier(id);
+    await checkNoActiveMembersOrPendingApplicationsOnMembershipTier(id);
     await checkIsNotDefaultFreeMembershipTierAndUpdatingCost(id, input);
     await checkIsNotUpdatingMembershipTierToZeroCost(id, input);
 
@@ -1152,7 +1161,7 @@ export function createMainService(
   }
 
   async function deleteMembershipTier(id: number): Promise<MutationResult> {
-    await checkNoActiveMembersOnMembershipTier(id);
+    await checkNoActiveMembersOrPendingApplicationsOnMembershipTier(id);
     await checkIsNotDefaultFreeMembershipTier(id);
     if (await isMembershipTierLastPublishedTier(id)) {
       throw new Error("cannot delete last published membership tier");
