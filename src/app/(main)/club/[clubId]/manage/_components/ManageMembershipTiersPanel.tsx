@@ -154,6 +154,17 @@ export default function ManageMembershipTiersPanel({
   );
 }
 
+function costDisplayText(membershipTier: MembershipTier) {
+  return (
+    "$" +
+    membershipTier.costPerMonthInUSD +
+    " / month" +
+    (null === membershipTier.initiationFeeCostInUSD
+      ? ""
+      : " + $" + membershipTier.initiationFeeCostInUSD + " initiation")
+  );
+}
+
 type ManageMembershipTierCardProps = {
   club: Club;
   membershipTier: MembershipTier;
@@ -236,7 +247,7 @@ export function ManageMembershipTierCard({
         <Space flex={1} />
 
         <Text fw={700} size={"md"} mb={"sm"}>
-          ${membershipTier.costPerMonthInUSD}/month
+          {costDisplayText(membershipTier)}
         </Text>
 
         <Group

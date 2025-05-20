@@ -21,7 +21,7 @@ export function CostInput({
   defaultValue,
   // these match the MonetaryValue zod schema
   min = 1,
-  max = 1000
+  max = 999
 }: CostInputProps) {
   return (
     <NumberInput
