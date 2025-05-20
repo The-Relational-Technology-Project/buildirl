@@ -778,20 +778,6 @@ export function createMainService(
     }
   }
 
-  async function checkNoActiveMembersOrPendingApplicationsOnMembershipTier(
-    membershipTierId: number
-  ): Promise<void> {
-    if (
-      await hasActiveMembersOrPendingApplicationsOnMembershipTier(
-        membershipTierId
-      )
-    ) {
-      throw new Error(
-        "cannot update membership tier if there are active members or pending applications"
-      );
-    }
-  }
-
   async function isDefaultFreeTierById(membershipTierId: number) {
     try {
       const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
@@ -843,11 +829,58 @@ export function createMainService(
     }
   }
 
+  async function isUpdateOnCostPerMonthInUSD(
+    membershipTierId: number,
+    input: UpdateMembershipTierInput
+  ): Promise<boolean> {
+    try {
+      const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
+        where: { id: membershipTierId },
+        select: { costPerMonthInUSD: true }
+      });
+
+      logger.info(
+        `queried costPerMonthInUSD for membership tier with id ${membershipTierId} with result ${membershipTier.costPerMonthInUSD.toNumber()}`
+      );
+      return (
+        membershipTier.costPerMonthInUSD.toNumber() !== input.costPerMonthInUSD
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query costPerMonthInUSD for membership tier with id ${membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
+  async function checkNotUpdatingCostPerMonthInUSDWithActiveOrPendingApplicationsOnMembershipTier(
+    membershipTierId: number,
+    input: UpdateMembershipTierInput
+  ): Promise<void> {
+    const updatingCost = await isUpdateOnCostPerMonthInUSD(
+      membershipTierId,
+      input
+    );
+    const hasActiveMembersOrPendingApplications =
+      await hasActiveMembersOrPendingApplicationsOnMembershipTier(
+        membershipTierId
+      );
+    if (updatingCost && hasActiveMembersOrPendingApplications) {
+      throw new Error(
+        "cannot update cost of membership tier if there are active members or pending applications"
+      );
+    }
+  }
+
   async function updateMembershipTier(
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
-    await checkNoActiveMembersOrPendingApplicationsOnMembershipTier(id);
+    await checkNotUpdatingCostPerMonthInUSDWithActiveOrPendingApplicationsOnMembershipTier(
+      id,
+      input
+    );
     await checkIsNotDefaultFreeMembershipTierAndUpdatingCost(id, input);
     await checkIsNotUpdatingMembershipTierToZeroCost(id, input);
 
@@ -1157,6 +1190,20 @@ export function createMainService(
         );
         throw e;
       }
+    }
+  }
+
+  async function checkNoActiveMembersOrPendingApplicationsOnMembershipTier(
+    membershipTierId: number
+  ): Promise<void> {
+    if (
+      await hasActiveMembersOrPendingApplicationsOnMembershipTier(
+        membershipTierId
+      )
+    ) {
+      throw new Error(
+        "cannot update membership tier if there are active members or pending applications"
+      );
     }
   }
 
