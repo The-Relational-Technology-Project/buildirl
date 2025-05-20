@@ -200,30 +200,31 @@ function UpdateMembershipTierButton({
     fieldName: "membershipApplicationsForClub"
   });
 
-  const membershipTierIsEligibleForUpdate =
+  const membershipTierRequiresWarningBeforeUpdate =
     // allows button to display as disabled until ready
-    isAllLoaded([r, m]) &&
-    // only tier with no active members or pending applications can be updated
-    hasNoMembershipsForMembershipTier(r.data!, membershipTierId) &&
-    hasNoMembershipsForMembershipTier(m.data!, membershipTierId);
+    (isAllLoaded([r, m]) &&
+      // tier with active members or pending applications require warning before update
+      !hasNoMembershipsForMembershipTier(r.data!, membershipTierId)) ||
+    !hasNoMembershipsForMembershipTier(m.data!, membershipTierId);
 
   return (
-    <Tooltip
-      position={"bottom"}
-      label={
-        "Only tiers with no members or pending applications can be updated."
-      }
-      hidden={membershipTierIsEligibleForUpdate}
+    <Button
+      type="submit"
+      mt="sm"
+      loading={isLoading}
+      onClick={(e) => {
+        if (
+          membershipTierRequiresWarningBeforeUpdate &&
+          !window.confirm(
+            "This tier currently has active members or pending applications. If you are making significant changes to the tier, please ensure the changes are communicated."
+          )
+        ) {
+          e.preventDefault();
+        }
+      }}
     >
-      <Button
-        type="submit"
-        mt="sm"
-        loading={isLoading}
-        disabled={!membershipTierIsEligibleForUpdate}
-      >
-        Update
-      </Button>
-    </Tooltip>
+      Update
+    </Button>
   );
 }
 
