@@ -23,12 +23,12 @@ export default class UpdateMembershipTierCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasNoActiveMembersMembershipTier();
+    return m.hasMembershipTierWithNoActiveMembersOrPendingApplications();
   }
 
   async run(m: SystemState, r: Services): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
-      m.getNoActiveMembersMembershipTiersIds()
+      m.getMembershipTiersIdsWithNoActiveMembersOrPendingApplications()
     );
 
     if (m.isDefaultFreeTier(this.membershipTierId)) {

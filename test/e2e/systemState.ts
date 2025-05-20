@@ -424,28 +424,31 @@ export class SystemState {
     return membershipTier;
   }
 
-  public hasNoActiveMembersMembershipTier(): boolean {
-    return this.getNoActiveMembersMembershipTiersIds().length > 0;
-  }
-
-  public getNoActiveMembersMembershipTiersIds(): number[] {
-    const activeMembersMembershipTierIds =
-      this.getActiveMembersMembershipTierIds();
-    return Array.from(this.membershipTiers.keys()).filter(
-      (id) => !activeMembersMembershipTierIds.has(id)
-    );
-  }
-
-  public hasEmptyNotFreeAndNotLastPublishedMembershipTier(): boolean {
+  public hasMembershipTierWithNoActiveMembersOrPendingApplications(): boolean {
     return (
-      this.getNoActiveMembersNotFreeAndNotLastPublishedMembershipTiersIds()
+      this.getMembershipTiersIdsWithNoActiveMembersOrPendingApplications()
         .length > 0
     );
   }
 
-  public getNoActiveMembersNotFreeAndNotLastPublishedMembershipTiersIds(): number[] {
+  public getMembershipTiersIdsWithNoActiveMembersOrPendingApplications(): number[] {
+    const membershipTierIdsWithActiveMembersOrPendingApplications =
+      this.getMembershipTierIdsWithActiveMembersOrPendingApplications();
+    return Array.from(this.membershipTiers.keys()).filter(
+      (id) => !membershipTierIdsWithActiveMembersOrPendingApplications.has(id)
+    );
+  }
+
+  public hasPaidMembershipTierWithNoActiveMembersOrPendingApplicationsThatAreNotLastPublished(): boolean {
+    return (
+      this.getPaidMembershipTierIdsWithNoActiveMembersOrPendingApplicationsThatAreNotLastPublished()
+        .length > 0
+    );
+  }
+
+  public getPaidMembershipTierIdsWithNoActiveMembersOrPendingApplicationsThatAreNotLastPublished(): number[] {
     const activeMembersMembershipTierIds =
-      this.getActiveMembersMembershipTierIds();
+      this.getMembershipTierIdsWithActiveMembersOrPendingApplications();
     return Array.from(this.membershipTiers.values())
       .filter(
         // definition of default free tier is 0 cost
@@ -507,10 +510,10 @@ export class SystemState {
       .map((t) => t.id);
   }
 
-  private getActiveMembersMembershipTierIds(): Set<number> {
+  private getMembershipTierIdsWithActiveMembersOrPendingApplications(): Set<number> {
     return new Set(
       Array.from(this.memberships.values())
-        .filter((m) => m.status === "ACTIVE")
+        .filter((m) => m.status === "ACTIVE" || "PENDING")
         .map((m) => m.membershipTierId)
     );
   }
