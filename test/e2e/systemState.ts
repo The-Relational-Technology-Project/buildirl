@@ -499,6 +499,20 @@ export class SystemState {
       .map((t) => t.id);
   }
 
+  public hasPendingApplications(membershipTierId: number) {
+    return this.getMembershipTierIdsWithPendingApplications().has(
+      membershipTierId
+    );
+  }
+
+  private getMembershipTierIdsWithPendingApplications(): Set<number> {
+    return new Set(
+      Array.from(this.memberships.values())
+        .filter((m) => m.status === "PENDING")
+        .map((m) => m.membershipTierId)
+    );
+  }
+
   public hasActiveMembersOrPendingApplications(membershipTierId: number) {
     return this.getMembershipTierIdsWithActiveMembersOrPendingApplications().has(
       membershipTierId
@@ -508,7 +522,7 @@ export class SystemState {
   private getMembershipTierIdsWithActiveMembersOrPendingApplications(): Set<number> {
     return new Set(
       Array.from(this.memberships.values())
-        .filter((m) => m.status === "ACTIVE" || "PENDING")
+        .filter((m) => m.status === "ACTIVE" || m.status === "PENDING")
         .map((m) => m.membershipTierId)
     );
   }

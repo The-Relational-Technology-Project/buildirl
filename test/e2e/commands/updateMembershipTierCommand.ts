@@ -30,6 +30,22 @@ export default class UpdateMembershipTierCommand
     const membershipTierId = this.membershipTierIdSelector.select(
       m.getMembershipTierIds()
     );
+    return (
+      this.isNotUpdatingCostOnTierWithActiveOrPendingMembers(
+        m,
+        membershipTierId
+      ) &&
+      this.isNotUpdatingInitiationFeeCostOnTierWithPendingMembers(
+        m,
+        membershipTierId
+      )
+    );
+  }
+
+  isNotUpdatingCostOnTierWithActiveOrPendingMembers(
+    m: Readonly<SystemState>,
+    membershipTierId: number
+  ) {
     const isUpdatingCost =
       m.getMembershipTier(membershipTierId).costPerMonthInUSD !==
       this.input.costPerMonthInUSD;
@@ -37,6 +53,18 @@ export default class UpdateMembershipTierCommand
       m.hasActiveMembersOrPendingApplications(membershipTierId);
     // cannot update cost on tier with active members or pending applications
     return !(isUpdatingCost && hasActiveMembersOrPendingApplications);
+  }
+
+  isNotUpdatingInitiationFeeCostOnTierWithPendingMembers(
+    m: Readonly<SystemState>,
+    membershipTierId: number
+  ) {
+    const isUpdatingInitiationFeeCost =
+      m.getMembershipTier(membershipTierId).initiationFeeCostInUSD !==
+      this.input.initiationFeeCostInUSD;
+    const hasPendingApplications = m.hasPendingApplications(membershipTierId);
+    // cannot update cost on tier with active members or pending applications
+    return !(isUpdatingInitiationFeeCost && hasPendingApplications);
   }
 
   async run(m: SystemState, r: Services): Promise<void> {

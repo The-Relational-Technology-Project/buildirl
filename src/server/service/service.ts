@@ -873,11 +873,83 @@ export function createMainService(
     }
   }
 
+  async function isUpdateOnInitiationFeeInUSD(
+    membershipTierId: number,
+    input: UpdateMembershipTierInput
+  ): Promise<boolean> {
+    try {
+      const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
+        where: { id: membershipTierId },
+        select: { initiationFeeCostInUSD: true }
+      });
+
+      const initiationFeeCostInUSD =
+        null === membershipTier.initiationFeeCostInUSD
+          ? null
+          : membershipTier.initiationFeeCostInUSD.toNumber();
+
+      logger.info(
+        `queried initiationFeeCostInUSD for membership tier with id ${membershipTierId} with result ${initiationFeeCostInUSD}`
+      );
+      return initiationFeeCostInUSD !== input.initiationFeeCostInUSD;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query initiationFeeCostInUSD for membership tier with id ${membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
+  async function hasPendingApplicationsOnMembershipTier(
+    membershipTierId: number
+  ) {
+    try {
+      const count = await prisma.membership.count({
+        where: {
+          membershipTierId: membershipTierId,
+          status: { in: ["PENDING"] }
+        }
+      });
+      logger.info(
+        `queried pending application count ${count} for membership tier with id ${membershipTierId}`
+      );
+      return count > 0;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query pending application for membership tier with id ${membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
+  async function checkNotUpdatingInitiationFeeCostInUSDWithPendingApplicationsOnMembershipTier(
+    membershipTierId: number,
+    input: UpdateMembershipTierInput
+  ): Promise<void> {
+    const updatingInitiationFee = await isUpdateOnInitiationFeeInUSD(
+      membershipTierId,
+      input
+    );
+    const hasPendingApplications =
+      await hasPendingApplicationsOnMembershipTier(membershipTierId);
+    if (updatingInitiationFee && hasPendingApplications) {
+      throw new Error(
+        "cannot update initiation fee cost of membership tier if there are pending applications"
+      );
+    }
+  }
+
   async function updateMembershipTier(
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
     await checkNotUpdatingCostPerMonthInUSDWithActiveOrPendingApplicationsOnMembershipTier(
+      id,
+      input
+    );
+    await checkNotUpdatingInitiationFeeCostInUSDWithPendingApplicationsOnMembershipTier(
       id,
       input
     );
