@@ -595,7 +595,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
             // if there is one
             null === input.initiationFeePriceId
               ? undefined
-              : [{ price: input.priceId }],
+              : [{ price: input.initiationFeePriceId }],
           default_payment_method: paymentMethodId(setupIntent.payment_method),
           collection_method: "charge_automatically",
           // we will surface inactive status if needed but do not block
