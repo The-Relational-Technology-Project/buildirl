@@ -59,3 +59,7 @@ export function findOne<T>(l: T[], filter: (i: T) => boolean): T {
   }
   return r[0]!;
 }
+
+export function asNullFilteredList<T>(...l: Maybe<T>[]): T[] {
+  return l.filter((i) => i !== null);
+}

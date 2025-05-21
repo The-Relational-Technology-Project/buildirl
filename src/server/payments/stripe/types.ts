@@ -9,37 +9,37 @@ export type StripeClient = {
   ): Promise<CreateAccountLinkResponse>;
   getAccountStatus(accountId: string): Promise<AccountStatusResponse>;
 
-  // product set-up
-  createProductAndPrice(
-    input: CreateProductAndPriceInput,
+  // membership tier product and prices set-up
+  createProductAndPricesForMembershipTier(
+    input: CreateProductAndPricesForMembershipTierInput,
     byAccountId: string
-  ): Promise<CreateProductAndPriceResponse>;
-  updateProductAndPrice(
-    input: UpdateProductAndPriceInput,
+  ): Promise<CreateProductAndPricesForMembershipTierResponse>;
+  updateProductAndPricesForMembershipTier(
+    input: UpdateProductAndPricesForMembershipTierInput,
     byAccountId: string
-  ): Promise<UpdateProductAndPriceResponse>;
-  archiveProductAndPrice(
-    input: ArchiveProductAndPriceInput,
+  ): Promise<UpdateProductAndPricesForMembershipTierResponse>;
+  archiveProductAndPricesForMembershipTier(
+    input: ArchiveProductAndPricesForMembershipTierInput,
     byAccountId: string
   ): Promise<void>;
-  publishProductAndPrice(
-    input: PublishProductAndPriceInput,
+  publishProductAndPricesForMembershipTier(
+    input: PublishProductAndPricesForMembershipTierInput,
     byAccountId: string
   ): Promise<void>;
 
   // payment flow
-  createCustomer(
-    input: CreateCustomerInput,
+  createCustomerForMembership(
+    input: CreateCustomerForMembershipInput,
     byAccountId: string
-  ): Promise<CreateCustomerResponse>;
-  createCheckoutSession(
-    input: CreateCheckoutSessionInput,
+  ): Promise<CreateCustomerForMembershipResponse>;
+  createCheckoutSessionForMembership(
+    input: CreateCheckoutSessionForMembershipInput,
     byAccountId: string
-  ): Promise<CreateCheckoutSessionResponse>;
-  createSubscription(
-    input: CreateSubscriptionInput,
+  ): Promise<CreateCheckoutSessionForMembershipResponse>;
+  createSubscriptionForMembership(
+    input: CreateSubscriptionForMembershipInput,
     byAccountId: string
-  ): Promise<CreateSubscriptionResponse>;
+  ): Promise<CreateSubscriptionForMembershipResponse>;
   cancelSubscription(
     subscriptionId: string,
     byAccountId: string
@@ -82,48 +82,72 @@ export type AccountStatusResponse = {
   missingRequirements: string[];
 };
 
-export type CreateProductAndPriceInput = {
+export type CreateProductAndPricesForMembershipTierInput = {
   name: string;
   description?: string;
   pricePerMonthInUSD: MonetaryValue;
+  // null if no initiation fee price
+  initiationFeeInUSD: Maybe<MonetaryValue>;
   membershipTierId: number;
 };
 
-export type CreateProductAndPriceResponse = {
+export type CreateProductAndPricesForMembershipTierResponse = {
   productId: string;
   priceId: string;
+  // null if no price created
+  initiationFeePriceId: Maybe<string>;
 };
 
-export type UpdateProductAndPriceInput = {
+/**
+ *  If there is:
+ *  - null existing priceId and non-null priceInUSD -> create a new price
+ *  - non-null existing priceId and null priceInUSD -> archive the old price
+ *  - null existing priceId and null priceInUSD -> no-op
+ *  - non-null existing priceId and non-null priceInUSD -> update the price (create and archive) only if there is a change in price
+ */
+export type UpsertNullablePriceInput = {
+  priceId: Maybe<string>;
+  priceInUSD: Maybe<MonetaryValue>;
+};
+
+export type UpdateProductAndPricesForMembershipTierInput = {
   productId: string;
-  priceId: string;
   name: string;
   description: string;
+  priceId: string;
   pricePerMonthInUSD: MonetaryValue;
+  initiationFee: UpsertNullablePriceInput;
 };
 
-export type UpdateProductAndPriceResponse = {
-  // null if unchanged
+export type NullablePriceIdResponse = {
+  // null if price is set back to null
   updatedPriceId: Maybe<string>;
 };
 
-export type ArchiveProductAndPriceInput = {
-  productId: string;
-  priceId: string;
+export type UpdateProductAndPricesForMembershipTierResponse = {
+  // null if unchanged
+  updatedPriceId: Maybe<string>;
+  // null if unchanged
+  updatedInitiationFeePriceId: Maybe<NullablePriceIdResponse>;
 };
 
-export type PublishProductAndPriceInput = {
+export type ArchiveProductAndPricesForMembershipTierInput = {
   productId: string;
-  priceId: string;
+  priceIds: string[];
 };
 
-export type CreateCustomerInput = {
+export type PublishProductAndPricesForMembershipTierInput = {
+  productId: string;
+  priceIds: string[];
+};
+
+export type CreateCustomerForMembershipInput = {
   email: string;
   name: string;
   membershipId: bigint;
 };
 
-export type CreateCustomerResponse = {
+export type CreateCustomerForMembershipResponse = {
   customerId: string;
 };
 
@@ -142,18 +166,18 @@ export type CreateCustomerPortalSessionResponse = {
   redirectUrl: Url;
 };
 
-export type CreateCheckoutSessionInput = {
+export type CreateCheckoutSessionForMembershipInput = {
   origin: Url;
   clubPublicId: string;
   membershipId: bigint;
   customerId: string;
 };
 
-export type CreateCheckoutSessionResponse = {
+export type CreateCheckoutSessionForMembershipResponse = {
   redirectUrl: Url;
 };
 
-export type CreateSubscriptionInput = {
+export type CreateSubscriptionForMembershipInput = {
   customerId: string;
   priceId: string;
   // null if there is no initiation fee
@@ -162,7 +186,7 @@ export type CreateSubscriptionInput = {
   membershipId: bigint;
 };
 
-export type CreateSubscriptionResponse = {
+export type CreateSubscriptionForMembershipResponse = {
   subscriptionId: string;
 };
 
