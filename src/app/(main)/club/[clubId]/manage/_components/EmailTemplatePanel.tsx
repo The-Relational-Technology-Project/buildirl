@@ -158,7 +158,11 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
 
   const templateMetadata = TEMPLATE_METADATA.find((t) => t.value === type)!;
 
-  return isLoaded(emailTemplate) && emailTemplate.data !== null ? (
+  if (!isLoaded(emailTemplate)) {
+    return;
+  }
+
+  return emailTemplate.data !== null ? (
     <Paper withBorder p="xl">
       <Stack gap={0}>
         <ActionIcon
