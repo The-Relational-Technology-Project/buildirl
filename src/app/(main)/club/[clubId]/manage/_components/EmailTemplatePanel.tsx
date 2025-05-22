@@ -2,6 +2,7 @@ import { api } from "~/trpc/react";
 import {
   ActionIcon,
   Box,
+  BoxProps,
   Button,
   Paper,
   Stack,
@@ -11,7 +12,7 @@ import {
   Title
 } from "@mantine/core";
 import { RichTextEditor } from "@mantine/tiptap";
-import { useEditor } from "@tiptap/react";
+import { Editor, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Link } from "@mantine/tiptap";
 import React, { useState } from "react";
@@ -29,6 +30,7 @@ import {
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { IconDeviceFloppy, IconTrash } from "@tabler/icons-react";
+import { Maybe } from "~/utils/types";
 
 type EmailTemplateMetadata = {
   value: EmailTemplateType;
@@ -56,6 +58,22 @@ const TEMPLATE_METADATA: EmailTemplateMetadata[] = [
       "This email is sent automatically to people who's application you have declined."
   }
 ];
+
+type ClickableEditorContentProps = {
+  editor: Maybe<Editor>;
+};
+
+function ClickableEditorContent({
+  editor,
+  ...props
+}: ClickableEditorContentProps & BoxProps) {
+  const handleClick = () => {
+    if (editor && !editor.isFocused) {
+      editor.commands.focus("end");
+    }
+  };
+  return <RichTextEditor.Content {...props} onClick={handleClick} />;
+}
 
 type EmailTemplateEditorProps = {
   clubId: number;
@@ -228,7 +246,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
               </RichTextEditor.ControlsGroup>
             </RichTextEditor.Toolbar>
 
-            <RichTextEditor.Content mih={240} />
+            <ClickableEditorContent editor={editor} mih={240} />
           </RichTextEditor>
 
           <Box style={{ alignSelf: "center" }} mt={"sm"}>
