@@ -78,11 +78,11 @@ function ClickableEditorContent({
 }
 
 type DraftBadgeProps = {
-  isDraft: boolean;
+  state: DraftState;
 };
 
-function DraftBadge({ isDraft }: DraftBadgeProps) {
-  if (isDraft) {
+function DraftBadge({ state }: DraftBadgeProps) {
+  if (state === "DRAFT") {
     return <Badge color="gray">Draft</Badge>;
   }
   // need to return empty box to keep flex orientation in parent
@@ -95,8 +95,18 @@ type EmailTemplateEditorProps = {
   type: EmailTemplateType;
 };
 
+/**
+ * the reason we need the third DRAFT_FINISHED state (as opposed to a simple boolean isDraft)
+ * is because of the following UI display edge case:
+ *
+ * after the first persistence of the draft, it takes some time before the emailTemplate query
+ * hydrates the new persisted non-null value. Without differentiating the finished state, if we set the
+ * state back to false / NO_DRAFT, the UI will flash for a brief moment the "Create Email Template" panel
+ */
+type DraftState = "NO_DRAFT" | "DRAFT" | "DRAFT_FINISHED";
+
 function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
-  const [isDraft, setIsDraft] = useState(false);
+  const [draftState, setDraftState] = useState<DraftState>("NO_DRAFT");
   // though it would simplify our state management and add client-side form validation
   // it is complex to integrate tiptap with react-hook-forms or mantine-forms. we are accepting
   // this trade-off given form validation is simple and the state management is minimal
@@ -159,12 +169,12 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
       return;
     }
 
-    if (isDraft) {
+    if (draftState === "DRAFT") {
       const confirmed = window.confirm(
         `The email template will become live immediately after save. Confirm save?`
       );
       if (confirmed) {
-        setIsDraft(false);
+        setDraftState("DRAFT_FINISHED");
         await setEmailTemplate.mutateAsync({
           id: { clubId, type: type },
           input: {
@@ -200,9 +210,11 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
       `Are you sure you want to delete this custom ${templateMetadata.label} template? This action cannot be undone.`
     );
     if (confirmed) {
-      if (isDraft) {
-        setIsDraft(false);
+      if (draftState === "DRAFT") {
+        setDraftState("NO_DRAFT");
       } else {
+        // we still might need to move from DRAFT_FINISHED -> NO_DRAFT
+        setDraftState("NO_DRAFT");
         await deleteEmailTemplate.mutateAsync({ clubId, type: type });
       }
       clearContent();
@@ -215,7 +227,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     return;
   }
 
-  return emailTemplate.data !== null || isDraft ? (
+  return emailTemplate.data !== null || draftState !== "NO_DRAFT" ? (
     <Paper withBorder p="xl">
       <Stack gap={0}>
         <Flex
@@ -225,7 +237,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
           w={"100%"}
           mb={"sm"}
         >
-          <DraftBadge isDraft={isDraft} />
+          <DraftBadge state={draftState} />
 
           <ActionIcon
             c={"red"}
@@ -313,7 +325,9 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
         </Title>
         <Text size="md">{`${templateMetadata.description}`}</Text>
         <Text size="md">{}</Text>
-        <Button onClick={() => setIsDraft(true)}>Create Email Template</Button>
+        <Button onClick={() => setDraftState("DRAFT")}>
+          Create Email Template
+        </Button>
       </Stack>
     </Paper>
   );
