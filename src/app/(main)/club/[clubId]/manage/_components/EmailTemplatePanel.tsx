@@ -1,9 +1,11 @@
 import { api } from "~/trpc/react";
 import {
   ActionIcon,
+  Badge,
   Box,
   BoxProps,
   Button,
+  Flex,
   Paper,
   Stack,
   Tabs,
@@ -75,21 +77,34 @@ function ClickableEditorContent({
   return <RichTextEditor.Content {...props} onClick={handleClick} />;
 }
 
+type DraftBadgeProps = {
+  isDraft: boolean;
+};
+
+function DraftBadge({ isDraft }: DraftBadgeProps) {
+  if (isDraft) {
+    return <Badge color="gray">Draft</Badge>;
+  }
+  // need to return empty box to keep flex orientation in parent
+  // somehow Badge hidden prop does not work
+  return <Box />;
+}
+
 type EmailTemplateEditorProps = {
   clubId: number;
   type: EmailTemplateType;
 };
 
 function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
+  const [isDraft, setIsDraft] = useState(false);
   // though it would simplify our state management and add client-side form validation
   // it is complex to integrate tiptap with react-hook-forms or mantine-forms. we are accepting
   // this trade-off given form validation is simple and the state management is minimal
-
   const [subject, setSubject] = useState("");
 
   const emailTemplate = api.email.emailTemplate.useQuery({
     clubId,
-    type: type
+    type
   });
 
   QueryError.checkNullable({
@@ -97,7 +112,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     fieldName: "emailTemplate"
   });
 
-  const utils = api.useContext();
+  const utils = api.useUtils();
   const setEmailTemplate = api.email.setEmailTemplate.useMutation({
     onSuccess: () => {
       utils.email.emailTemplate.invalidate({ clubId, type: type });
@@ -144,6 +159,24 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
       return;
     }
 
+    if (isDraft) {
+      const confirmed = window.confirm(
+        `The email template will become live immediately after save. Confirm save?`
+      );
+      if (confirmed) {
+        setIsDraft(false);
+        await setEmailTemplate.mutateAsync({
+          id: { clubId, type: type },
+          input: {
+            subject,
+            htmlContent: editor.getHTML(),
+            textContent: editor.getText()
+          }
+        });
+      }
+      return;
+    }
+
     await setEmailTemplate.mutateAsync({
       id: { clubId, type: type },
       input: {
@@ -154,24 +187,26 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     });
   };
 
+  const clearContent = () => {
+    setSubject("");
+    if (editor) {
+      editor.commands.setContent("");
+    }
+    return;
+  };
+
   const handleDelete = async () => {
     const confirmed = window.confirm(
       `Are you sure you want to delete this custom ${templateMetadata.label} template? This action cannot be undone.`
     );
     if (confirmed) {
-      await deleteEmailTemplate.mutateAsync({ clubId, type: type });
-    }
-  };
-
-  const handleAdd = async () => {
-    await setEmailTemplate.mutateAsync({
-      id: { clubId, type: type },
-      input: {
-        subject: "",
-        htmlContent: "",
-        textContent: ""
+      if (isDraft) {
+        setIsDraft(false);
+      } else {
+        await deleteEmailTemplate.mutateAsync({ clubId, type: type });
       }
-    });
+      clearContent();
+    }
   };
 
   const templateMetadata = TEMPLATE_METADATA.find((t) => t.value === type)!;
@@ -180,17 +215,26 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     return;
   }
 
-  return emailTemplate.data !== null ? (
+  return emailTemplate.data !== null || isDraft ? (
     <Paper withBorder p="xl">
       <Stack gap={0}>
-        <ActionIcon
-          c={"red"}
-          onClick={handleDelete}
-          loading={deleteEmailTemplate.isPending}
-          style={{ alignSelf: "flex-end" }}
+        <Flex
+          direction={"row"}
+          justify={"space-between"}
+          align={"center"}
+          w={"100%"}
+          mb={"sm"}
         >
-          <IconTrash size={20} />
-        </ActionIcon>
+          <DraftBadge isDraft={isDraft} />
+
+          <ActionIcon
+            c={"red"}
+            onClick={handleDelete}
+            loading={deleteEmailTemplate.isPending}
+          >
+            <IconTrash size={20} />
+          </ActionIcon>
+        </Flex>
         <Stack gap={"xs"}>
           <Text size={"sm"} fw={500}>
             Email Subject
@@ -269,9 +313,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
         </Title>
         <Text size="md">{`${templateMetadata.description}`}</Text>
         <Text size="md">{}</Text>
-        <Button onClick={handleAdd} loading={setEmailTemplate.isPending}>
-          Create Email Template
-        </Button>
+        <Button onClick={() => setIsDraft(true)}>Create Email Template</Button>
       </Stack>
     </Paper>
   );
@@ -313,7 +355,13 @@ export default function EmailTemplatePanel({
         </Tabs.List>
       </Tabs>
 
-      <EmailTemplateEditor clubId={clubId} type={selectedType} />
+      <EmailTemplateEditor
+        // we need this so that each instance
+        // has its own react state
+        key={selectedType}
+        clubId={clubId}
+        type={selectedType}
+      />
     </Stack>
   );
 }
