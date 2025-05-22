@@ -28,9 +28,9 @@ enum MembershipTierStatus {
 }
 
 enum EmailTemplateType {
-  ONBOARDING
-  OFFBOARDING
+  ACCEPTANCE
   REJECTION
+  DEPARTURE
 }
 
 model User {

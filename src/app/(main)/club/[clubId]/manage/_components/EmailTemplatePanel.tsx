@@ -40,14 +40,14 @@ type EmailTemplateMetadata = {
 
 const TEMPLATE_METADATA: EmailTemplateMetadata[] = [
   {
-    value: "ONBOARDING",
-    label: "Onboarding",
+    value: "ACCEPTANCE",
+    label: "Acceptance",
     description:
       "This email is sent automatically to new members after you have approved them."
   },
   {
-    value: "OFFBOARDING",
-    label: "Offboarding",
+    value: "DEPARTURE",
+    label: "Departure",
     description:
       "This email is sent automatically to members after they leave the club."
   },
@@ -285,7 +285,7 @@ export default function EmailTemplatePanel({
   clubId
 }: EmailTemplatePanelProps) {
   const [selectedType, setSelectedType] =
-    useState<EmailTemplateType>("ONBOARDING");
+    useState<EmailTemplateType>("ACCEPTANCE");
 
   return (
     <Stack py="lg" pb="xl" gap="xs">

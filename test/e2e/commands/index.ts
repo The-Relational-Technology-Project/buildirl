@@ -384,7 +384,7 @@ function setEmailTemplateCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
     templateType: oneof(
-      ...["ONBOARDING", "OFFBOARDING", "REJECTION"].map((v) =>
+      ...["ACCEPTANCE", "DEPARTURE", "REJECTION"].map((v) =>
         constant(v as EmailTemplateType)
       )
     ),

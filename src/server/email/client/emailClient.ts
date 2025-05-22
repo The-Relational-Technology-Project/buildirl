@@ -92,7 +92,7 @@ export function createEmailClient(
     sendTo: Email
   ): Promise<void> {
     const customEmailSent = await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "ONBOARDING" },
+      { clubId: input.clubId, type: "ACCEPTANCE" },
       sendTo
     );
     if (customEmailSent) {
@@ -207,7 +207,7 @@ export function createEmailClient(
     sendTo: Email
   ): Promise<void> {
     const customEmailSent = await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "OFFBOARDING" },
+      { clubId: input.clubId, type: "DEPARTURE" },
       sendTo
     );
     if (customEmailSent) {

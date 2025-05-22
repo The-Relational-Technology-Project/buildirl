@@ -18,9 +18,9 @@ type EmailMutations = {
 };
 
 const EmailTemplateTypeSchema = z.enum([
-  "ONBOARDING",
-  "OFFBOARDING",
-  "REJECTION"
+  "ACCEPTANCE",
+  "REJECTION",
+  "DEPARTURE"
 ]);
 export type EmailTemplateType = z.infer<typeof EmailTemplateTypeSchema>;
 
