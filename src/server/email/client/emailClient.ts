@@ -5,15 +5,56 @@ import {
   NotifyMembershipDeclinedInput,
   NotifyMembershipDeactivatedByMemberToOwnerInput,
   NotifyMembershipDeactivatedByOwnerInput,
-  NotifyMembershipApplicationSubmittedInput
+  NotifyMembershipApplicationSubmittedInput,
+  NotifyMembershipDeactivatedByMemberToMemberInput
 } from "./types";
-import { Email } from "../types";
 import { rootLogger } from "~/logger";
+import { Email } from "~/server/service/types";
+import { EmailService, EmailTemplateId } from "~/server/email/types";
+import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "emailClient" });
 
-export function createEmailClient(mailTransport: Transporter): EmailClient {
+export function createEmailClient(
+  mailTransport: Transporter,
+  emailService: EmailService
+): EmailClient {
   const FROM_EMAIL = "outbound@buildirl.com";
+
+  /**
+   * Returns boolean if custom email is sent which can be used to determine if fallback is required
+   */
+  async function sendCustomEmailWithTemplate(
+    id: EmailTemplateId,
+    sendTo: Email
+  ): Promise<boolean> {
+    const template = await emailService.getEmailTemplate(id);
+    if (null === template) {
+      logger.info(
+        `no email template found for id ${stringify(id)}, did not send custom email`
+      );
+      return false;
+    }
+    try {
+      await mailTransport.sendMail({
+        from: FROM_EMAIL,
+        to: sendTo,
+        subject: template.subject,
+        text: template.textContent,
+        html: template.htmlContent
+      });
+      logger.info(
+        `sent custom email with email template with id ${stringify(id)}`
+      );
+      return true;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to send custom email with email template with id ${stringify(id)}`
+      );
+      return false;
+    }
+  }
 
   async function notifyMembershipApplicationSubmitted(
     input: NotifyMembershipApplicationSubmittedInput,
@@ -50,6 +91,14 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     input: NotifyMembershipApprovedInput,
     sendTo: Email
   ): Promise<void> {
+    const customEmailSent = await sendCustomEmailWithTemplate(
+      { clubId: input.clubId, type: "ACCEPTANCE" },
+      sendTo
+    );
+    if (customEmailSent) {
+      return;
+    }
+
     try {
       const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
 
@@ -84,6 +133,14 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     input: NotifyMembershipDeclinedInput,
     sendTo: Email
   ): Promise<void> {
+    const customEmailSent = await sendCustomEmailWithTemplate(
+      { clubId: input.clubId, type: "REJECTION" },
+      sendTo
+    );
+    if (customEmailSent) {
+      return;
+    }
+
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
@@ -146,9 +203,17 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   }
 
   async function notifyMembershipDeactivatedByMemberToMember(
-    input: NotifyMembershipDeactivatedByMemberToOwnerInput,
+    input: NotifyMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email
   ): Promise<void> {
+    const customEmailSent = await sendCustomEmailWithTemplate(
+      { clubId: input.clubId, type: "DEPARTURE" },
+      sendTo
+    );
+    if (customEmailSent) {
+      return;
+    }
+
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,

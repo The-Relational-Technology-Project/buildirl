@@ -1,4 +1,4 @@
-import { Email } from "../types";
+import { Email } from "~/server/service/types";
 
 export type EmailClient = {
   notifyMembershipApplicationSubmitted(
@@ -39,6 +39,7 @@ export type NotifyMembershipApprovedInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
+  clubId: number;
   clubName: string;
   clubPublicId: string;
 };
@@ -46,6 +47,7 @@ export type NotifyMembershipApprovedInput = {
 export type NotifyMembershipDeclinedInput = {
   membershipId: bigint;
   memberFirstName: string;
+  clubId: number;
   clubName: string;
 };
 
@@ -62,6 +64,7 @@ export type NotifyMembershipDeactivatedByMemberToMemberInput = {
   memberFirstName: string;
   memberLastName: string;
   clubName: string;
+  clubId: number;
 };
 
 export type NotifyMembershipDeactivatedByOwnerInput = {

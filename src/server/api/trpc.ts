@@ -23,8 +23,9 @@ import { createPaymentService } from "~/server/payments/service";
 import { createStripeClient } from "~/server/payments/stripe/stripeClient";
 import { stripe } from "~/server/payments/stripe/stripe";
 import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
-import { createEmailClient } from "~/server/service/email/emailClient";
-import { mailTransport } from "~/server/service/email/nodemailer";
+import { createEmailClient } from "~/server/email/client/emailClient";
+import { mailTransport } from "~/server/email/client/nodemailer";
+import { createEmailService } from "~/server/email/service";
 
 /**
  * 1. CONTEXT
@@ -45,16 +46,18 @@ export const createTRPCContext = async (opts: {
   const user = await authUser(opts.supabase);
   const stripeClient = createStripeClient(stripe);
   const accountIdResolver = createAccountIdResolver(prisma);
+  const emailService = createEmailService(prisma);
 
   return {
     service: {
       main: createMainService(
         prisma,
         stripeClient,
-        createEmailClient(mailTransport),
+        createEmailClient(mailTransport, emailService),
         accountIdResolver
       ),
-      payment: createPaymentService(stripeClient, prisma, accountIdResolver)
+      payment: createPaymentService(stripeClient, prisma, accountIdResolver),
+      email: emailService
     },
     user: user,
     headers: opts.headers,

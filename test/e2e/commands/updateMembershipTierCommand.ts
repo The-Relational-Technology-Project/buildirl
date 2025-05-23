@@ -1,7 +1,7 @@
 import { UpdateMembershipTierInput } from "~/server/service/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
-import { isDefaultFreeTier, Maybe } from "~/utils/types";
+import { Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
@@ -23,12 +23,53 @@ export default class UpdateMembershipTierCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.hasNoActiveMembersMembershipTier();
+    if (m.getMembershipTierIds().length === 0) {
+      return false;
+    }
+    // look-ahead, this is deterministic with what will be chosen at runtime
+    const membershipTierId = this.membershipTierIdSelector.select(
+      m.getMembershipTierIds()
+    );
+    return (
+      this.isNotUpdatingCostOnTierWithActiveOrPendingMembers(
+        m,
+        membershipTierId
+      ) &&
+      this.isNotUpdatingInitiationFeeCostOnTierWithPendingMembers(
+        m,
+        membershipTierId
+      )
+    );
+  }
+
+  isNotUpdatingCostOnTierWithActiveOrPendingMembers(
+    m: Readonly<SystemState>,
+    membershipTierId: number
+  ) {
+    const isUpdatingCost =
+      m.getMembershipTier(membershipTierId).costPerMonthInUSD !==
+      this.input.costPerMonthInUSD;
+    const hasActiveMembersOrPendingApplications =
+      m.hasActiveMembersOrPendingApplications(membershipTierId);
+    // cannot update cost on tier with active members or pending applications
+    return !(isUpdatingCost && hasActiveMembersOrPendingApplications);
+  }
+
+  isNotUpdatingInitiationFeeCostOnTierWithPendingMembers(
+    m: Readonly<SystemState>,
+    membershipTierId: number
+  ) {
+    const isUpdatingInitiationFeeCost =
+      m.getMembershipTier(membershipTierId).initiationFeeCostInUSD !==
+      this.input.initiationFeeCostInUSD;
+    const hasPendingApplications = m.hasPendingApplications(membershipTierId);
+    // cannot update cost on tier with active members or pending applications
+    return !(isUpdatingInitiationFeeCost && hasPendingApplications);
   }
 
   async run(m: SystemState, r: Services): Promise<void> {
     this.membershipTierId = this.membershipTierIdSelector.select(
-      m.getNoActiveMembersMembershipTiersIds()
+      m.getMembershipTierIds()
     );
 
     if (m.isDefaultFreeTier(this.membershipTierId)) {

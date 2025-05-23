@@ -27,6 +27,12 @@ enum MembershipTierStatus {
   UNPUBLISHED
 }
 
+enum EmailTemplateType {
+  ACCEPTANCE
+  REJECTION
+  DEPARTURE
+}
+
 model User {
   id          Int             @id @default(autoincrement())
   // internal-only
@@ -79,6 +85,7 @@ model Club {
   faqs                                Json             @map("faqs")
   membershipTiers                     MembershipTier[]
   following                           ClubFollowing[]
+  emailTemplates                      EmailTemplate[]
   stripeConnectAccountId              String?          @unique @map("stripe_connect_account_id")
   stripeCustomerPortalConfigurationId String?          @unique @map("stripe_customer_portal_configuration_id")
   createdAt                           DateTime         @default(now()) @map("created_at")
@@ -90,20 +97,22 @@ model Club {
 }
 
 model MembershipTier {
-  id                      Int                  @id @default(autoincrement())
-  name                    String
-  benefitDescription      String               @map("benefit_description")
-  contributionDescription String               @map("contribution_description")
-  costPerMonthInUSD       Decimal              @map("cost_per_month_usd")
-  club                    Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  clubId                  Int                  @map("club_id")
-  status                  MembershipTierStatus @default(PUBLISHED)
-  stripeProductId         String?              @unique @map("stripe_product_id")
-  // active price
-  stripePriceId           String?              @unique @map("stripe_price_id")
-  memberships             Membership[]
-  createdAt               DateTime             @default(now()) @map("created_at")
-  updatedAt               DateTime             @updatedAt @map("updated_at")
+  id                         Int                  @id @default(autoincrement())
+  name                       String
+  benefitDescription         String               @map("benefit_description")
+  contributionDescription    String               @map("contribution_description")
+  costPerMonthInUSD          Decimal              @map("cost_per_month_usd")
+  initiationFeeCostInUSD     Decimal?             @map("initiation_fee_cost_in_usd")
+  club                       Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId                     Int                  @map("club_id")
+  status                     MembershipTierStatus @default(PUBLISHED)
+  stripeProductId            String?              @unique @map("stripe_product_id")
+  // active prices
+  stripePriceId              String?              @unique @map("stripe_price_id")
+  initiationFeeStripePriceId String?              @unique @map("initiation_fee_stripe_price_id")
+  memberships                Membership[]
+  createdAt                  DateTime             @default(now()) @map("created_at")
+  updatedAt                  DateTime             @updatedAt @map("updated_at")
 
   @@index([clubId])
   @@map("membership_tier")
@@ -142,4 +151,18 @@ model ClubFollowing {
   @@index([userId])
   @@index([clubId])
   @@map("club_following")
+}
+
+model EmailTemplate {
+  clubId      Int               @map("club_id")
+  club        Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  type        EmailTemplateType
+  subject     String
+  htmlContent String            @map("html_content") @db.Text
+  textContent String            @map("text_content") @db.Text
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  @@id([clubId, type])
+  @@map("email_template")
 }

@@ -225,15 +225,16 @@ export function createPaymentService(
 
       const accountId = await accountIdResolver.fromMembership(membershipId);
 
-      const { redirectUrl } = await stripeClient.createCheckoutSession(
-        {
-          customerId: membership.stripeCustomerId,
-          membershipId: membershipId,
-          clubPublicId: membership.membershipTier.club.publicId,
-          origin: input.origin
-        },
-        accountId
-      );
+      const { redirectUrl } =
+        await stripeClient.createCheckoutSessionForMembership(
+          {
+            customerId: membership.stripeCustomerId,
+            membershipId: membershipId,
+            clubPublicId: membership.membershipTier.club.publicId,
+            origin: input.origin
+          },
+          accountId
+        );
 
       logger.info(
         `created checkout session with url ${redirectUrl} for membership with id ${membershipId}`

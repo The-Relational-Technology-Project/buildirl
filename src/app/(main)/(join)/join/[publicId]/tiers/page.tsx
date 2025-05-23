@@ -104,6 +104,17 @@ export default function ClubTiers() {
   );
 }
 
+// It is intentional to omit dollar sign here as $ sign causes anxiety for consumers
+function costDisplayText(membershipTier: MembershipTier) {
+  return (
+    membershipTier.costPerMonthInUSD +
+    " / month" +
+    (null === membershipTier.initiationFeeCostInUSD
+      ? ""
+      : " + " + membershipTier.initiationFeeCostInUSD + " initiation")
+  );
+}
+
 type MembershipTierCardProps = {
   clubPublicId: string;
   membershipTier: MembershipTier;
@@ -143,8 +154,7 @@ function MembershipTierCard({
 
         <Stack>
           <Text size="lg" fw={500}>
-            {/* It is intentional to omit dollar sign here as $ sign causes anxiety for consumers */}
-            {membershipTier.costPerMonthInUSD} / month
+            {costDisplayText(membershipTier)}
           </Text>
 
           <Box style={{ alignSelf: "center" }}>

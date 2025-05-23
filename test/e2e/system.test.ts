@@ -17,11 +17,14 @@ import {
 } from "~/server/payments/eventProcessor";
 import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
 import { createDummyEmailClient } from "./dummyEmailClient";
+import { EmailService } from "~/server/email/types";
+import { createEmailService } from "~/server/email/service";
 
 export type Services = {
   main: MainService;
   payment: PaymentService;
   paymentEvents: PaymentEventProcessor;
+  email: EmailService;
 };
 
 function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {
@@ -38,6 +41,7 @@ describe("mainService", () => {
   let mainService: MainService;
   let paymentService: PaymentService;
   let paymentEventProcessor: PaymentEventProcessor;
+  let emailService: EmailService;
 
   beforeAll(async () => {
     const supabaseContainer = await createSupabaseTestContainer();
@@ -68,6 +72,7 @@ describe("mainService", () => {
       accountIdResolver
     );
     paymentEventProcessor = createPaymentEventProcessor(prisma);
+    emailService = createEmailService(prisma);
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull
   }, 30000);
@@ -89,7 +94,8 @@ describe("mainService", () => {
             real: {
               main: mainService,
               payment: paymentService,
-              paymentEvents: paymentEventProcessor
+              paymentEvents: paymentEventProcessor,
+              email: emailService
             }
           });
           // TODO check that all commands were run at least once

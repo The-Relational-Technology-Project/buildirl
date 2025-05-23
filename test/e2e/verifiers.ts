@@ -7,6 +7,7 @@ import {
 import { type SystemState } from "./systemState";
 import { orderByBigIntId, orderByNumberId } from "./utils";
 import { OmitRecursively } from "~/utils/omit";
+import { EmailService, EmailTemplateId } from "~/server/email/types";
 
 function createVerifiers() {
   function userWithoutCreatedAt(
@@ -160,6 +161,15 @@ function createVerifiers() {
     ).toEqual(orderByNumberId(m.getUserFollowedClubs(userId)));
   }
 
+  async function verifyEmailTemplate(
+    id: EmailTemplateId,
+    r: EmailService,
+    m: SystemState
+  ) {
+    const template = await r.getEmailTemplate(id);
+    expect(template).toEqual(m.getEmailTemplate(id));
+  }
+
   return {
     verifyUser,
     verifyClub,
@@ -167,7 +177,8 @@ function createVerifiers() {
     verifyClubMemberships,
     verifyUserMemberships,
     verifyClubFollowers,
-    verifyUserFollowedClubs
+    verifyUserFollowedClubs,
+    verifyEmailTemplate
   };
 }
 

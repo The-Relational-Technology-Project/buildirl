@@ -92,6 +92,7 @@ export type MembershipTier = {
   benefitDescription: string;
   contributionDescription: string;
   costPerMonthInUSD: number;
+  initiationFeeCostInUSD: Maybe<number>;
 };
 
 export type ClubStatistics = {
@@ -260,11 +261,11 @@ export type UpdateClubDisplayImageUrlsInput = z.infer<
   typeof UpdateClubDisplayImageUrlsInputSchema
 >;
 
-// restrict to reasonable monetary range ($0.01 to $1000.00) with 2 decimal places
+// restrict to reasonable monetary range ($1.00 to $999.00) with 2 decimal places
 export const MonetaryValueSchema = z
   .number()
-  .min(0.01, "Must be a positive value greater than $0.01")
-  .max(1000.0, "Cannot be greater than $1000.00")
+  .min(1, "Must be a positive value greater than $1.00")
+  .max(999, "Cannot be greater than $999.00")
   // 2 decimal places
   .transform((val) => Number(val.toFixed(2)));
 export type MonetaryValue = z.infer<typeof MonetaryValueSchema>;
@@ -277,7 +278,8 @@ export const CreateMembershipTierInputSchema = z.object({
   name: MembershipTierNameSchema,
   benefitDescription: LongTextSchema,
   contributionDescription: LongTextSchema,
-  costPerMonthInUSD: MonetaryValueSchema
+  costPerMonthInUSD: MonetaryValueSchema,
+  initiationFeeCostInUSD: MonetaryValueSchema.nullable()
 });
 export type CreateMembershipTierInput = z.infer<
   typeof CreateMembershipTierInputSchema
@@ -290,7 +292,8 @@ export const UpdateMembershipTierInputSchema = z.object({
   // allow 0 no-op update only on the default free membership tier
   // there is no good way to express this as a check on zod though; it
   // will be checked in service layer
-  costPerMonthInUSD: MonetaryValueSchema.or(z.literal(0))
+  costPerMonthInUSD: MonetaryValueSchema.or(z.literal(0)),
+  initiationFeeCostInUSD: MonetaryValueSchema.nullable()
 });
 export type UpdateMembershipTierInput = z.infer<
   typeof UpdateMembershipTierInputSchema

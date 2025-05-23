@@ -1,26 +1,27 @@
 import {
   AccountStatusResponse,
-  ArchiveProductAndPriceInput,
+  ArchiveProductAndPricesForMembershipTierInput,
   CreateAccountLinkInput,
   CreateAccountLinkResponse,
   CreateAccountResponse,
-  CreateCheckoutSessionInput,
-  CreateCheckoutSessionResponse,
-  CreateCustomerInput,
+  CreateCheckoutSessionForMembershipInput,
+  CreateCheckoutSessionForMembershipResponse,
+  CreateCustomerForMembershipInput,
   CreateCustomerPortalConfigurationResponse,
   CreateCustomerPortalSessionInput,
   CreateCustomerPortalSessionResponse,
-  CreateCustomerResponse,
-  CreateProductAndPriceInput,
-  CreateProductAndPriceResponse,
-  CreateSubscriptionInput,
-  CreateSubscriptionResponse,
-  PublishProductAndPriceInput,
+  CreateCustomerForMembershipResponse,
+  CreateProductAndPricesForMembershipTierInput,
+  CreateProductAndPricesForMembershipTierResponse,
+  CreateSubscriptionForMembershipInput,
+  CreateSubscriptionForMembershipResponse,
+  PublishProductAndPricesForMembershipTierInput,
   StripeClient,
   SubscriptionStatusResponse,
-  UpdateProductAndPriceInput,
-  UpdateProductAndPriceResponse
+  UpdateProductAndPricesForMembershipTierInput,
+  UpdateProductAndPricesForMembershipTierResponse
 } from "~/server/payments/stripe/types";
+import { Maybe } from "~/utils/types";
 
 export function createFakeStripeClient(): StripeClient {
   let nextAccountId: number = 1;
@@ -37,7 +38,7 @@ export function createFakeStripeClient(): StripeClient {
   }
 
   async function createAccountLink(
-    input: CreateAccountLinkInput
+    _: CreateAccountLinkInput
   ): Promise<CreateAccountLinkResponse> {
     throw new Error("not implemented");
   }
@@ -46,48 +47,70 @@ export function createFakeStripeClient(): StripeClient {
     throw new Error("not implemented");
   }
 
-  async function createProductAndPrice(
-    _: CreateProductAndPriceInput,
+  async function createProductAndPricesForMembershipTier(
+    input: CreateProductAndPricesForMembershipTierInput,
     __: string
-  ): Promise<CreateProductAndPriceResponse> {
+  ): Promise<CreateProductAndPricesForMembershipTierResponse> {
+    const priceId = nextPriceId;
+    nextPriceId++;
+    let initiationFeePriceId: Maybe<number> = null;
+    if (input.initiationFeeInUSD !== null) {
+      initiationFeePriceId = nextPriceId;
+      nextPriceId++;
+    }
     const response = {
       productId: `product:id:${nextProductId}`,
-      priceId: `price:id:${nextPriceId}`
+      priceId: `price:id:${priceId}`,
+      initiationFeePriceId:
+        null === initiationFeePriceId
+          ? null
+          : `price:id:${initiationFeePriceId}`
     };
     nextProductId++;
-    nextPriceId++;
     return Promise.resolve(response);
   }
 
-  async function updateProductAndPrice(
-    _: UpdateProductAndPriceInput,
+  async function updateProductAndPricesForMembershipTier(
+    input: UpdateProductAndPricesForMembershipTierInput,
     __: string
-  ): Promise<UpdateProductAndPriceResponse> {
+  ): Promise<UpdateProductAndPricesForMembershipTierResponse> {
+    const priceId = nextPriceId;
+    nextPriceId++;
+    let initiationFeePriceId: Maybe<number> = null;
+    if (input.initiationFee !== null) {
+      initiationFeePriceId = nextPriceId;
+      nextPriceId++;
+    }
     const response = {
-      updatedPriceId: `price:id:${nextPriceId}`
+      updatedPriceId: `price:id:${priceId}`,
+      updatedInitiationFeePriceId:
+        null === initiationFeePriceId
+          ? null
+          : {
+              updatedPriceId: `price:id:${initiationFeePriceId}`
+            }
     };
-    nextPriceId++;
     return Promise.resolve(response);
   }
 
-  async function archiveProductAndPrice(
-    _: ArchiveProductAndPriceInput,
+  async function archiveProductAndPricesForMembershipTier(
+    _: ArchiveProductAndPricesForMembershipTierInput,
     __: string
   ): Promise<void> {
     return Promise.resolve();
   }
 
-  async function publishProductAndPrice(
-    _: PublishProductAndPriceInput,
+  async function publishProductAndPricesForMembershipTier(
+    _: PublishProductAndPricesForMembershipTierInput,
     __: string
   ): Promise<void> {
     return Promise.resolve();
   }
 
-  async function createCustomer(
-    _: CreateCustomerInput,
+  async function createCustomerForMembership(
+    _: CreateCustomerForMembershipInput,
     __: string
-  ): Promise<CreateCustomerResponse> {
+  ): Promise<CreateCustomerForMembershipResponse> {
     const response = { customerId: `customer:id:${nextCustomerId}` };
     nextCustomerId++;
     return Promise.resolve(response);
@@ -110,17 +133,17 @@ export function createFakeStripeClient(): StripeClient {
     throw new Error("not implemented");
   }
 
-  async function createCheckoutSession(
-    _: CreateCheckoutSessionInput,
+  async function createCheckoutSessionForMembership(
+    _: CreateCheckoutSessionForMembershipInput,
     __: string
-  ): Promise<CreateCheckoutSessionResponse> {
+  ): Promise<CreateCheckoutSessionForMembershipResponse> {
     throw new Error("not implemented");
   }
 
-  async function createSubscription(
-    _: CreateSubscriptionInput,
+  async function createSubscriptionForMembership(
+    _: CreateSubscriptionForMembershipInput,
     __: string
-  ): Promise<CreateSubscriptionResponse> {
+  ): Promise<CreateSubscriptionForMembershipResponse> {
     const response = {
       subscriptionId: `subscription:id:${nextSubscriptionId}`
     };
@@ -143,15 +166,15 @@ export function createFakeStripeClient(): StripeClient {
     createAccount,
     createAccountLink,
     getAccountStatus,
-    createProductAndPrice,
-    updateProductAndPrice,
-    archiveProductAndPrice,
-    publishProductAndPrice,
-    createCustomer,
+    createProductAndPricesForMembershipTier,
+    updateProductAndPricesForMembershipTier,
+    archiveProductAndPricesForMembershipTier,
+    publishProductAndPricesForMembershipTier,
+    createCustomerForMembership,
     createCustomerPortalConfiguration,
     createCustomerPortalSession,
-    createCheckoutSession,
-    createSubscription,
+    createCheckoutSessionForMembership,
+    createSubscriptionForMembership,
     cancelSubscription,
     getSubscriptionStatus
   };

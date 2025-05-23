@@ -27,6 +27,10 @@ import {
   DEFAULT_FREE_MEMBERSHIP_TIER,
   DEFAULT_CLUB_FAQS
 } from "~/server/service/defaults";
+import { EmailTemplateType, SetEmailTemplateInput } from "~/server/email/types";
+import { EmailTemplate } from "~/server/email/types";
+import { EmailTemplateId } from "~/server/email/types";
+import { ItemSelector } from "./utils/itemSelector";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -76,6 +80,11 @@ export class SystemState {
   private readonly memberships: Map<bigint, MembershipState>;
   // clubIds to all following userIds
   private readonly clubFollowing: Map<number, Set<number>>;
+  // clubIds to template by type
+  private readonly emailTemplates: Map<
+    number,
+    Map<EmailTemplateType, EmailTemplate>
+  >;
 
   constructor() {
     this.users = new Map();
@@ -83,6 +92,7 @@ export class SystemState {
     this.membershipTiers = new Map();
     this.memberships = new Map();
     this.clubFollowing = new Map();
+    this.emailTemplates = new Map();
   }
 
   // use this only for internal operations as it also contains
@@ -293,6 +303,7 @@ export class SystemState {
     // cascading delete
     this.clubFollowing.delete(id);
     this.clubs.delete(id);
+    this.emailTemplates.delete(id);
   }
 
   private deleteMembershipTiersForClub(clubId: number) {
@@ -340,7 +351,8 @@ export class SystemState {
       status: "PUBLISHED",
       benefitDescription: input.benefitDescription,
       contributionDescription: input.contributionDescription,
-      costPerMonthInUSD: input.costPerMonthInUSD
+      costPerMonthInUSD: input.costPerMonthInUSD,
+      initiationFeeCostInUSD: input.initiationFeeCostInUSD
     });
     // link the membership tier to the club
     const clubState = this.getClubState(clubId);
@@ -412,28 +424,16 @@ export class SystemState {
     return membershipTier;
   }
 
-  public hasNoActiveMembersMembershipTier(): boolean {
-    return this.getNoActiveMembersMembershipTiersIds().length > 0;
-  }
-
-  public getNoActiveMembersMembershipTiersIds(): number[] {
-    const activeMembersMembershipTierIds =
-      this.getActiveMembersMembershipTierIds();
-    return Array.from(this.membershipTiers.keys()).filter(
-      (id) => !activeMembersMembershipTierIds.has(id)
-    );
-  }
-
-  public hasEmptyNotFreeAndNotLastPublishedMembershipTier(): boolean {
+  public hasPaidMembershipTierWithNoActiveMembersOrPendingApplicationsThatAreNotLastPublished(): boolean {
     return (
-      this.getNoActiveMembersNotFreeAndNotLastPublishedMembershipTiersIds()
+      this.getPaidMembershipTierIdsWithNoActiveMembersOrPendingApplicationsThatAreNotLastPublished()
         .length > 0
     );
   }
 
-  public getNoActiveMembersNotFreeAndNotLastPublishedMembershipTiersIds(): number[] {
+  public getPaidMembershipTierIdsWithNoActiveMembersOrPendingApplicationsThatAreNotLastPublished(): number[] {
     const activeMembersMembershipTierIds =
-      this.getActiveMembersMembershipTierIds();
+      this.getMembershipTierIdsWithActiveMembersOrPendingApplications();
     return Array.from(this.membershipTiers.values())
       .filter(
         // definition of default free tier is 0 cost
@@ -460,6 +460,10 @@ export class SystemState {
   public isDefaultFreeTier(membershipTierId: number): boolean {
     const membershipTier = this.getMembershipTier(membershipTierId);
     return isDefaultFreeTier(membershipTier);
+  }
+
+  public getMembershipTierIds(): number[] {
+    return Array.from(this.membershipTiers.values()).map((t) => t.id);
   }
 
   public hasPublishedMembershipTiers(): boolean {
@@ -495,10 +499,30 @@ export class SystemState {
       .map((t) => t.id);
   }
 
-  private getActiveMembersMembershipTierIds(): Set<number> {
+  public hasPendingApplications(membershipTierId: number) {
+    return this.getMembershipTierIdsWithPendingApplications().has(
+      membershipTierId
+    );
+  }
+
+  private getMembershipTierIdsWithPendingApplications(): Set<number> {
     return new Set(
       Array.from(this.memberships.values())
-        .filter((m) => m.status === "ACTIVE")
+        .filter((m) => m.status === "PENDING")
+        .map((m) => m.membershipTierId)
+    );
+  }
+
+  public hasActiveMembersOrPendingApplications(membershipTierId: number) {
+    return this.getMembershipTierIdsWithActiveMembersOrPendingApplications().has(
+      membershipTierId
+    );
+  }
+
+  private getMembershipTierIdsWithActiveMembersOrPendingApplications(): Set<number> {
+    return new Set(
+      Array.from(this.memberships.values())
+        .filter((m) => m.status === "ACTIVE" || m.status === "PENDING")
         .map((m) => m.membershipTierId)
     );
   }
@@ -751,5 +775,60 @@ export class SystemState {
 
   public getFollowingUserIdsForClub(clubId: number): number[] {
     return [...this.clubFollowing.get(clubId)!];
+  }
+
+  public setEmailTemplate(id: EmailTemplateId, input: SetEmailTemplateInput) {
+    if (!this.emailTemplates.has(id.clubId)) {
+      this.emailTemplates.set(id.clubId, new Map());
+    }
+
+    const clubTemplates = this.emailTemplates.get(id.clubId)!;
+    clubTemplates.set(id.type, {
+      type: id.type,
+      ...input
+    });
+  }
+
+  public deleteEmailTemplate(id: EmailTemplateId) {
+    if (!this.emailTemplates.has(id.clubId)) {
+      throw new Error(
+        `missing email template for clubId ${id.clubId} and template type ${id.type}`
+      );
+    }
+    const clubTemplates = this.emailTemplates.get(id.clubId)!;
+    clubTemplates.delete(id.type);
+
+    if (clubTemplates.size === 0) {
+      this.emailTemplates.delete(id.clubId);
+    }
+  }
+
+  public getEmailTemplate(id: EmailTemplateId): Maybe<EmailTemplate> {
+    if (!this.emailTemplates.has(id.clubId)) {
+      return null;
+    }
+    const clubTemplates = this.emailTemplates.get(id.clubId)!;
+    const template = clubTemplates.get(id.type);
+    if (!template) {
+      return null;
+    }
+    return template;
+  }
+
+  public hasEmailTemplates(): boolean {
+    return this.emailTemplates.size > 0;
+  }
+
+  public selectEmailTemplate(
+    clubIdSelector: ItemSelector<number>,
+    templateTypeSelector: ItemSelector<EmailTemplateType>
+  ): EmailTemplateId {
+    const clubId = clubIdSelector.select(
+      Array.from(this.emailTemplates.keys())
+    );
+    const clubTemplates = this.emailTemplates.get(clubId)!;
+    const type = templateTypeSelector.select(Array.from(clubTemplates.keys()));
+
+    return { clubId, type };
   }
 }

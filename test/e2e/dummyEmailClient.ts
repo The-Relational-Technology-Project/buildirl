@@ -6,7 +6,7 @@ import {
   NotifyMembershipDeactivatedByMemberToOwnerInput,
   NotifyMembershipDeactivatedByOwnerInput,
   NotifyMembershipDeclinedInput
-} from "~/server/service/email/types";
+} from "~/server/email/client/types";
 import { Email } from "~/server/service/types";
 
 export function createDummyEmailClient(): EmailClient {
