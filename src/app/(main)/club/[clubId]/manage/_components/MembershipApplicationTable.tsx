@@ -1,104 +1,22 @@
 import {
   Button,
-  Group,
   Paper,
   ScrollArea,
   Stack,
   Table,
   Text,
-  Title
+  Title,
+  Group,
+  useMantineColorScheme,
+  useMantineTheme
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded, toDisplayDate } from "~/client/utils";
 import React from "react";
 import { useRouter } from "next/navigation";
-import EmailLink from "~/client/components/EmailLink";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import UserAvatar from "~/client/components/UserAvatar";
-import { handleDefaultMutationError } from "~/client/logger";
-
-type ApproveDeclineMembershipButtonsProps = {
-  clubId: number;
-  membershipId: bigint;
-};
-
-export function ApproveDeclineMembershipButtons({
-  clubId,
-  membershipId
-}: ApproveDeclineMembershipButtonsProps) {
-  const utils = api.useUtils();
-  const approveMembershipApplication =
-    api.main.approveMembershipApplication.useMutation({
-      onSuccess: async () => {
-        await utils.main.membershipApplicationsForClub.invalidate({
-          clubId: clubId
-        });
-        await utils.main.activeMembershipsForClub.invalidate({
-          clubId: clubId
-        });
-        await utils.main.activeMembershipsForClubWithEmail.invalidate({
-          clubId: clubId
-        });
-        await utils.main.clubStatistics.invalidate({ clubId: clubId });
-      },
-      onError: handleDefaultMutationError
-    });
-  const declineMembershipApplication =
-    api.main.declineMembershipApplication.useMutation({
-      onSuccess: async () => {
-        await utils.main.membershipApplicationsForClub.invalidate({
-          clubId: clubId
-        });
-      },
-      onError: handleDefaultMutationError
-    });
-
-  const handleApproveMembership = (membershipId: bigint) => {
-    if (
-      window.confirm(
-        "Ready to approve this application? Don't forget to review the application intake form before approving."
-      )
-    ) {
-      approveMembershipApplication.mutateAsync({
-        membershipId: membershipId
-      });
-    }
-  };
-
-  const handleDeclineMembership = (membershipId: bigint) => {
-    if (
-      window.confirm(
-        "Are you sure you want to decline this application? This action cannot be undone."
-      )
-    ) {
-      declineMembershipApplication.mutateAsync({
-        membershipId: membershipId
-      });
-    }
-  };
-
-  return (
-    <Group wrap={"nowrap"}>
-      <Button
-        color={"green"}
-        size={"xs"}
-        onClick={() => handleApproveMembership(membershipId)}
-        loading={approveMembershipApplication.isPending}
-      >
-        Approve
-      </Button>
-      <Button
-        color={"red"}
-        size={"xs"}
-        onClick={() => handleDeclineMembership(membershipId)}
-        loading={declineMembershipApplication.isPending}
-      >
-        Decline
-      </Button>
-    </Group>
-  );
-}
 
 type MembershipApplicationTableProps = {
   clubId: number;
@@ -107,6 +25,8 @@ type MembershipApplicationTableProps = {
 export default function MembershipApplicationTable({
   clubId
 }: MembershipApplicationTableProps) {
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
   const router = useRouter();
   const r = api.main.membershipApplicationsForClub.useQuery({ clubId: clubId });
 
@@ -120,12 +40,13 @@ export default function MembershipApplicationTable({
   }
 
   const rows = r.data!.map((m) => (
-    <Table.Tr key={m.id}>
-      <Table.Td
-        onClick={() => router.push(`/user/${m.user.id}?back=true`)}
-        style={{ cursor: "pointer" }}
-      >
-        <Group gap={4} wrap="nowrap">
+    <Table.Tr 
+      key={m.id} 
+      style={{ cursor: "pointer" }}
+      onClick={() => router.push(`/club/${clubId}/member/${m.user.id}/application`)}
+    >
+      <Table.Td>
+        <Group gap={"sm"} wrap="nowrap">
           <UserAvatar size={"sm"} user={m.user} />
           <Text
             size={"sm"}
@@ -136,11 +57,12 @@ export default function MembershipApplicationTable({
       <Table.Td>{m.membershipTier.name}</Table.Td>
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
-
       <Table.Td>
-        {m.email === null ? null : <EmailLink email={m.email} />}
+        {m.email === null ? null : (
+          <Text size="sm">{m.email}</Text>
+        )}
       </Table.Td>
-      <Table.Td>
+      <Table.Td onClick={(e) => e.stopPropagation()}>
         <Button
           color="blue"
           size="xs"
@@ -148,11 +70,8 @@ export default function MembershipApplicationTable({
             router.push(`/club/${clubId}/member/${m.user.id}/application`)
           }
         >
-          Review
+          Review Application
         </Button>
-      </Table.Td>
-      <Table.Td>
-        <ApproveDeclineMembershipButtons clubId={clubId} membershipId={m.id} />
       </Table.Td>
     </Table.Tr>
   ));
@@ -172,7 +91,9 @@ export default function MembershipApplicationTable({
             <Table.Thead
               style={{
                 position: "sticky",
-                top: 0
+                top: 0,
+                background:
+                  colorScheme === "dark" ? theme.colors.dark[7] : "white"
               }}
             >
               <Table.Tr>
@@ -180,12 +101,8 @@ export default function MembershipApplicationTable({
                 <Table.Th>Tier</Table.Th>
                 <Table.Th>Contribution</Table.Th>
                 <Table.Th>Date Applied</Table.Th>
-                {/*Email*/}
-                <Table.Th />
-                {/* Application Questions */}
-                <Table.Th />
-                {/* Action Buttons */}
-                <Table.Th />
+                <Table.Th>Email</Table.Th>
+                <Table.Th>Actions</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>
