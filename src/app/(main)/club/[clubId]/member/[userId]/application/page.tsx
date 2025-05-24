@@ -24,17 +24,20 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { FormQuestionType, FormResponse } from "~/server/club/types/form";
+import { Membership } from "~/server/membership/types";
+import { User } from "~/server/user/types";
 import UserAvatar from "~/client/components/UserAvatar";
 import { toDisplayDate } from "~/client/utils";
 import { IconMail, IconCalendar, IconCoin } from "@tabler/icons-react";
 import { handleDefaultMutationError } from "~/client/logger";
+import { useMounted } from "@mantine/hooks";
 
 type MemberProfileCardProps = {
   userId: number;
   clubId: number;
-  membershipApplications: any[];
-  activeMemberships: any[];
-  user: any;
+  membershipApplications: Membership[];
+  activeMemberships: Membership[];
+  user: User;
 };
 
 function MemberProfileCard({ userId, clubId, membershipApplications, activeMemberships, user, ...props }: MemberProfileCardProps & PaperProps) {
@@ -148,8 +151,8 @@ function MemberProfileCard({ userId, clubId, membershipApplications, activeMembe
 type MemberActionsCardProps = {
   userId: number;
   clubId: number;
-  membershipApplications: any[];
-  activeMemberships: any[];
+  membershipApplications: Membership[];
+  activeMemberships: Membership[];
 };
 
 function MemberActionsCard({ userId, clubId, membershipApplications, activeMemberships, ...props }: MemberActionsCardProps & PaperProps) {
@@ -291,8 +294,8 @@ function MemberActionsCard({ userId, clubId, membershipApplications, activeMembe
 type ApplicationResponsesCardProps = {
   userId: number;
   clubId: number;
-  membershipApplications: any[];
-  activeMemberships: any[];
+  membershipApplications: Membership[];
+  activeMemberships: Membership[];
 };
 
 function ApplicationResponsesCard({
@@ -389,6 +392,7 @@ export default function MemberApplication() {
   const params = useParams<{ userId: string; clubId: string }>();
   const userId = strictParseInt(params.userId);
   const clubId = strictParseInt(params.clubId);
+  const mounted = useMounted();
 
   // Move all queries to parent component
   const membershipApplicationsQuery = api.main.membershipApplicationsForClub.useQuery({ clubId });
@@ -413,37 +417,39 @@ export default function MemberApplication() {
   }
 
   return (
-    <WithLocalNavigationHeader>
-      <Grid gutter="lg">
-        {/* Left Column - Profile & Actions */}
-        <Grid.Col span={{ base: 12, lg: 5 }}>
-          <Stack gap="lg">
-            <MemberProfileCard 
-              userId={userId} 
-              clubId={clubId} 
-              membershipApplications={membershipApplicationsQuery.data!}
-              activeMemberships={activeMembershipsQuery.data!}
-              user={userQuery.data!}
-            />
-            <MemberActionsCard 
-              userId={userId} 
-              clubId={clubId} 
-              membershipApplications={membershipApplicationsQuery.data!}
-              activeMemberships={activeMembershipsQuery.data!}
-            />
-          </Stack>
-        </Grid.Col>
+    mounted && (
+      <WithLocalNavigationHeader>
+        <Grid gutter="lg">
+          {/* Left Column - Profile & Actions */}
+          <Grid.Col span={{ base: 12, lg: 5 }}>
+            <Stack gap="lg">
+              <MemberProfileCard 
+                userId={userId} 
+                clubId={clubId} 
+                membershipApplications={membershipApplicationsQuery.data!}
+                activeMemberships={activeMembershipsQuery.data!}
+                user={userQuery.data!}
+              />
+              <MemberActionsCard 
+                userId={userId} 
+                clubId={clubId} 
+                membershipApplications={membershipApplicationsQuery.data!}
+                activeMemberships={activeMembershipsQuery.data!}
+              />
+            </Stack>
+          </Grid.Col>
 
-        {/* Right Column - Application Q&A */}
-        <Grid.Col span={{ base: 12, lg: 7 }}>
-          <ApplicationResponsesCard 
-            userId={userId} 
-            clubId={clubId} 
-            membershipApplications={membershipApplicationsQuery.data!}
-            activeMemberships={activeMembershipsQuery.data!}
-          />
-        </Grid.Col>
-      </Grid>
-    </WithLocalNavigationHeader>
+          {/* Right Column - Application Q&A */}
+          <Grid.Col span={{ base: 12, lg: 7 }}>
+            <ApplicationResponsesCard 
+              userId={userId} 
+              clubId={clubId} 
+              membershipApplications={membershipApplicationsQuery.data!}
+              activeMemberships={activeMembershipsQuery.data!}
+            />
+          </Grid.Col>
+        </Grid>
+      </WithLocalNavigationHeader>
+    )
   );
 }

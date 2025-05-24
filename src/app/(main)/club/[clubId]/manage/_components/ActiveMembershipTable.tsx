@@ -1,6 +1,5 @@
 import {
   Button,
-  Center,
   Group,
   Paper,
   ScrollArea,
@@ -18,9 +17,8 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import UserAvatar from "~/client/components/UserAvatar";
-import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
-import { isDefaultFreeTier } from "~/utils/types";
-
+import { Membership } from "~/server/service/types";
+import { useMounted } from "@mantine/hooks";
 
 type ActiveMembershipTableProps = {
   clubId: number;
@@ -31,6 +29,7 @@ export default function ActiveMembershipTable({
 }: ActiveMembershipTableProps) {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
+  const mounted = useMounted();
 
   const router = useRouter();
 
@@ -47,7 +46,7 @@ export default function ActiveMembershipTable({
     return null;
   }
 
-  const rows = r.data!.map((m) => (
+  const rows = r.data!.map((m: Membership) => (
     <Table.Tr 
       key={m.id}
       style={{ cursor: "pointer" }}
@@ -85,38 +84,40 @@ export default function ActiveMembershipTable({
   ));
 
   return (
-    <Stack mt={"lg"} gap={0}>
-      <Stack px={4} gap={4}>
-        <Title order={4}>Active Members</Title>
-        <Group gap={4}>
-          <Text fw={"bold"} size={"sm"}>{`${r.data!.length}`}</Text>
-          <Text size={"sm"}>members</Text>
-        </Group>
+    mounted && (
+      <Stack mt={"lg"} gap={0}>
+        <Stack px={4} gap={4}>
+          <Title order={4}>Active Members</Title>
+          <Group gap={4}>
+            <Text fw={"bold"} size={"sm"}>{`${r.data!.length}`}</Text>
+            <Text size={"sm"}>members</Text>
+          </Group>
+        </Stack>
+        <Paper mt={"sm"} px={"md"} py={"sm"}>
+          <ScrollArea h={300}>
+            <Table miw={{ base: undefined, md: `calc(${PAGE_WIDTH} - 100px)` }}>
+              <Table.Thead
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  background:
+                    colorScheme === "dark" ? theme.colors.dark[7] : "white"
+                }}
+              >
+                <Table.Tr>
+                  <Table.Th>User</Table.Th>
+                  <Table.Th>Tier</Table.Th>
+                  <Table.Th>Contribution</Table.Th>
+                  <Table.Th>Date Joined</Table.Th>
+                  <Table.Th>Email</Table.Th>
+                  <Table.Th>Actions</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>{rows}</Table.Tbody>
+            </Table>
+          </ScrollArea>
+        </Paper>
       </Stack>
-      <Paper mt={"sm"} px={"md"} py={"sm"}>
-        <ScrollArea h={300}>
-          <Table miw={{ base: undefined, md: `calc(${PAGE_WIDTH} - 100px)` }}>
-            <Table.Thead
-              style={{
-                position: "sticky",
-                top: 0,
-                background:
-                  colorScheme === "dark" ? theme.colors.dark[7] : "white"
-              }}
-            >
-              <Table.Tr>
-                <Table.Th>User</Table.Th>
-                <Table.Th>Tier</Table.Th>
-                <Table.Th>Contribution</Table.Th>
-                <Table.Th>Date Joined</Table.Th>
-                <Table.Th>Email</Table.Th>
-                <Table.Th>Actions</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{rows}</Table.Tbody>
-          </Table>
-        </ScrollArea>
-      </Paper>
-    </Stack>
+    )
   );
 }
