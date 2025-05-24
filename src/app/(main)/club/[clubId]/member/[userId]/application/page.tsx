@@ -16,7 +16,6 @@ import {
   Title,
   Divider,
   Badge,
-  Flex,
   useMantineTheme,
   useMantineColorScheme
 } from "@mantine/core";
@@ -244,27 +243,27 @@ function MemberActionsCard({ userId, clubId, membershipApplications, activeMembe
             <Text size="sm" c="dimmed">
               Review this application and decide whether to approve or decline membership.
             </Text>
-            <Flex gap="md" justify="center">
+            <Stack gap="md">
               <Button
                 color="green"
                 size="lg"
-                flex={1}
+                fullWidth
                 onClick={handleApproveMembership}
                 loading={approveMembershipApplication.isPending}
               >
-                Approve Application
+                Approve
               </Button>
               <Button
                 color="red"
                 variant="outline"
                 size="lg"
-                flex={1}
+                fullWidth
                 onClick={handleDeclineMembership}
                 loading={declineMembershipApplication.isPending}
               >
-                Decline Application
+                Decline
               </Button>
-            </Flex>
+            </Stack>
           </Stack>
         )}
 
