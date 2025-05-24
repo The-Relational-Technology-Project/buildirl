@@ -64,4 +64,7 @@ node_modules/
 # OS specific
 # Task files
 tasks.json
-tasks/ 
+tasks/
+# TaskMaster generated files
+scripts/prd.txt
+scripts/task-complexity-report.json 

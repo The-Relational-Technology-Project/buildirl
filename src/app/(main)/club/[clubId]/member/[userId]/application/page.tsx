@@ -34,13 +34,12 @@ import { useMounted } from "@mantine/hooks";
 
 type MemberProfileCardProps = {
   userId: number;
-  clubId: number;
   membershipApplications: Membership[];
   activeMemberships: Membership[];
   user: User;
 };
 
-function MemberProfileCard({ userId, clubId, membershipApplications, activeMemberships, user, ...props }: MemberProfileCardProps & PaperProps) {
+function MemberProfileCard({ userId, membershipApplications, activeMemberships, user, ...props }: MemberProfileCardProps & PaperProps) {
   const router = useRouter();
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
@@ -293,14 +292,12 @@ function MemberActionsCard({ userId, clubId, membershipApplications, activeMembe
 
 type ApplicationResponsesCardProps = {
   userId: number;
-  clubId: number;
   membershipApplications: Membership[];
   activeMemberships: Membership[];
 };
 
 function ApplicationResponsesCard({
   userId,
-  clubId,
   membershipApplications,
   activeMemberships,
   ...props
@@ -425,7 +422,6 @@ export default function MemberApplication() {
             <Stack gap="lg">
               <MemberProfileCard 
                 userId={userId} 
-                clubId={clubId} 
                 membershipApplications={membershipApplicationsQuery.data!}
                 activeMemberships={activeMembershipsQuery.data!}
                 user={userQuery.data!}
@@ -443,7 +439,6 @@ export default function MemberApplication() {
           <Grid.Col span={{ base: 12, lg: 7 }}>
             <ApplicationResponsesCard 
               userId={userId} 
-              clubId={clubId} 
               membershipApplications={membershipApplicationsQuery.data!}
               activeMemberships={activeMembershipsQuery.data!}
             />
