@@ -7,15 +7,13 @@ import React from "react";
 import {
   Box,
   Button,
-  Grid,
+  Center,
   Group,
   Paper,
   PaperProps,
   Stack,
   Text,
   Title,
-  Divider,
-  Badge,
   useMantineTheme,
   useMantineColorScheme
 } from "@mantine/core";
@@ -24,10 +22,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { FormQuestionType, FormResponse } from "~/server/club/types/form";
 import { Membership } from "~/server/membership/types";
-import { User } from "~/server/user/types";
-import UserAvatar from "~/client/components/UserAvatar";
-import { toDisplayDate } from "~/client/utils";
-import { IconMail, IconCalendar, IconCoin } from "@tabler/icons-react";
+import MemberProfile from "~/client/components/MemberProfile";
 import { handleDefaultMutationError } from "~/client/logger";
 import { useMounted } from "@mantine/hooks";
 
@@ -45,110 +40,6 @@ function findUserMembership(
 
 function isMembershipPending(userId: number, membershipApplications: Membership[]): boolean {
   return membershipApplications.some(mem => mem.user.id === userId);
-}
-
-type MemberProfileCardProps = {
-  membership: Membership;
-  isPending: boolean;
-  user: User;
-};
-
-function MemberProfileCard({ membership, isPending, user, ...props }: MemberProfileCardProps & PaperProps) {
-  const router = useRouter();
-  const theme = useMantineTheme();
-  const { colorScheme } = useMantineColorScheme();
-
-  return (
-    <Paper p="xl" {...props}>
-      <Stack gap="lg">
-        {/* Profile Header */}
-        <Group align="flex-start" gap="lg">
-          <Box 
-            style={{ cursor: "pointer" }}
-            onClick={() => router.push(`/user/${user.id}?back=true`)}
-          >
-            <UserAvatar size="xl" user={user} />
-          </Box>
-          <Stack gap="xs" style={{ flex: 1 }}>
-            <Group align="center" gap="md">
-              <Title 
-                order={2} 
-                fw={600}
-                style={{ cursor: "pointer" }}
-                onClick={() => router.push(`/user/${user.id}?back=true`)}
-              >
-                {user.firstName} {user.lastName}
-              </Title>
-              <Badge 
-                color={isPending ? "yellow" : "green"} 
-                variant="light"
-                size="lg"
-              >
-                {isPending ? "Pending" : "Active Member"}
-              </Badge>
-            </Group>
-            {user.description !== "" && (
-              <Text size="md" c="dimmed" lineClamp={3}>
-                {user.description}
-              </Text>
-            )}
-          </Stack>
-        </Group>
-
-        <Divider />
-
-        {/* Member Details */}
-        <Stack gap="md">
-          <Title order={4} fw={500}>Member Information</Title>
-          
-          <Grid gutter="md">
-            <Grid.Col span={6}>
-              <Group gap="xs">
-                <IconCoin size={18} color={colorScheme === "dark" ? theme.colors.dark[2] : theme.colors.gray[6]} />
-                <Text size="sm" fw={500}>Tier:</Text>
-              </Group>
-              <Text size="md" mt={4}>{membership.membershipTier.name}</Text>
-            </Grid.Col>
-            
-            <Grid.Col span={6}>
-              <Group gap="xs">
-                <IconCoin size={18} color={colorScheme === "dark" ? theme.colors.dark[2] : theme.colors.gray[6]} />
-                <Text size="sm" fw={500}>Contribution:</Text>
-              </Group>
-              <Text size="md" mt={4}>${membership.membershipTier.costPerMonthInUSD}.00/month</Text>
-            </Grid.Col>
-            
-            <Grid.Col span={6}>
-              <Group gap="xs">
-                <IconCalendar size={18} color={colorScheme === "dark" ? theme.colors.dark[2] : theme.colors.gray[6]} />
-                <Text size="sm" fw={500}>{isPending ? "Applied:" : "Joined:"}</Text>
-              </Group>
-              <Text size="md" mt={4}>{toDisplayDate(membership.createdAt)}</Text>
-            </Grid.Col>
-            
-            {membership.email && (
-              <Grid.Col span={6}>
-                <Group gap="xs">
-                  <IconMail size={18} color={colorScheme === "dark" ? theme.colors.dark[2] : theme.colors.gray[6]} />
-                  <Text size="sm" fw={500}>Email:</Text>
-                </Group>
-                <Box 
-                  component="a" 
-                  href={`mailto:${membership.email}`} 
-                  style={{ color: "inherit", cursor: "pointer", textDecoration: "none" }}
-                  mt={4}
-                >
-                  <Text size="md" style={{ wordBreak: "break-all" }}>
-                    {membership.email}
-                  </Text>
-                </Box>
-              </Grid.Col>
-            )}
-          </Grid>
-        </Stack>
-      </Stack>
-    </Paper>
-  );
 }
 
 type MemberActionsCardProps = {
@@ -244,11 +135,10 @@ function MemberActionsCard({ clubId, pendingMembership, activeMembership, ...pro
             <Text size="sm" c="dimmed">
               Review this application and decide whether to approve or decline membership.
             </Text>
-            <Stack gap="md">
+            <Group grow>
               <Button
                 color="green"
                 size="lg"
-                fullWidth
                 onClick={handleApproveMembership}
                 loading={approveMembershipApplication.isPending}
               >
@@ -258,13 +148,12 @@ function MemberActionsCard({ clubId, pendingMembership, activeMembership, ...pro
                 color="red"
                 variant="outline"
                 size="lg"
-                fullWidth
                 onClick={handleDeclineMembership}
                 loading={declineMembershipApplication.isPending}
               >
                 Decline
               </Button>
-            </Stack>
+            </Group>
           </Stack>
         )}
 
@@ -428,30 +317,29 @@ export default function MemberApplication() {
   return (
     mounted && (
       <WithLocalNavigationHeader>
-        <Grid gutter="lg">
-          {/* Left Column - Profile & Actions */}
-          <Grid.Col span={{ base: 12, lg: 5 }}>
-            <Stack gap="lg">
-              <MemberProfileCard 
-                membership={userMembership}
-                isPending={isPending}
-                user={userQuery.data!}
-              />
-              <MemberActionsCard 
-                clubId={clubId} 
-                pendingMembership={pendingMembership}
-                activeMembership={activeMembership}
-              />
-            </Stack>
-          </Grid.Col>
-
-          {/* Right Column - Application Q&A */}
-          <Grid.Col span={{ base: 12, lg: 7 }}>
+        <Center>
+          <Stack w={800} gap="xl">
+            {/* Main Profile Section */}
+            <MemberProfile 
+              user={userQuery.data!}
+              membership={userMembership}
+              isPending={isPending}
+              width={600}
+            />
+            
+            {/* Actions Section */}
+            <MemberActionsCard 
+              clubId={clubId} 
+              pendingMembership={pendingMembership}
+              activeMembership={activeMembership}
+            />
+            
+            {/* Q&A Section */}
             <ApplicationResponsesCard 
               membership={userMembership}
             />
-          </Grid.Col>
-        </Grid>
+          </Stack>
+        </Center>
       </WithLocalNavigationHeader>
     )
   );

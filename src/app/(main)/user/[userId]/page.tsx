@@ -1,6 +1,6 @@
 "use client";
 
-import { Center, Divider, Group, Stack, Text, Title } from "@mantine/core";
+import { Center } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -8,8 +8,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
-import JoinedDate from "~/client/components/JoinedDate";
-import UserAvatar from "~/client/components/UserAvatar";
+import BaseUserProfile from "~/client/components/BaseUserProfile";
 
 type UserProfileProps = {
   userId: number;
@@ -25,24 +24,12 @@ function UserProfile({ userId }: UserProfileProps) {
 
   return (
     isLoaded(r) && (
-      <Stack w={600}>
-        <Group align={"flex-start"} gap={"lg"}>
-          <UserAvatar size={"md"} user={r.data!} />
-          <Stack gap={4}>
-            <Title order={3} fw={500} pt={10}>
-              {r.data!.firstName} {r.data!.lastName}
-            </Title>
-            <JoinedDate date={r.data!.createdAt} />
-          </Stack>
-        </Group>
-        {r.data!.description !== "" && (
-          <>
-            <Divider my={"md"} />
-            <Title order={4}>Bio</Title>
-            <Text size={"sm"}>{r.data!.description}</Text>
-          </>
-        )}
-      </Stack>
+      <BaseUserProfile 
+        user={r.data!} 
+        showJoinedDate={true}
+        size="md"
+        width={600}
+      />
     )
   );
 }
