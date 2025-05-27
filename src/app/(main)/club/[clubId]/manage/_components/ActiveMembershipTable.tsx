@@ -110,7 +110,6 @@ export default function ActiveMembershipTable({
                   <Table.Th>Contribution</Table.Th>
                   <Table.Th>Date Joined</Table.Th>
                   <Table.Th>Email</Table.Th>
-                  <Table.Th>Actions</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>{rows}</Table.Tbody>

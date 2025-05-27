@@ -390,7 +390,6 @@ export default function MemberApplication() {
   const clubId = strictParseInt(params.clubId);
   const mounted = useMounted();
 
-  // Move all queries to parent component
   const membershipApplicationsQuery = api.main.membershipApplicationsForClub.useQuery({ clubId });
   const activeMembershipsQuery = api.main.activeMembershipsForClubWithEmail.useQuery({ clubId });
   const userQuery = api.main.userById.useQuery({ id: userId });
