@@ -31,27 +31,32 @@ import { IconMail, IconCalendar, IconCoin } from "@tabler/icons-react";
 import { handleDefaultMutationError } from "~/client/logger";
 import { useMounted } from "@mantine/hooks";
 
+
+function findUserMembership(
+  userId: number,
+  membershipApplications: Membership[],
+  activeMemberships: Membership[]
+): Membership | null {
+  return [...membershipApplications, ...activeMemberships].find(
+    (mem) => mem.user.id === userId
+  ) || null;
+}
+
+
+function isMembershipPending(userId: number, membershipApplications: Membership[]): boolean {
+  return membershipApplications.some(mem => mem.user.id === userId);
+}
+
 type MemberProfileCardProps = {
-  userId: number;
-  membershipApplications: Membership[];
-  activeMemberships: Membership[];
+  membership: Membership;
+  isPending: boolean;
   user: User;
 };
 
-function MemberProfileCard({ userId, membershipApplications, activeMemberships, user, ...props }: MemberProfileCardProps & PaperProps) {
+function MemberProfileCard({ membership, isPending, user, ...props }: MemberProfileCardProps & PaperProps) {
   const router = useRouter();
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
-
-  const userMembership = [...membershipApplications, ...activeMemberships].find(
-    (mem) => mem.user.id === userId
-  );
-
-  if (!userMembership) {
-    return null;
-  }
-
-  const isPending = membershipApplications.some(mem => mem.user.id === userId);
 
   return (
     <Paper p="xl" {...props}>
@@ -102,7 +107,7 @@ function MemberProfileCard({ userId, membershipApplications, activeMemberships, 
                 <IconCoin size={18} color={colorScheme === "dark" ? theme.colors.dark[2] : theme.colors.gray[6]} />
                 <Text size="sm" fw={500}>Tier:</Text>
               </Group>
-              <Text size="md" mt={4}>{userMembership.membershipTier.name}</Text>
+              <Text size="md" mt={4}>{membership.membershipTier.name}</Text>
             </Grid.Col>
             
             <Grid.Col span={6}>
@@ -110,7 +115,7 @@ function MemberProfileCard({ userId, membershipApplications, activeMemberships, 
                 <IconCoin size={18} color={colorScheme === "dark" ? theme.colors.dark[2] : theme.colors.gray[6]} />
                 <Text size="sm" fw={500}>Contribution:</Text>
               </Group>
-              <Text size="md" mt={4}>${userMembership.membershipTier.costPerMonthInUSD}.00/month</Text>
+              <Text size="md" mt={4}>${membership.membershipTier.costPerMonthInUSD}.00/month</Text>
             </Grid.Col>
             
             <Grid.Col span={6}>
@@ -118,10 +123,10 @@ function MemberProfileCard({ userId, membershipApplications, activeMemberships, 
                 <IconCalendar size={18} color={colorScheme === "dark" ? theme.colors.dark[2] : theme.colors.gray[6]} />
                 <Text size="sm" fw={500}>{isPending ? "Applied:" : "Joined:"}</Text>
               </Group>
-              <Text size="md" mt={4}>{toDisplayDate(userMembership.createdAt)}</Text>
+              <Text size="md" mt={4}>{toDisplayDate(membership.createdAt)}</Text>
             </Grid.Col>
             
-            {userMembership.email && (
+            {membership.email && (
               <Grid.Col span={6}>
                 <Group gap="xs">
                   <IconMail size={18} color={colorScheme === "dark" ? theme.colors.dark[2] : theme.colors.gray[6]} />
@@ -129,12 +134,12 @@ function MemberProfileCard({ userId, membershipApplications, activeMemberships, 
                 </Group>
                 <Box 
                   component="a" 
-                  href={`mailto:${userMembership.email}`} 
+                  href={`mailto:${membership.email}`} 
                   style={{ color: "inherit", cursor: "pointer", textDecoration: "none" }}
                   mt={4}
                 >
                   <Text size="md" style={{ wordBreak: "break-all" }}>
-                    {userMembership.email}
+                    {membership.email}
                   </Text>
                 </Box>
               </Grid.Col>
@@ -147,13 +152,12 @@ function MemberProfileCard({ userId, membershipApplications, activeMemberships, 
 }
 
 type MemberActionsCardProps = {
-  userId: number;
   clubId: number;
-  membershipApplications: Membership[];
-  activeMemberships: Membership[];
+  pendingMembership?: Membership;
+  activeMembership?: Membership;
 };
 
-function MemberActionsCard({ userId, clubId, membershipApplications, activeMemberships, ...props }: MemberActionsCardProps & PaperProps) {
+function MemberActionsCard({ clubId, pendingMembership, activeMembership, ...props }: MemberActionsCardProps & PaperProps) {
   const utils = api.useUtils();
   const router = useRouter();
 
@@ -185,9 +189,6 @@ function MemberActionsCard({ userId, clubId, membershipApplications, activeMembe
     },
     onError: handleDefaultMutationError
   });
-
-  const pendingMembership = membershipApplications.find((mem) => mem.user.id === userId);
-  const activeMembership = activeMemberships.find((mem) => mem.user.id === userId);
 
   const handleApproveMembership = () => {
     if (!pendingMembership) return;
@@ -290,27 +291,15 @@ function MemberActionsCard({ userId, clubId, membershipApplications, activeMembe
 }
 
 type ApplicationResponsesCardProps = {
-  userId: number;
-  membershipApplications: Membership[];
-  activeMemberships: Membership[];
+  membership: Membership;
 };
 
 function ApplicationResponsesCard({
-  userId,
-  membershipApplications,
-  activeMemberships,
+  membership,
   ...props
 }: ApplicationResponsesCardProps & PaperProps) {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
-
-  const userMembership = [...membershipApplications, ...activeMemberships].find(
-    (m) => m.user.id === userId
-  );
-
-  if (!userMembership) {
-    return null;
-  }
 
   const renderResponse = (response: FormResponse) => {
     const responseBoxStyle = {
@@ -366,13 +355,13 @@ function ApplicationResponsesCard({
       <Stack gap="lg">
         <Title order={4} fw={500}>Application Q&A</Title>
 
-        {userMembership.applicationResponses.responses.length === 0 ? (
+        {membership.applicationResponses.responses.length === 0 ? (
           <Text size="sm" c="dimmed" ta="center" py="xl">
             No application questions were answered. This likely means there were no intake questions configured.
           </Text>
         ) : (
           <Stack gap="lg">
-            {userMembership.applicationResponses.responses.map(
+            {membership.applicationResponses.responses.map(
               (response: FormResponse, index: number) => (
                 <Box key={index}>{renderResponse(response)}</Box>
               )
@@ -411,6 +400,31 @@ export default function MemberApplication() {
     return null;
   }
 
+  const userMembership = findUserMembership(
+    userId,
+    membershipApplicationsQuery.data!,
+    activeMembershipsQuery.data!
+  );
+
+  const isPending = isMembershipPending(userId, membershipApplicationsQuery.data!);
+  
+  const pendingMembership = membershipApplicationsQuery.data!.find((mem) => mem.user.id === userId);
+  const activeMembership = activeMembershipsQuery.data!.find((mem) => mem.user.id === userId);
+
+  if (!userMembership) {
+    return (
+      mounted && (
+        <WithLocalNavigationHeader>
+          <Stack align="center" gap="lg" py="xl">
+            <Text size="lg" c="dimmed" ta="center">
+              No membership found for this user.
+            </Text>
+          </Stack>
+        </WithLocalNavigationHeader>
+      )
+    );
+  }
+
   return (
     mounted && (
       <WithLocalNavigationHeader>
@@ -419,16 +433,14 @@ export default function MemberApplication() {
           <Grid.Col span={{ base: 12, lg: 5 }}>
             <Stack gap="lg">
               <MemberProfileCard 
-                userId={userId} 
-                membershipApplications={membershipApplicationsQuery.data!}
-                activeMemberships={activeMembershipsQuery.data!}
+                membership={userMembership}
+                isPending={isPending}
                 user={userQuery.data!}
               />
               <MemberActionsCard 
-                userId={userId} 
                 clubId={clubId} 
-                membershipApplications={membershipApplicationsQuery.data!}
-                activeMemberships={activeMembershipsQuery.data!}
+                pendingMembership={pendingMembership}
+                activeMembership={activeMembership}
               />
             </Stack>
           </Grid.Col>
@@ -436,9 +448,7 @@ export default function MemberApplication() {
           {/* Right Column - Application Q&A */}
           <Grid.Col span={{ base: 12, lg: 7 }}>
             <ApplicationResponsesCard 
-              userId={userId} 
-              membershipApplications={membershipApplicationsQuery.data!}
-              activeMemberships={activeMembershipsQuery.data!}
+              membership={userMembership}
             />
           </Grid.Col>
         </Grid>
