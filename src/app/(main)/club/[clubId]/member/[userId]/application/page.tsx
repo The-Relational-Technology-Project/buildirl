@@ -15,7 +15,9 @@ import {
   Text,
   Title,
   useMantineTheme,
-  useMantineColorScheme
+  useMantineColorScheme,
+  Radio,
+  Checkbox
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -219,19 +221,33 @@ function ApplicationResponsesCard({
       case FormQuestionType.SINGLE_SELECT:
         return (
           <Box>
-            <Text size="sm" fw={500} mb="xs">{response.question}</Text>
-            <Text size="sm" p="sm" style={responseBoxStyle}>
-              {response.response}
-            </Text>
+            <Radio.Group label={response.question} value={response.response}>
+              {response.metadata?.choices?.map((choice, index) => (
+                <Radio
+                  key={index}
+                  value={choice}
+                  label={choice}
+                  pt="xs"
+                  disabled
+                />
+              ))}
+            </Radio.Group>
           </Box>
         );
       case FormQuestionType.MULTI_SELECT:
         return (
           <Box>
-            <Text size="sm" fw={500} mb="xs">{response.question}</Text>
-            <Text size="sm" p="sm" style={responseBoxStyle}>
-              {Array.isArray(response.response) ? response.response.join(", ") : response.response}
-            </Text>
+            <Checkbox.Group label={response.question} value={response.response}>
+              {response.metadata.choices.map((choice, index) => (
+                <Checkbox
+                  key={index}
+                  value={choice}
+                  label={choice}
+                  pt={"xs"}
+                  disabled
+                />
+              ))}
+            </Checkbox.Group>
           </Box>
         );
       default:
