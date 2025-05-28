@@ -132,7 +132,7 @@ function MemberActionsCard({ clubId, pendingMembership, activeMembership, ...pro
         
         {pendingMembership && (
           <Stack gap="md">
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c="black">
               Review this application and decide whether to approve or decline membership.
             </Text>
             <Group grow>
@@ -159,7 +159,7 @@ function MemberActionsCard({ clubId, pendingMembership, activeMembership, ...pro
 
         {activeMembership && (
           <Stack gap="md">
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c="black">
               This member is currently active. You can cancel their membership if needed.
             </Text>
             <Button
@@ -245,8 +245,9 @@ function ApplicationResponsesCard({
         <Title order={4} fw={500}>Application Q&A</Title>
 
         {membership.applicationResponses.responses.length === 0 ? (
-          <Text size="sm" c="dimmed" ta="center" py="xl">
-            No application questions were answered. This likely means there were no intake questions configured.
+          <Text size="sm" c="black" ta="center" py="xl">
+            No responses were given. This is likely because you had no intake
+            questions.
           </Text>
         ) : (
           <Stack gap="lg">
@@ -305,7 +306,7 @@ export default function MemberApplication() {
       mounted && (
         <WithLocalNavigationHeader>
           <Stack align="center" gap="lg" py="xl">
-            <Text size="lg" c="dimmed" ta="center">
+            <Text size="lg" c="black" ta="center">
               No membership found for this user.
             </Text>
           </Stack>
