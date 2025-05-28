@@ -318,7 +318,7 @@ export default function MemberApplication() {
     mounted && (
       <WithLocalNavigationHeader>
         <Center>
-          <Stack w={800} gap="xl">
+          <Stack w={800} gap="xl" pb="xl">
             {/* Main Profile Section */}
             <MemberProfile 
               user={userQuery.data!}
