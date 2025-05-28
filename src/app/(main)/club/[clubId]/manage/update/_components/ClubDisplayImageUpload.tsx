@@ -12,7 +12,7 @@ import {
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { storageClient } from "~/client/utils/storageClient";
-import { Club } from "~/server/membership/types";
+import { Club } from "~/server/club/types";
 import { Maybe } from "~/utils/types";
 import { logger, notifyError } from "~/client/logger";
 import { isFileSizeValid } from "~/client/components/EditableUserAvatar";

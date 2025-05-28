@@ -2,7 +2,7 @@ import {
   LongTextSchema,
   MutationResult,
   RequiredStringSchema
-} from "~/server/membership/types";
+} from "~/server/common/types";
 import { z } from "zod";
 
 export type UserService = UserQueries & UserMutations;
@@ -28,9 +28,6 @@ export type UserMutations = {
   ): Promise<MutationResult>;
   updateUser(id: number, input: UpdateUserInput): Promise<MutationResult>;
 };
-
-export const EmailSchema = z.string().email("Not a valid email");
-export type Email = z.infer<typeof EmailSchema>;
 
 export const CreateUserInputSchema = z.object({
   firstName: RequiredStringSchema,

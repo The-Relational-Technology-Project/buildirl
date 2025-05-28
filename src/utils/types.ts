@@ -1,12 +1,12 @@
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import {
-  Club,
   CreateMembershipTierInput,
-  Membership,
   MembershipTier,
   UpdateMembershipTierInput
-} from "~/server/membership/types";
+} from "~/server/membershipTier/types";
+import { Membership } from "~/server/membership/types";
+import { Club } from "~/server/club/types";
 
 export type Maybe<T> = T | null;
 

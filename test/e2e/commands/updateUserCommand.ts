@@ -1,6 +1,6 @@
 import { type Command } from "fast-check";
 import { type SystemState } from "../systemState";
-import { UpdateUserInput } from "~/server/membership/types";
+import { UpdateUserInput } from "~/server/user/types";
 import { type Maybe } from "~/utils/types";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";

@@ -7,7 +7,7 @@ import { SystemState } from "./systemState";
 import { allCommands } from "./commands";
 import { rootLogger } from "~/logger";
 import { MembershipService } from "~/server/membership/types";
-import { createMainService } from "~/server/membership/service";
+import { createMainService } from "~/server/service";
 import { createFakeStripeClient } from "./fakeStripeClient";
 import { PaymentService } from "~/server/payments/types";
 import { createPaymentService } from "~/server/payments/service";

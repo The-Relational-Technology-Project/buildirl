@@ -28,6 +28,9 @@ export const InstagramHandleSchema = z
   .regex(INSTAGRAM_HANDLE_REGEX, "Not a valid Instagram handle");
 export type InstagramHandle = z.infer<typeof InstagramHandleSchema>;
 
+export const EmailSchema = z.string().email("Not a valid email");
+export type Email = z.infer<typeof EmailSchema>;
+
 export type MutationResult = {
   createdEntityId: Maybe<Id>;
 };

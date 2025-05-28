@@ -7,7 +7,7 @@ import {
   NotifyMembershipDeactivatedByOwnerInput,
   NotifyMembershipDeclinedInput
 } from "~/server/email/client/types";
-import { Email } from "~/server/user/types";
+import { Email } from "~/server/common/types";
 
 export function createDummyEmailClient(): EmailClient {
   async function notifyMembershipApplicationSubmitted(

@@ -4,7 +4,8 @@ import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { Stack, Text, Title, Box, useMatches } from "@mantine/core";
 import { WelcomeImage } from "~/client/components/Images";
-import { Club, Membership } from "~/server/membership/types";
+import { Club } from "~/server/club/types";
+import { Membership } from "~/server/membership/types";
 import ClubCard from "~/app/(main)/_components/ClubCard";
 import PrimaryButton from "~/client/components/PrimaryButton";
 
@@ -79,7 +80,9 @@ export default function MyClubsPanel() {
     return null;
   }
 
-  const activeMemberships = m.data!.filter((m) => m.status === "ACTIVE");
+  const activeMemberships = m.data!.filter(
+    (m: Membership) => m.status === "ACTIVE"
+  );
 
   if (r.data!.length === 0 && activeMemberships.length === 0) {
     return <EmptyClubs />;

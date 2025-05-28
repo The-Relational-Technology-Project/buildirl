@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import ClubImage from "~/client/components/ClubImage";
-import { Club } from "~/server/membership/types";
+import { Club } from "~/server/club/types";
 
 type ClubStatus = "OWNED" | "JOINED" | "APPLIED" | "FOLLOWING";
 

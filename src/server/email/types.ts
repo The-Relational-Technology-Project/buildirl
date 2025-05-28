@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MutationResult } from "~/server/membership/types";
+import { MutationResult } from "~/server/common/types";
 import { Maybe } from "~/utils/types";
 
 export type EmailService = EmailQueries & EmailMutations;

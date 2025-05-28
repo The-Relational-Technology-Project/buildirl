@@ -11,12 +11,12 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
-import { RequiredStringSchema } from "~/server/membership/types";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import WithDefaultColorSchemeOnManualRouteChange from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
 import { handleDefaultMutationError } from "~/client/logger";
+import { RequiredStringSchema } from "~/server/common/types";
 
 function CreateUserForm(props: StackProps) {
   const router = useRouter();

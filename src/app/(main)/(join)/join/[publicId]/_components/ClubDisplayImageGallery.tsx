@@ -6,7 +6,7 @@ import {
   Paper,
   GroupProps
 } from "@mantine/core";
-import { Club } from "~/server/membership/types";
+import { Club } from "~/server/club/types";
 
 type ClubDisplayImageGalleryProps = {
   club: Club;

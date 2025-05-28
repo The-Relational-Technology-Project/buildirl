@@ -4,7 +4,7 @@ import { ActionIcon, Box, BoxProps, FileInput } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
 import createStorageClient from "~/client/utils/storageClient";
 import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
-import { Club } from "~/server/membership/types";
+import { Club } from "~/server/club/types";
 import ClubImage from "~/client/components/ClubImage";
 import { logger, notifyError } from "~/client/logger";
 import { stringify } from "~/utils";

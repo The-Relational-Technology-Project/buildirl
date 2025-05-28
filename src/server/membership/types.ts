@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { Maybe } from "~/utils/types";
 import { FormResponses, FormResponsesSchema } from "~/server/club/types/form";
-import { Email, User } from "~/server/user/types";
+import { User } from "~/server/user/types";
 import { Club } from "~/server/club/types";
 import { MembershipTier } from "~/server/membershipTier/types";
-import { MutationResult } from "~/server/common/types";
+import { Email, MutationResult } from "~/server/common/types";
 
 export type MembershipService = MembershipQueries & MembershipMutations;
 

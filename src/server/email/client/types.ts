@@ -1,4 +1,4 @@
-import { Email } from "~/server/membership/types";
+import { Email } from "~/server/common/types";
 
 export type EmailClient = {
   notifyMembershipApplicationSubmitted(

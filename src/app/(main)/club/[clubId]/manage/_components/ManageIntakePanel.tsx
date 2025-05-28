@@ -23,8 +23,8 @@ import {
   FormQuestionType,
   FormQuestionsSchema,
   FormQuestions
-} from "~/server/membership/types/form";
-import { Club } from "~/server/membership/types";
+} from "~/server/club/types/form";
+import { Club } from "~/server/club/types";
 import { api } from "~/trpc/react";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";

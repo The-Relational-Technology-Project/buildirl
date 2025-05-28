@@ -2,14 +2,6 @@ import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
 import {
-  Club,
-  LongTextSchema,
-  Membership,
-  MembershipTier,
-  MembershipTierNameSchema,
-  MonetaryValueSchema
-} from "~/server/membership/types";
-import {
   Button,
   Modal,
   Stack,
@@ -31,6 +23,13 @@ import {
   DEFAULT_INITIATION_FEE_USD,
   NullableCostInput
 } from "~/app/(main)/club/[clubId]/manage/_components/CostInput";
+import { Club } from "~/server/club/types";
+import {
+  MembershipTier,
+  MembershipTierNameSchema
+} from "~/server/membershipTier/types";
+import { LongTextSchema, MonetaryValueSchema } from "~/server/common/types";
+import { Membership } from "~/server/membership/types";
 
 type UpdateMembershipTierModalProps = {
   club: Club;

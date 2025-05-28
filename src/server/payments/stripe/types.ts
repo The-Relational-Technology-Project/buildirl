@@ -1,4 +1,4 @@
-import { Email, MonetaryValue, Url } from "~/server/membership/types";
+import { Email, MonetaryValue, Url } from "~/server/common/types";
 import { Maybe } from "~/utils/types";
 
 export type StripeClient = {

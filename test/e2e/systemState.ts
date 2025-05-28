@@ -1,36 +1,37 @@
-import {
-  Club,
-  CreateClubInput,
-  CreateUserInput,
-  InstagramHandle,
-  MembershipTier,
-  UpdateClubInput,
-  UpdateUserInput,
-  Url,
-  UpdateClubApplicationQuestionsInput,
-  type User,
-  CreateMembershipTierInput,
-  UpdateMembershipTierInput,
-  SubmitMembershipApplicationInput,
-  MembershipStatus,
-  Membership,
-  ClubStatistics,
-  UpdateClubDisplayImageUrlsInput,
-  FAQs
-} from "~/server/membership/types";
 import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
-import { FormQuestions, FormResponses } from "~/server/membership/types/form";
+import { FormQuestions, FormResponses } from "~/server/club/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
 import {
   DEFAULT_APPLICATION_QUESTIONS,
   DEFAULT_FREE_MEMBERSHIP_TIER,
   DEFAULT_CLUB_FAQS
-} from "~/server/membership/defaults";
+} from "~/server/common/defaults";
 import { EmailTemplateType, SetEmailTemplateInput } from "~/server/email/types";
 import { EmailTemplate } from "~/server/email/types";
 import { EmailTemplateId } from "~/server/email/types";
 import { ItemSelector } from "./utils/itemSelector";
+import { InstagramHandle, Url } from "~/server/common/types";
+import {
+  Club,
+  ClubStatistics,
+  CreateClubInput,
+  FAQs,
+  UpdateClubApplicationQuestionsInput,
+  UpdateClubDisplayImageUrlsInput,
+  UpdateClubInput
+} from "~/server/club/types";
+import {
+  Membership,
+  MembershipStatus,
+  SubmitMembershipApplicationInput
+} from "~/server/membership/types";
+import {
+  CreateMembershipTierInput,
+  MembershipTier,
+  UpdateMembershipTierInput
+} from "~/server/membershipTier/types";
+import { CreateUserInput, UpdateUserInput, User } from "~/server/user/types";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids

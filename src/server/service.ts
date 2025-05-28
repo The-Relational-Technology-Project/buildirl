@@ -28,7 +28,7 @@ import {
 import {
   FormQuestionsSchema,
   FormResponsesSchema
-} from "~/server/membership/types/form";
+} from "~/server/club/types/form";
 import { parseAsZodType } from "~/utils/zod";
 import { asNullFilteredList, stringify } from "~/utils";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
@@ -49,10 +49,10 @@ import {
   DEFAULT_APPLICATION_QUESTIONS,
   DEFAULT_FREE_MEMBERSHIP_TIER,
   DEFAULT_CLUB_FAQS
-} from "~/server/membership/defaults";
+} from "~/server/common/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailClient } from "~/server/email/client/types";
-import { FAQsSchema } from "~/server/membership/types";
+import { FAQsSchema } from "~/server/club/types";
 import UserGetPayload = Prisma.UserGetPayload;
 import Decimal = Prisma.Decimal;
 const logger = rootLogger.child({ module: "mainService" });

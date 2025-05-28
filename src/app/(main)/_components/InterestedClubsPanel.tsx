@@ -2,7 +2,8 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { Stack, Text, Title } from "@mantine/core";
-import { Club, Membership } from "~/server/membership/types";
+import { Club } from "~/server/club/types";
+import { Membership } from "~/server/membership/types";
 import ClubCard from "~/app/(main)/_components/ClubCard";
 import { WelcomeImage } from "~/client/components/Images";
 import { useMatches } from "@mantine/core";
@@ -69,7 +70,7 @@ export default function InterestedClubsPanel() {
   }
 
   const membershipApplications = userMemberships.data!.filter(
-    (m) => m.status === "PENDING"
+    (m: Membership) => m.status === "PENDING"
   );
 
   if (

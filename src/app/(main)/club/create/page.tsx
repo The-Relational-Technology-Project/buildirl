@@ -2,7 +2,7 @@
 
 import { api } from "~/trpc/react";
 import { Stack, TextInput, Title, Paper, StackProps, Box } from "@mantine/core";
-import { ClubNameSchema, ClubPublicIdSchema } from "~/server/membership/types";
+import { ClubNameSchema, ClubPublicIdSchema } from "~/server/club/types";
 import { useForm } from "@mantine/form";
 import React from "react";
 import { safeValidateSchema } from "~/utils/zod";
@@ -12,7 +12,7 @@ import PrimaryButton from "~/client/components/PrimaryButton";
 import { handleDefaultMutationError } from "~/client/logger";
 import PrefixedInput from "~/client/components/PrefixedInput";
 import LocationSelect from "~/client/components/LocationSelect";
-import { CitySchema } from "~/server/membership/types/location";
+import { CitySchema } from "~/server/club/types/location";
 
 function CreateClubForm(props: StackProps) {
   const router = useRouter();

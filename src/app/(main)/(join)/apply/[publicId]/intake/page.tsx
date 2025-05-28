@@ -26,7 +26,7 @@ import {
   FormResponse,
   FormResponses,
   FormResponsesSchema
-} from "~/server/membership/types/form";
+} from "~/server/club/types/form";
 import { assertAsString, assertAsStringArray, strictParseInt } from "~/utils";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";

@@ -3,7 +3,7 @@ import { type Maybe } from "~/utils/types";
 import createStorageClient from "~/client/utils/storageClient";
 import { ActionIcon, AvatarProps, Box, FileInput } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons-react";
-import { User } from "~/server/membership/types";
+import { User } from "~/server/user/types";
 import UserAvatar from "~/client/components/UserAvatar";
 import { logger, notifyError } from "~/client/logger";
 import { stringify } from "~/utils";

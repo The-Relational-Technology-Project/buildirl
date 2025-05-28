@@ -1,4 +1,4 @@
-import { CreateClubInput } from "~/server/membership/types";
+import { CreateClubInput } from "~/server/club/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { idAsNumber, isDefaultFreeTier, Maybe } from "~/utils/types";

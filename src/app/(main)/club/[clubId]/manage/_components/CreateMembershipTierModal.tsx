@@ -1,12 +1,9 @@
 import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
-import {
-  Club,
-  LongTextSchema,
-  MembershipTierNameSchema,
-  MonetaryValueSchema
-} from "~/server/membership/types";
+import { LongTextSchema, MonetaryValueSchema } from "~/server/common/types";
+import { Club } from "~/server/club/types";
+import { MembershipTierNameSchema } from "~/server/membershipTier/types";
 import {
   Button,
   Modal,
