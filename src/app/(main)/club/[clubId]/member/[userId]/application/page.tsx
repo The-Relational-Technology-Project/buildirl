@@ -341,17 +341,26 @@ export default function MemberApplication() {
               isPending={isPending}
             />
             
-            {/* Actions Section */}
-            <MemberActionsCard 
-              clubId={clubId} 
-              pendingMembership={pendingMembership}
-              activeMembership={activeMembership}
-            />
+            {/* Application Actions Section - Only for pending memberships */}
+            {pendingMembership && (
+              <MemberActionsCard 
+                clubId={clubId} 
+                pendingMembership={pendingMembership}
+              />
+            )}
             
             {/* Q&A Section */}
             <ApplicationResponsesCard 
               membership={userMembership}
             />
+            
+            {/* Member Management Section - Only for active memberships */}
+            {activeMembership && (
+              <MemberActionsCard 
+                clubId={clubId} 
+                activeMembership={activeMembership}
+              />
+            )}
           </Stack>
         </Center>
       </WithLocalNavigationHeader>
