@@ -6,20 +6,26 @@ import {
   securedProcedure,
   securedProcedureWithAbilityFor
 } from "~/server/api/trpc";
-import {
-  CreateClubInputSchema,
-  CreateMembershipTierInputSchema,
-  CreateUserInputSchema,
-  DeactivateMembershipInputSchema,
-  SubmitMembershipApplicationInputSchema,
-  UpdateClubApplicationQuestionsInputSchema,
-  UpdateClubDisplayImageUrlsInputSchema,
-  UpdateClubInputSchema,
-  UpdateMembershipTierInputSchema,
-  UpdateUserInputSchema
-} from "~/server/membership/types";
 import { subject } from "@casl/ability";
 import { TRPCError } from "@trpc/server";
+import {
+  CreateUserInputSchema,
+  UpdateUserInputSchema
+} from "~/server/user/types";
+import {
+  CreateClubInputSchema,
+  UpdateClubApplicationQuestionsInputSchema,
+  UpdateClubDisplayImageUrlsInputSchema,
+  UpdateClubInputSchema
+} from "~/server/club/types";
+import {
+  CreateMembershipTierInputSchema,
+  UpdateMembershipTierInputSchema
+} from "~/server/membershipTier/types";
+import {
+  DeactivateMembershipInputSchema,
+  SubmitMembershipApplicationInputSchema
+} from "~/server/membership/types";
 
 export const mainRouter = createTRPCRouter({
   user: securedProcedure.query(({ ctx }) => {

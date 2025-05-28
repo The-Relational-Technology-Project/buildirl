@@ -1,31 +1,6 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import {
-  Club,
-  ClubStatistics,
-  CreateClubInput,
-  CreateMembershipTierInput,
-  CreateUserInput,
-  InstagramHandleSchema,
-  MembershipService,
-  Membership,
-  MembershipTier,
-  MutationResult,
-  NO_ID_MUTATION_RESULT,
-  SubmitMembershipApplicationInput,
-  UpdateClubApplicationQuestionsInput,
-  UpdateClubInput,
-  UpdateMembershipTierInput,
-  UpdateUserInput,
-  UrlSchema,
-  User,
-  MembershipStatus,
-  Email,
-  UpdateClubDisplayImageUrlsInput,
-  DeactivateMembershipInput,
-  ClubFollower
-} from "~/server/membership/types";
-import {
   FormQuestionsSchema,
   FormResponsesSchema
 } from "~/server/club/types/form";
@@ -52,10 +27,51 @@ import {
 } from "~/server/common/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailClient } from "~/server/email/client/types";
-import { FAQsSchema } from "~/server/club/types";
+import {
+  Club,
+  ClubService,
+  ClubStatistics,
+  CreateClubInput,
+  FAQsSchema,
+  UpdateClubApplicationQuestionsInput,
+  UpdateClubDisplayImageUrlsInput,
+  UpdateClubInput
+} from "~/server/club/types";
 import UserGetPayload = Prisma.UserGetPayload;
 import Decimal = Prisma.Decimal;
+import {
+  CreateUserInput,
+  UpdateUserInput,
+  User,
+  UserService
+} from "~/server/user/types";
+import {
+  CreateMembershipTierInput,
+  MembershipTier,
+  MembershipTierService,
+  UpdateMembershipTierInput
+} from "~/server/membershipTier/types";
+import {
+  ClubFollower,
+  DeactivateMembershipInput,
+  Membership,
+  MembershipService,
+  MembershipStatus,
+  SubmitMembershipApplicationInput
+} from "~/server/membership/types";
+import {
+  Email,
+  InstagramHandleSchema,
+  MutationResult,
+  NO_ID_MUTATION_RESULT,
+  UrlSchema
+} from "~/server/common/types";
 const logger = rootLogger.child({ module: "mainService" });
+
+export type MainService = UserService &
+  ClubService &
+  MembershipTierService &
+  MembershipService;
 
 // TODO it is time soon to break this file down by entities
 export function createMainService(
@@ -63,7 +79,7 @@ export function createMainService(
   stripeClient: StripeClient,
   emailClient: EmailClient,
   accountIdResolver: AccountIdResolver
-): MembershipService {
+): MainService {
   const USER_SELECT = {
     id: true,
     firstName: true,

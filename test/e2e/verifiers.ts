@@ -1,13 +1,11 @@
-import {
-  type MembershipService,
-  type Membership
-} from "~/server/membership/types";
+import { type Membership } from "~/server/membership/types";
 import { type SystemState } from "./systemState";
 import { orderByBigIntId, orderByNumberId } from "./utils";
 import { OmitRecursively } from "~/utils/omit";
 import { EmailService, EmailTemplateId } from "~/server/email/types";
 import { User } from "~/server/user/types";
 import { Club } from "~/server/club/types";
+import { MainService } from "~/server/service";
 
 function createVerifiers() {
   function userWithoutCreatedAt(
@@ -21,11 +19,7 @@ function createVerifiers() {
     };
   }
 
-  async function verifyUser(
-    userId: number,
-    r: MembershipService,
-    m: SystemState
-  ) {
+  async function verifyUser(userId: number, r: MainService, m: SystemState) {
     const user = await r.getUser(userId);
     expect(userWithoutCreatedAt(user)).toEqual(m.getUser(userId));
   }
@@ -53,11 +47,7 @@ function createVerifiers() {
     };
   }
 
-  async function verifyClub(
-    clubId: number,
-    r: MembershipService,
-    m: SystemState
-  ) {
+  async function verifyClub(clubId: number, r: MainService, m: SystemState) {
     const expected = m.getClub(clubId);
     // main entity query
     const club = await r.getClub(clubId);
@@ -69,7 +59,7 @@ function createVerifiers() {
 
   async function verifyUserOwnedClub(
     userId: number,
-    r: MembershipService,
+    r: MainService,
     m: SystemState
   ) {
     const userOwnedClubs = await r.getUserOwnedClubs(userId);
@@ -80,7 +70,7 @@ function createVerifiers() {
 
   async function verifyClubMemberships(
     clubId: number,
-    r: MembershipService,
+    r: MainService,
     m: SystemState
   ) {
     await verifyActiveMembershipsForClub(clubId, r, m);
@@ -106,7 +96,7 @@ function createVerifiers() {
 
   async function verifyActiveMembershipsForClub(
     clubId: number,
-    r: MembershipService,
+    r: MainService,
     m: SystemState
   ) {
     const memberships = await r.getActiveMembershipsForClub(clubId, true);
@@ -117,7 +107,7 @@ function createVerifiers() {
 
   async function verifyMembershipApplicationsForClub(
     clubId: number,
-    r: MembershipService,
+    r: MainService,
     m: SystemState
   ) {
     const memberships = await r.getMembershipApplicationsForClub(clubId);
@@ -128,7 +118,7 @@ function createVerifiers() {
 
   async function verifyClubStatistics(
     clubId: number,
-    r: MembershipService,
+    r: MainService,
     m: SystemState
   ) {
     const clubStatistics = await r.getClubStatistics(clubId);
@@ -137,7 +127,7 @@ function createVerifiers() {
 
   async function verifyUserMemberships(
     userId: number,
-    r: MembershipService,
+    r: MainService,
     m: SystemState
   ) {
     const memberships = await r.getUserMemberships(userId);
@@ -148,7 +138,7 @@ function createVerifiers() {
 
   async function verifyClubFollowers(
     clubId: number,
-    r: MembershipService,
+    r: MainService,
     m: SystemState
   ) {
     const followers = await r.getClubFollowers(clubId);
@@ -160,7 +150,7 @@ function createVerifiers() {
 
   async function verifyUserFollowedClubs(
     userId: number,
-    r: MembershipService,
+    r: MainService,
     m: SystemState
   ) {
     const followedClubs = await r.getUserFollowedClubs(userId);

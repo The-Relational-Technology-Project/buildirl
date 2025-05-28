@@ -6,8 +6,7 @@ import { type StartedTestContainer } from "testcontainers";
 import { SystemState } from "./systemState";
 import { allCommands } from "./commands";
 import { rootLogger } from "~/logger";
-import { MembershipService } from "~/server/membership/types";
-import { createMainService } from "~/server/service";
+import { createMainService, MainService } from "~/server/service";
 import { createFakeStripeClient } from "./fakeStripeClient";
 import { PaymentService } from "~/server/payments/types";
 import { createPaymentService } from "~/server/payments/service";
@@ -21,7 +20,7 @@ import { EmailService } from "~/server/email/types";
 import { createEmailService } from "~/server/email/service";
 
 export type Services = {
-  main: MembershipService;
+  main: MainService;
   payment: PaymentService;
   paymentEvents: PaymentEventProcessor;
   email: EmailService;
@@ -38,7 +37,7 @@ function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {
 // TODO run this on gitlab-ci with docker-in-docker set-up
 describe("mainService", () => {
   let container: StartedTestContainer;
-  let mainService: MembershipService;
+  let mainService: MainService;
   let paymentService: PaymentService;
   let paymentEventProcessor: PaymentEventProcessor;
   let emailService: EmailService;
