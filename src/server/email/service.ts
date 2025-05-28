@@ -6,7 +6,10 @@ import {
 } from "~/server/email/types";
 import { PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
-import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/service/types";
+import {
+  MutationResult,
+  NO_ID_MUTATION_RESULT
+} from "~/server/membership/types";
 import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
 

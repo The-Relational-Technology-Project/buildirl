@@ -1,4 +1,4 @@
-import { FormQuestions, FormQuestionType } from "~/server/service/types/form";
+import { FormQuestions, FormQuestionType } from "~/server/club/types/form";
 
 export const DEFAULT_FREE_MEMBERSHIP_TIER = {
   name: "The Club Crew",

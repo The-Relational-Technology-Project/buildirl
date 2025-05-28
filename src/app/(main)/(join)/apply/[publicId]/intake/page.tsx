@@ -26,7 +26,7 @@ import {
   FormResponse,
   FormResponses,
   FormResponsesSchema
-} from "~/server/service/types/form";
+} from "~/server/membership/types/form";
 import { assertAsString, assertAsStringArray, strictParseInt } from "~/utils";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";

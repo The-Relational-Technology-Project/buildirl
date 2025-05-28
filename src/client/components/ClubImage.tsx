@@ -1,4 +1,4 @@
-import { Club } from "~/server/service/types";
+import { Club } from "~/server/membership/types";
 import { ImageProps, Image, Box } from "@mantine/core";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";

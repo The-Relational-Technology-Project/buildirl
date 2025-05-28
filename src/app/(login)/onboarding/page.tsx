@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
-import { RequiredStringSchema } from "~/server/service/types";
+import { RequiredStringSchema } from "~/server/membership/types";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";

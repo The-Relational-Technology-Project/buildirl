@@ -17,16 +17,16 @@ import {
   ClubStatistics,
   UpdateClubDisplayImageUrlsInput,
   FAQs
-} from "~/server/service/types";
+} from "~/server/membership/types";
 import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
-import { FormQuestions, FormResponses } from "~/server/service/types/form";
+import { FormQuestions, FormResponses } from "~/server/membership/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
 import {
   DEFAULT_APPLICATION_QUESTIONS,
   DEFAULT_FREE_MEMBERSHIP_TIER,
   DEFAULT_CLUB_FAQS
-} from "~/server/service/defaults";
+} from "~/server/membership/defaults";
 import { EmailTemplateType, SetEmailTemplateInput } from "~/server/email/types";
 import { EmailTemplate } from "~/server/email/types";
 import { EmailTemplateId } from "~/server/email/types";

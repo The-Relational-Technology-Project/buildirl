@@ -17,7 +17,7 @@ import {
   UpdateClubInputSchema,
   UpdateMembershipTierInputSchema,
   UpdateUserInputSchema
-} from "~/server/service/types";
+} from "~/server/membership/types";
 import { subject } from "@casl/ability";
 import { TRPCError } from "@trpc/server";
 

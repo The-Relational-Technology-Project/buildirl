@@ -1,4 +1,4 @@
-import { Club } from "~/server/service/types";
+import { Club } from "~/server/membership/types";
 import {
   Box,
   Button,

@@ -1,4 +1,4 @@
-import { CreateMembershipTierInput } from "~/server/service/types";
+import { CreateMembershipTierInput } from "~/server/membership/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { idAsNumber, Maybe } from "~/utils/types";

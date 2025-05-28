@@ -1,6 +1,6 @@
 import { Select, SelectProps, Stack, Text } from "@mantine/core";
 import React from "react";
-import { CITIES } from "~/server/service/types/location";
+import { CITIES } from "~/server/membership/types/location";
 
 type LocationSelectProps = {
   error: React.ReactNode;

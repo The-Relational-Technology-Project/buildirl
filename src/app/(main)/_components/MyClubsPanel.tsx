@@ -4,7 +4,7 @@ import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { Stack, Text, Title, Box, useMatches } from "@mantine/core";
 import { WelcomeImage } from "~/client/components/Images";
-import { Club, Membership } from "~/server/service/types";
+import { Club, Membership } from "~/server/membership/types";
 import ClubCard from "~/app/(main)/_components/ClubCard";
 import PrimaryButton from "~/client/components/PrimaryButton";
 

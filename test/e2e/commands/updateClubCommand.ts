@@ -1,4 +1,4 @@
-import { UpdateClubInput } from "~/server/service/types";
+import { UpdateClubInput } from "~/server/membership/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { Maybe } from "~/utils/types";

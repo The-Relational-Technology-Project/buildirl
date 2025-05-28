@@ -1,7 +1,7 @@
 import { Image, Box, BoxProps, MantineRadius } from "@mantine/core";
 import { storageClient } from "~/client/utils/storageClient";
 import React from "react";
-import { User } from "~/server/service/types";
+import { User } from "~/server/membership/types";
 
 export type UserImageProps = {
   user: User;

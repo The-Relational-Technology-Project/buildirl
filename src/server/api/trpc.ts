@@ -13,7 +13,7 @@ import { ZodError } from "zod";
 
 import { prisma } from "~/server/prisma";
 import { Maybe } from "~/utils/types";
-import { createMainService } from "~/server/service/service";
+import { createMainService } from "~/server/membership/service";
 import { logger } from "~/client/logger";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { defineAbilityFor } from "~/server/api/authz/abilities";

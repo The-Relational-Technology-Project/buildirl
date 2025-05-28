@@ -1,4 +1,4 @@
-import { LongTextSchema, User } from "~/server/service/types";
+import { LongTextSchema, User } from "~/server/membership/types";
 import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";

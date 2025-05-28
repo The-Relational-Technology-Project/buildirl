@@ -1,4 +1,4 @@
-import { SubmitMembershipApplicationInput } from "~/server/service/types";
+import { SubmitMembershipApplicationInput } from "~/server/membership/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { idAsBigInt, Maybe } from "~/utils/types";

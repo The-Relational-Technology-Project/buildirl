@@ -1,4 +1,4 @@
-import { User } from "~/server/service/types";
+import { User } from "~/server/membership/types";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";

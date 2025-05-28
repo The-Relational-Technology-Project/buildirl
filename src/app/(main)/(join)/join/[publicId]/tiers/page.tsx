@@ -15,7 +15,7 @@ import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { MembershipTier } from "~/server/service/types";
+import { MembershipTier } from "~/server/membership/types";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { Carousel } from "@mantine/carousel";
 import { useMounted } from "@mantine/hooks";

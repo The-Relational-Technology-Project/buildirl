@@ -5,7 +5,7 @@ import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
 import { Services } from "../system.test";
-import { DeactivateMembershipInput } from "~/server/service/types";
+import { DeactivateMembershipInput } from "~/server/membership/types";
 
 export default class DeactivateMembershipCommand
   implements Command<SystemState, Services>

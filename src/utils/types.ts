@@ -6,7 +6,7 @@ import {
   Membership,
   MembershipTier,
   UpdateMembershipTierInput
-} from "~/server/service/types";
+} from "~/server/membership/types";
 
 export type Maybe<T> = T | null;
 

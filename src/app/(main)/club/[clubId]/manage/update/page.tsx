@@ -4,7 +4,7 @@ import {
   Club,
   UpdateClubInput,
   UpdateClubInputSchema
-} from "~/server/service/types";
+} from "~/server/membership/types";
 import { api } from "~/trpc/react";
 import {
   Button,
@@ -32,7 +32,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import PrefixedInput from "~/client/components/PrefixedInput";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import LocationSelect from "~/client/components/LocationSelect";
-import { City } from "~/server/service/types/location";
+import { City } from "~/server/membership/types/location";
 
 function BasicInfoSection() {
   const {

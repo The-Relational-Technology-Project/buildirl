@@ -19,7 +19,7 @@ import {
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
-import { FormQuestionType, FormResponse } from "~/server/service/types/form";
+import { FormQuestionType, FormResponse } from "~/server/membership/types/form";
 
 interface ApplicationResponsesSectionProps {
   userId: number;

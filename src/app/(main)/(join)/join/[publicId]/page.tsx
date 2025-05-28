@@ -15,7 +15,6 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
-import { Club, InstagramHandle, Url } from "~/server/service/types";
 import {
   activeMembershipForClub,
   Maybe,

@@ -1,4 +1,4 @@
-import { Club, User } from "~/server/service/types";
+import { Club, User } from "~/server/membership/types";
 import { Box, Image, useMatches } from "@mantine/core";
 import UserAvatar from "~/client/components/UserAvatar";
 import ClubImage from "~/client/components/ClubImage";

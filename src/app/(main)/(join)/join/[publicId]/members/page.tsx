@@ -4,7 +4,7 @@ import { Stack, Group, Text, Divider } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
 import { useParams, useRouter } from "next/navigation";
-import { User } from "~/server/service/types";
+import { User } from "~/server/membership/types";
 import { QueryError } from "~/client/utils/QueryError";
 import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";

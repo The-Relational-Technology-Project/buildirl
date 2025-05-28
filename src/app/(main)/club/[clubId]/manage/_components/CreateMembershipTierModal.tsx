@@ -6,7 +6,7 @@ import {
   LongTextSchema,
   MembershipTierNameSchema,
   MonetaryValueSchema
-} from "~/server/service/types";
+} from "~/server/membership/types";
 import {
   Button,
   Modal,
