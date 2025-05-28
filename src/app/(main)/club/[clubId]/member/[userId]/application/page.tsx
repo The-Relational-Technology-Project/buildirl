@@ -324,7 +324,6 @@ export default function MemberApplication() {
               user={userQuery.data!}
               membership={userMembership}
               isPending={isPending}
-              width={600}
             />
             
             {/* Actions Section */}

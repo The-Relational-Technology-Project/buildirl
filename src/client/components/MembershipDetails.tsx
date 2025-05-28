@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Group, Stack, Text, Title, useMantineTheme, useMantineColorScheme } from "@mantine/core";
+import { Box, Group, Stack, Text, Title, SimpleGrid, useMantineTheme, useMantineColorScheme } from "@mantine/core";
 import { IconMail, IconCalendar, IconCoin } from "@tabler/icons-react";
 import { Membership } from "~/server/service/types";
 import { toDisplayDate } from "~/client/utils";
@@ -22,9 +22,9 @@ export default function MembershipDetails({
 
   return (
     <Stack gap="md">
-      <Title order={4} fw={500}>{title}</Title>
+      <Title order={4} fw={500} ta="center">{title}</Title>
       
-      <Stack gap="sm">
+      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
         <Group gap="xs">
           <IconCoin size={18} color={iconColor} />
           <Text size="sm" fw={500}>Tier:</Text>
@@ -58,7 +58,7 @@ export default function MembershipDetails({
             </Box>
           </Group>
         )}
-      </Stack>
+      </SimpleGrid>
     </Stack>
   );
 } 
