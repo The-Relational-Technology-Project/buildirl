@@ -148,7 +148,6 @@ function MemberActionsCard({ clubId, pendingMembership, activeMembership, ...pro
               </Button>
               <Button
                 color="red"
-                variant="outline"
                 size="lg"
                 onClick={handleDeclineMembership}
                 loading={declineMembershipApplication.isPending}
@@ -167,7 +166,6 @@ function MemberActionsCard({ clubId, pendingMembership, activeMembership, ...pro
             <Button
               color="red"
               size="lg"
-              variant="outline"
               fullWidth
               onClick={handleCancelMembership}
               loading={deactivateMembership.isPending}
