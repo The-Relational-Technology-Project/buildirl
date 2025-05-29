@@ -13,9 +13,9 @@ import {
   PaperProps,
   Stack,
   Text,
+  TextInput,
+  Textarea,
   Title,
-  useMantineTheme,
-  useMantineColorScheme,
   Radio,
   Checkbox
 } from "@mantine/core";
@@ -188,34 +188,26 @@ function ApplicationResponsesCard({
   membership,
   ...props
 }: ApplicationResponsesCardProps & PaperProps) {
-  const theme = useMantineTheme();
-  const { colorScheme } = useMantineColorScheme();
-
   const renderResponse = (response: FormResponse) => {
-    const responseBoxStyle = {
-      backgroundColor: colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
-      border: "1px solid",
-      borderColor: colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
-    };
-
     switch (response.type) {
       case FormQuestionType.SHORT_TEXT:
         return (
-          <Box>
-            <Text size="sm" fw={500} mb="xs">{response.question}</Text>
-            <Text size="sm" p="sm" style={responseBoxStyle}>
-              {response.response}
-            </Text>
-          </Box>
+          <TextInput
+            label={response.question}
+            value={response.response}
+            disabled
+            readOnly
+          />
         );
       case FormQuestionType.LONG_TEXT:
         return (
-          <Box>
-            <Text size="sm" fw={500} mb="xs">{response.question}</Text>
-            <Text size="sm" p="sm" style={{ ...responseBoxStyle, whiteSpace: "pre-wrap" }}>
-              {response.response}
-            </Text>
-          </Box>
+          <Textarea
+            label={response.question}
+            value={response.response}
+            disabled
+            readOnly
+            autosize
+          />
         );
       case FormQuestionType.SINGLE_SELECT:
         return (
