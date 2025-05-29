@@ -1,10 +1,7 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { asNullFilteredList, stringify } from "~/utils";
-import {
-  isDefaultFreeTier,
-  isPrismaResultDefaultFreeTier
-} from "~/utils/types";
+import { isDefaultFreeTier } from "~/utils/types";
 import {
   StripeClient,
   UpsertNullablePriceInput
@@ -19,6 +16,7 @@ import {
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import Decimal = Prisma.Decimal;
 import { Maybe } from "~/utils/types";
+import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
 
 const logger = rootLogger.child({ module: "membershipTierService" });
 

@@ -1,6 +1,6 @@
 import { MembershipTier } from "~/server/membershipTier/types";
-import { Prisma } from ".prisma/client";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
+import { Prisma } from "@prisma/client";
 
 export const MEMBERSHIP_TIER_SELECT = {
   id: true,
@@ -35,4 +35,11 @@ export function orderedByCost(
   return membershipTiers
     .sort((a, b) => a.id - b.id)
     .sort((a, b) => a.costPerMonthInUSD - b.costPerMonthInUSD);
+}
+
+export function isPrismaResultDefaultFreeTier(membershipTier: {
+  costPerMonthInUSD: Prisma.Decimal;
+}): boolean {
+  // this is the definition of default free tier
+  return membershipTier.costPerMonthInUSD.toNumber() === 0;
 }

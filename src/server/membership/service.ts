@@ -1,7 +1,7 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
-import { isPrismaResultDefaultFreeTier, Maybe } from "~/utils/types";
+import { Maybe } from "~/utils/types";
 import { StripeClient } from "~/server/payments/stripe/types";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailClient } from "~/server/email/client/types";
@@ -21,6 +21,7 @@ import {
 } from "~/server/utils/types";
 import { USER_SELECT } from "~/server/user/service";
 import { asMembership, MEMBERSHIP_SELECT } from "~/server/membership/utils";
+import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
 
 const logger = rootLogger.child({ module: "membershipService" });
 

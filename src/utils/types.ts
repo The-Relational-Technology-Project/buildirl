@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import {
   CreateMembershipTierInput,
@@ -45,13 +44,6 @@ export function isDefaultFreeTier(
 ): boolean {
   // this is the definition of default free tier
   return membershipTier.costPerMonthInUSD === 0;
-}
-
-export function isPrismaResultDefaultFreeTier(membershipTier: {
-  costPerMonthInUSD: Prisma.Decimal;
-}): boolean {
-  // this is the definition of default free tier
-  return membershipTier.costPerMonthInUSD.toNumber() === 0;
 }
 
 export function membershipForClub(
