@@ -27,13 +27,14 @@ import { Membership } from "~/server/membership/types";
 import MemberProfile from "~/client/components/MemberProfile";
 import { handleDefaultMutationError } from "~/client/logger";
 import { useMounted } from "@mantine/hooks";
+import { Maybe } from "~/utils/types";
 
 
 function findUserMembership(
   userId: number,
   membershipApplications: Membership[],
   activeMemberships: Membership[]
-): Membership | null {
+): Maybe<Membership> {
   return [...membershipApplications, ...activeMemberships].find(
     (mem) => mem.user.id === userId
   ) || null;
