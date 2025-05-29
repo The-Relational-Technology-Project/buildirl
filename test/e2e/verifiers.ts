@@ -145,7 +145,7 @@ function createVerifiers() {
     r: Services,
     m: SystemState
   ) {
-    const followers = await r.membership.getClubFollowers(clubId);
+    const followers = await r.following.getClubFollowers(clubId);
     expect(
       // we only compare user not email or createdAt dates
       orderByNumberId(followers.map((f) => userWithoutCreatedAt(f.user)))
@@ -157,7 +157,7 @@ function createVerifiers() {
     r: Services,
     m: SystemState
   ) {
-    const followedClubs = await r.club.getUserFollowedClubs(userId);
+    const followedClubs = await r.following.getUserFollowedClubs(userId);
     expect(
       orderByNumberId(followedClubs.map((c) => clubWithoutCreatedAt(c)))
     ).toEqual(orderByNumberId(m.getUserFollowedClubs(userId)));

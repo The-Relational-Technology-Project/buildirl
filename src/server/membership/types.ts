@@ -16,7 +16,6 @@ type MembershipQueries = {
     includeEmail: boolean
   ): Promise<Membership[]>;
   getMembershipApplicationsForClub(clubId: number): Promise<Membership[]>;
-  getClubFollowers(clubId: number): Promise<ClubFollower[]>;
 };
 
 export type MembershipStatus =
@@ -43,12 +42,6 @@ export type Membership = {
   createdAt: Date;
 };
 
-export type ClubFollower = {
-  user: User;
-  email: Email;
-  createdAt: Date;
-};
-
 type MembershipMutations = {
   submitMembershipApplication(
     membershipTierId: number,
@@ -62,8 +55,6 @@ type MembershipMutations = {
     input: DeactivateMembershipInput
   ): Promise<MutationResult>;
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
-  followClub(userId: number, clubId: number): Promise<MutationResult>;
-  unfollowClub(userId: number, clubId: number): Promise<MutationResult>;
 };
 
 export const SubmitMembershipApplicationInputSchema = z.object({

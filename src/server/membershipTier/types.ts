@@ -21,6 +21,7 @@ type MembershipTierMutations = {
   deleteMembershipTier(id: number): Promise<MutationResult>;
   publishMembershipTier(id: number): Promise<MutationResult>;
   unpublishMembershipTier(id: number): Promise<MutationResult>;
+  // internal
   createDefaultFreeMembershipTier(
     clubId: number,
     tx: Prisma.TransactionClient

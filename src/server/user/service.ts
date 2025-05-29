@@ -7,7 +7,12 @@ import {
   User,
   UserService
 } from "~/server/user/types";
-import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
+import {
+  Email,
+  MutationResult,
+  NO_ID_MUTATION_RESULT
+} from "~/server/utils/types";
+import { Maybe } from "~/utils/types";
 
 const logger = rootLogger.child({ module: "userService" });
 
@@ -32,6 +37,30 @@ export function createUserService(prisma: PrismaClient): UserService {
       return user;
     } catch (e) {
       logger.error(e, `failed to query user with id ${id}`);
+      throw e;
+    }
+  }
+
+  async function getUserEmail(userId: number): Promise<Maybe<Email>> {
+    return prisma.$transaction(async (tx) => {
+      return getUserEmailInTransaction(userId, tx);
+    });
+  }
+
+  async function getUserEmailInTransaction(
+    userId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<Maybe<Email>> {
+    try {
+      const userSettings = await tx.userSettings.findUniqueOrThrow({
+        where: {
+          userId: userId
+        }
+      });
+      logger.info(`queried user email for user with id ${userId}`);
+      return userSettings.email;
+    } catch (e) {
+      logger.error(e, `failed to query user email for user with id ${userId}`);
       throw e;
     }
   }
@@ -119,6 +148,8 @@ export function createUserService(prisma: PrismaClient): UserService {
 
   return {
     getUser,
+    getUserEmail,
+    getUserEmailInTransaction,
     createUser,
     updateUser
   };

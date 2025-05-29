@@ -25,12 +25,15 @@ import { createUserService } from "~/server/user/service";
 import { createClubService } from "~/server/club/service";
 import { createMembershipService } from "~/server/membership/service";
 import { createMembershipTierService } from "~/server/membershipTier/service";
+import { FollowingService } from "~/server/following/types";
+import { createFollowingService } from "~/server/following/service";
 
 export type Services = {
   user: UserService;
   club: ClubService;
   membershipTier: MembershipTierService;
   membership: MembershipService;
+  following: FollowingService;
   payment: PaymentService;
   paymentEvents: PaymentEventProcessor;
   email: EmailService;
@@ -51,6 +54,7 @@ describe("service", () => {
   let clubService: ClubService;
   let membershipTierService: MembershipTierService;
   let membershipService: MembershipService;
+  let followingService: FollowingService;
   let paymentService: PaymentService;
   let paymentEventProcessor: PaymentEventProcessor;
   let emailService: EmailService;
@@ -79,8 +83,11 @@ describe("service", () => {
       accountIdResolver
     );
     clubService = createClubService(prisma, membershipTierService);
+    followingService = createFollowingService(prisma, userService);
     membershipService = createMembershipService(
       prisma,
+      userService,
+      followingService,
       fakeStripeClient,
       createDummyEmailClient(),
       accountIdResolver
@@ -115,6 +122,7 @@ describe("service", () => {
               club: clubService,
               membershipTier: membershipTierService,
               membership: membershipService,
+              following: followingService,
               payment: paymentService,
               paymentEvents: paymentEventProcessor,
               email: emailService

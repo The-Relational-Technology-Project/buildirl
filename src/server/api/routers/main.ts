@@ -345,22 +345,22 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.membership.getClubFollowers(input.clubId);
+      return ctx.service.following.getClubFollowers(input.clubId);
     }),
 
   userFollowedClubs: securedProcedure.query(({ ctx }) => {
-    return ctx.service.club.getUserFollowedClubs(ctx.user.userId);
+    return ctx.service.following.getUserFollowedClubs(ctx.user.userId);
   }),
 
   followClub: securedProcedure
     .input(z.object({ clubId: z.number() }))
     .mutation(({ ctx, input }) => {
-      return ctx.service.membership.followClub(ctx.user.userId, input.clubId);
+      return ctx.service.following.followClub(ctx.user.userId, input.clubId);
     }),
 
   unfollowClub: securedProcedure
     .input(z.object({ clubId: z.number() }))
     .mutation(({ ctx, input }) => {
-      return ctx.service.membership.unfollowClub(ctx.user.userId, input.clubId);
+      return ctx.service.following.unfollowClub(ctx.user.userId, input.clubId);
     })
 });

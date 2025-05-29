@@ -36,7 +36,7 @@ export default class UnfollowClubCommand
       m.getFollowingUserIdsForClub(this.clubId)
     );
 
-    await r.membership.unfollowClub(this.userId, this.clubId);
+    await r.following.unfollowClub(this.userId, this.clubId);
 
     m.unfollowClub(this.userId, this.clubId);
 

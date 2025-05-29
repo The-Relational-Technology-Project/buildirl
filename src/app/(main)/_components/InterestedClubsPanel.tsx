@@ -70,7 +70,7 @@ export default function InterestedClubsPanel() {
   }
 
   const membershipApplications = userMemberships.data!.filter(
-    (m: Membership) => m.status === "PENDING"
+    (m) => m.status === "PENDING"
   );
 
   if (

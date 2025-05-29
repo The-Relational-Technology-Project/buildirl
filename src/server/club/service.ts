@@ -46,33 +46,6 @@ export function createClubService(
     }
   }
 
-  async function getUserFollowedClubs(userId: number): Promise<Club[]> {
-    try {
-      const results = await prisma.clubFollowing.findMany({
-        where: {
-          userId: userId
-        },
-        select: {
-          club: {
-            select: CLUB_SELECT
-          }
-        }
-      });
-
-      const clubs = results.map((r) => asClub(r.club));
-      logger.info(
-        `queried followed clubs for user with userId ${userId} with result ${stringify(clubs)}`
-      );
-      return clubs;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to query followed clubs for user with userId ${userId}`
-      );
-      throw e;
-    }
-  }
-
   async function getClubByPublicId(publicId: string): Promise<Club> {
     try {
       const result = await prisma.club.findUniqueOrThrow({
@@ -297,7 +270,6 @@ export function createClubService(
 
   return {
     getUserOwnedClubs,
-    getUserFollowedClubs,
     getClubByPublicId,
     getClubStatistics,
     getClub,

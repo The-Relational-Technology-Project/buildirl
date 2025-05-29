@@ -80,9 +80,7 @@ export default function MyClubsPanel() {
     return null;
   }
 
-  const activeMemberships = m.data!.filter(
-    (m: Membership) => m.status === "ACTIVE"
-  );
+  const activeMemberships = m.data!.filter((m) => m.status === "ACTIVE");
 
   if (r.data!.length === 0 && activeMemberships.length === 0) {
     return <EmptyClubs />;

@@ -1,15 +1,24 @@
 import {
+  Email,
   LongTextSchema,
   MutationResult,
   RequiredStringSchema
 } from "~/server/utils/types";
 import { z } from "zod";
+import { Maybe } from "~/utils/types";
+import { Prisma } from "@prisma/client";
 
 export type UserService = UserQueries & UserMutations;
 
 export type UserQueries = {
   // top-level
   getUser(id: number): Promise<User>;
+  // internal
+  getUserEmail(userId: number): Promise<Maybe<Email>>;
+  getUserEmailInTransaction(
+    userId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<Maybe<Email>>;
 };
 
 export type User = {

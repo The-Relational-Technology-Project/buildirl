@@ -1,60 +1,32 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
-import { Maybe } from "~/utils/types";
 import { StripeClient } from "~/server/payments/stripe/types";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailClient } from "~/server/email/client/types";
 import {
-  ClubFollower,
   DeactivateMembershipInput,
   Membership,
   MembershipService,
   MembershipStatus,
   SubmitMembershipApplicationInput
 } from "~/server/membership/types";
-import UserGetPayload = Prisma.UserGetPayload;
-import {
-  Email,
-  MutationResult,
-  NO_ID_MUTATION_RESULT
-} from "~/server/utils/types";
-import { USER_SELECT } from "~/server/user/service";
+import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import { asMembership, MEMBERSHIP_SELECT } from "~/server/membership/utils";
 import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
+import { UserService } from "~/server/user/types";
+import { FollowingService } from "~/server/following/types";
 
 const logger = rootLogger.child({ module: "membershipService" });
 
 export function createMembershipService(
   prisma: PrismaClient,
+  userService: UserService,
+  followingService: FollowingService,
   stripeClient: StripeClient,
   emailClient: EmailClient,
   accountIdResolver: AccountIdResolver
 ): MembershipService {
-  async function userEmail(userId: number): Promise<Maybe<Email>> {
-    return prisma.$transaction(async (tx) => {
-      return userEmailInTransaction(userId, tx);
-    });
-  }
-
-  async function userEmailInTransaction(
-    userId: number,
-    tx: Prisma.TransactionClient
-  ): Promise<Maybe<Email>> {
-    try {
-      const userSettings = await tx.userSettings.findUniqueOrThrow({
-        where: {
-          userId: userId
-        }
-      });
-      logger.info(`queried user email for user with id ${userId}`);
-      return userSettings.email;
-    } catch (e) {
-      logger.error(e, `failed to query user email for user with id ${userId}`);
-      throw e;
-    }
-  }
-
   async function getUserMemberships(userId: number): Promise<Membership[]> {
     try {
       const results = await prisma.membership.findMany({
@@ -95,7 +67,10 @@ export function createMembershipService(
       });
       const memberships = await Promise.all(
         results.map(async (r) =>
-          asMembership(r, includeEmail ? await userEmail(r.user.id) : null)
+          asMembership(
+            r,
+            includeEmail ? await userService.getUserEmail(r.user.id) : null
+          )
         )
       );
       logger.info(
@@ -125,7 +100,9 @@ export function createMembershipService(
         }
       });
       const memberships = await Promise.all(
-        results.map(async (r) => asMembership(r, await userEmail(r.user.id)))
+        results.map(async (r) =>
+          asMembership(r, await userService.getUserEmail(r.user.id))
+        )
       );
       logger.info(
         `queried pending memberships for club with clubId ${clubId} with result ${stringify(memberships)}`
@@ -137,64 +114,6 @@ export function createMembershipService(
         `failed to query pending memberships for club with clubId ${clubId}`
       );
       throw e;
-    }
-  }
-
-  async function asClubFollower(
-    r: UserGetPayload<{ select: typeof USER_SELECT }>,
-    createdAt: Date
-  ): Promise<ClubFollower> {
-    const email = await userEmail(r.id);
-    if (!email) {
-      throw new Error(`expected to find email for user ${r.id} but found none`);
-    }
-    return {
-      user: r,
-      email: email,
-      createdAt: createdAt
-    };
-  }
-
-  async function getClubFollowers(clubId: number): Promise<ClubFollower[]> {
-    try {
-      const results = await prisma.clubFollowing.findMany({
-        where: {
-          clubId: clubId
-        },
-        select: {
-          user: {
-            select: USER_SELECT
-          },
-          createdAt: true
-        }
-      });
-
-      const followers = await Promise.all(
-        results.map((r) => asClubFollower(r.user, r.createdAt))
-      );
-      logger.info(
-        `queried followers for club with clubId ${clubId} with result ${stringify(followers)}`
-      );
-      return followers;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to query followers for club with clubId ${clubId}`
-      );
-      throw e;
-    }
-  }
-
-  async function checkUserIsNotClubOwner(userId: number, clubId: number) {
-    const clubOwnerUserId = await prisma.club
-      .findUniqueOrThrow({
-        where: { id: clubId },
-        select: { ownerUserId: true }
-      })
-      .then((r) => r.ownerUserId);
-
-    if (clubOwnerUserId === userId) {
-      throw new Error("user is owner of club");
     }
   }
 
@@ -214,6 +133,19 @@ export function createMembershipService(
 
     if (activeMembershipCount > 0) {
       throw new Error("user already has active membership in club");
+    }
+  }
+
+  async function checkUserIsNotClubOwner(userId: number, clubId: number) {
+    const clubOwnerUserId = await prisma.club
+      .findUniqueOrThrow({
+        where: { id: clubId },
+        select: { ownerUserId: true }
+      })
+      .then((r) => r.ownerUserId);
+
+    if (clubOwnerUserId === userId) {
+      throw new Error("user is owner of club");
     }
   }
 
@@ -448,7 +380,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembership(membershipId, tx);
-    const ownerEmail = await userEmailInTransaction(
+    const ownerEmail = await userService.getUserEmailInTransaction(
       membership.club.owner.id,
       tx
     );
@@ -547,7 +479,7 @@ export function createMembershipService(
         where: { id: membershipId }
       });
 
-      await unfollowClubForMembership(membershipId, tx);
+      await followingService.unfollowClubForMembership(membershipId, tx);
 
       await createSubscription(membershipId, tx);
       await notifyMembershipApproved(membershipId, tx);
@@ -556,35 +488,6 @@ export function createMembershipService(
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(e, `failed to approve membership with id ${membershipId}`);
-      throw e;
-    }
-  }
-
-  async function unfollowClubForMembership(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ) {
-    const membership = await getClubIdAndUserIdForMembership(membershipId, tx);
-    await unfollowClubInTransaction(membership.userId, membership.clubId, tx);
-  }
-
-  async function getClubIdAndUserIdForMembership(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ): Promise<{ userId: number; clubId: number }> {
-    try {
-      const result = await tx.membership.findUniqueOrThrow({
-        select: {
-          userId: true,
-          membershipTier: { select: { clubId: true } }
-        },
-        where: { id: membershipId }
-      });
-
-      logger.info(`queried userId and clubId for ${membershipId}`);
-      return { userId: result.userId, clubId: result.membershipTier.clubId };
-    } catch (e) {
-      logger.error(e, `failed to query userId and clubId for ${membershipId}`);
       throw e;
     }
   }
@@ -689,7 +592,10 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
+    const memberEmail = await userService.getUserEmailInTransaction(
+      membership.user.id,
+      tx
+    );
     if (null === memberEmail) {
       logger.error(
         `failed to notify on membership approved for membership with id ${membershipId} because no email was found`
@@ -793,7 +699,10 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
+    const memberEmail = await userService.getUserEmailInTransaction(
+      membership.user.id,
+      tx
+    );
     if (null === memberEmail) {
       logger.error(
         `failed to notify on membership declined for membership with id ${membershipId} because no email was found`
@@ -929,7 +838,10 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
+    const memberEmail = await userService.getUserEmailInTransaction(
+      membership.user.id,
+      tx
+    );
 
     if (null === memberEmail) {
       logger.error(
@@ -951,7 +863,10 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userEmailInTransaction(membership.user.id, tx);
+    const memberEmail = await userService.getUserEmailInTransaction(
+      membership.user.id,
+      tx
+    );
 
     if (null === memberEmail) {
       logger.error(
@@ -976,7 +891,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembership(membershipId, tx);
-    const ownerEmail = await userEmailInTransaction(
+    const ownerEmail = await userService.getUserEmailInTransaction(
       membership.club.owner.id,
       tx
     );
@@ -1019,125 +934,14 @@ export function createMembershipService(
     }
   }
 
-  async function isUserFollowingClub(
-    userId: number,
-    clubId: number
-  ): Promise<boolean> {
-    return prisma.$transaction(async (tx) => {
-      return isUserFollowingClubInTransaction(userId, clubId, tx);
-    });
-  }
-
-  async function isUserFollowingClubInTransaction(
-    userId: number,
-    clubId: number,
-    tx: Prisma.TransactionClient
-  ) {
-    try {
-      const count = await tx.clubFollowing.count({
-        where: {
-          userId: userId,
-          clubId: clubId
-        }
-      });
-
-      return count > 0;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to query if user with userId ${userId} is following club with clubId ${clubId}`
-      );
-      throw e;
-    }
-  }
-
-  async function followClub(
-    userId: number,
-    clubId: number
-  ): Promise<MutationResult> {
-    await checkUserIsNotClubOwner(userId, clubId);
-    await checkUserDoesNotHaveActiveMembershipForClub(userId, clubId);
-
-    if (await isUserFollowingClub(userId, clubId)) {
-      logger.info(
-        `user with userId ${userId} already follows club with clubId ${clubId}`
-      );
-      return NO_ID_MUTATION_RESULT;
-    }
-
-    try {
-      await prisma.clubFollowing.create({
-        data: {
-          userId: userId,
-          clubId: clubId
-        }
-      });
-
-      logger.info(
-        `created club following between user with userId ${userId} and club with clubId ${clubId}`
-      );
-      return NO_ID_MUTATION_RESULT;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create club following between user with userId ${userId} and club with clubId ${clubId}`
-      );
-      throw e;
-    }
-  }
-
-  async function unfollowClub(userId: number, clubId: number) {
-    return prisma.$transaction(async (tx) => {
-      return unfollowClubInTransaction(userId, clubId, tx);
-    });
-  }
-
-  async function unfollowClubInTransaction(
-    userId: number,
-    clubId: number,
-    tx: Prisma.TransactionClient
-  ): Promise<MutationResult> {
-    if (!(await isUserFollowingClubInTransaction(userId, clubId, tx))) {
-      logger.info(
-        `user with userId ${userId} does not follow club with clubId ${clubId}`
-      );
-      return NO_ID_MUTATION_RESULT;
-    }
-
-    try {
-      await tx.clubFollowing.delete({
-        where: {
-          userId_clubId: {
-            userId,
-            clubId
-          }
-        }
-      });
-
-      logger.info(
-        `deleted club following between user with userId ${userId} and club with clubId ${clubId}`
-      );
-      return NO_ID_MUTATION_RESULT;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to delete club following between user with userId ${userId} and club with clubId ${clubId}`
-      );
-      throw e;
-    }
-  }
-
   return {
     getUserMemberships,
     getActiveMembershipsForClub,
     getMembershipApplicationsForClub,
-    getClubFollowers,
     submitMembershipApplication,
     approveMembershipApplication,
     declineMembershipApplication,
     deactivateMembership,
-    setMembershipAsWelcomed,
-    followClub,
-    unfollowClub
+    setMembershipAsWelcomed
   };
 }
