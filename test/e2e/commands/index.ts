@@ -22,7 +22,7 @@ import {
 import {
   InstagramHandleSchema,
   RequiredStringSchema
-} from "~/server/common/types";
+} from "~/server/utils/types";
 import UpdateUserCommand from "./updateUserCommand";
 import itemSelector from "../utils/itemSelector";
 import CreateClubCommand from "./createClubCommand";

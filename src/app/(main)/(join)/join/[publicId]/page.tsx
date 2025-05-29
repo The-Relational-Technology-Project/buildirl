@@ -31,7 +31,7 @@ import FAQs from "./_components/FAQs";
 import { useMounted } from "@mantine/hooks";
 import ShareIconButton from "./_components/ShareIconButton";
 import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
-import { InstagramHandle, Url } from "~/server/common/types";
+import { InstagramHandle, Url } from "~/server/utils/types";
 import { Club } from "~/server/club/types";
 
 type WithRedirectToWelcomePageProps = {

@@ -4,7 +4,7 @@ import { FormResponses, FormResponsesSchema } from "~/server/club/types/form";
 import { User } from "~/server/user/types";
 import { Club } from "~/server/club/types";
 import { MembershipTier } from "~/server/membershipTier/types";
-import { Email, MutationResult } from "~/server/common/types";
+import { Email, MutationResult } from "~/server/utils/types";
 
 export type MembershipService = MembershipQueries & MembershipMutations;
 

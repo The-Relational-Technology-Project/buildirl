@@ -6,12 +6,12 @@ import {
   DEFAULT_APPLICATION_QUESTIONS,
   DEFAULT_FREE_MEMBERSHIP_TIER,
   DEFAULT_CLUB_FAQS
-} from "~/server/common/defaults";
+} from "~/server/utils/defaults";
 import { EmailTemplateType, SetEmailTemplateInput } from "~/server/email/types";
 import { EmailTemplate } from "~/server/email/types";
 import { EmailTemplateId } from "~/server/email/types";
 import { ItemSelector } from "./utils/itemSelector";
-import { InstagramHandle, Url } from "~/server/common/types";
+import { InstagramHandle, Url } from "~/server/utils/types";
 import {
   Club,
   ClubStatistics,

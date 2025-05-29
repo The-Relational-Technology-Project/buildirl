@@ -1,7 +1,7 @@
 import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
-import { LongTextSchema, MonetaryValueSchema } from "~/server/common/types";
+import { LongTextSchema, MonetaryValueSchema } from "~/server/utils/types";
 import { Club } from "~/server/club/types";
 import { MembershipTierNameSchema } from "~/server/membershipTier/types";
 import {

@@ -28,7 +28,7 @@ import {
   MembershipTier,
   MembershipTierNameSchema
 } from "~/server/membershipTier/types";
-import { LongTextSchema, MonetaryValueSchema } from "~/server/common/types";
+import { LongTextSchema, MonetaryValueSchema } from "~/server/utils/types";
 import { Membership } from "~/server/membership/types";
 
 type UpdateMembershipTierModalProps = {

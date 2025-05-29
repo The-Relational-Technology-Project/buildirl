@@ -2,7 +2,7 @@ import {
   LongTextSchema,
   MutationResult,
   RequiredStringSchema
-} from "~/server/common/types";
+} from "~/server/utils/types";
 import { z } from "zod";
 
 export type UserService = UserQueries & UserMutations;

@@ -16,7 +16,7 @@ import { api } from "~/trpc/react";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import WithDefaultColorSchemeOnManualRouteChange from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
 import { handleDefaultMutationError } from "~/client/logger";
-import { RequiredStringSchema } from "~/server/common/types";
+import { RequiredStringSchema } from "~/server/utils/types";
 
 function CreateUserForm(props: StackProps) {
   const router = useRouter();

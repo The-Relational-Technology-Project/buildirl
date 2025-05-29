@@ -12,7 +12,8 @@ import {
   MutationResult,
   Url,
   UrlSchema
-} from "~/server/common/types";
+} from "~/server/utils/types";
+import { Prisma } from "@prisma/client";
 
 export type ClubService = ClubQueries & ClubMutations;
 

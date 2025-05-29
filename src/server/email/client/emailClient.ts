@@ -9,7 +9,7 @@ import {
   NotifyMembershipDeactivatedByMemberToMemberInput
 } from "./types";
 import { rootLogger } from "~/logger";
-import { Email } from "~/server/common/types";
+import { Email } from "~/server/utils/types";
 import { EmailService, EmailTemplateId } from "~/server/email/types";
 import { stringify } from "~/utils";
 

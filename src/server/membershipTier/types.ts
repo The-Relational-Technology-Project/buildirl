@@ -4,7 +4,8 @@ import {
   LongTextSchema,
   MonetaryValueSchema,
   MutationResult
-} from "~/server/common/types";
+} from "~/server/utils/types";
+import { Prisma } from "@prisma/client";
 
 export type MembershipTierService = MembershipTierMutations;
 
@@ -20,6 +21,10 @@ type MembershipTierMutations = {
   deleteMembershipTier(id: number): Promise<MutationResult>;
   publishMembershipTier(id: number): Promise<MutationResult>;
   unpublishMembershipTier(id: number): Promise<MutationResult>;
+  createDefaultFreeMembershipTier(
+    clubId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult>;
 };
 
 export type MembershipTierStatus = "PUBLISHED" | "UNPUBLISHED";
