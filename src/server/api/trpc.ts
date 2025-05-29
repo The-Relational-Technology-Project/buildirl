@@ -73,8 +73,8 @@ export const createTRPCContext = async (opts: {
         accountIdResolver
       ),
       following: followingService,
-      payment: createPaymentService(stripeClient, prisma, accountIdResolver),
-      email: emailService
+      email: emailService,
+      payment: createPaymentService(stripeClient, prisma, accountIdResolver)
     },
     user: user,
     headers: opts.headers,
