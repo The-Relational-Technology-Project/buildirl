@@ -29,11 +29,14 @@ export default class CreateMembershipTierCommand
 
   async run(m: SystemState, r: Services): Promise<void> {
     this.clubId = this.clubIdSelector.select(m.getClubIdsWithStripeAccounts());
-    const result = await r.main.createMembershipTier(this.clubId, this.input);
+    const result = await r.membershipTier.createMembershipTier(
+      this.clubId,
+      this.input
+    );
     this.membershipTierId = idAsNumber(result.createdEntityId);
     m.createMembershipTier(this.membershipTierId, this.clubId, this.input);
     // membership tier is attached to club
-    await verifiers.verifyClub(this.clubId, r.main, m);
+    await verifiers.verifyClub(this.clubId, r, m);
   }
 
   toString() {

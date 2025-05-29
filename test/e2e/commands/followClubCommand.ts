@@ -43,11 +43,11 @@ export default class FollowClubCommand
     this.clubId = this.clubIdSelector.select(m.getClubIds());
     this.userId = this.userIdSelector.select(m.getUserIds());
 
-    await r.main.followClub(this.userId, this.clubId);
+    await r.membership.followClub(this.userId, this.clubId);
     m.followClub(this.userId, this.clubId);
 
-    await verifiers.verifyUserFollowedClubs(this.userId, r.main, m);
-    await verifiers.verifyClubFollowers(this.clubId, r.main, m);
+    await verifiers.verifyUserFollowedClubs(this.userId, r, m);
+    await verifiers.verifyClubFollowers(this.clubId, r, m);
   }
 
   toString() {

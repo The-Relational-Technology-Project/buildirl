@@ -28,9 +28,9 @@ export default class UpdateClubApplicationQuestionsCommand
 
   async run(m: SystemState, r: Services): Promise<void> {
     this.clubId = this.clubIdSelector.select(m.getClubIds());
-    await r.main.updateClubApplicationQuestions(this.clubId, this.input);
+    await r.club.updateClubApplicationQuestions(this.clubId, this.input);
     m.updateClubApplicationQuestions(this.clubId, this.input);
-    await verifiers.verifyClub(this.clubId, r.main, m);
+    await verifiers.verifyClub(this.clubId, r, m);
   }
 
   toString() {

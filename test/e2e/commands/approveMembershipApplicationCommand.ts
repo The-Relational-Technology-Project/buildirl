@@ -24,15 +24,15 @@ export default class ApproveMembershipApplicationCommand
     this.membershipId = this.membershipIdSelector.select(
       m.getPendingMembershipIds()
     );
-    await r.main.approveMembershipApplication(this.membershipId);
+    await r.membership.approveMembershipApplication(this.membershipId);
     m.approveMembershipApplication(this.membershipId);
     const clubId = m.getClubIdForMembership(this.membershipId);
-    await verifiers.verifyClubMemberships(clubId, r.main, m);
-    await verifiers.verifyClubFollowers(clubId, r.main, m);
+    await verifiers.verifyClubMemberships(clubId, r, m);
+    await verifiers.verifyClubFollowers(clubId, r, m);
 
     const userId = m.getUserIdForMembership(this.membershipId);
-    await verifiers.verifyUserMemberships(userId, r.main, m);
-    await verifiers.verifyUserFollowedClubs(userId, r.main, m);
+    await verifiers.verifyUserMemberships(userId, r, m);
+    await verifiers.verifyUserFollowedClubs(userId, r, m);
   }
 
   toString() {

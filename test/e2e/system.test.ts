@@ -6,7 +6,6 @@ import { type StartedTestContainer } from "testcontainers";
 import { SystemState } from "./systemState";
 import { allCommands } from "./commands";
 import { rootLogger } from "~/logger";
-import { createMainService, MainService } from "~/server/service";
 import { createFakeStripeClient } from "./fakeStripeClient";
 import { PaymentService } from "~/server/payments/types";
 import { createPaymentService } from "~/server/payments/service";
@@ -18,9 +17,20 @@ import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
 import { createDummyEmailClient } from "./dummyEmailClient";
 import { EmailService } from "~/server/email/types";
 import { createEmailService } from "~/server/email/service";
+import { UserService } from "~/server/user/types";
+import { ClubService } from "~/server/club/types";
+import { MembershipTierService } from "~/server/membershipTier/types";
+import { MembershipService } from "~/server/membership/types";
+import { createUserService } from "~/server/user/service";
+import { createClubService } from "~/server/club/service";
+import { createMembershipService } from "~/server/membership/service";
+import { createMembershipTierService } from "~/server/membershipTier/service";
 
 export type Services = {
-  main: MainService;
+  user: UserService;
+  club: ClubService;
+  membershipTier: MembershipTierService;
+  membership: MembershipService;
   payment: PaymentService;
   paymentEvents: PaymentEventProcessor;
   email: EmailService;
@@ -35,9 +45,12 @@ function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {
 }
 
 // TODO run this on gitlab-ci with docker-in-docker set-up
-describe("mainService", () => {
+describe("service", () => {
   let container: StartedTestContainer;
-  let mainService: MainService;
+  let userService: UserService;
+  let clubService: ClubService;
+  let membershipTierService: MembershipTierService;
+  let membershipService: MembershipService;
   let paymentService: PaymentService;
   let paymentEventProcessor: PaymentEventProcessor;
   let emailService: EmailService;
@@ -59,7 +72,14 @@ describe("mainService", () => {
     rootLogger.info("connection string: " + supabaseContainer.connectionString);
     const fakeStripeClient = createFakeStripeClient();
     const accountIdResolver = createAccountIdResolver(prisma);
-    mainService = createMainService(
+    userService = createUserService(prisma);
+    membershipTierService = createMembershipTierService(
+      prisma,
+      fakeStripeClient,
+      accountIdResolver
+    );
+    clubService = createClubService(prisma, membershipTierService);
+    membershipService = createMembershipService(
       prisma,
       fakeStripeClient,
       createDummyEmailClient(),
@@ -91,7 +111,10 @@ describe("mainService", () => {
           const s = () => ({
             model: new SystemState(),
             real: {
-              main: mainService,
+              user: userService,
+              club: clubService,
+              membershipTier: membershipTierService,
+              membership: membershipService,
               payment: paymentService,
               paymentEvents: paymentEventProcessor,
               email: emailService

@@ -78,11 +78,14 @@ export default class UpdateMembershipTierCommand
       this.input = { ...this.input, costPerMonthInUSD: 0 };
     }
 
-    await r.main.updateMembershipTier(this.membershipTierId, this.input);
+    await r.membershipTier.updateMembershipTier(
+      this.membershipTierId,
+      this.input
+    );
     m.updateMembershipTier(this.membershipTierId, this.input);
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
     // membership tier is attached to club
-    await verifiers.verifyClub(clubId, r.main, m);
+    await verifiers.verifyClub(clubId, r, m);
   }
 
   toString() {

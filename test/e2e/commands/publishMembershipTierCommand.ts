@@ -24,11 +24,11 @@ export default class PublishMembershipTierCommand
     this.membershipTierId = this.membershipTierIdSelector.select(
       m.getUnpublishedMembershipTiersIds()
     );
-    await r.main.publishMembershipTier(this.membershipTierId);
+    await r.membershipTier.publishMembershipTier(this.membershipTierId);
     m.publishMembershipTier(this.membershipTierId);
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
     // membership tier is attached to club
-    await verifiers.verifyClub(clubId, r.main, m);
+    await verifiers.verifyClub(clubId, r, m);
   }
 
   toString() {

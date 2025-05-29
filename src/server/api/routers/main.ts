@@ -29,7 +29,7 @@ import {
 
 export const mainRouter = createTRPCRouter({
   user: securedProcedure.query(({ ctx }) => {
-    return ctx.service.main.getUser(ctx.user.userId);
+    return ctx.service.user.getUser(ctx.user.userId);
   }),
 
   isUserAuthenticated: publicProcedure.query(({ ctx }) => {
@@ -37,17 +37,17 @@ export const mainRouter = createTRPCRouter({
   }),
 
   userOwnedClubs: securedProcedure.query(({ ctx }) => {
-    return ctx.service.main.getUserOwnedClubs(ctx.user.userId);
+    return ctx.service.club.getUserOwnedClubs(ctx.user.userId);
   }),
 
   userMemberships: securedProcedure.query(({ ctx }) => {
-    return ctx.service.main.getUserMemberships(ctx.user.userId);
+    return ctx.service.membership.getUserMemberships(ctx.user.userId);
   }),
 
   clubByPublicId: publicProcedure
     .input(z.object({ publicId: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.service.main.getClubByPublicId(input.publicId);
+      return ctx.service.club.getClubByPublicId(input.publicId);
     }),
 
   activeMembershipsForClub: publicProcedure
@@ -57,7 +57,10 @@ export const mainRouter = createTRPCRouter({
       })
     )
     .query(({ ctx, input }) => {
-      return ctx.service.main.getActiveMembershipsForClub(input.clubId, false);
+      return ctx.service.membership.getActiveMembershipsForClub(
+        input.clubId,
+        false
+      );
     }),
 
   activeMembershipsForClubWithEmail: securedProcedureWithAbilityFor("Club")
@@ -71,7 +74,10 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.getActiveMembershipsForClub(input.clubId, true);
+      return ctx.service.membership.getActiveMembershipsForClub(
+        input.clubId,
+        true
+      );
     }),
 
   membershipApplicationsForClub: securedProcedureWithAbilityFor("Club")
@@ -80,25 +86,27 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.getMembershipApplicationsForClub(input.clubId);
+      return ctx.service.membership.getMembershipApplicationsForClub(
+        input.clubId
+      );
     }),
 
   clubStatistics: publicProcedure
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
-      return ctx.service.main.getClubStatistics(input.clubId);
+      return ctx.service.club.getClubStatistics(input.clubId);
     }),
 
   userById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(({ ctx, input }) => {
-      return ctx.service.main.getUser(input.id);
+      return ctx.service.user.getUser(input.id);
     }),
 
   club: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(({ ctx, input }) => {
-      return ctx.service.main.getClub(input.id);
+      return ctx.service.club.getClub(input.id);
     }),
 
   createUser: securedProcedure
@@ -107,7 +115,7 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.user.authEmail) {
         throw new Error("email is required on auth user to create user");
       }
-      return ctx.service.main.createUser(
+      return ctx.service.user.createUser(
         input,
         ctx.user.authUserId,
         ctx.user.authEmail
@@ -120,13 +128,13 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("User", { id: input.id }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.updateUser(input.id, input.input);
+      return ctx.service.user.updateUser(input.id, input.input);
     }),
 
   createClub: securedProcedure
     .input(CreateClubInputSchema)
     .mutation(({ ctx, input }) => {
-      return ctx.service.main.createClub(input, ctx.user.userId);
+      return ctx.service.club.createClub(input, ctx.user.userId);
     }),
 
   updateClub: securedProcedureWithAbilityFor("Club")
@@ -135,7 +143,7 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.id }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.updateClub(input.id, input.input);
+      return ctx.service.club.updateClub(input.id, input.input);
     }),
 
   deleteClub: securedProcedureWithAbilityFor("Club")
@@ -144,7 +152,7 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.id }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.deleteClub(input.id);
+      return ctx.service.club.deleteClub(input.id);
     }),
 
   updateClubApplicationQuestions: securedProcedureWithAbilityFor("Club")
@@ -158,7 +166,7 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.updateClubApplicationQuestions(
+      return ctx.service.club.updateClubApplicationQuestions(
         input.clubId,
         input.input
       );
@@ -175,7 +183,7 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.updateClubDisplayImageUrls(
+      return ctx.service.club.updateClubDisplayImageUrls(
         input.clubId,
         input.input
       );
@@ -189,7 +197,10 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.createMembershipTier(input.clubId, input.input);
+      return ctx.service.membershipTier.createMembershipTier(
+        input.clubId,
+        input.input
+      );
     }),
 
   updateMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
@@ -205,7 +216,10 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.updateMembershipTier(input.id, input.input);
+      return ctx.service.membershipTier.updateMembershipTier(
+        input.id,
+        input.input
+      );
     }),
 
   deleteMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
@@ -216,7 +230,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.deleteMembershipTier(input.id);
+      return ctx.service.membershipTier.deleteMembershipTier(input.id);
     }),
 
   publishMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
@@ -227,7 +241,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.publishMembershipTier(input.id);
+      return ctx.service.membershipTier.publishMembershipTier(input.id);
     }),
 
   unpublishMembershipTier: securedProcedureWithAbilityFor("MembershipTier")
@@ -238,7 +252,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.unpublishMembershipTier(input.id);
+      return ctx.service.membershipTier.unpublishMembershipTier(input.id);
     }),
 
   submitMembershipApplication: securedProcedure
@@ -249,7 +263,7 @@ export const mainRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input }) => {
-      return ctx.service.main.submitMembershipApplication(
+      return ctx.service.membership.submitMembershipApplication(
         input.membershipTierId,
         input.input,
         ctx.user.userId
@@ -267,7 +281,9 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.approveMembershipApplication(input.membershipId);
+      return ctx.service.membership.approveMembershipApplication(
+        input.membershipId
+      );
     }),
 
   declineMembershipApplication: securedProcedureWithAbilityFor("Membership")
@@ -281,7 +297,9 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.declineMembershipApplication(input.membershipId);
+      return ctx.service.membership.declineMembershipApplication(
+        input.membershipId
+      );
     }),
 
   deactivateMembership: securedProcedureWithAbilityFor("Membership")
@@ -300,7 +318,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.deactivateMembership(
+      return ctx.service.membership.deactivateMembership(
         input.membershipId,
         input.input
       );
@@ -317,7 +335,7 @@ export const mainRouter = createTRPCRouter({
       ) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.setMembershipAsWelcomed(input.membershipId);
+      return ctx.service.membership.setMembershipAsWelcomed(input.membershipId);
     }),
 
   clubFollowers: securedProcedureWithAbilityFor("Club")
@@ -327,22 +345,22 @@ export const mainRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.main.getClubFollowers(input.clubId);
+      return ctx.service.membership.getClubFollowers(input.clubId);
     }),
 
   userFollowedClubs: securedProcedure.query(({ ctx }) => {
-    return ctx.service.main.getUserFollowedClubs(ctx.user.userId);
+    return ctx.service.club.getUserFollowedClubs(ctx.user.userId);
   }),
 
   followClub: securedProcedure
     .input(z.object({ clubId: z.number() }))
     .mutation(({ ctx, input }) => {
-      return ctx.service.main.followClub(ctx.user.userId, input.clubId);
+      return ctx.service.membership.followClub(ctx.user.userId, input.clubId);
     }),
 
   unfollowClub: securedProcedure
     .input(z.object({ clubId: z.number() }))
     .mutation(({ ctx, input }) => {
-      return ctx.service.main.unfollowClub(ctx.user.userId, input.clubId);
+      return ctx.service.membership.unfollowClub(ctx.user.userId, input.clubId);
     })
 });

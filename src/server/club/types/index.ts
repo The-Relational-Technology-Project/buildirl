@@ -13,7 +13,6 @@ import {
   Url,
   UrlSchema
 } from "~/server/utils/types";
-import { Prisma } from "@prisma/client";
 
 export type ClubService = ClubQueries & ClubMutations;
 

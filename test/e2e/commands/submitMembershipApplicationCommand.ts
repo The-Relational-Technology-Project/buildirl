@@ -52,7 +52,7 @@ export default class SubmitMembershipApplicationCommand
       m.getPublishedMembershipTierIds()
     );
     this.userId = this.userIdSelector.select(m.getUserIds());
-    const result = await r.main.submitMembershipApplication(
+    const result = await r.membership.submitMembershipApplication(
       this.membershipTierId,
       this.input,
       this.userId
@@ -78,9 +78,9 @@ export default class SubmitMembershipApplicationCommand
       this.userId
     );
 
-    await verifiers.verifyUserMemberships(this.userId, r.main, m);
+    await verifiers.verifyUserMemberships(this.userId, r, m);
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
-    await verifiers.verifyClubMemberships(clubId, r.main, m);
+    await verifiers.verifyClubMemberships(clubId, r, m);
   }
 
   toString() {

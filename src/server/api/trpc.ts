@@ -13,7 +13,6 @@ import { ZodError } from "zod";
 
 import { prisma } from "~/server/prisma";
 import { Maybe } from "~/utils/types";
-import { createMainService } from "~/server/service";
 import { logger } from "~/client/logger";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { defineAbilityFor } from "~/server/api/authz/abilities";
@@ -23,9 +22,13 @@ import { createPaymentService } from "~/server/payments/service";
 import { createStripeClient } from "~/server/payments/stripe/stripeClient";
 import { stripe } from "~/server/payments/stripe/stripe";
 import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
+import { createEmailService } from "~/server/email/service";
+import { createUserService } from "~/server/user/service";
+import { createMembershipTierService } from "~/server/membershipTier/service";
+import { createClubService } from "~/server/club/service";
+import { createMembershipService } from "~/server/membership/service";
 import { createEmailClient } from "~/server/email/client/emailClient";
 import { mailTransport } from "~/server/email/client/nodemailer";
-import { createEmailService } from "~/server/email/service";
 
 /**
  * 1. CONTEXT
@@ -47,10 +50,18 @@ export const createTRPCContext = async (opts: {
   const stripeClient = createStripeClient(stripe);
   const accountIdResolver = createAccountIdResolver(prisma);
   const emailService = createEmailService(prisma);
+  const membershipTierService = createMembershipTierService(
+    prisma,
+    stripeClient,
+    accountIdResolver
+  );
 
   return {
     service: {
-      main: createMainService(
+      user: createUserService(prisma),
+      club: createClubService(prisma, membershipTierService),
+      membershipTier: membershipTierService,
+      membership: createMembershipService(
         prisma,
         stripeClient,
         createEmailClient(mailTransport, emailService),

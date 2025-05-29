@@ -24,12 +24,12 @@ export default class SetMembershipAsWelcomedCommand
     this.membershipId = this.membershipIdSelector.select(
       m.getActiveMembershipIds()
     );
-    await r.main.setMembershipAsWelcomed(this.membershipId);
+    await r.membership.setMembershipAsWelcomed(this.membershipId);
     m.setMembershipAsWelcomed(this.membershipId);
     const clubId = m.getClubIdForMembership(this.membershipId);
-    await verifiers.verifyClubMemberships(clubId, r.main, m);
+    await verifiers.verifyClubMemberships(clubId, r, m);
     const userId = m.getUserIdForMembership(this.membershipId);
-    await verifiers.verifyUserMemberships(userId, r.main, m);
+    await verifiers.verifyUserMemberships(userId, r, m);
   }
 
   toString() {

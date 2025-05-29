@@ -20,19 +20,19 @@ export default class CreateUserCommand
     this.authEmail = authEmail;
   }
 
-  check(m: Readonly<SystemState>): boolean {
+  check(_: Readonly<SystemState>): boolean {
     return true;
   }
 
   async run(m: SystemState, r: Services): Promise<void> {
-    const result = await r.main.createUser(
+    const result = await r.user.createUser(
       this.input,
       this.authUserId,
       this.authEmail
     );
     this.userId = idAsNumber(result.createdEntityId);
     m.createUser(this.userId, this.input, this.authEmail);
-    await verifiers.verifyUser(this.userId, r.main, m);
+    await verifiers.verifyUser(this.userId, r, m);
   }
 
   toString() {
