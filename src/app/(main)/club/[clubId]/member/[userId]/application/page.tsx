@@ -26,7 +26,6 @@ import { FormQuestionType, FormResponse } from "~/server/club/types/form";
 import { Membership } from "~/server/membership/types";
 import MemberProfile from "~/client/components/MemberProfile";
 import { handleDefaultMutationError } from "~/client/logger";
-import { useMounted } from "@mantine/hooks";
 import { Maybe } from "~/utils/types";
 
 
@@ -274,7 +273,6 @@ export default function MemberApplication() {
   const params = useParams<{ userId: string; clubId: string }>();
   const userId = strictParseInt(params.userId);
   const clubId = strictParseInt(params.clubId);
-  const mounted = useMounted();
 
   const membershipApplicationsQuery = api.main.membershipApplicationsForClub.useQuery({ clubId });
   const activeMembershipsQuery = api.main.activeMembershipsForClubWithEmail.useQuery({ clubId });
@@ -310,53 +308,49 @@ export default function MemberApplication() {
 
   if (!userMembership) {
     return (
-      mounted && (
-        <WithLocalNavigationHeader>
-          <Stack align="center" gap="lg" py="xl">
-            <Text size="lg" ta="center">
-              No membership found for this user.
-            </Text>
-          </Stack>
-        </WithLocalNavigationHeader>
-      )
+      <WithLocalNavigationHeader>
+        <Stack align="center" gap="lg" py="xl">
+          <Text size="lg" ta="center">
+            No membership found for this user.
+          </Text>
+        </Stack>
+      </WithLocalNavigationHeader>
     );
   }
 
   return (
-    mounted && (
-      <WithLocalNavigationHeader>
-        <Center>
-          <Stack w={800} gap="xl" pb="xl">
-            {/* Main Profile Section */}
-            <MemberProfile 
-              user={userQuery.data!}
-              membership={userMembership}
-              isPending={isPending}
+    <WithLocalNavigationHeader>
+      <Center>
+        <Stack w={800} gap="xl" pb="xl">
+          {/* Main Profile Section */}
+          <MemberProfile 
+            user={userQuery.data!}
+            membership={userMembership}
+            isPending={isPending}
+          />
+          
+          {/* Application Actions Section - Only for pending memberships */}
+          {pendingMembership && (
+            <MemberActionsCard 
+              clubId={clubId} 
+              pendingMembership={pendingMembership}
             />
-            
-            {/* Application Actions Section - Only for pending memberships */}
-            {pendingMembership && (
-              <MemberActionsCard 
-                clubId={clubId} 
-                pendingMembership={pendingMembership}
-              />
-            )}
-            
-            {/* Q&A Section */}
-            <ApplicationResponsesCard 
-              membership={userMembership}
+          )}
+          
+          {/* Q&A Section */}
+          <ApplicationResponsesCard 
+            membership={userMembership}
+          />
+          
+          {/* Member Management Section - Only for active memberships */}
+          {activeMembership && (
+            <MemberActionsCard 
+              clubId={clubId} 
+              activeMembership={activeMembership}
             />
-            
-            {/* Member Management Section - Only for active memberships */}
-            {activeMembership && (
-              <MemberActionsCard 
-                clubId={clubId} 
-                activeMembership={activeMembership}
-              />
-            )}
-          </Stack>
-        </Center>
-      </WithLocalNavigationHeader>
-    )
+          )}
+        </Stack>
+      </Center>
+    </WithLocalNavigationHeader>
   );
 }
