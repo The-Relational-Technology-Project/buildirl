@@ -36,12 +36,12 @@ export default class UnfollowClubCommand
       m.getFollowingUserIdsForClub(this.clubId)
     );
 
-    await r.main.unfollowClub(this.userId, this.clubId);
+    await r.following.unfollowClub(this.userId, this.clubId);
 
     m.unfollowClub(this.userId, this.clubId);
 
-    await verifiers.verifyUserFollowedClubs(this.userId, r.main, m);
-    await verifiers.verifyClubFollowers(this.clubId, r.main, m);
+    await verifiers.verifyUserFollowedClubs(this.userId, r, m);
+    await verifiers.verifyClubFollowers(this.clubId, r, m);
   }
 
   toString() {

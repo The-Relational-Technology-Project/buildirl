@@ -24,11 +24,11 @@ export default class DeleteClubCommand
     this.clubId = this.clubIdSelector.select(
       m.getClubIdsWithNoActiveMembershipsOrMembershipApplications()
     );
-    await r.main.deleteClub(this.clubId);
+    await r.club.deleteClub(this.clubId);
     // get this for verification before deletion
     const ownerUserId = m.getClub(this.clubId).owner.id;
     m.deleteClub(this.clubId);
-    await verifiers.verifyUserOwnedClub(ownerUserId, r.main, m);
+    await verifiers.verifyUserOwnedClub(ownerUserId, r, m);
   }
 
   toString() {

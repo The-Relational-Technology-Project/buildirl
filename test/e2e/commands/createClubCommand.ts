@@ -1,4 +1,4 @@
-import { CreateClubInput } from "~/server/service/types";
+import { CreateClubInput } from "~/server/club/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { idAsNumber, isDefaultFreeTier, Maybe } from "~/utils/types";
@@ -26,7 +26,7 @@ export default class CreateClubCommand
 
   async run(m: SystemState, r: Services): Promise<void> {
     this.userId = this.userIdSelector.select(m.getUserIds());
-    const result = await r.main.createClub(this.input, this.userId);
+    const result = await r.club.createClub(this.input, this.userId);
     this.clubId = idAsNumber(result.createdEntityId);
 
     const freeMembershipTierId = await this.freeMembershipTierId(
@@ -35,12 +35,12 @@ export default class CreateClubCommand
     );
     m.createClub(this.userId, this.clubId, this.input, freeMembershipTierId);
 
-    await verifiers.verifyClub(this.clubId, r.main, m);
-    await verifiers.verifyUserOwnedClub(this.userId, r.main, m);
+    await verifiers.verifyClub(this.clubId, r, m);
+    await verifiers.verifyUserOwnedClub(this.userId, r, m);
   }
 
   async freeMembershipTierId(clubId: number, r: Services): Promise<number> {
-    const club = await r.main.getClub(clubId);
+    const club = await r.club.getClub(clubId);
     const freeMembershipTier = club.membershipTiers.find((mt) =>
       isDefaultFreeTier(mt)
     );

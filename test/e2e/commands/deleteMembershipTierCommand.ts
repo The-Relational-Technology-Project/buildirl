@@ -24,12 +24,12 @@ export default class DeleteMembershipTierCommand
     this.membershipTierId = this.membershipTierIdSelector.select(
       m.getPaidMembershipTierIdsWithNoActiveMembersOrPendingApplicationsThatAreNotLastPublished()
     );
-    await r.main.deleteMembershipTier(this.membershipTierId);
+    await r.membershipTier.deleteMembershipTier(this.membershipTierId);
     // must get this value before deleting
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
     m.deleteMembershipTier(this.membershipTierId);
     // membership tier is attached to club
-    await verifiers.verifyClub(clubId, r.main, m);
+    await verifiers.verifyClub(clubId, r, m);
   }
 
   toString() {

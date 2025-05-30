@@ -1,6 +1,6 @@
 import { createComponentClient } from "~/utils/supabase/auth/client";
 import { logger } from "~/client/logger";
-import { Url, UrlSchema } from "~/server/service/types";
+import { Url, UrlSchema } from "~/server/utils/types";
 import { parseAsZodType } from "~/utils/zod";
 
 export type StorageClient = {

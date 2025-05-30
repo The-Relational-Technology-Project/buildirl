@@ -13,7 +13,8 @@ import {
   Center
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { Club, MembershipTier } from "~/server/service/types";
+import { Club } from "~/server/club/types";
+import { MembershipTier } from "~/server/membershipTier/types";
 import React from "react";
 import AlertMessage from "~/client/components/AlertMessage";
 import { useDisclosure } from "@mantine/hooks";

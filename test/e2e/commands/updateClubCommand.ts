@@ -1,4 +1,4 @@
-import { UpdateClubInput } from "~/server/service/types";
+import { UpdateClubInput } from "~/server/club/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
 import { Maybe } from "~/utils/types";
@@ -25,9 +25,9 @@ export default class UpdateClubCommand
 
   async run(m: SystemState, r: Services): Promise<void> {
     this.clubId = this.clubIdSelector.select(m.getClubIds());
-    await r.main.updateClub(this.clubId, this.input);
+    await r.club.updateClub(this.clubId, this.input);
     m.updateClub(this.clubId, this.input);
-    await verifiers.verifyClub(this.clubId, r.main, m);
+    await verifiers.verifyClub(this.clubId, r, m);
   }
 
   toString() {

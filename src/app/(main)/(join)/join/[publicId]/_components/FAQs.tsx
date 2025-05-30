@@ -1,5 +1,5 @@
 import { Accordion, Box, Text, Title, Divider, BoxProps } from "@mantine/core";
-import { FAQs as FAQsType } from "~/server/service/types";
+import { FAQs as FAQsType } from "~/server/club/types";
 import { Maybe } from "~/utils/types";
 
 type FAQsProps = {

@@ -15,7 +15,6 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
-import { Club, InstagramHandle, Url } from "~/server/service/types";
 import {
   activeMembershipForClub,
   Maybe,
@@ -32,6 +31,8 @@ import FAQs from "./_components/FAQs";
 import { useMounted } from "@mantine/hooks";
 import ShareIconButton from "./_components/ShareIconButton";
 import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
+import { InstagramHandle, Url } from "~/server/utils/types";
+import { Club } from "~/server/club/types";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;

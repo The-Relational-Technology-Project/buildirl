@@ -1,36 +1,36 @@
-import {
-  Club,
-  CreateClubInput,
-  CreateUserInput,
-  InstagramHandle,
-  MembershipTier,
-  UpdateClubInput,
-  UpdateUserInput,
-  Url,
-  UpdateClubApplicationQuestionsInput,
-  type User,
-  CreateMembershipTierInput,
-  UpdateMembershipTierInput,
-  SubmitMembershipApplicationInput,
-  MembershipStatus,
-  Membership,
-  ClubStatistics,
-  UpdateClubDisplayImageUrlsInput,
-  FAQs
-} from "~/server/service/types";
 import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
-import { FormQuestions, FormResponses } from "~/server/service/types/form";
+import { FormQuestions, FormResponses } from "~/server/club/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
 import {
   DEFAULT_APPLICATION_QUESTIONS,
-  DEFAULT_FREE_MEMBERSHIP_TIER,
-  DEFAULT_CLUB_FAQS
-} from "~/server/service/defaults";
+  DEFAULT_FREE_MEMBERSHIP_TIER
+} from "~/server/utils/defaults";
 import { EmailTemplateType, SetEmailTemplateInput } from "~/server/email/types";
 import { EmailTemplate } from "~/server/email/types";
 import { EmailTemplateId } from "~/server/email/types";
 import { ItemSelector } from "./utils/itemSelector";
+import { InstagramHandle, Url } from "~/server/utils/types";
+import {
+  Club,
+  ClubStatistics,
+  CreateClubInput,
+  FAQs,
+  UpdateClubApplicationQuestionsInput,
+  UpdateClubDisplayImageUrlsInput,
+  UpdateClubInput
+} from "~/server/club/types";
+import {
+  Membership,
+  MembershipStatus,
+  SubmitMembershipApplicationInput
+} from "~/server/membership/types";
+import {
+  CreateMembershipTierInput,
+  MembershipTier,
+  UpdateMembershipTierInput
+} from "~/server/membershipTier/types";
+import { CreateUserInput, UpdateUserInput, User } from "~/server/user/types";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -169,7 +169,7 @@ export class SystemState {
     return clubStates[0]!;
   }
 
-  private orderedByCost(membershipTiers: MembershipTier[]): MembershipTier[] {
+  private orderByCost(membershipTiers: MembershipTier[]): MembershipTier[] {
     return (
       membershipTiers
         // if equal cost, sort by id
@@ -197,7 +197,7 @@ export class SystemState {
       themeHeadingFont: clubState.themeHeadingFont,
       displayImageUrls: clubState.displayImageUrls,
       faqs: clubState.faqs,
-      membershipTiers: this.orderedByCost(
+      membershipTiers: this.orderByCost(
         clubState.membershipTierIds.map((id) => this.getMembershipTier(id))
       )
     };
@@ -271,7 +271,7 @@ export class SystemState {
       theme: null,
       themeHeadingFont: null,
       displayImageUrls: [],
-      faqs: DEFAULT_CLUB_FAQS,
+      faqs: { items: [] },
       membershipTierIds: [],
       hasStripeAccount: false
     });
