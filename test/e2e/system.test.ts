@@ -87,6 +87,8 @@ describe("service", () => {
     membershipService = createMembershipService(
       prisma,
       userService,
+      clubService,
+      membershipTierService,
       followingService,
       fakeStripeClient,
       createDummyEmailClient(),

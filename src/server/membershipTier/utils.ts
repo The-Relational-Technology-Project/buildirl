@@ -21,6 +21,7 @@ export function asMembershipTier(
     status: r.status,
     benefitDescription: r.benefitDescription,
     contributionDescription: r.contributionDescription,
+    // possible loss of precision here, but it doesn't matter for us
     costPerMonthInUSD: r.costPerMonthInUSD.toNumber(),
     initiationFeeCostInUSD:
       null === r.initiationFeeCostInUSD

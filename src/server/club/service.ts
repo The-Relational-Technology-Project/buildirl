@@ -1,10 +1,7 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
-import {
-  DEFAULT_APPLICATION_QUESTIONS,
-  DEFAULT_CLUB_FAQS
-} from "~/server/utils/defaults";
+import { DEFAULT_APPLICATION_QUESTIONS } from "~/server/utils/defaults";
 import {
   Club,
   ClubService,
@@ -91,6 +88,7 @@ export function createClubService(
         }
       });
       const statistics = {
+        // plus the owner
         memberCount: memberCount + 1
       };
       logger.info(
@@ -125,6 +123,7 @@ export function createClubService(
         data: {
           ...input,
           ownerUserId: userId,
+          // defaults
           tagLine: "",
           description: "",
           websiteUrl: null,
@@ -132,19 +131,18 @@ export function createClubService(
           eventCalendarUrl: null,
           applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
           theme: Prisma.DbNull,
-          faqs: DEFAULT_CLUB_FAQS
+          faqs: { items: [] }
         },
         select: {
           id: true
         }
       });
-
-      // create the default free tier on each club
-      await membershipTierService.createDefaultFreeMembershipTier(id, tx);
-
       logger.info(
         `created club from input ${stringify(input)} with clubId ${id}`
       );
+
+      // create the default free tier on each club
+      await membershipTierService.createDefaultFreeMembershipTier(id, tx);
 
       return { createdEntityId: id };
     } catch (e) {
@@ -233,6 +231,8 @@ export function createClubService(
     }
 
     try {
+      // TODO do we want to delete connect account?
+
       await prisma.club.delete({
         where: { id }
       });
@@ -268,11 +268,31 @@ export function createClubService(
     }
   }
 
+  async function getClubOwnerUserId(clubId: number): Promise<number> {
+    try {
+      const club = await prisma.club.findUniqueOrThrow({
+        select: { ownerUserId: true },
+        where: { id: clubId }
+      });
+      logger.info(
+        `queried owner userId for club with clubId ${clubId} with result ${club.ownerUserId}`
+      );
+      return club.ownerUserId;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query owner userId for club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
   return {
     getUserOwnedClubs,
     getClubByPublicId,
     getClubStatistics,
     getClub,
+    getClubOwnerUserId,
     createClub,
     updateClub,
     deleteClub,

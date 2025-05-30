@@ -7,7 +7,15 @@ import {
 } from "~/server/utils/types";
 import { Prisma } from "@prisma/client";
 
-export type MembershipTierService = MembershipTierMutations;
+export type MembershipTierService = MembershipTierQueries &
+  MembershipTierMutations;
+
+type MembershipTierQueries = {
+  // internal
+  isMembershipTierPublished(membershipTierId: number): Promise<boolean>;
+  isDefaultFreeTierById(membershipTierId: number): Promise<boolean>;
+  getClubIdFromMembershipTierId(membershipTierId: number): Promise<number>;
+};
 
 type MembershipTierMutations = {
   createMembershipTier(

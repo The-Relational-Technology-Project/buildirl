@@ -18,6 +18,8 @@ export const MEMBERSHIP_SELECT = {
   membershipTier: {
     select: {
       ...MEMBERSHIP_TIER_SELECT,
+      // we want to include this in
+      // Membership metadata
       club: {
         select: CLUB_SELECT
       }

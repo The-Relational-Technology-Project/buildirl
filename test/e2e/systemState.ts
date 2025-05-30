@@ -4,8 +4,7 @@ import { FormQuestions, FormResponses } from "~/server/club/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
 import {
   DEFAULT_APPLICATION_QUESTIONS,
-  DEFAULT_FREE_MEMBERSHIP_TIER,
-  DEFAULT_CLUB_FAQS
+  DEFAULT_FREE_MEMBERSHIP_TIER
 } from "~/server/utils/defaults";
 import { EmailTemplateType, SetEmailTemplateInput } from "~/server/email/types";
 import { EmailTemplate } from "~/server/email/types";
@@ -170,7 +169,7 @@ export class SystemState {
     return clubStates[0]!;
   }
 
-  private orderedByCost(membershipTiers: MembershipTier[]): MembershipTier[] {
+  private orderByCost(membershipTiers: MembershipTier[]): MembershipTier[] {
     return (
       membershipTiers
         // if equal cost, sort by id
@@ -198,7 +197,7 @@ export class SystemState {
       themeHeadingFont: clubState.themeHeadingFont,
       displayImageUrls: clubState.displayImageUrls,
       faqs: clubState.faqs,
-      membershipTiers: this.orderedByCost(
+      membershipTiers: this.orderByCost(
         clubState.membershipTierIds.map((id) => this.getMembershipTier(id))
       )
     };
@@ -272,7 +271,7 @@ export class SystemState {
       theme: null,
       themeHeadingFont: null,
       displayImageUrls: [],
-      faqs: DEFAULT_CLUB_FAQS,
+      faqs: { items: [] },
       membershipTierIds: [],
       hasStripeAccount: false
     });

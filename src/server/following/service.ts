@@ -239,6 +239,7 @@ export function createFollowingService(
     );
   }
 
+  // not in membershipService as it would introduce circular dependency; okay for now
   async function getClubIdAndUserIdForMembership(
     membershipId: bigint,
     tx: Prisma.TransactionClient

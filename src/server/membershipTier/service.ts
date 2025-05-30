@@ -43,6 +43,7 @@ export function createMembershipTierService(
       const { id } = await tx.membershipTier.create({
         data: {
           clubId: clubId,
+          // default
           status: "PUBLISHED",
           ...input
         },
@@ -71,6 +72,7 @@ export function createMembershipTierService(
     input: CreateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
+    // free tier does not require Stripe product and prices
     if (isDefaultFreeTier(input)) {
       return;
     }
@@ -147,7 +149,9 @@ export function createMembershipTierService(
     }
   }
 
-  async function isDefaultFreeTierById(membershipTierId: number) {
+  async function isDefaultFreeTierById(
+    membershipTierId: number
+  ): Promise<boolean> {
     try {
       const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
         where: { id: membershipTierId },
@@ -376,6 +380,7 @@ export function createMembershipTierService(
     input: UpdateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
+    // free tier does not require Stripe product and prices
     if (isDefaultFreeTier(input)) {
       return;
     }
@@ -422,6 +427,7 @@ export function createMembershipTierService(
         accountId
       );
 
+    // only update price ids if it they have changed
     if (!!updatedPriceId) {
       try {
         await tx.membershipTier.update({
@@ -522,11 +528,14 @@ export function createMembershipTierService(
       where: { id: membershipTierId }
     });
 
+    // free tier does not need to archive product
     if (isPrismaResultDefaultFreeTier(membershipTier)) {
       return;
     }
 
     if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
+      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
+      // we should not block
       logger.error(
         `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be archived`
       );
@@ -550,7 +559,9 @@ export function createMembershipTierService(
     );
   }
 
-  async function isMembershipTierPublished(membershipTierId: number) {
+  async function isMembershipTierPublished(
+    membershipTierId: number
+  ): Promise<boolean> {
     try {
       const r = await prisma.membershipTier.findUniqueOrThrow({
         select: {
@@ -619,6 +630,7 @@ export function createMembershipTierService(
       where: { id: membershipTierId }
     });
 
+    // free tier does not need to publish product
     if (isPrismaResultDefaultFreeTier(membershipTier)) {
       return;
     }
@@ -701,7 +713,31 @@ export function createMembershipTierService(
     }
   }
 
+  async function getClubIdFromMembershipTierId(
+    membershipTierId: number
+  ): Promise<number> {
+    try {
+      const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
+        select: { clubId: true },
+        where: { id: membershipTierId }
+      });
+      logger.info(
+        `queried clubId for membership tier with membershipTierId ${membershipTierId} with result ${membershipTier.clubId}`
+      );
+      return membershipTier.clubId;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query clubId for membership tier with membershipTierId ${membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
   return {
+    isMembershipTierPublished,
+    isDefaultFreeTierById,
+    getClubIdFromMembershipTierId,
     createMembershipTier,
     updateMembershipTier,
     deleteMembershipTier,
