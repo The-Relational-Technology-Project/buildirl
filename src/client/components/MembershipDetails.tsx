@@ -37,13 +37,15 @@ export default function MembershipDetails({
           <Text size="sm">${membership.membershipTier.costPerMonthInUSD}.00/month</Text>
         </Group>
         
-        <Group gap="xs">
-          <ColorSchemeAwareThemeIcon size="xs">
-            <IconCalendar size={18} />
-          </ColorSchemeAwareThemeIcon>
-          <Text size="sm" fw={500}>{isPending ? "Applied:" : "Joined:"}</Text>
-          <Text size="sm">{toDisplayDate(membership.createdAt)}</Text>
-        </Group>
+        {isPending && (
+          <Group gap="xs">
+            <ColorSchemeAwareThemeIcon size="xs">
+              <IconCalendar size={18} />
+            </ColorSchemeAwareThemeIcon>
+            <Text size="sm" fw={500}>Applied:</Text>
+            <Text size="sm">{toDisplayDate(membership.createdAt)}</Text>
+          </Group>
+        )}
         
         {membership.email && (
           <Group gap="xs">

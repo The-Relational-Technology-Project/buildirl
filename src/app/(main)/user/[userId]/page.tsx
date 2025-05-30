@@ -26,7 +26,6 @@ function UserProfile({ userId }: UserProfileProps) {
     isLoaded(r) && (
       <BaseUserProfile 
         user={r.data!} 
-        showJoinedDate={true}
         size="md"
         width={600}
       />

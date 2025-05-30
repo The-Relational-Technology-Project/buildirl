@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isLoaded, toDisplayDate } from "~/client/utils";
+import { isLoaded } from "~/client/utils";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
@@ -63,7 +63,6 @@ export default function ActiveMembershipTable({
       </Table.Td>
       <Table.Td>{m.membershipTier.name}</Table.Td>
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
-      <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
       <Table.Td>
         {m.email === null ? null : (
           <Text size="sm">{m.email}</Text>
@@ -108,7 +107,6 @@ export default function ActiveMembershipTable({
                   <Table.Th>User</Table.Th>
                   <Table.Th>Tier</Table.Th>
                   <Table.Th>Contribution</Table.Th>
-                  <Table.Th>Date Joined</Table.Th>
                   <Table.Th>Email</Table.Th>
                 </Table.Tr>
               </Table.Thead>
