@@ -83,7 +83,7 @@ describe("service", () => {
       accountIdResolver
     );
     clubService = createClubService(prisma, membershipTierService);
-    followingService = createFollowingService(prisma, userService);
+    followingService = createFollowingService(prisma, userService, clubService);
     membershipService = createMembershipService(
       prisma,
       userService,

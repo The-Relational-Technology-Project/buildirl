@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { ClubFollower, FollowingService } from "~/server/following/types";
-import { Club } from "~/server/club/types";
+import { Club, ClubService } from "~/server/club/types";
 import { asClub, CLUB_SELECT } from "~/server/club/utils";
 import { stringify } from "~/utils";
 import { rootLogger } from "~/logger";
@@ -13,23 +13,9 @@ const logger = rootLogger.child({ module: "followingService" });
 
 export function createFollowingService(
   prisma: PrismaClient,
-  userService: UserService
+  userService: UserService,
+  clubService: ClubService
 ): FollowingService {
-  async function asClubFollower(
-    r: UserGetPayload<{ select: typeof USER_SELECT }>,
-    createdAt: Date
-  ): Promise<ClubFollower> {
-    const email = await userService.getUserEmail(r.id);
-    if (!email) {
-      throw new Error(`expected to find email for user ${r.id} but found none`);
-    }
-    return {
-      user: r,
-      email: email,
-      createdAt: createdAt
-    };
-  }
-
   async function getUserFollowedClubs(userId: number): Promise<Club[]> {
     try {
       const results = await prisma.clubFollowing.findMany({
@@ -55,6 +41,21 @@ export function createFollowingService(
       );
       throw e;
     }
+  }
+
+  async function asClubFollower(
+    r: UserGetPayload<{ select: typeof USER_SELECT }>,
+    createdAt: Date
+  ): Promise<ClubFollower> {
+    const email = await userService.getUserEmail(r.id);
+    if (!email) {
+      throw new Error(`expected to find email for user ${r.id} but found none`);
+    }
+    return {
+      user: r,
+      email: email,
+      createdAt: createdAt
+    };
   }
 
   async function getClubFollowers(clubId: number): Promise<ClubFollower[]> {
@@ -107,15 +108,11 @@ export function createFollowingService(
   }
 
   async function checkUserIsNotClubOwner(userId: number, clubId: number) {
-    const clubOwnerUserId = await prisma.club
-      .findUniqueOrThrow({
-        where: { id: clubId },
-        select: { ownerUserId: true }
-      })
-      .then((r) => r.ownerUserId);
-
-    if (clubOwnerUserId === userId) {
-      throw new Error("user is owner of club");
+    const ownerUserId = await clubService.getClubOwnerUserId(clubId);
+    if (ownerUserId === userId) {
+      throw new Error(
+        `cannot follow club for club owner with userId ${userId} of clubId ${clubId}`
+      );
     }
   }
 
@@ -239,7 +236,6 @@ export function createFollowingService(
     );
   }
 
-  // not in membershipService as it would introduce circular dependency; okay for now
   async function getClubIdAndUserIdForMembership(
     membershipId: bigint,
     tx: Prisma.TransactionClient
