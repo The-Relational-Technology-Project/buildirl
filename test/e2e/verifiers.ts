@@ -1,13 +1,11 @@
-import {
-  type Club,
-  type MainService,
-  type Membership,
-  type User
-} from "~/server/service/types";
+import { type Membership } from "~/server/membership/types";
 import { type SystemState } from "./systemState";
 import { orderByBigIntId, orderByNumberId } from "./utils";
 import { OmitRecursively } from "~/utils/omit";
 import { EmailService, EmailTemplateId } from "~/server/email/types";
+import { User } from "~/server/user/types";
+import { Club } from "~/server/club/types";
+import { Services } from "./system.test";
 
 function createVerifiers() {
   function userWithoutCreatedAt(
@@ -21,8 +19,8 @@ function createVerifiers() {
     };
   }
 
-  async function verifyUser(userId: number, r: MainService, m: SystemState) {
-    const user = await r.getUser(userId);
+  async function verifyUser(userId: number, r: Services, m: SystemState) {
+    const user = await r.user.getUser(userId);
     expect(userWithoutCreatedAt(user)).toEqual(m.getUser(userId));
   }
 
@@ -49,22 +47,22 @@ function createVerifiers() {
     };
   }
 
-  async function verifyClub(clubId: number, r: MainService, m: SystemState) {
+  async function verifyClub(clubId: number, r: Services, m: SystemState) {
     const expected = m.getClub(clubId);
     // main entity query
-    const club = await r.getClub(clubId);
+    const club = await r.club.getClub(clubId);
     expect(clubWithoutCreatedAt(club)).toEqual(expected);
     // also verify query by public id
-    const clubByPublicId = await r.getClubByPublicId(expected.publicId);
+    const clubByPublicId = await r.club.getClubByPublicId(expected.publicId);
     expect(clubWithoutCreatedAt(clubByPublicId)).toEqual(expected);
   }
 
   async function verifyUserOwnedClub(
     userId: number,
-    r: MainService,
+    r: Services,
     m: SystemState
   ) {
-    const userOwnedClubs = await r.getUserOwnedClubs(userId);
+    const userOwnedClubs = await r.club.getUserOwnedClubs(userId);
     expect(
       orderByNumberId(userOwnedClubs.map((c) => clubWithoutCreatedAt(c)))
     ).toEqual(orderByNumberId(m.getUserOwnedClubs(userId)));
@@ -72,7 +70,7 @@ function createVerifiers() {
 
   async function verifyClubMemberships(
     clubId: number,
-    r: MainService,
+    r: Services,
     m: SystemState
   ) {
     await verifyActiveMembershipsForClub(clubId, r, m);
@@ -98,10 +96,13 @@ function createVerifiers() {
 
   async function verifyActiveMembershipsForClub(
     clubId: number,
-    r: MainService,
+    r: Services,
     m: SystemState
   ) {
-    const memberships = await r.getActiveMembershipsForClub(clubId, true);
+    const memberships = await r.membership.getActiveMembershipsForClub(
+      clubId,
+      true
+    );
     expect(
       orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
     ).toEqual(orderByBigIntId(m.getActiveMembershipsForClub(clubId, true)));
@@ -109,10 +110,11 @@ function createVerifiers() {
 
   async function verifyMembershipApplicationsForClub(
     clubId: number,
-    r: MainService,
+    r: Services,
     m: SystemState
   ) {
-    const memberships = await r.getMembershipApplicationsForClub(clubId);
+    const memberships =
+      await r.membership.getMembershipApplicationsForClub(clubId);
     expect(
       orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
     ).toEqual(orderByBigIntId(m.getMembershipApplicationsForClub(clubId)));
@@ -120,19 +122,19 @@ function createVerifiers() {
 
   async function verifyClubStatistics(
     clubId: number,
-    r: MainService,
+    r: Services,
     m: SystemState
   ) {
-    const clubStatistics = await r.getClubStatistics(clubId);
+    const clubStatistics = await r.club.getClubStatistics(clubId);
     expect(clubStatistics).toEqual(m.getClubStatistics(clubId));
   }
 
   async function verifyUserMemberships(
     userId: number,
-    r: MainService,
+    r: Services,
     m: SystemState
   ) {
-    const memberships = await r.getUserMemberships(userId);
+    const memberships = await r.membership.getUserMemberships(userId);
     expect(
       orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
     ).toEqual(orderByBigIntId(m.getUserMemberships(userId)));
@@ -140,10 +142,10 @@ function createVerifiers() {
 
   async function verifyClubFollowers(
     clubId: number,
-    r: MainService,
+    r: Services,
     m: SystemState
   ) {
-    const followers = await r.getClubFollowers(clubId);
+    const followers = await r.following.getClubFollowers(clubId);
     expect(
       // we only compare user not email or createdAt dates
       orderByNumberId(followers.map((f) => userWithoutCreatedAt(f.user)))
@@ -152,10 +154,10 @@ function createVerifiers() {
 
   async function verifyUserFollowedClubs(
     userId: number,
-    r: MainService,
+    r: Services,
     m: SystemState
   ) {
-    const followedClubs = await r.getUserFollowedClubs(userId);
+    const followedClubs = await r.following.getUserFollowedClubs(userId);
     expect(
       orderByNumberId(followedClubs.map((c) => clubWithoutCreatedAt(c)))
     ).toEqual(orderByNumberId(m.getUserFollowedClubs(userId)));

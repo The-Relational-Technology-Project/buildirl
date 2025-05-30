@@ -17,10 +17,12 @@ import {
   ClubNameSchema,
   ClubPublicIdSchema,
   FAQAnswerSchema,
-  FAQQuestionSchema,
+  FAQQuestionSchema
+} from "~/server/club/types";
+import {
   InstagramHandleSchema,
   RequiredStringSchema
-} from "~/server/service/types";
+} from "~/server/utils/types";
 import UpdateUserCommand from "./updateUserCommand";
 import itemSelector from "../utils/itemSelector";
 import CreateClubCommand from "./createClubCommand";
@@ -46,7 +48,7 @@ import SetMembershipAsWelcomedCommand from "./setMembershipAsWelcomedCommand";
 import CreateStripeAccountCommand from "./createStripeAccountCommand";
 import FollowClubCommand from "./followClubCommand";
 import UnfollowClubCommand from "./unfollowClubCommand";
-import { CitySchema } from "~/server/service/types/location";
+import { CitySchema } from "~/server/club/types/location";
 import { EmailTemplateType } from "~/server/email/types";
 import SetEmailTemplateCommand from "./setEmailTemplateCommand";
 import DeleteEmailTemplateCommand from "./deleteEmailTemplateCommand";

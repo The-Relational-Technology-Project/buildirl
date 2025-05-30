@@ -17,8 +17,8 @@ import { createComponentClient } from "~/utils/supabase/auth/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { logger, notifyError } from "~/client/logger";
 import { safeValidateSchema } from "~/utils/zod";
-import { EmailSchema } from "~/server/service/types";
 import GoogleSSOButton from "~/app/(login)/login/_components/GoogleSSOButton";
+import { EmailSchema } from "~/server/utils/types";
 
 const OtpSchema = z.string().regex(/^\d{6}$/, "Code must be 6 digits");
 

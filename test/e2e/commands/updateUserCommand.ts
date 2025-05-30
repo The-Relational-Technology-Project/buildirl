@@ -1,6 +1,6 @@
 import { type Command } from "fast-check";
 import { type SystemState } from "../systemState";
-import { UpdateUserInput } from "~/server/service/types";
+import { UpdateUserInput } from "~/server/user/types";
 import { type Maybe } from "~/utils/types";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
@@ -25,9 +25,9 @@ export default class UpdateUserCommand
 
   async run(m: SystemState, r: Services): Promise<void> {
     this.userId = this.userIdSelector.select(m.getUserIds());
-    await r.main.updateUser(this.userId, this.input);
+    await r.user.updateUser(this.userId, this.input);
     m.updateUser(this.userId, this.input);
-    await verifiers.verifyUser(this.userId, r.main, m);
+    await verifiers.verifyUser(this.userId, r, m);
   }
 
   toString() {

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Url } from "~/server/service/types";
+import { Url } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 
 export type PaymentService = PaymentMutations & PaymentQueries;

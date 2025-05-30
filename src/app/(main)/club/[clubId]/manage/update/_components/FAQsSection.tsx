@@ -11,7 +11,7 @@ import {
   Divider
 } from "@mantine/core";
 import { IconPlus, IconX } from "@tabler/icons-react";
-import { Club } from "~/server/service/types";
+import { Club } from "~/server/club/types";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
 export default function FAQsSection() {
