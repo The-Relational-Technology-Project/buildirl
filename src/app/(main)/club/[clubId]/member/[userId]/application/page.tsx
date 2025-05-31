@@ -25,6 +25,7 @@ import { isAllLoaded } from "~/client/utils";
 import { FormQuestionType, FormResponse } from "~/server/club/types/form";
 import { Membership } from "~/server/membership/types";
 import MemberProfile from "~/client/components/MemberProfile";
+import MembershipInfoCard from "~/client/components/MembershipInfoCard";
 import { handleDefaultMutationError } from "~/client/logger";
 import { Maybe } from "~/utils/types";
 
@@ -37,11 +38,6 @@ function findUserMembership(
   return [...membershipApplications, ...activeMemberships].find(
     (mem) => mem.user.id === userId
   ) || null;
-}
-
-
-function isMembershipPending(userId: number, membershipApplications: Membership[]): boolean {
-  return membershipApplications.some(mem => mem.user.id === userId);
 }
 
 type MemberActionsCardProps = {
@@ -301,8 +297,6 @@ export default function MemberApplication() {
     activeMembershipsQuery.data!
   );
 
-  const isPending = isMembershipPending(userId, membershipApplicationsQuery.data!);
-  
   const pendingMembership = membershipApplicationsQuery.data!.find((mem) => mem.user.id === userId);
   const activeMembership = activeMembershipsQuery.data!.find((mem) => mem.user.id === userId);
 
@@ -325,8 +319,11 @@ export default function MemberApplication() {
           {/* Main Profile Section */}
           <MemberProfile 
             user={userQuery.data!}
+          />
+          
+          {/* Membership Information Section */}
+          <MembershipInfoCard 
             membership={userMembership}
-            isPending={isPending}
           />
           
           {/* Application Actions Section - Only for pending memberships */}
