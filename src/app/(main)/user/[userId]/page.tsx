@@ -8,13 +8,13 @@ import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
-import BaseUserProfile from "~/client/components/BaseUserProfile";
+import UserProfile from "~/client/components/UserProfile";
 
-type UserProfileProps = {
+type UserProfilePageProps = {
   userId: number;
 };
 
-function UserProfile({ userId }: UserProfileProps) {
+function UserProfilePage({ userId }: UserProfilePageProps) {
   const r = api.main.userById.useQuery({ id: userId });
 
   QueryError.check({
@@ -24,10 +24,11 @@ function UserProfile({ userId }: UserProfileProps) {
 
   return (
     isLoaded(r) && (
-      <BaseUserProfile 
+      <UserProfile 
         user={r.data!} 
         size="md"
         width={600}
+        variant="default"
       />
     )
   );
@@ -42,7 +43,7 @@ export default function User() {
   return (
     <WithLocalNavigationHeader hidden={isLocalNavBarHidden}>
       <Center>
-        <UserProfile userId={userId} />
+        <UserProfilePage userId={userId} />
       </Center>
     </WithLocalNavigationHeader>
   );

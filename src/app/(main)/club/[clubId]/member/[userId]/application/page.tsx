@@ -24,7 +24,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { FormQuestionType, FormResponse } from "~/server/club/types/form";
 import { Membership } from "~/server/membership/types";
-import MemberProfile from "~/client/components/MemberProfile";
+import UserProfile from "~/client/components/UserProfile";
 import MembershipInfoCard from "~/client/components/MembershipInfoCard";
 import { handleDefaultMutationError } from "~/client/logger";
 import { Maybe } from "~/utils/types";
@@ -317,8 +317,11 @@ export default function MemberApplication() {
       <Center>
         <Stack w={800} gap="xl" pb="xl">
           {/* Main Profile Section */}
-          <MemberProfile 
+          <UserProfile 
             user={userQuery.data!}
+            size="lg"
+            variant="member"
+            showClickable={false}
           />
           
           {/* Membership Information Section */}
