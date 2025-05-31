@@ -40,141 +40,6 @@ function findUserMembership(
   ) || null;
 }
 
-type MemberActionsCardProps = {
-  clubId: number;
-  pendingMembership?: Membership;
-  activeMembership?: Membership;
-};
-
-function MemberActionsCard({ clubId, pendingMembership, activeMembership, ...props }: MemberActionsCardProps & PaperProps) {
-  const utils = api.useUtils();
-  const router = useRouter();
-
-  const approveMembershipApplication =
-    api.main.approveMembershipApplication.useMutation({
-      onSuccess: async () => {
-        await utils.main.membershipApplicationsForClub.invalidate({ clubId });
-        await utils.main.activeMembershipsForClubWithEmail.invalidate({ clubId });
-        await utils.main.clubStatistics.invalidate({ clubId });
-        router.push(`/club/${clubId}/manage?tab=people`);
-      },
-      onError: handleDefaultMutationError
-    });
-
-  const declineMembershipApplication =
-    api.main.declineMembershipApplication.useMutation({
-      onSuccess: async () => {
-        await utils.main.membershipApplicationsForClub.invalidate({ clubId });
-        router.push(`/club/${clubId}/manage?tab=people`);
-      },
-      onError: handleDefaultMutationError
-    });
-
-  const deactivateMembership = api.main.deactivateMembership.useMutation({
-    onSuccess: async () => {
-      await utils.main.activeMembershipsForClubWithEmail.invalidate({ clubId });
-      await utils.main.clubStatistics.invalidate({ clubId });
-      router.push(`/club/${clubId}/manage?tab=people`);
-    },
-    onError: handleDefaultMutationError
-  });
-
-  const handleApproveMembership = () => {
-    if (!pendingMembership) return;
-    if (
-      window.confirm(
-        "Ready to approve this application? Don't forget to review the application intake form before approving."
-      )
-    ) {
-      approveMembershipApplication.mutateAsync({
-        membershipId: pendingMembership.id
-      });
-    }
-  };
-
-  const handleDeclineMembership = () => {
-    if (!pendingMembership) return;
-    if (
-      window.confirm(
-        "Are you sure you want to decline this application? This action cannot be undone."
-      )
-    ) {
-      declineMembershipApplication.mutateAsync({
-        membershipId: pendingMembership.id
-      });
-    }
-  };
-
-  const handleCancelMembership = () => {
-    if (!activeMembership) return;
-    if (
-      window.confirm(
-        "Are you sure you want to cancel this membership? This action cannot be undone."
-      )
-    ) {
-      deactivateMembership.mutateAsync({
-        membershipId: activeMembership.id,
-        input: { byClubOwner: true }
-      });
-    }
-  };
-
-  if (!pendingMembership && !activeMembership) {
-    return null;
-  }
-
-  return (
-    <Paper p="xl" {...props}>
-      <Stack gap="lg">
-        <Title order={4} fw={500}>Actions</Title>
-        
-        {pendingMembership && (
-          <Stack gap="md">
-            <Text size="sm">
-              Review this application and decide whether to approve or decline membership.
-            </Text>
-            <Group grow>
-              <Button
-                color="green"
-                size="lg"
-                onClick={handleApproveMembership}
-                loading={approveMembershipApplication.isPending}
-              >
-                Approve
-              </Button>
-              <Button
-                color="red"
-                size="lg"
-                onClick={handleDeclineMembership}
-                loading={declineMembershipApplication.isPending}
-              >
-                Decline
-              </Button>
-            </Group>
-          </Stack>
-        )}
-
-        {activeMembership && (
-          <Stack gap="md">
-            <Text size="sm">
-              This member is currently active. You can cancel their membership if needed.
-            </Text>
-            <Button
-              color="red"
-              size="lg"
-              fullWidth
-              onClick={handleCancelMembership}
-              loading={deactivateMembership.isPending}
-            >
-              Cancel Membership
-            </Button>
-          </Stack>
-        )}
-      </Stack>
-    </Paper>
-  );
-}
-
 type ApplicationResponsesCardProps = {
   membership: Membership;
 };
@@ -265,6 +130,141 @@ function ApplicationResponsesCard({
   );
 }
 
+type PendingMembershipCardProps = {
+  clubId: number;
+  membership: Membership;
+};
+
+function PendingMembershipCard({ clubId, membership }: PendingMembershipCardProps) {
+  const utils = api.useUtils();
+  const router = useRouter();
+
+  const approveMembershipApplication =
+    api.main.approveMembershipApplication.useMutation({
+      onSuccess: async () => {
+        await utils.main.membershipApplicationsForClub.invalidate({ clubId });
+        await utils.main.activeMembershipsForClubWithEmail.invalidate({ clubId });
+        await utils.main.clubStatistics.invalidate({ clubId });
+        router.push(`/club/${clubId}/manage?tab=people`);
+      },
+      onError: handleDefaultMutationError
+    });
+
+  const declineMembershipApplication =
+    api.main.declineMembershipApplication.useMutation({
+      onSuccess: async () => {
+        await utils.main.membershipApplicationsForClub.invalidate({ clubId });
+        router.push(`/club/${clubId}/manage?tab=people`);
+      },
+      onError: handleDefaultMutationError
+    });
+
+  const handleApproveMembership = () => {
+    if (
+      window.confirm(
+        "Ready to approve this application? Don't forget to review the application intake form before approving."
+      )
+    ) {
+      approveMembershipApplication.mutateAsync({
+        membershipId: membership.id
+      });
+    }
+  };
+
+  const handleDeclineMembership = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to decline this application? This action cannot be undone."
+      )
+    ) {
+      declineMembershipApplication.mutateAsync({
+        membershipId: membership.id
+      });
+    }
+  };
+
+  return (
+    <Paper p="xl">
+      <Stack gap="lg">
+        <Title order={4} fw={500}>Actions</Title>
+        <Text size="sm">
+          Review this application and decide whether to approve or decline membership.
+        </Text>
+        <Group grow>
+          <Button
+            color="green"
+            size="sm"
+            onClick={handleApproveMembership}
+            loading={approveMembershipApplication.isPending}
+          >
+            Approve
+          </Button>
+          <Button
+            color="red"
+            size="sm"
+            onClick={handleDeclineMembership}
+            loading={declineMembershipApplication.isPending}
+          >
+            Decline
+          </Button>
+        </Group>
+      </Stack>
+    </Paper>
+  );
+}
+
+type ActiveMembershipCardProps = {
+  clubId: number;
+  membership: Membership;
+};
+
+function ActiveMembershipCard({ clubId, membership }: ActiveMembershipCardProps) {
+  const utils = api.useUtils();
+  const router = useRouter();
+
+  const deactivateMembership = api.main.deactivateMembership.useMutation({
+    onSuccess: async () => {
+      await utils.main.activeMembershipsForClubWithEmail.invalidate({ clubId });
+      await utils.main.clubStatistics.invalidate({ clubId });
+      router.push(`/club/${clubId}/manage?tab=people`);
+    },
+    onError: handleDefaultMutationError
+  });
+
+  const handleCancelMembership = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to cancel this membership? This action cannot be undone."
+      )
+    ) {
+      deactivateMembership.mutateAsync({
+        membershipId: membership.id,
+        input: { byClubOwner: true }
+      });
+    }
+  };
+
+  return (
+    <Paper p="xl">
+      <Stack gap="lg">
+        <Title order={4} fw={500}>Actions</Title>
+        <Text size="sm">
+          This member is currently active. You can cancel their membership if needed.
+        </Text>
+        <Button
+          color="red"
+          size="sm"
+          fullWidth
+          onClick={handleCancelMembership}
+          loading={deactivateMembership.isPending}
+        >
+          Cancel Membership
+        </Button>
+      </Stack>
+    </Paper>
+  );
+}
+
 export default function MemberApplication() {
   const params = useParams<{ userId: string; clubId: string }>();
   const userId = strictParseInt(params.userId);
@@ -317,6 +317,14 @@ export default function MemberApplication() {
       <Center>
         <Stack w={800} gap="xl" pb="xl">
           {/* Main Profile Section */}
+          {pendingMembership && (
+            <PendingMembershipCard 
+              clubId={clubId} 
+              membership={pendingMembership}
+            />
+          )}
+
+          {/* User profile info */}
           <UserProfile 
             user={userQuery.data!}
             size="lg"
@@ -329,14 +337,6 @@ export default function MemberApplication() {
             membership={userMembership}
           />
           
-          {/* Application Actions Section - Only for pending memberships */}
-          {pendingMembership && (
-            <MemberActionsCard 
-              clubId={clubId} 
-              pendingMembership={pendingMembership}
-            />
-          )}
-          
           {/* Q&A Section */}
           <ApplicationResponsesCard 
             membership={userMembership}
@@ -344,9 +344,9 @@ export default function MemberApplication() {
           
           {/* Member Management Section - Only for active memberships */}
           {activeMembership && (
-            <MemberActionsCard 
+            <ActiveMembershipCard 
               clubId={clubId} 
-              activeMembership={activeMembership}
+              membership={activeMembership}
             />
           )}
         </Stack>
