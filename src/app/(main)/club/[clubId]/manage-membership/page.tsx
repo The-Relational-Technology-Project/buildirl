@@ -8,7 +8,6 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
-import JoinedDate from "~/client/components/JoinedDate";
 import { isDefaultFreeTier, membershipForClub } from "~/utils/types";
 import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
 import ManagePaymentsButton from "~/app/(main)/club/[clubId]/manage-membership/_components/ManagePaymentsButton";
@@ -78,8 +77,6 @@ export default function ManageMembership() {
               <InactiveSubscriptionAlert membershipId={membership.id} />
             )}
           </Group>
-
-          <JoinedDate date={membership.createdAt} mt={8} />
 
           <Stack gap={2} mt={"md"}>
             <Title order={5}>Name</Title>
