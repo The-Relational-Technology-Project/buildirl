@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Group, Stack, Text, Title, SimpleGrid, Paper, PaperProps } from "@mantine/core";
 import { IconMail, IconCalendar, IconCoin } from "@tabler/icons-react";
-import { Membership } from "~/server/service/types";
+import { Membership } from "~/server/membership/types";
 import { toDisplayDate } from "~/client/utils";
 import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Stack, Text, Title, Divider, StackProps, Paper, Group, Box } from "@mantine/core";
 import { useRouter } from "next/navigation";
-import { User } from "~/server/service/types";
+import { User } from "~/server/user/types";
 import UserAvatar from "~/client/components/UserAvatar";
 
 type UserProfileProps = {

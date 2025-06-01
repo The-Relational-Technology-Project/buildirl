@@ -17,7 +17,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import UserAvatar from "~/client/components/UserAvatar";
-import { Membership } from "~/server/service/types";
+import { Membership } from "~/server/membership/types";
 import { useMounted } from "@mantine/hooks";
 
 type ActiveMembershipTableProps = {
