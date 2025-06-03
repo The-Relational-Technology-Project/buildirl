@@ -22,10 +22,10 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { FormQuestionType, FormResponse } from "~/server/club/types/form";
 import { Membership } from "~/server/membership/types";
-import UserProfile from "~/client/components/UserProfile";
 import { handleDefaultMutationError } from "~/client/logger";
 import { Maybe } from "~/utils/types";
 import MembershipInfoCard from "~/app/(main)/club/[clubId]/member/_components/MembershipInfoCard";
+import UserInfoCard from "~/app/(main)/club/[clubId]/member/_components/UserInfoCard";
 
 function findUserMembership(
   userId: number,
@@ -340,12 +340,7 @@ export default function MemberApplication() {
           />
         )}
 
-        <UserProfile
-          user={userQuery.data!}
-          size="lg"
-          variant="member"
-          showClickable={false}
-        />
+        <UserInfoCard user={userQuery.data!} />
 
         <MembershipInfoCard membership={userMembership} />
 

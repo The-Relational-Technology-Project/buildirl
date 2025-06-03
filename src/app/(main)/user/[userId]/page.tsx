@@ -1,6 +1,6 @@
 "use client";
 
-import { Center } from "@mantine/core";
+import { Center, Divider, Group, Stack, Text, Title } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -8,13 +8,13 @@ import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
-import UserProfile from "~/client/components/UserProfile";
+import UserAvatar from "~/client/components/UserAvatar";
 
-type UserProfilePageProps = {
+type UserProfileProps = {
   userId: number;
 };
 
-function UserProfilePage({ userId }: UserProfilePageProps) {
+function UserProfile({ userId }: UserProfileProps) {
   const r = api.main.userById.useQuery({ id: userId });
 
   QueryError.check({
@@ -24,12 +24,23 @@ function UserProfilePage({ userId }: UserProfilePageProps) {
 
   return (
     isLoaded(r) && (
-      <UserProfile 
-        user={r.data!} 
-        size="md"
-        width={600}
-        variant="default"
-      />
+      <Stack w={600}>
+        <Group align={"flex-start"} gap={"lg"}>
+          <UserAvatar size={"md"} user={r.data!} />
+          <Stack gap={4}>
+            <Title order={3} fw={500} pt={10}>
+              {r.data!.firstName} {r.data!.lastName}
+            </Title>
+          </Stack>
+        </Group>
+        {r.data!.description !== "" && (
+          <>
+            <Divider my={"md"} />
+            <Title order={4}>Bio</Title>
+            <Text size={"sm"}>{r.data!.description}</Text>
+          </>
+        )}
+      </Stack>
     )
   );
 }
@@ -43,7 +54,7 @@ export default function User() {
   return (
     <WithLocalNavigationHeader hidden={isLocalNavBarHidden}>
       <Center>
-        <UserProfilePage userId={userId} />
+        <UserProfile userId={userId} />
       </Center>
     </WithLocalNavigationHeader>
   );
