@@ -7,10 +7,8 @@ import React from "react";
 import {
   Box,
   Button,
-  Center,
   Group,
   Paper,
-  PaperProps,
   Stack,
   Text,
   TextInput,
@@ -25,19 +23,20 @@ import { isAllLoaded } from "~/client/utils";
 import { FormQuestionType, FormResponse } from "~/server/club/types/form";
 import { Membership } from "~/server/membership/types";
 import UserProfile from "~/client/components/UserProfile";
-import MembershipInfoCard from "~/client/components/MembershipInfoCard";
 import { handleDefaultMutationError } from "~/client/logger";
 import { Maybe } from "~/utils/types";
-
+import MembershipInfoCard from "~/app/(main)/club/[clubId]/member/_components/MembershipInfoCard";
 
 function findUserMembership(
   userId: number,
   membershipApplications: Membership[],
   activeMemberships: Membership[]
 ): Maybe<Membership> {
-  return [...membershipApplications, ...activeMemberships].find(
-    (mem) => mem.user.id === userId
-  ) || null;
+  return (
+    [...membershipApplications, ...activeMemberships].find(
+      (mem) => mem.user.id === userId
+    ) || null
+  );
 }
 
 type ApplicationResponsesCardProps = {
@@ -45,9 +44,8 @@ type ApplicationResponsesCardProps = {
 };
 
 function ApplicationResponsesCard({
-  membership,
-  ...props
-}: ApplicationResponsesCardProps & PaperProps) {
+  membership
+}: ApplicationResponsesCardProps) {
   const renderResponse = (response: FormResponse) => {
     switch (response.type) {
       case FormQuestionType.SHORT_TEXT:
@@ -102,14 +100,16 @@ function ApplicationResponsesCard({
           </Box>
         );
       default:
-        return null;
+        throw new Error(`unsupported type`);
     }
   };
 
   return (
-    <Paper p="xl" {...props}>
+    <Paper p={"xl"}>
       <Stack gap="lg">
-        <Title order={4} fw={500}>Application Q&A</Title>
+        <Title order={4} fw={500}>
+          Application Q&A
+        </Title>
 
         {membership.applicationResponses.responses.length === 0 ? (
           <Text size="sm" ta="center" py="xl">
@@ -135,7 +135,10 @@ type PendingMembershipCardProps = {
   membership: Membership;
 };
 
-function PendingMembershipCard({ clubId, membership }: PendingMembershipCardProps) {
+function PendingMembershipCard({
+  clubId,
+  membership
+}: PendingMembershipCardProps) {
   const utils = api.useUtils();
   const router = useRouter();
 
@@ -143,7 +146,9 @@ function PendingMembershipCard({ clubId, membership }: PendingMembershipCardProp
     api.main.approveMembershipApplication.useMutation({
       onSuccess: async () => {
         await utils.main.membershipApplicationsForClub.invalidate({ clubId });
-        await utils.main.activeMembershipsForClubWithEmail.invalidate({ clubId });
+        await utils.main.activeMembershipsForClubWithEmail.invalidate({
+          clubId
+        });
         await utils.main.clubStatistics.invalidate({ clubId });
         router.push(`/club/${clubId}/manage?tab=people`);
       },
@@ -159,25 +164,25 @@ function PendingMembershipCard({ clubId, membership }: PendingMembershipCardProp
       onError: handleDefaultMutationError
     });
 
-  const handleApproveMembership = () => {
+  const handleApproveMembership = async () => {
     if (
       window.confirm(
         "Ready to approve this application? Don't forget to review the application intake form before approving."
       )
     ) {
-      approveMembershipApplication.mutateAsync({
+      await approveMembershipApplication.mutateAsync({
         membershipId: membership.id
       });
     }
   };
 
-  const handleDeclineMembership = () => {
+  const handleDeclineMembership = async () => {
     if (
       window.confirm(
         "Are you sure you want to decline this application? This action cannot be undone."
       )
     ) {
-      declineMembershipApplication.mutateAsync({
+      await declineMembershipApplication.mutateAsync({
         membershipId: membership.id
       });
     }
@@ -186,9 +191,12 @@ function PendingMembershipCard({ clubId, membership }: PendingMembershipCardProp
   return (
     <Paper p="xl">
       <Stack gap="lg">
-        <Title order={4} fw={500}>Actions</Title>
+        <Title order={4} fw={500}>
+          Actions
+        </Title>
         <Text size="sm">
-          Review this application and decide whether to approve or decline membership.
+          Review this application and decide whether to approve or decline
+          membership.
         </Text>
         <Group grow>
           <Button
@@ -218,7 +226,10 @@ type ActiveMembershipCardProps = {
   membership: Membership;
 };
 
-function ActiveMembershipCard({ clubId, membership }: ActiveMembershipCardProps) {
+function ActiveMembershipCard({
+  clubId,
+  membership
+}: ActiveMembershipCardProps) {
   const utils = api.useUtils();
   const router = useRouter();
 
@@ -247,14 +258,16 @@ function ActiveMembershipCard({ clubId, membership }: ActiveMembershipCardProps)
   return (
     <Paper p="xl">
       <Stack gap="lg">
-        <Title order={4} fw={500}>Actions</Title>
+        <Title order={4} fw={500}>
+          Actions
+        </Title>
         <Text size="sm">
-          This member is currently active. You can cancel their membership if needed.
+          This member is currently active. You can cancel their membership if
+          needed.
         </Text>
         <Button
           color="red"
           size="sm"
-          fullWidth
           onClick={handleCancelMembership}
           loading={deactivateMembership.isPending}
         >
@@ -270,8 +283,10 @@ export default function MemberApplication() {
   const userId = strictParseInt(params.userId);
   const clubId = strictParseInt(params.clubId);
 
-  const membershipApplicationsQuery = api.main.membershipApplicationsForClub.useQuery({ clubId });
-  const activeMembershipsQuery = api.main.activeMembershipsForClubWithEmail.useQuery({ clubId });
+  const membershipApplicationsQuery =
+    api.main.membershipApplicationsForClub.useQuery({ clubId });
+  const activeMembershipsQuery =
+    api.main.activeMembershipsForClubWithEmail.useQuery({ clubId });
   const userQuery = api.main.userById.useQuery({ id: userId });
 
   QueryError.check({
@@ -287,7 +302,13 @@ export default function MemberApplication() {
     fieldName: "userById"
   });
 
-  if (!isAllLoaded([membershipApplicationsQuery, activeMembershipsQuery, userQuery])) {
+  if (
+    !isAllLoaded([
+      membershipApplicationsQuery,
+      activeMembershipsQuery,
+      userQuery
+    ])
+  ) {
     return null;
   }
 
@@ -297,60 +318,43 @@ export default function MemberApplication() {
     activeMembershipsQuery.data!
   );
 
-  const pendingMembership = membershipApplicationsQuery.data!.find((mem) => mem.user.id === userId);
-  const activeMembership = activeMembershipsQuery.data!.find((mem) => mem.user.id === userId);
+  const pendingMembership = membershipApplicationsQuery.data!.find(
+    (mem) => mem.user.id === userId
+  );
+  const activeMembership = activeMembershipsQuery.data!.find(
+    (mem) => mem.user.id === userId
+  );
 
   if (!userMembership) {
-    return (
-      <WithLocalNavigationHeader>
-        <Stack align="center" gap="lg" py="xl">
-          <Text size="lg" ta="center">
-            No membership found for this user.
-          </Text>
-        </Stack>
-      </WithLocalNavigationHeader>
-    );
+    return null;
   }
 
   return (
     <WithLocalNavigationHeader>
-      <Center>
-        <Stack w={800} gap="xl" pb="xl">
-          {/* Main Profile Section */}
-          {pendingMembership && (
-            <PendingMembershipCard 
-              clubId={clubId} 
-              membership={pendingMembership}
-            />
-          )}
+      {/* include this at the top so the reviewer does not miss it */}
+      <Stack gap="xl" pb="xl">
+        {pendingMembership && (
+          <PendingMembershipCard
+            clubId={clubId}
+            membership={pendingMembership}
+          />
+        )}
 
-          {/* User profile info */}
-          <UserProfile 
-            user={userQuery.data!}
-            size="lg"
-            variant="member"
-            showClickable={false}
-          />
-          
-          {/* Membership Information Section */}
-          <MembershipInfoCard 
-            membership={userMembership}
-          />
-          
-          {/* Q&A Section */}
-          <ApplicationResponsesCard 
-            membership={userMembership}
-          />
-          
-          {/* Member Management Section - Only for active memberships */}
-          {activeMembership && (
-            <ActiveMembershipCard 
-              clubId={clubId} 
-              membership={activeMembership}
-            />
-          )}
-        </Stack>
-      </Center>
+        <UserProfile
+          user={userQuery.data!}
+          size="lg"
+          variant="member"
+          showClickable={false}
+        />
+
+        <MembershipInfoCard membership={userMembership} />
+
+        <ApplicationResponsesCard membership={userMembership} />
+
+        {activeMembership && (
+          <ActiveMembershipCard clubId={clubId} membership={activeMembership} />
+        )}
+      </Stack>
     </WithLocalNavigationHeader>
   );
 }
