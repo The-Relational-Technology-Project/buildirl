@@ -622,6 +622,7 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
+    // noinspection DuplicatedCode
     const membership = await getMembership(membershipId, tx);
     const memberEmail = await userService.getUserEmailInTransaction(
       membership.user.id,
@@ -629,7 +630,17 @@ export function createMembershipService(
     );
     if (null === memberEmail) {
       logger.error(
-        `failed to notify on membership approved for membership with id ${membershipId} because no email was found`
+        `failed to notify on membership approved for membership with id ${membershipId} because no member email was found`
+      );
+      return;
+    }
+    const ownerEmail = await userService.getUserEmailInTransaction(
+      membership.club.owner.id,
+      tx
+    );
+    if (null === ownerEmail) {
+      logger.error(
+        `failed to notify on membership approved for membership with id ${membershipId} because no owner email was found`
       );
       return;
     }
@@ -642,7 +653,8 @@ export function createMembershipService(
         clubName: membership.club.name,
         clubPublicId: membership.club.publicId
       },
-      memberEmail
+      memberEmail,
+      ownerEmail
     );
   }
 
@@ -740,6 +752,7 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
+    // noinspection DuplicatedCode
     const membership = await getMembership(membershipId, tx);
     const memberEmail = await userService.getUserEmailInTransaction(
       membership.user.id,
@@ -747,7 +760,17 @@ export function createMembershipService(
     );
     if (null === memberEmail) {
       logger.error(
-        `failed to notify on membership declined for membership with id ${membershipId} because no email was found`
+        `failed to notify on membership declined for membership with id ${membershipId} because no member email was found`
+      );
+      return;
+    }
+    const ownerEmail = await userService.getUserEmailInTransaction(
+      membership.club.owner.id,
+      tx
+    );
+    if (null === ownerEmail) {
+      logger.error(
+        `failed to notify on membership declined for membership with id ${membershipId} because no owner email was found`
       );
       return;
     }
@@ -758,7 +781,8 @@ export function createMembershipService(
         clubName: membership.club.name,
         clubId: membership.club.id
       },
-      memberEmail
+      memberEmail,
+      ownerEmail
     );
   }
 
@@ -892,7 +916,6 @@ export function createMembershipService(
       membership.user.id,
       tx
     );
-
     if (null === memberEmail) {
       logger.error(
         `failed to notify on membership deactivated by owner for membership with id ${membershipId} because no email was found`
@@ -912,18 +935,29 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
+    // noinspection DuplicatedCode
     const membership = await getMembership(membershipId, tx);
     const memberEmail = await userService.getUserEmailInTransaction(
       membership.user.id,
       tx
     );
-
     if (null === memberEmail) {
       logger.error(
-        `failed to notify on membership deactivated by member to member for membership with id ${membershipId} because no email was found`
+        `failed to notify on membership deactivated by member to member for membership with id ${membershipId} because no member email was found`
       );
       return;
     }
+    const ownerEmail = await userService.getUserEmailInTransaction(
+      membership.club.owner.id,
+      tx
+    );
+    if (null === ownerEmail) {
+      logger.error(
+        `failed to notify on membership deactivated by member to member for membership with id ${membershipId} because no owner email was found`
+      );
+      return;
+    }
+
     await emailClient.notifyMembershipDeactivatedByMemberToMember(
       {
         membershipId: membershipId,
@@ -932,7 +966,8 @@ export function createMembershipService(
         clubName: membership.club.name,
         clubId: membership.club.id
       },
-      memberEmail
+      memberEmail,
+      ownerEmail
     );
   }
 

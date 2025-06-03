@@ -8,7 +8,6 @@ import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
-import JoinedDate from "~/client/components/JoinedDate";
 import UserAvatar from "~/client/components/UserAvatar";
 
 type UserProfileProps = {
@@ -32,7 +31,6 @@ function UserProfile({ userId }: UserProfileProps) {
             <Title order={3} fw={500} pt={10}>
               {r.data!.firstName} {r.data!.lastName}
             </Title>
-            <JoinedDate date={r.data!.createdAt} />
           </Stack>
         </Group>
         {r.data!.description !== "" && (

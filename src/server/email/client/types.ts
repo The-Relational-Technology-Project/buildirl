@@ -7,11 +7,13 @@ export type EmailClient = {
   ): Promise<void>;
   notifyMembershipApproved(
     input: NotifyMembershipApprovedInput,
-    sendTo: Email
+    sendTo: Email,
+    replyTo: Email
   ): Promise<void>;
   notifyMembershipDeclined(
     input: NotifyMembershipDeclinedInput,
-    sendTo: Email
+    sendTo: Email,
+    replyTo: Email
   ): Promise<void>;
   notifyMembershipDeactivatedByMemberToOwner(
     input: NotifyMembershipDeactivatedByMemberToOwnerInput,
@@ -19,7 +21,8 @@ export type EmailClient = {
   ): Promise<void>;
   notifyMembershipDeactivatedByMemberToMember(
     input: NotifyMembershipDeactivatedByMemberToMemberInput,
-    sendTo: Email
+    sendTo: Email,
+    replyTo: Email
   ): Promise<void>;
   notifyMembershipDeactivatedByOwner(
     input: NotifyMembershipDeactivatedByOwnerInput,
