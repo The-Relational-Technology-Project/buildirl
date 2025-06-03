@@ -26,7 +26,8 @@ export function createEmailClient(
    */
   async function sendCustomEmailWithTemplate(
     id: EmailTemplateId,
-    sendTo: Email
+    sendTo: Email,
+    replyTo: Email
   ): Promise<boolean> {
     const template = await emailService.getEmailTemplate(id);
     if (null === template) {
@@ -39,18 +40,19 @@ export function createEmailClient(
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
+        replyTo: replyTo,
         subject: template.subject,
         text: template.textContent,
         html: template.htmlContent
       });
       logger.info(
-        `sent custom email with email template with id ${stringify(id)}`
+        `sent custom email with email template with id ${stringify(id)} to ${sendTo} from ${replyTo}`
       );
       return true;
     } catch (e) {
       logger.error(
         e,
-        `failed to send custom email with email template with id ${stringify(id)}`
+        `failed to send custom email with email template with id ${stringify(id)} to ${sendTo} from ${replyTo}`
       );
       return false;
     }
@@ -89,11 +91,13 @@ export function createEmailClient(
 
   async function notifyMembershipApproved(
     input: NotifyMembershipApprovedInput,
-    sendTo: Email
+    sendTo: Email,
+    replyTo: Email
   ): Promise<void> {
     const customEmailSent = await sendCustomEmailWithTemplate(
       { clubId: input.clubId, type: "ACCEPTANCE" },
-      sendTo
+      sendTo,
+      replyTo
     );
     if (customEmailSent) {
       return;
@@ -131,11 +135,13 @@ export function createEmailClient(
 
   async function notifyMembershipDeclined(
     input: NotifyMembershipDeclinedInput,
-    sendTo: Email
+    sendTo: Email,
+    replyTo: Email
   ): Promise<void> {
     const customEmailSent = await sendCustomEmailWithTemplate(
       { clubId: input.clubId, type: "REJECTION" },
-      sendTo
+      sendTo,
+      replyTo
     );
     if (customEmailSent) {
       return;
@@ -204,11 +210,13 @@ export function createEmailClient(
 
   async function notifyMembershipDeactivatedByMemberToMember(
     input: NotifyMembershipDeactivatedByMemberToMemberInput,
-    sendTo: Email
+    sendTo: Email,
+    replyTo: Email
   ): Promise<void> {
     const customEmailSent = await sendCustomEmailWithTemplate(
       { clubId: input.clubId, type: "DEPARTURE" },
-      sendTo
+      sendTo,
+      replyTo
     );
     if (customEmailSent) {
       return;

@@ -19,14 +19,16 @@ export function createDummyEmailClient(): EmailClient {
 
   async function notifyMembershipApproved(
     _: NotifyMembershipApprovedInput,
-    __: Email
+    __: Email,
+    ___: Email
   ): Promise<void> {
     return;
   }
 
   async function notifyMembershipDeclined(
     _: NotifyMembershipDeclinedInput,
-    __: Email
+    __: Email,
+    ___: Email
   ): Promise<void> {
     return;
   }
@@ -40,7 +42,8 @@ export function createDummyEmailClient(): EmailClient {
 
   async function notifyMembershipDeactivatedByMemberToMember(
     _: NotifyMembershipDeactivatedByMemberToMemberInput,
-    __: Email
+    __: Email,
+    ___: Email
   ): Promise<void> {
     return;
   }
