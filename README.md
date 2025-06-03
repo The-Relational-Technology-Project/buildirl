@@ -145,15 +145,16 @@ practices as described above sections. All code must be reviewed and understood 
 and standards as human written code. In addition, your understanding of the code must be maintained. Not doing so adds to technical 
 and knowledge debt which will slow down development in the long-term.
 
-## TaskMaster AI Project Management
+### TaskMaster AI Project Management
 
 We use [TaskMaster AI](https://github.com/eyaltoledano/claude-task-master) for AI-assisted project management and task breakdown. TaskMaster helps systematically break down complex features into manageable, well-defined tasks.
 
-### Key Files
+#### Key Files
 
-- The `.cursor/rules/` directory contains AI-facing documentation that **automatically guides AI assistants** working on this project:
-- **`docs/ai-reference/example_prd.txt`** - Template for creating new PRDs that work well with TaskMaster
-- **`docs/ai-reference/software_principles.md`** - Software engineering principles reference for AI-assisted development
+- The `.cursor/rules/` directory contains AI-facing documentation that **automatically guides AI assistants** working on this project.
+- `docs/ai-reference/example_prd.txt` - Template for creating new PRDs that work well with TaskMaster
+- `docs/ai-reference/software_principles.md` - Software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
+- `docs/ai-reference/team-software_principles.md` - Team specific software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
 
 For TaskMaster commands and workflows, see the [TaskMaster Documentation](https://deepwiki.com/eyaltoledano/claude-task-master/1-overview).
 
