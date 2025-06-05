@@ -150,7 +150,8 @@ function ApplicationForm({
         defaultResponse(question)
       )
     },
-    mode: "onChange"
+    // required to ensure validation is run on first touch
+    mode: "all"
   });
 
   function defaultResponse(question: FormQuestion): FormResponse {
