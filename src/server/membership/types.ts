@@ -23,6 +23,7 @@ export type MembershipStatus =
   | "PENDING"
   | "PENDING_INCOMPLETE"
   | "DECLINED"
+  | "WITHDRAWN"
   | "INACTIVE";
 
 export type Membership = {
@@ -50,6 +51,7 @@ type MembershipMutations = {
   ): Promise<MutationResult>;
   approveMembershipApplication(membershipId: bigint): Promise<MutationResult>;
   declineMembershipApplication(membershipId: bigint): Promise<MutationResult>;
+  withdrawMembershipApplication(membershipId: bigint): Promise<MutationResult>;
   deactivateMembership(
     membershipId: bigint,
     input: DeactivateMembershipInput
