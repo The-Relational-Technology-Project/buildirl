@@ -180,15 +180,7 @@ export default function ManageApplication() {
   const membership = membershipForClub(userMemberships.data!, clubId);
 
   if (!membership || membership.status !== "PENDING") {
-    const clubPublicId = membership?.club.publicId || "";
-    return (
-      <WithLocalNavigationHeader navigateTo={`/join/${clubPublicId}`}>
-        <Stack align="center" py="xl">
-          <Title order={3}>No Pending Application</Title>
-          <Text>You don&apos;t have a pending application for this club.</Text>
-        </Stack>
-      </WithLocalNavigationHeader>
-    );
+    throw new Error(`user should have a PENDING membership for club ${clubId} to access manage-application page`);
   }
 
   const club = membership.club;
