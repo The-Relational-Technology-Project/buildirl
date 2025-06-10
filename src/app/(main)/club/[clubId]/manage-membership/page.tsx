@@ -18,7 +18,7 @@ export default function ManageMembership() {
   const clubId = strictParseInt(params.clubId);
   const router = useRouter();
 
-  const r = api.main.userMemberships.useQuery();
+  const userMemberships = api.main.userMemberships.useQuery();
 
   const utils = api.useUtils();
   const deactivateMembership = api.main.deactivateMembership.useMutation({
@@ -35,15 +35,15 @@ export default function ManageMembership() {
   });
 
   QueryError.check({
-    result: r,
+    result: userMemberships,
     fieldName: "userMemberships"
   });
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(userMemberships)) {
     return null;
   }
 
-  const membership = membershipForClub(r.data!, clubId);
+  const membership = membershipForClub(userMemberships.data!, clubId);
   if (null === membership || membership.status != "ACTIVE") {
     // we don't error here but return null page because this page
     // gets rehydrated after deactivate membership before the router.back()
