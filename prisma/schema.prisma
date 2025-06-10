@@ -19,6 +19,7 @@ enum MembershipStatus {
   PENDING_INCOMPLETE
   PENDING
   DECLINED
+  WITHDRAWN
   INACTIVE
 }
 
