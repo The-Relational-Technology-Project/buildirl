@@ -15,108 +15,12 @@ import {
   Stack, 
   Title, 
   Paper, 
-  Text,
-  Box,
-  TextInput,
-  Textarea,
-  Radio,
-  Checkbox
+  Text
 } from "@mantine/core";
-import { FormQuestionType, FormResponse } from "~/server/club/types/form";
 import { Membership } from "~/server/membership/types";
+import ApplicationResponsesCard from "~/client/components/ApplicationResponsesCard";
 
-//TODO Pull out ApplicationResponsesCard from src/club/[clubId]/member/[userId]/application/page.tsx
-// and create a generalized component. 
-type ApplicationResponsesCardProps = {
-  membership: Membership;
-};
 
-function ApplicationResponsesCard({
-  membership
-}: ApplicationResponsesCardProps) {
-  const renderResponse = (response: FormResponse) => {
-    switch (response.type) {
-      case FormQuestionType.SHORT_TEXT:
-        return (
-          <TextInput
-            label={response.question}
-            value={response.response}
-            disabled
-            readOnly
-          />
-        );
-      case FormQuestionType.LONG_TEXT:
-        return (
-          <Textarea
-            label={response.question}
-            value={response.response}
-            disabled
-            readOnly
-            autosize
-          />
-        );
-      case FormQuestionType.SINGLE_SELECT:
-        return (
-          <Box>
-            <Radio.Group label={response.question} value={response.response}>
-              {response.metadata?.choices?.map((choice, index) => (
-                <Radio
-                  key={index}
-                  value={choice}
-                  label={choice}
-                  pt="xs"
-                  disabled
-                />
-              ))}
-            </Radio.Group>
-          </Box>
-        );
-      case FormQuestionType.MULTI_SELECT:
-        return (
-          <Box>
-            <Checkbox.Group label={response.question} value={response.response}>
-              {response.metadata.choices.map((choice, index) => (
-                <Checkbox
-                  key={index}
-                  value={choice}
-                  label={choice}
-                  pt={"xs"}
-                  disabled
-                />
-              ))}
-            </Checkbox.Group>
-          </Box>
-        );
-      default:
-        throw new Error(`unsupported type`);
-    }
-  };
-
-  return (
-    <Paper p={"xl"}>
-      <Stack gap="lg">
-        <Title order={4} fw={500}>
-          Application Q&A
-        </Title>
-
-        {membership.applicationResponses.responses.length === 0 ? (
-          <Text size="sm" ta="center" py="xl">
-            No responses were given. This is likely because you had no intake
-            questions.
-          </Text>
-        ) : (
-          <Stack gap="lg">
-            {membership.applicationResponses.responses.map(
-              (response: FormResponse, index: number) => (
-                <Box key={index}>{renderResponse(response)}</Box>
-              )
-            )}
-          </Stack>
-        )}
-      </Stack>
-    </Paper>
-  );
-}
 
 function WithdrawApplicationSection({ membership }: { membership: Membership }) {
   const router = useRouter();
