@@ -83,8 +83,12 @@ export default function ManageApplication() {
 
   const membership = membershipForClub(userMemberships.data!, clubId);
 
-  if (!membership || membership.status !== "PENDING") {
-    throw new Error(`user should have a PENDING membership for club ${clubId} to access manage-application page`);
+  if (!membership) {
+    throw new Error(`No membership found for club ${clubId}`);
+  }
+
+  if (membership.status !== "PENDING") {
+    throw new Error(`Membership for club ${clubId} must be PENDING, but was ${membership.status}`);
   }
 
   const club = membership.club;
