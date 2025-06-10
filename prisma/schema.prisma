@@ -79,8 +79,8 @@ model Club {
   // TODO make this non-nullable after all values have been backpopulated
   // city and state (e.g., San Francisco, CA)
   location                            String?
-  owner                               User             @relation(fields: [ownerUserId], references: [id])
-  ownerUserId                         Int              @map("owner_user_id")
+  owner                               User?            @relation(fields: [ownerUserId], references: [id])
+  ownerUserId                         Int?             @map("owner_user_id")
   websiteUrl                          String?          @map("website_url")
   eventCalendarUrl                    String?          @map("event_calendar_url")
   instagramHandle                     String?          @map("instagram_handle")
