@@ -326,9 +326,7 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
       return (
         <PrimaryButton
           includeIcon
-          onClick={() =>
-            router.push(`/club/${club.id}/manage-application`)
-          }
+          onClick={() => router.push(`/club/${club.id}/manage-application`)}
         >
           Manage Application
         </PrimaryButton>
@@ -355,8 +353,10 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
           Complete Application
         </PrimaryButton>
       );
-    // no membership, declined, deactivated, or withdrawn
+    case "DECLINED":
+    case "INACTIVE":
     case "WITHDRAWN":
+    // no membership
     default:
       return (
         <PrimaryButton
