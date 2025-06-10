@@ -18,6 +18,8 @@ ALTER TABLE "public"."user_settings" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."club" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."membership_tier" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."membership" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."club_following" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."email_template" ENABLE ROW LEVEL SECURITY;
 -- This table has no defined RLS policies that allows access but the postgres user bypasses RLS
 ALTER TABLE "public"."_prisma_migrations" ENABLE ROW LEVEL SECURITY;
 
@@ -68,7 +70,7 @@ FOR INSERT
 TO authenticated
 WITH CHECK ((bucket_id = 'images'::text) AND ((storage.foldername(name))[1] = 'user'::text) AND ((storage.foldername(name))[2] = ( SELECT ("user".id)::text AS id
    FROM "user"
-  WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))
+  WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))));
 
 CREATE POLICY "Users can update their own profile images"
 ON storage.objects 
@@ -77,7 +79,7 @@ FOR UPDATE
 TO authenticated
 USING ((bucket_id = 'images'::text) AND ((storage.foldername(name))[1] = 'user'::text) AND ((storage.foldername(name))[2] = ( SELECT ("user".id)::text AS id
    FROM "user"
-  WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))
+  WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))));
 
 CREATE POLICY "Users can delete their own profile images"
 ON storage.objects 
@@ -86,7 +88,7 @@ FOR DELETE
 TO authenticated
 USING ((bucket_id = 'images'::text) AND ((storage.foldername(name))[1] = 'user'::text) AND ((storage.foldername(name))[2] = ( SELECT ("user".id)::text AS id
    FROM "user"
-  WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))
+  WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))));
 
 CREATE POLICY "Club owners can upload images to their club"
 ON storage.objects 
@@ -97,7 +99,7 @@ WITH CHECK ((bucket_id = 'images'::text) AND ((storage.foldername(name))[1] = 'c
    FROM club
   WHERE (club.owner_user_id = ( SELECT "user".id
            FROM "user"
-          WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))))
+          WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))));
 
 CREATE POLICY "Club owners can update images for their club"
 ON storage.objects 
@@ -108,7 +110,7 @@ USING ((bucket_id = 'images'::text) AND ((storage.foldername(name))[1] = 'club':
    FROM club
   WHERE (club.owner_user_id = ( SELECT "user".id
            FROM "user"
-          WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))))
+          WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))));
 
 CREATE POLICY "Club owners can delete images from their club"
 ON storage.objects 
@@ -119,7 +121,7 @@ USING ((bucket_id = 'images'::text) AND ((storage.foldername(name))[1] = 'club':
    FROM club
   WHERE (club.owner_user_id = ( SELECT "user".id
            FROM "user"
-          WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))))
+          WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))));
 
 -- Broad policies for authenticated users (temporary, pending conflict resolution)
 CREATE POLICY "Allow authenticated users to select from images bucket"

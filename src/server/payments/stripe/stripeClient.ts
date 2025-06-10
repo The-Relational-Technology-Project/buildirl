@@ -635,6 +635,10 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     return paymentMethod.id;
   }
 
+  function isMissingStripeSubscription(e: unknown): boolean {
+    return stringify(e).toLowerCase().includes("no such subscription");
+  }
+
   async function cancelSubscription(
     subscriptionId: string,
     byAccountId: string
@@ -649,6 +653,12 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         e,
         `failed to cancel subscription with id ${subscriptionId}`
       );
+      // this can happen if subscription was expired by Stripe.
+      // we should continue here as the subscription is effectively
+      // canceled if it does not exist
+      if (isMissingStripeSubscription(e)) {
+        return;
+      }
       throw e;
     }
   }
@@ -672,6 +682,9 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         e,
         `failed to get subscription status for subscription with id ${subscriptionId}`
       );
+      if (isMissingStripeSubscription(e)) {
+        return { isActive: false, status: "missing" };
+      }
       throw e;
     }
   }
