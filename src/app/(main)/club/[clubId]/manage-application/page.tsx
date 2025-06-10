@@ -37,7 +37,7 @@ function WithdrawApplicationSection({ membership }: { membership: Membership }) 
   const handleWithdraw = () => {
     if (
       window.confirm(
-        "Are you sure you want to withdraw your application? This action cannot be undone and you will need to submit a new application if you wish to join the club.."
+        "Are you sure you want to withdraw your application? This action cannot be undone and you will need to submit a new application if you wish to join the club."
       )
     ) {
       withdrawMembership.mutate({ membershipId: membership.id });

@@ -815,7 +815,7 @@ export function createMembershipService(
 
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case they reapply in future
-      // TODO: email notifications for member-initiated withdrawal.
+      await notifyApplicationWithdrawn(membershipId, tx);
 
       logger.info(`withdrew membership application with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -1027,6 +1027,34 @@ export function createMembershipService(
       return;
     }
     await emailClient.notifyMembershipDeactivatedByMemberToOwner(
+      {
+        membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
+        clubName: membership.club.name,
+        clubId: membership.club.id
+      },
+      ownerEmail
+    );
+  }
+
+  async function notifyApplicationWithdrawn(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembership(membershipId, tx);
+    const ownerEmail = await userService.getUserEmailInTransaction(
+      membership.club.owner.id,
+      tx
+    );
+
+    if (null === ownerEmail) {
+      logger.error(
+        `failed to notify on application withdrawn for membership with id ${membershipId} because no owner email was found`
+      );
+      return;
+    }
+    await emailClient.notifyApplicationWithdrawnByMemberToOwner(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
