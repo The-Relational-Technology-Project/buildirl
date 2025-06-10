@@ -179,7 +179,7 @@ export default function ManageApplication() {
 
   const membership = membershipForClub(userMemberships.data!, clubId);
 
-  if (!membership || (membership.status !== "PENDING" && membership.status !== "PENDING_INCOMPLETE")) {
+  if (!membership || membership.status !== "PENDING") {
     const clubPublicId = membership?.club.publicId || "";
     return (
       <WithLocalNavigationHeader navigateTo={`/join/${clubPublicId}`}>

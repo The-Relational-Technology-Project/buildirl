@@ -790,9 +790,9 @@ export function createMembershipService(
     membershipId: bigint
   ): Promise<MutationResult> {
     const status = await membershipStatus(membershipId);
-    if (status !== "PENDING" && status !== "PENDING_INCOMPLETE") {
+    if (status !== "PENDING") {
       throw new Error(
-        `Cannot withdraw membership application with status ${status}. Only PENDING or PENDING_INCOMPLETE applications can be withdrawn.`
+        `Cannot withdraw membership application with status ${status}. Only PENDING applications can be withdrawn.`
       );
     }
 
