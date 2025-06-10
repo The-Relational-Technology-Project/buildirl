@@ -289,13 +289,13 @@ export function createEmailClient(
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
-        subject: "A membership application was withdrawn",
-        text: `${input.memberFirstName} ${input.memberLastName} just withdrew their application to join ${input.clubName}. 
-        You can review other pending applications in your membership dashboard: ${managePeopleDashboardUrl}`,
+        subject: "A membership application was withdrawn 💫",
+        text: `${input.memberFirstName} ${input.memberLastName} has decided to withdraw their application to join ${input.clubName}. These things happen! 🌟 
+        Keep building your amazing community - you can review other pending applications in your membership dashboard: ${managePeopleDashboardUrl}`,
         html: `
           <div>
-            <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> just withdrew their application to join <strong>${input.clubName}</strong>.</p>
-            <p>You can review other pending applications in your <a href="${managePeopleDashboardUrl}">membership dashboard</a>.</p>
+            <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> has decided to withdraw their application to join <strong>${input.clubName}</strong>. These things happen! 🌟</p>
+            <p>Keep building your amazing community - you can review other pending applications in your <a href="${managePeopleDashboardUrl}">membership dashboard</a>. ✨</p>
           </div>
         `
       });
