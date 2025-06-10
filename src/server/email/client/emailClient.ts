@@ -6,7 +6,8 @@ import {
   NotifyMembershipDeactivatedByMemberToOwnerInput,
   NotifyMembershipDeactivatedByOwnerInput,
   NotifyMembershipApplicationSubmittedInput,
-  NotifyMembershipDeactivatedByMemberToMemberInput
+  NotifyMembershipDeactivatedByMemberToMemberInput,
+  NotifyApplicationWithdrawnByMemberToOwnerInput
 } from "./types";
 import { rootLogger } from "~/logger";
 import { Email } from "~/server/utils/types";
@@ -279,12 +280,44 @@ export function createEmailClient(
     }
   }
 
+  async function notifyApplicationWithdrawnByMemberToOwner(
+    input: NotifyApplicationWithdrawnByMemberToOwnerInput,
+    sendTo: Email
+  ): Promise<void> {
+    const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
+    try {
+      await mailTransport.sendMail({
+        from: FROM_EMAIL,
+        to: sendTo,
+        subject: "A membership application was withdrawn 💫",
+        text: `${input.memberFirstName} ${input.memberLastName} has decided to withdraw their application to join ${input.clubName}. These things happen! 🌟 
+        Keep building your amazing community - you can review other pending applications in your membership dashboard: ${managePeopleDashboardUrl}`,
+        html: `
+          <div>
+            <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> has decided to withdraw their application to join <strong>${input.clubName}</strong>. These things happen! 🌟</p>
+            <p>Keep building your amazing community - you can review other pending applications in your <a href="${managePeopleDashboardUrl}">membership dashboard</a>. ✨</p>
+          </div>
+        `
+      });
+
+      logger.info(
+        `sent application withdrawn email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+      );
+    } catch (error) {
+      logger.error(
+        error,
+        `failed to send application withdrawn email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+      );
+    }
+  }
+
   return {
     notifyMembershipApplicationSubmitted,
     notifyMembershipApproved,
     notifyMembershipDeclined,
     notifyMembershipDeactivatedByMemberToOwner,
     notifyMembershipDeactivatedByMemberToMember,
-    notifyMembershipDeactivatedByOwner
+    notifyMembershipDeactivatedByOwner,
+    notifyApplicationWithdrawnByMemberToOwner
   };
 }

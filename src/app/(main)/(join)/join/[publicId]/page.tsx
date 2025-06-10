@@ -323,7 +323,16 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
 
   switch (membership?.status) {
     case "PENDING":
-      return <PrimaryButton disabled>Pending Approval...</PrimaryButton>;
+      return (
+        <PrimaryButton
+          includeIcon
+          onClick={() =>
+            router.push(`/club/${club.id}/manage-application`)
+          }
+        >
+          Manage Application
+        </PrimaryButton>
+      );
     case "ACTIVE":
       return (
         <PrimaryButton
@@ -346,7 +355,8 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
           Complete Application
         </PrimaryButton>
       );
-    // no membership, declined, or deactivated
+    // no membership, declined, deactivated, or withdrawn
+    case "WITHDRAWN":
     default:
       return (
         <PrimaryButton

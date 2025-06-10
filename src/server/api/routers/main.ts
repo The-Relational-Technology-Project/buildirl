@@ -306,6 +306,22 @@ export const mainRouter = createTRPCRouter({
       );
     }),
 
+  withdrawMembershipApplication: securedProcedureWithAbilityFor("Membership")
+    .input(z.object({ membershipId: z.bigint() }))
+    .mutation(async ({ ctx, input }) => {
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: input.membershipId })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.membership.withdrawMembershipApplication(
+        input.membershipId
+      );
+    }),
+
   deactivateMembership: securedProcedureWithAbilityFor("Membership")
     .input(
       z.object({

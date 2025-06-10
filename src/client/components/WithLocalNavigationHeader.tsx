@@ -72,7 +72,7 @@ export default function WithLocalNavigationHeader({
             if (navigateTo === null) {
               router.back();
             } else {
-              router.push("/");
+              router.push(navigateTo);
             }
           }}
           icon={<IconChevronLeft />}
