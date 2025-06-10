@@ -83,12 +83,11 @@ export default function ManageApplication() {
 
   const membership = membershipForClub(userMemberships.data!, clubId);
 
-  if (!membership) {
-    throw new Error(`No membership found for club ${clubId}`);
-  }
-
-  if (membership.status !== "PENDING") {
-    throw new Error(`Membership for club ${clubId} must be PENDING, but was ${membership.status}`);
+  if (null === membership || membership.status != "PENDING") {
+    // we don't error here but return null page because this page
+    // gets rehydrated after withdraw membership before the router.back()
+    // is completed
+    return null;
   }
 
   const club = membership.club;
