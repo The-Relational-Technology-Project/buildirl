@@ -327,7 +327,7 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
         <PrimaryButton
           includeIcon
           onClick={() =>
-            router.push(`/apply/${club.publicId}/manage?membershipId=${membership.id}`)
+            router.push(`/club/${club.id}/manage-application`)
           }
         >
           Manage Application

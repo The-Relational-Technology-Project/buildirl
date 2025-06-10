@@ -1,14 +1,14 @@
 "use client";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isAllLoaded } from "~/client/utils";
+import { isLoaded } from "~/client/utils";
 import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { membershipForClub } from "~/utils/types";
 import { handleDefaultMutationError } from "~/client/logger";
-import { strictParseBigInt } from "~/utils";
+import { strictParseInt } from "~/utils";
 import MembershipInfoCard from "~/app/(main)/club/[clubId]/member/_components/MembershipInfoCard";
 import { 
   Button, 
@@ -118,14 +118,14 @@ function ApplicationResponsesCard({
   );
 }
 
-function WithdrawApplicationSection({ membership, publicId }: { membership: Membership; publicId: string }) {
+function WithdrawApplicationSection({ membership }: { membership: Membership }) {
   const router = useRouter();
   const utils = api.useUtils();
   
   const withdrawMembership = api.main.withdrawMembershipApplication.useMutation({
     onSuccess: async () => {
       await utils.main.userMemberships.invalidate();
-      router.push(`/join/${publicId}`);
+      router.push(`/join/${membership.club.publicId}`);
     },
     onError: handleDefaultMutationError
   });
@@ -163,50 +163,37 @@ function WithdrawApplicationSection({ membership, publicId }: { membership: Memb
 }
 
 export default function ManageApplication() {
-  const params = useParams<{ publicId: string }>();
-  const searchParams = useSearchParams();
-  const publicId = params.publicId;
-  const membershipId = searchParams.get("membershipId");
+  const params = useParams<{ clubId: string }>();
+  const clubId = strictParseInt(params.clubId);
 
-  const clubQuery = api.main.clubByPublicId.useQuery({ publicId });
-  const userMembershipsQuery = api.main.userMemberships.useQuery();
+  const userMemberships = api.main.userMemberships.useQuery();
 
   QueryError.check({
-    result: clubQuery,
-    fieldName: "clubByPublicId"
-  });
-  QueryError.check({
-    result: userMembershipsQuery,
+    result: userMemberships,
     fieldName: "userMemberships"
   });
 
-  if (!isAllLoaded([clubQuery, userMembershipsQuery])) {
+  if (!isLoaded(userMemberships)) {
     return null;
   }
 
-  const club = clubQuery.data!;
-  let membership;
-
-  if (membershipId) {
-    const membershipIdBigInt = strictParseBigInt(membershipId);
-    membership = userMembershipsQuery.data!.find(m => m.id === membershipIdBigInt);
-  } else {
-    membership = membershipForClub(userMembershipsQuery.data!, club.id);
-  }
+  const membership = membershipForClub(userMemberships.data!, clubId);
 
   if (!membership || (membership.status !== "PENDING" && membership.status !== "PENDING_INCOMPLETE")) {
     return (
-      <WithLocalNavigationHeader navigateTo={`/join/${publicId}`}>
+      <WithLocalNavigationHeader navigateTo={`/join/${membership?.club.publicId || ""}`}>
         <Stack align="center" py="xl">
           <Title order={3}>No Pending Application</Title>
-                     <Text>You don&apos;t have a pending application for this club.</Text>
+          <Text>You don&apos;t have a pending application for this club.</Text>
         </Stack>
       </WithLocalNavigationHeader>
     );
   }
 
+  const club = membership.club;
+
   return (
-    <WithLocalNavigationHeader navigateTo={`/join/${publicId}`}>
+    <WithLocalNavigationHeader navigateTo={`/join/${club.publicId}`}>
       <Stack gap="xl" pb="xl">
         <Title order={2} ta="center">
           Manage Your {club.name} Application
@@ -216,7 +203,7 @@ export default function ManageApplication() {
 
         <ApplicationResponsesCard membership={membership} />
 
-        <WithdrawApplicationSection membership={membership} publicId={publicId} />
+        <WithdrawApplicationSection membership={membership} />
       </Stack>
     </WithLocalNavigationHeader>
   );
