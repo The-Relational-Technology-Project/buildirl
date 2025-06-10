@@ -180,8 +180,9 @@ export default function ManageApplication() {
   const membership = membershipForClub(userMemberships.data!, clubId);
 
   if (!membership || (membership.status !== "PENDING" && membership.status !== "PENDING_INCOMPLETE")) {
+    const clubPublicId = membership?.club.publicId || "";
     return (
-      <WithLocalNavigationHeader navigateTo={`/join/${membership?.club.publicId || ""}`}>
+      <WithLocalNavigationHeader navigateTo={`/join/${clubPublicId}`}>
         <Stack align="center" py="xl">
           <Title order={3}>No Pending Application</Title>
           <Text>You don&apos;t have a pending application for this club.</Text>
