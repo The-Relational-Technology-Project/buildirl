@@ -647,6 +647,12 @@ export class SystemState {
       .map((m) => m.id);
   }
 
+  public getPendingOrPendingIncompleteMembershipIds(): bigint[] {
+    return Array.from(this.memberships.values())
+      .filter((m) => m.status === "PENDING" || m.status === "PENDING_INCOMPLETE")
+      .map((m) => m.id);
+  }
+
   public getMembershipState(membershipId: bigint): MembershipState {
     const membershipState = this.memberships.get(membershipId);
     if (!membershipState) {
@@ -687,6 +693,14 @@ export class SystemState {
     this.memberships.set(membershipId, {
       ...membershipState,
       status: "INACTIVE"
+    });
+  }
+
+  public withdrawMembershipApplication(membershipId: bigint) {
+    const membershipState = this.getMembershipState(membershipId);
+    this.memberships.set(membershipId, {
+      ...membershipState,
+      status: "WITHDRAWN"
     });
   }
 

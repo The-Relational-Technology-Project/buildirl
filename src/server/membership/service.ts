@@ -786,6 +786,45 @@ export function createMembershipService(
     );
   }
 
+  async function withdrawMembershipApplication(
+    membershipId: bigint
+  ): Promise<MutationResult> {
+    const status = await membershipStatus(membershipId);
+    if (status !== "PENDING" && status !== "PENDING_INCOMPLETE") {
+      throw new Error(
+        `Cannot withdraw membership application with status ${status}. Only PENDING or PENDING_INCOMPLETE applications can be withdrawn.`
+      );
+    }
+
+    return prisma.$transaction(async (tx) => {
+      return withdrawMembershipApplicationInTransaction(membershipId, tx);
+    });
+  }
+
+  async function withdrawMembershipApplicationInTransaction(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
+    try {
+      await tx.membership.update({
+        data: {
+          status: "WITHDRAWN"
+        },
+        where: { id: membershipId }
+      });
+
+      await dissociateStripeSetupIntentId(membershipId, tx);
+      // keep customer id in case they reapply in future
+      // TODO: email notifications for member-initiated withdrawal.
+
+      logger.info(`withdrew membership application with id ${membershipId}`);
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(e, `failed to withdraw membership application with id ${membershipId}`);
+      throw e;
+    }
+  }
+
   async function deactivateMembership(
     membershipId: bigint,
     input: DeactivateMembershipInput
@@ -1026,6 +1065,7 @@ export function createMembershipService(
     submitMembershipApplication,
     approveMembershipApplication,
     declineMembershipApplication,
+    withdrawMembershipApplication,
     deactivateMembership,
     setMembershipAsWelcomed
   };
