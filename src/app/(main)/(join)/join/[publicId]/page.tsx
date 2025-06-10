@@ -323,7 +323,7 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
 
   switch (membership?.status) {
     case "PENDING":
-      return <PrimaryButton disabled>Pending Approval...</PrimaryButton>;
+      return <PrimaryButton disabled>Manage Application</PrimaryButton>;
     case "ACTIVE":
       return (
         <PrimaryButton
