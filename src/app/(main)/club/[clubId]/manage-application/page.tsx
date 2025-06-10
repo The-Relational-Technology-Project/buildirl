@@ -133,7 +133,7 @@ function WithdrawApplicationSection({ membership }: { membership: Membership }) 
   const handleWithdraw = () => {
     if (
       window.confirm(
-        "Are you sure you want to withdraw your application? This action cannot be undone and you will need to reapply if you change your mind."
+        "Are you sure you want to withdraw your application? This action cannot be undone and you will need to submit a new application if you wish to join the club.."
       )
     ) {
       withdrawMembership.mutate({ membershipId: membership.id });
@@ -147,7 +147,7 @@ function WithdrawApplicationSection({ membership }: { membership: Membership }) 
           Actions
         </Title>
         <Text size="sm">
-          If you change your mind about joining this club, you can withdraw your application below.
+          If you no longer wish to join this club, you can withdraw your application below.
         </Text>
         <Button
           color="red"
