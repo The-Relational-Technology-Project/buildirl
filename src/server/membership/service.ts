@@ -37,7 +37,8 @@ export function createMembershipService(
       const results = await prisma.membership.findMany({
         select: MEMBERSHIP_SELECT,
         where: {
-          userId: userId
+          userId: userId,
+          role: "MEMBER"
         }
       });
       const memberships = await Promise.all(
@@ -67,7 +68,8 @@ export function createMembershipService(
           membershipTier: {
             clubId: clubId
           },
-          status: "ACTIVE"
+          status: "ACTIVE",
+          role: "MEMBER"
         }
       });
       const memberships = await Promise.all(
@@ -240,7 +242,8 @@ export function createMembershipService(
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
           // if not free tier, still awaiting setup intent
-          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE"
+          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
+          role: "MEMBER"
         },
         select: {
           id: true
@@ -368,6 +371,8 @@ export function createMembershipService(
           applicationResponses: input.applicationResponses,
           // if not free tier, awaiting setup intent
           status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
+          // reset role even if they left as different role
+          role: "MEMBER",
           // reset welcome status
           isWelcomed: false
           // we keep the stripeCustomerId to be reused if reactivated
@@ -789,12 +794,7 @@ export function createMembershipService(
   async function withdrawMembershipApplication(
     membershipId: bigint
   ): Promise<MutationResult> {
-    const status = await membershipStatus(membershipId);
-    if (status !== "PENDING") {
-      throw new Error(
-        `Cannot withdraw membership application with status ${status}. Only PENDING applications can be withdrawn.`
-      );
-    }
+    await checkMembershipStatus(membershipId, "PENDING");
 
     return prisma.$transaction(async (tx) => {
       return withdrawMembershipApplicationInTransaction(membershipId, tx);
@@ -820,7 +820,10 @@ export function createMembershipService(
       logger.info(`withdrew membership application with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(e, `failed to withdraw membership application with id ${membershipId}`);
+      logger.error(
+        e,
+        `failed to withdraw membership application with id ${membershipId}`
+      );
       throw e;
     }
   }
