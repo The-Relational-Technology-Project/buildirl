@@ -10,29 +10,29 @@ import { membershipForClub } from "~/utils/types";
 import { handleDefaultMutationError } from "~/client/logger";
 import { strictParseInt } from "~/utils";
 import MembershipInfoCard from "~/app/(main)/club/[clubId]/member/_components/MembershipInfoCard";
-import { 
-  Button, 
-  Stack, 
-  Title, 
-  Paper, 
-  Text
-} from "@mantine/core";
+import { Button, Stack, Title, Paper, Text } from "@mantine/core";
 import { Membership } from "~/server/membership/types";
 import ApplicationResponsesCard from "~/client/components/ApplicationResponsesCard";
 
+type WithdrawApplicationSectionProps = {
+  membership: Membership;
+};
 
-
-function WithdrawApplicationSection({ membership }: { membership: Membership }) {
+function WithdrawApplicationSection({
+  membership
+}: WithdrawApplicationSectionProps) {
   const router = useRouter();
   const utils = api.useUtils();
-  
-  const withdrawMembership = api.main.withdrawMembershipApplication.useMutation({
-    onSuccess: async () => {
-      await utils.main.userMemberships.invalidate();
-      router.push(`/join/${membership.club.publicId}`);
-    },
-    onError: handleDefaultMutationError
-  });
+
+  const withdrawMembership = api.main.withdrawMembershipApplication.useMutation(
+    {
+      onSuccess: async () => {
+        await utils.main.userMemberships.invalidate();
+        router.push(`/join/${membership.club.publicId}`);
+      },
+      onError: handleDefaultMutationError
+    }
+  );
 
   const handleWithdraw = () => {
     if (
@@ -51,7 +51,8 @@ function WithdrawApplicationSection({ membership }: { membership: Membership }) 
           Actions
         </Title>
         <Text size="sm">
-          If you no longer wish to join this club, you can withdraw your application below.
+          If you no longer wish to join this club, you can withdraw your
+          application below.
         </Text>
         <Button
           color="red"
@@ -59,7 +60,7 @@ function WithdrawApplicationSection({ membership }: { membership: Membership }) 
           onClick={handleWithdraw}
           loading={withdrawMembership.isPending}
         >
-          Withdraw
+          Withdraw Application
         </Button>
       </Stack>
     </Paper>
@@ -107,4 +108,4 @@ export default function ManageApplication() {
       </Stack>
     </WithLocalNavigationHeader>
   );
-} 
+}
