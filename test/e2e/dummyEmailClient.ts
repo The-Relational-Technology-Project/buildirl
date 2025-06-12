@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// NOTE: Added above line to prevent this file throwing type-errors. 
 import {
   EmailClient,
   NotifyMembershipApplicationSubmittedInput,
@@ -11,6 +13,16 @@ import {
 import { Email } from "~/server/utils/types";
 
 export function createDummyEmailClient(): EmailClient {
+  async function sendCustomEmail(
+    _: Email,
+    __: Email,
+    ___: string,
+    ____: string,
+    _____: string
+  ): Promise<void> {
+    return;
+  }
+
   async function notifyMembershipApplicationSubmitted(
     _: NotifyMembershipApplicationSubmittedInput,
     __: Email
@@ -70,6 +82,7 @@ export function createDummyEmailClient(): EmailClient {
     notifyMembershipDeactivatedByOwner,
     notifyMembershipDeactivatedByMemberToOwner,
     notifyMembershipDeactivatedByMemberToMember,
-    notifyApplicationWithdrawnByMemberToOwner
+    notifyApplicationWithdrawnByMemberToOwner,
+    sendCustomEmail
   };
 }

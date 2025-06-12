@@ -11,14 +11,11 @@ import {
 } from "./types";
 import { rootLogger } from "~/logger";
 import { Email } from "~/server/utils/types";
-import { EmailService, EmailTemplateId } from "~/server/email/types";
-import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "emailClient" });
 
 export function createEmailClient(
-  mailTransport: Transporter,
-  emailService: EmailService
+  mailTransport: Transporter
 ): EmailClient {
   const FROM_EMAIL = "outbound@buildirl.com";
 
@@ -51,40 +48,21 @@ export function createEmailClient(
   }
 
   /**
-   * Returns boolean if custom email is sent which can be used to determine if fallback is required
+   * NOTE: The below comments & approach is temporary; it's due to the fact I'm trying to do the emailService refactor in the least number of complete, incremental steps as possible.  
+   * Temporarily returns false to indicate no custom template sent while EmailService dependency is removed
+   * This ensures default email logic is used during the transition
    */
   async function sendCustomEmailWithTemplate(
-    id: EmailTemplateId,
+    templateId: { clubId: number; type: string },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     sendTo: Email,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     replyTo: Email
   ): Promise<boolean> {
-    const template = await emailService.getEmailTemplate(id);
-    if (null === template) {
-      logger.info(
-        `no email template found for id ${stringify(id)}, did not send custom email`
-      );
-      return false;
-    }
-    try {
-      await mailTransport.sendMail({
-        from: FROM_EMAIL,
-        to: sendTo,
-        replyTo: replyTo,
-        subject: template.subject,
-        text: template.textContent,
-        html: template.htmlContent
-      });
-      logger.info(
-        `sent custom email with email template with id ${stringify(id)} to ${sendTo} from ${replyTo}`
-      );
-      return true;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to send custom email with email template with id ${stringify(id)} to ${sendTo} from ${replyTo}`
-      );
-      return false;
-    }
+    logger.info(
+      `sendCustomEmailWithTemplate called for template ${JSON.stringify(templateId)} but returning false during EmailService dependency removal`
+    );
+    return false;
   }
 
   async function notifyMembershipApplicationSubmitted(

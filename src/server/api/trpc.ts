@@ -76,7 +76,7 @@ export const createTRPCContext = async (opts: {
         membershipTierService,
         followingService,
         stripeClient,
-        createEmailClient(mailTransport, emailService),
+        createEmailClient(mailTransport),
         accountIdResolver
       ),
       following: followingService,
