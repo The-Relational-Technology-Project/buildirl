@@ -17,7 +17,7 @@ export default function ClubAdminPanel({ clubId }: ClubAdminPanelProps) {
   const deleteClubMutation = api.main.deleteClub.useMutation({
     onSuccess: () => {
       router.push("/");
-      utils.main.userOwnedClubs.invalidate();
+      utils.main.userMemberships.invalidate();
     },
     onError: handleDefaultMutationError
   });

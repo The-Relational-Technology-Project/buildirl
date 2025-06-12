@@ -37,8 +37,7 @@ export function createMembershipService(
       const results = await prisma.membership.findMany({
         select: MEMBERSHIP_SELECT,
         where: {
-          userId: userId,
-          role: "MEMBER"
+          userId: userId
         }
       });
       const memberships = await Promise.all(

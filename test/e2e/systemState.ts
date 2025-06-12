@@ -23,6 +23,7 @@ import {
 import {
   Membership,
   MembershipStatus,
+  Role,
   SubmitMembershipApplicationInput
 } from "~/server/membership/types";
 import {
@@ -62,6 +63,7 @@ type MembershipState = {
   status: MembershipStatus;
   applicationResponses: FormResponses;
   isWelcomed: boolean;
+  role: Role;
 };
 
 type UserState = {
@@ -234,14 +236,6 @@ export class SystemState {
     );
   }
 
-  public getUserOwnedClubs(
-    userId: number
-  ): OmitRecursively<Club, "createdAt">[] {
-    return Array.from(this.clubs.values())
-      .filter((club) => club.ownerUserId === userId)
-      .map((club) => this.clubStateToClub(club));
-  }
-
   public isNotClubPublicIdUsed(clubPublicId: string): boolean {
     return !Array.from(this.clubs.values()).some(
       (club) => club.publicId === clubPublicId
@@ -252,7 +246,8 @@ export class SystemState {
     userId: number,
     clubId: number,
     input: CreateClubInput,
-    freeMembershipTierId: number
+    freeMembershipTierId: number,
+    leadMembershipId: bigint
   ) {
     if (!!this.clubs.get(clubId)) {
       throw new Error(`club with id ${clubId} already exists`);
@@ -277,6 +272,12 @@ export class SystemState {
     });
 
     this.createFreeMembershipTier(freeMembershipTierId, clubId);
+    this.createLeadMembership(
+      leadMembershipId,
+      freeMembershipTierId,
+      clubId,
+      userId
+    );
   }
 
   private createFreeMembershipTier(
@@ -288,6 +289,24 @@ export class SystemState {
       clubId,
       DEFAULT_FREE_MEMBERSHIP_TIER
     );
+  }
+
+  private createLeadMembership(
+    leadMembershipId: bigint,
+    freeMembershipTierId: number,
+    clubId: number,
+    userId: number
+  ) {
+    this.memberships.set(leadMembershipId, {
+      id: leadMembershipId,
+      userId: userId,
+      clubId: clubId,
+      membershipTierId: freeMembershipTierId,
+      status: "ACTIVE",
+      applicationResponses: { responses: [] },
+      isWelcomed: true,
+      role: "LEAD"
+    });
   }
 
   public updateClub(id: number, input: UpdateClubInput) {
@@ -564,7 +583,8 @@ export class SystemState {
       status: membershipState.status,
       applicationResponses: membershipState.applicationResponses,
       email: includeEmail ? this.getUserEmail(membershipState.userId) : null,
-      isWelcomed: membershipState.isWelcomed
+      isWelcomed: membershipState.isWelcomed,
+      role: membershipState.role
     };
   }
 
@@ -631,7 +651,8 @@ export class SystemState {
       membershipTierId: membershipTierId,
       status: "PENDING",
       applicationResponses: input.applicationResponses,
-      isWelcomed: false
+      isWelcomed: false,
+      role: "MEMBER"
     });
   }
 
@@ -649,7 +670,9 @@ export class SystemState {
 
   public getPendingOrPendingIncompleteMembershipIds(): bigint[] {
     return Array.from(this.memberships.values())
-      .filter((m) => m.status === "PENDING" || m.status === "PENDING_INCOMPLETE")
+      .filter(
+        (m) => m.status === "PENDING" || m.status === "PENDING_INCOMPLETE"
+      )
       .map((m) => m.id);
   }
 

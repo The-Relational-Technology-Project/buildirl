@@ -25,7 +25,6 @@ type LayoutProps = {
 function AuthenticatedLayout({ children }: LayoutProps) {
   // Prefetching of user-authenticated data goes here
   void api.main.user.prefetch();
-  void api.main.userOwnedClubs.prefetch();
   void api.main.userMemberships.prefetch();
 
   return (

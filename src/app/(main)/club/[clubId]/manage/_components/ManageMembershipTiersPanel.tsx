@@ -188,7 +188,7 @@ export function ManageMembershipTierCard({
     onSuccess: () => {
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
-      utils.main.userOwnedClubs.invalidate();
+      utils.main.userMemberships.invalidate();
     },
     onError: handleDefaultMutationError
   });
@@ -196,7 +196,7 @@ export function ManageMembershipTierCard({
     onSuccess: () => {
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
-      utils.main.userOwnedClubs.invalidate();
+      utils.main.userMemberships.invalidate();
     },
     onError: handleDefaultMutationError
   });

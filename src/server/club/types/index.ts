@@ -17,7 +17,6 @@ import {
 export type ClubService = ClubQueries & ClubMutations;
 
 type ClubQueries = {
-  getUserOwnedClubs(userId: number): Promise<Club[]>;
   getClubByPublicId(publicId: string): Promise<Club>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   getClub(id: number): Promise<Club>;

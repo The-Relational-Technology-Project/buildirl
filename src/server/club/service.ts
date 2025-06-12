@@ -22,37 +22,6 @@ export function createClubService(
   prisma: PrismaClient,
   membershipTierService: MembershipTierService
 ): ClubService {
-  async function getUserOwnedClubs(userId: number): Promise<Club[]> {
-    try {
-      const results = await prisma.club.findMany({
-        select: CLUB_SELECT,
-        where: {
-          membershipTiers: {
-            some: {
-              memberships: {
-                some: {
-                  userId: userId,
-                  role: "LEAD"
-                }
-              }
-            }
-          }
-        }
-      });
-      const clubs = results.map((r) => asClub(r));
-      logger.info(
-        `queried owned clubs for user with userId ${userId} with result ${stringify(clubs)}`
-      );
-      return clubs;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to query owned clubs for user with userId ${userId}`
-      );
-      throw e;
-    }
-  }
-
   async function getClubByPublicId(publicId: string): Promise<Club> {
     try {
       const result = await prisma.club.findUniqueOrThrow({
@@ -342,7 +311,6 @@ export function createClubService(
   }
 
   return {
-    getUserOwnedClubs,
     getClubByPublicId,
     getClubStatistics,
     getClub,

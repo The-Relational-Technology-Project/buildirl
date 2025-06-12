@@ -33,10 +33,17 @@ export default class CreateClubCommand
       this.clubId,
       r
     );
-    m.createClub(this.userId, this.clubId, this.input, freeMembershipTierId);
+    const leadMembershipId = await this.leadMembershipId(this.clubId, r);
+    m.createClub(
+      this.userId,
+      this.clubId,
+      this.input,
+      freeMembershipTierId,
+      leadMembershipId
+    );
 
     await verifiers.verifyClub(this.clubId, r, m);
-    await verifiers.verifyUserOwnedClub(this.userId, r, m);
+    await verifiers.verifyUserMemberships(this.userId, r, m);
   }
 
   async freeMembershipTierId(clubId: number, r: Services): Promise<number> {
@@ -48,6 +55,19 @@ export default class CreateClubCommand
       throw new Error("No free membership tier found");
     }
     return freeMembershipTier.id;
+  }
+
+  async leadMembershipId(clubId: number, r: Services): Promise<bigint> {
+    const memberships = await r.membership.getActiveMembershipsForClub(
+      clubId,
+      false
+    );
+    if (memberships.length !== 1) {
+      throw new Error(
+        `expected only one membership after club creation but found ${stringify(memberships)}`
+      );
+    }
+    return memberships[0]!.id;
   }
 
   toString() {

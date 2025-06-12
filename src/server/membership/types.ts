@@ -26,6 +26,8 @@ export type MembershipStatus =
   | "WITHDRAWN"
   | "INACTIVE";
 
+export type Role = "LEAD" | "MEMBER";
+
 export type Membership = {
   id: bigint;
   user: User;
@@ -37,6 +39,7 @@ export type Membership = {
   // null if user has no set email
   email: Maybe<Email>;
   isWelcomed: boolean;
+  role: Role;
   // this isn't exactly the join date as it is the date
   // the membership first was created (e.g., as `PENDING_INCOMPLETE`)
   // TODO refine

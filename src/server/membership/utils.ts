@@ -27,6 +27,7 @@ export const MEMBERSHIP_SELECT = {
   },
   status: true,
   applicationResponses: true,
+  role: true,
   isWelcomed: true,
   createdAt: true
 };
@@ -47,6 +48,7 @@ export async function asMembership(
     ),
     email: userEmail,
     isWelcomed: r.isWelcomed,
+    role: r.role,
     createdAt: r.createdAt
   };
 }

@@ -57,17 +57,6 @@ function createVerifiers() {
     expect(clubWithoutCreatedAt(clubByPublicId)).toEqual(expected);
   }
 
-  async function verifyUserOwnedClub(
-    userId: number,
-    r: Services,
-    m: SystemState
-  ) {
-    const userOwnedClubs = await r.club.getUserOwnedClubs(userId);
-    expect(
-      orderByNumberId(userOwnedClubs.map((c) => clubWithoutCreatedAt(c)))
-    ).toEqual(orderByNumberId(m.getUserOwnedClubs(userId)));
-  }
-
   async function verifyClubMemberships(
     clubId: number,
     r: Services,
@@ -90,6 +79,7 @@ function createVerifiers() {
       status: membership.status,
       applicationResponses: membership.applicationResponses,
       email: membership.email,
+      role: membership.role,
       isWelcomed: membership.isWelcomed
     };
   }
@@ -175,7 +165,6 @@ function createVerifiers() {
   return {
     verifyUser,
     verifyClub,
-    verifyUserOwnedClub,
     verifyClubMemberships,
     verifyUserMemberships,
     verifyClubFollowers,

@@ -103,17 +103,11 @@ function AuthenticatedFollowToggle({
   const utils = api.useUtils();
 
   const followedClubs = api.main.userFollowedClubs.useQuery();
-  const ownedClubs = api.main.userOwnedClubs.useQuery();
   const memberships = api.main.userMemberships.useQuery();
 
   QueryError.check({
     result: followedClubs,
     fieldName: "userFollowedClubs"
-  });
-
-  QueryError.check({
-    result: ownedClubs,
-    fieldName: "userOwnedClubs"
   });
 
   QueryError.check({
@@ -143,7 +137,7 @@ function AuthenticatedFollowToggle({
     }
   });
 
-  if (!isAllLoaded([followedClubs, ownedClubs, memberships])) {
+  if (!isAllLoaded([followedClubs, memberships])) {
     return null;
   }
 
