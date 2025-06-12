@@ -20,8 +20,6 @@ type ClubQueries = {
   getClubByPublicId(publicId: string): Promise<Club>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   getClub(id: number): Promise<Club>;
-  // internal
-  getClubOwnerUserId(clubId: number): Promise<number>;
 };
 
 export type Club = {

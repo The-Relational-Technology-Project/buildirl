@@ -18,14 +18,12 @@ import { UserService } from "~/server/user/types";
 import { FollowingService } from "~/server/following/types";
 import { Maybe } from "~/utils/types";
 import { MembershipTierService } from "~/server/membershipTier/types";
-import { ClubService } from "~/server/club/types";
 
 const logger = rootLogger.child({ module: "membershipService" });
 
 export function createMembershipService(
   prisma: PrismaClient,
   userService: UserService,
-  clubService: ClubService,
   membershipTierService: MembershipTierService,
   followingService: FollowingService,
   stripeClient: StripeClient,
@@ -133,15 +131,6 @@ export function createMembershipService(
     }
   }
 
-  async function checkUserIsNotClubOwner(userId: number, clubId: number) {
-    const ownerUserId = await clubService.getClubOwnerUserId(clubId);
-    if (ownerUserId === userId) {
-      throw new Error(
-        `cannot submit membership application for club owner with userId ${userId} of clubId ${clubId}`
-      );
-    }
-  }
-
   async function checkUserDoesNotHaveActiveMembershipForClub(
     userId: number,
     clubId: number
@@ -188,8 +177,6 @@ export function createMembershipService(
       await membershipTierService.getClubIdFromMembershipTierId(
         membershipTierId
       );
-    // TODO! this can be combined to a single check
-    await checkUserIsNotClubOwner(userId, clubId);
     await checkUserDoesNotHaveActiveMembershipForClub(userId, clubId);
     const existingMembership = await userMembershipForClub(userId, clubId);
     const isDefaultFreeTier =
@@ -1089,6 +1076,38 @@ export function createMembershipService(
     }
   }
 
+  async function createLeadMembership(
+    userId: number,
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
+    try {
+      const { id } = await tx.membership.create({
+        data: {
+          userId: userId,
+          membershipTierId: membershipTierId,
+          // empty
+          applicationResponses: { responses: [] },
+          status: "ACTIVE",
+          role: "LEAD"
+        },
+        select: {
+          id: true
+        }
+      });
+
+      logger.info(
+        `created lead membership for user ${userId} on membership tier with id ${membershipTierId} with membershipId ${id}`
+      );
+      return { createdEntityId: id };
+    } catch (e) {
+      logger.info(
+        `failed to create lead membership for user ${userId} on membership tier with id ${membershipTierId}}`
+      );
+      throw e;
+    }
+  }
+
   return {
     getUserMemberships,
     getActiveMembershipsForClub,
@@ -1098,6 +1117,7 @@ export function createMembershipService(
     declineMembershipApplication,
     withdrawMembershipApplication,
     deactivateMembership,
-    setMembershipAsWelcomed
+    setMembershipAsWelcomed,
+    createLeadMembership
   };
 }

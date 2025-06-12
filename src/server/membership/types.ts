@@ -5,6 +5,7 @@ import { User } from "~/server/user/types";
 import { Club } from "~/server/club/types";
 import { MembershipTier } from "~/server/membershipTier/types";
 import { Email, MutationResult } from "~/server/utils/types";
+import { Prisma } from "@prisma/client";
 
 export type MembershipService = MembershipQueries & MembershipMutations;
 
@@ -60,6 +61,12 @@ type MembershipMutations = {
     input: DeactivateMembershipInput
   ): Promise<MutationResult>;
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
+  // internal
+  createLeadMembership(
+    membershipTierId: number,
+    userId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult>;
 };
 
 export const SubmitMembershipApplicationInputSchema = z.object({

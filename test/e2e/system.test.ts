@@ -82,17 +82,20 @@ describe("service", () => {
       fakeStripeClient,
       accountIdResolver
     );
-    clubService = createClubService(prisma, membershipTierService);
-    followingService = createFollowingService(prisma, userService, clubService);
+    followingService = createFollowingService(prisma, userService);
     membershipService = createMembershipService(
       prisma,
       userService,
-      clubService,
       membershipTierService,
       followingService,
       fakeStripeClient,
       createDummyEmailClient(),
       accountIdResolver
+    );
+    clubService = createClubService(
+      prisma,
+      membershipTierService,
+      membershipService
     );
     paymentService = createPaymentService(
       fakeStripeClient,
