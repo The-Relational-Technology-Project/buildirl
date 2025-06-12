@@ -635,7 +635,6 @@ export function createMembershipService(
         clubOwnerId: membership.club.owner.id,
         memberUserId: membership.user.id
       },
-      memberEmail,
       tx
     );
   }
@@ -755,7 +754,6 @@ export function createMembershipService(
         clubOwnerId: membership.club.owner.id,
         memberUserId: membership.user.id
       },
-      memberEmail,
       tx
     );
   }
@@ -941,7 +939,7 @@ export function createMembershipService(
         clubName: membership.club.name,
         memberUserId: membership.user.id
       },
-      memberEmail
+      tx
     );
   }
 
@@ -972,7 +970,6 @@ export function createMembershipService(
         clubOwnerId: membership.club.owner.id,
         memberUserId: membership.user.id
       },
-      memberEmail,
       tx
     );
   }

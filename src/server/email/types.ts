@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { MutationResult } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
-import { Email } from "~/server/utils/types";
 import { Prisma } from "@prisma/client";
 
 export type EmailService = EmailQueries & EmailMutations & EmailNotifications;
@@ -26,12 +25,10 @@ type EmailNotifications = {
   ): Promise<void>;
   sendDefaultEmailForMembershipApproved(
     input: SendDefaultEmailForMembershipApprovedInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeclined(
     input: SendDefaultEmailForMembershipDeclinedInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
@@ -40,12 +37,11 @@ type EmailNotifications = {
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByMemberToMember(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByOwner(
     input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
-    sendTo: Email
+    tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
     input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
@@ -70,7 +66,7 @@ export type SendDefaultEmailForMembershipApprovedInput = {
   clubName: string;
   clubPublicId: string;
   clubOwnerId: number;
-  memberUserId?: number;
+  memberUserId: number;
 };
 
 export type SendDefaultEmailForMembershipDeclinedInput = {
@@ -79,7 +75,7 @@ export type SendDefaultEmailForMembershipDeclinedInput = {
   clubId: number;
   clubName: string;
   clubOwnerId: number;
-  memberUserId?: number;
+  memberUserId: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput = {
@@ -98,13 +94,13 @@ export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
   clubName: string;
   clubId: number;
   clubOwnerId: number;
-  memberUserId?: number;
+  memberUserId: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByOwnerInput = {
   membershipId: bigint;
   clubName: string;
-  memberUserId?: number;
+  memberUserId: number;
 };
 
 export type SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput = {

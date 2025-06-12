@@ -13,7 +13,7 @@ import {
 } from "~/server/email/types";
 import { PrismaClient, Prisma } from "@prisma/client";
 import { rootLogger } from "~/logger";
-import { MutationResult, NO_ID_MUTATION_RESULT, Email } from "~/server/utils/types";
+import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
 import { 
@@ -138,7 +138,6 @@ export function createEmailService(
 
   async function sendDefaultEmailForMembershipApproved(
     input: SendDefaultEmailForMembershipApprovedInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const template = await getEmailTemplate({
@@ -154,18 +153,12 @@ export function createEmailService(
       return;
     }
 
-    // Dual pattern: resolve member email internally if memberUserId provided
-    // NOTE: This is a temporary solution to ensure backwards compatibility.
-    let memberEmail = sendTo;
-    if (input.memberUserId) {
-      const resolvedMemberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
-      if (!resolvedMemberEmail) {
-        logger.error(
-          `failed to send membership approved email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
-        );
-        return;
-      }
-      memberEmail = resolvedMemberEmail;
+    const memberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+    if (!memberEmail) {
+      logger.error(
+        `failed to send membership approved email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
+      );
+      return;
     }
 
     if (template) {
@@ -183,7 +176,6 @@ export function createEmailService(
 
   async function sendDefaultEmailForMembershipDeclined(
     input: SendDefaultEmailForMembershipDeclinedInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const template = await getEmailTemplate({
@@ -199,17 +191,12 @@ export function createEmailService(
       return;
     }
 
-    // Dual pattern: resolve member email internally if memberUserId provided
-    let memberEmail = sendTo;
-    if (input.memberUserId) {
-      const resolvedMemberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
-      if (!resolvedMemberEmail) {
-        logger.error(
-          `failed to send membership declined email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
-        );
-        return;
-      }
-      memberEmail = resolvedMemberEmail;
+    const memberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+    if (!memberEmail) {
+      logger.error(
+        `failed to send membership declined email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
+      );
+      return;
     }
 
     if (template) {
@@ -241,7 +228,6 @@ export function createEmailService(
 
   async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const template = await getEmailTemplate({
@@ -257,17 +243,12 @@ export function createEmailService(
       return;
     }
 
-    // Dual pattern: resolve member email internally if memberUserId provided
-    let memberEmail = sendTo;
-    if (input.memberUserId) {
-      const resolvedMemberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
-      if (!resolvedMemberEmail) {
-        logger.error(
-          `failed to send membership deactivated by member to member email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
-        );
-        return;
-      }
-      memberEmail = resolvedMemberEmail;
+    const memberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+    if (!memberEmail) {
+      logger.error(
+        `failed to send membership deactivated by member to member email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
+      );
+      return;
     }
 
     if (template) {
@@ -285,17 +266,17 @@ export function createEmailService(
 
   async function sendDefaultEmailForMembershipDeactivatedByOwner(
     input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
-    sendTo: Email
+    tx: Prisma.TransactionClient
   ): Promise<void> {
-    // Note: This function doesn't have tx parameter, so we can't resolve memberUserId yet
-    // We'll handle this in a later step when we add transaction support
-    if (input.memberUserId) {
-      logger.warn(
-        `memberUserId provided for sendDefaultEmailForMembershipDeactivatedByOwner but no transaction available - using sendTo parameter`
+    const memberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+    if (!memberEmail) {
+      logger.error(
+        `failed to send membership deactivated by owner email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
       );
+      return;
     }
 
-    await emailClient.sendDefaultEmailForMembershipDeactivatedByOwner(input, sendTo);
+    await emailClient.sendDefaultEmailForMembershipDeactivatedByOwner(input, memberEmail);
   }
 
   async function sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
