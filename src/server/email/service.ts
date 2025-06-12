@@ -19,13 +19,18 @@ import { Maybe } from "~/utils/types";
 import { 
   EmailClient
 } from "~/server/email/client/types";
+import { UserService } from "~/server/user/types";
 
 const logger = rootLogger.child({ module: "emailTemplateService" });
 
 export function createEmailService(
   prisma: PrismaClient,
-  emailClient: EmailClient
+  emailClient: EmailClient,
+  userService: UserService
 ): EmailService {
+  // TODO: userService will be used in upcoming commits for email resolution
+  void userService;
+
   const EMAIL_TEMPLATE_SELECT = {
     type: true,
     subject: true,

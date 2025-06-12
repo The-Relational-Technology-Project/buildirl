@@ -85,7 +85,7 @@ describe("service", () => {
     );
     clubService = createClubService(prisma, membershipTierService);
     followingService = createFollowingService(prisma, userService, clubService);
-    emailService = createEmailService(prisma, dummyEmailClient);
+    emailService = createEmailService(prisma, dummyEmailClient, userService);
     membershipService = createMembershipService(
       prisma,
       userService,

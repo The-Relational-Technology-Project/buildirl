@@ -51,8 +51,8 @@ export const createTRPCContext = async (opts: {
   const stripeClient = createStripeClient(stripe);
   const accountIdResolver = createAccountIdResolver(prisma);
   const emailClient = createEmailClient(mailTransport);
-  const emailService = createEmailService(prisma, emailClient);
   const userService = createUserService(prisma);
+  const emailService = createEmailService(prisma, emailClient, userService);
   const membershipTierService = createMembershipTierService(
     prisma,
     stripeClient,
