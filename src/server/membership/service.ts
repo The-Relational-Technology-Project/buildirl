@@ -425,9 +425,11 @@ export function createMembershipService(
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubOwnerId: membership.club.owner.id
       },
-      ownerEmail
+      ownerEmail,
+      tx
     );
   }
 
@@ -651,10 +653,12 @@ export function createMembershipService(
         memberLastName: membership.user.lastName,
         clubId: membership.club.id,
         clubName: membership.club.name,
-        clubPublicId: membership.club.publicId
+        clubPublicId: membership.club.publicId,
+        clubOwnerId: membership.club.owner.id
       },
       memberEmail,
-      ownerEmail
+      ownerEmail,
+      tx
     );
   }
 
@@ -779,10 +783,12 @@ export function createMembershipService(
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubOwnerId: membership.club.owner.id
       },
       memberEmail,
-      ownerEmail
+      ownerEmail,
+      tx
     );
   }
 
@@ -1003,10 +1009,12 @@ export function createMembershipService(
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubOwnerId: membership.club.owner.id
       },
       memberEmail,
-      ownerEmail
+      ownerEmail,
+      tx
     );
   }
 
@@ -1032,9 +1040,11 @@ export function createMembershipService(
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubOwnerId: membership.club.owner.id
       },
-      ownerEmail
+      ownerEmail,
+      tx
     );
   }
 
@@ -1060,9 +1070,11 @@ export function createMembershipService(
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubOwnerId: membership.club.owner.id
       },
-      ownerEmail
+      ownerEmail,
+      tx
     );
   }
 
