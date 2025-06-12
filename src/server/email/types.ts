@@ -23,30 +23,30 @@ type EmailNotifications = {
   sendDefaultEmailForMembershipApplicationSubmitted(
     input: SendDefaultEmailForMembershipApplicationSubmittedInput,
     sendTo: Email,
-    tx?: Prisma.TransactionClient
+    tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipApproved(
     input: SendDefaultEmailForMembershipApprovedInput,
     sendTo: Email,
     replyTo: Email,
-    tx?: Prisma.TransactionClient
+    tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeclined(
     input: SendDefaultEmailForMembershipDeclinedInput,
     sendTo: Email,
     replyTo: Email,
-    tx?: Prisma.TransactionClient
+    tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
     sendTo: Email,
-    tx?: Prisma.TransactionClient
+    tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByMemberToMember(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
     replyTo: Email,
-    tx?: Prisma.TransactionClient
+    tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByOwner(
     input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
@@ -55,7 +55,7 @@ type EmailNotifications = {
   sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
     input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
     sendTo: Email,
-    tx?: Prisma.TransactionClient
+    tx: Prisma.TransactionClient
   ): Promise<void>;
 };
 
@@ -65,7 +65,7 @@ export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
   memberLastName: string;
   clubName: string;
   clubId: number;
-  clubOwnerId?: number;
+  clubOwnerId: number;
 };
 
 export type SendDefaultEmailForMembershipApprovedInput = {
@@ -75,7 +75,7 @@ export type SendDefaultEmailForMembershipApprovedInput = {
   clubId: number;
   clubName: string;
   clubPublicId: string;
-  clubOwnerId?: number;
+  clubOwnerId: number;
 };
 
 export type SendDefaultEmailForMembershipDeclinedInput = {
@@ -83,7 +83,7 @@ export type SendDefaultEmailForMembershipDeclinedInput = {
   memberFirstName: string;
   clubId: number;
   clubName: string;
-  clubOwnerId?: number;
+  clubOwnerId: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput = {
@@ -92,7 +92,7 @@ export type SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput = {
   memberLastName: string;
   clubName: string;
   clubId: number;
-  clubOwnerId?: number;
+  clubOwnerId: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
@@ -101,7 +101,7 @@ export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
   memberLastName: string;
   clubName: string;
   clubId: number;
-  clubOwnerId?: number;
+  clubOwnerId: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByOwnerInput = {
@@ -115,7 +115,7 @@ export type SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput = {
   memberLastName: string;
   clubName: string;
   clubId: number;
-  clubOwnerId?: number;
+  clubOwnerId: number;
 };
 
 const EmailTemplateTypeSchema = z.enum([
