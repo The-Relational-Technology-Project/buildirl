@@ -28,9 +28,6 @@ export function createEmailService(
   emailClient: EmailClient,
   userService: UserService
 ): EmailService {
-  // TODO: userService will be used in upcoming commits for email resolution
-  void userService;
-
   const EMAIL_TEMPLATE_SELECT = {
     type: true,
     subject: true,
@@ -130,9 +127,20 @@ export function createEmailService(
     sendTo: Email,
     tx?: Prisma.TransactionClient
   ): Promise<void> {
-    // TODO: tx will be used in upcoming commits for owner email resolution
-    void tx;
-    await emailClient.sendDefaultEmailForMembershipApplicationSubmitted(input, sendTo);
+    // New pattern: resolve owner email if clubOwnerId and transaction provided
+    if (input.clubOwnerId && tx) {
+      const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+      if (!ownerEmail) {
+        logger.error(
+          `failed to send membership application submitted email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+        );
+        return;
+      }
+      await emailClient.sendDefaultEmailForMembershipApplicationSubmitted(input, ownerEmail);
+    } else {
+      // Legacy pattern: use provided sendTo email
+      await emailClient.sendDefaultEmailForMembershipApplicationSubmitted(input, sendTo);
+    }
   }
 
   async function sendDefaultEmailForMembershipApproved(
@@ -141,23 +149,54 @@ export function createEmailService(
     replyTo: Email,
     tx?: Prisma.TransactionClient
   ): Promise<void> {
-    // TODO: tx will be used in upcoming commits for owner email resolution
-    void tx;
     const template = await getEmailTemplate({
       clubId: input.clubId,
       type: "ACCEPTANCE"
     });
     
     if (template) {
-      await emailClient.sendCustomEmail(
-        sendTo,
-        replyTo,
-        template.subject,
-        template.htmlContent,
-        template.textContent
-      );
+      // NOTE: The below approach is temporary to ensure backwards compatibility.  
+      // New pattern: resolve owner email if clubOwnerId and transaction provided
+      if (input.clubOwnerId && tx) {
+        const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+        if (!ownerEmail) {
+          logger.error(
+            `failed to send membership approved email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+          );
+          return;
+        }
+        await emailClient.sendCustomEmail(
+          sendTo,
+          ownerEmail,
+          template.subject,
+          template.htmlContent,
+          template.textContent
+        );
+      } else {
+        // Legacy pattern: use provided replyTo email
+        await emailClient.sendCustomEmail(
+          sendTo,
+          replyTo,
+          template.subject,
+          template.htmlContent,
+          template.textContent
+        );
+      }
     } else {
-      await emailClient.sendDefaultEmailForMembershipApproved(input, sendTo, replyTo);
+      // New pattern: resolve owner email if clubOwnerId and transaction provided
+      if (input.clubOwnerId && tx) {
+        const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+        if (!ownerEmail) {
+          logger.error(
+            `failed to send membership approved email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+          );
+          return;
+        }
+        await emailClient.sendDefaultEmailForMembershipApproved(input, sendTo, ownerEmail);
+      } else {
+        // Legacy pattern: use provided replyTo email
+        await emailClient.sendDefaultEmailForMembershipApproved(input, sendTo, replyTo);
+      }
     }
   }
 
@@ -167,23 +206,53 @@ export function createEmailService(
     replyTo: Email,
     tx?: Prisma.TransactionClient
   ): Promise<void> {
-    // TODO: tx will be used in upcoming commits for owner email resolution
-    void tx;
     const template = await getEmailTemplate({
       clubId: input.clubId,
       type: "REJECTION"
     });
     
     if (template) {
-      await emailClient.sendCustomEmail(
-        sendTo,
-        replyTo,
-        template.subject,
-        template.htmlContent,
-        template.textContent
-      );
+      // New pattern: resolve owner email if clubOwnerId and transaction provided
+      if (input.clubOwnerId && tx) {
+        const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+        if (!ownerEmail) {
+          logger.error(
+            `failed to send membership declined email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+          );
+          return;
+        }
+        await emailClient.sendCustomEmail(
+          sendTo,
+          ownerEmail,
+          template.subject,
+          template.htmlContent,
+          template.textContent
+        );
+      } else {
+        // Legacy pattern: use provided replyTo email
+        await emailClient.sendCustomEmail(
+          sendTo,
+          replyTo,
+          template.subject,
+          template.htmlContent,
+          template.textContent
+        );
+      }
     } else {
-      await emailClient.sendDefaultEmailForMembershipDeclined(input, sendTo, replyTo);
+      // New pattern: resolve owner email if clubOwnerId and transaction provided
+      if (input.clubOwnerId && tx) {
+        const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+        if (!ownerEmail) {
+          logger.error(
+            `failed to send membership declined email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+          );
+          return;
+        }
+        await emailClient.sendDefaultEmailForMembershipDeclined(input, sendTo, ownerEmail);
+      } else {
+        // Legacy pattern: use provided replyTo email
+        await emailClient.sendDefaultEmailForMembershipDeclined(input, sendTo, replyTo);
+      }
     }
   }
 
@@ -192,9 +261,20 @@ export function createEmailService(
     sendTo: Email,
     tx?: Prisma.TransactionClient
   ): Promise<void> {
-    // TODO: tx will be used in upcoming commits for owner email resolution
-    void tx;
-    await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToOwner(input, sendTo);
+    // New pattern: resolve owner email if clubOwnerId and transaction provided
+    if (input.clubOwnerId && tx) {
+      const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+      if (!ownerEmail) {
+        logger.error(
+          `failed to send membership deactivated by member to owner email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+        );
+        return;
+      }
+      await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToOwner(input, ownerEmail);
+    } else {
+      // Legacy pattern: use provided sendTo email
+      await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToOwner(input, sendTo);
+    }
   }
 
   async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
@@ -203,23 +283,53 @@ export function createEmailService(
     replyTo: Email,
     tx?: Prisma.TransactionClient
   ): Promise<void> {
-    // TODO: tx will be used in upcoming commits for owner email resolution
-    void tx;
     const template = await getEmailTemplate({
       clubId: input.clubId,
       type: "DEPARTURE"
     });
     
     if (template) {
-      await emailClient.sendCustomEmail(
-        sendTo,
-        replyTo,
-        template.subject,
-        template.htmlContent,
-        template.textContent
-      );
+      // New pattern: resolve owner email if clubOwnerId and transaction provided
+      if (input.clubOwnerId && tx) {
+        const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+        if (!ownerEmail) {
+          logger.error(
+            `failed to send membership deactivated by member to member email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+          );
+          return;
+        }
+        await emailClient.sendCustomEmail(
+          sendTo,
+          ownerEmail,
+          template.subject,
+          template.htmlContent,
+          template.textContent
+        );
+      } else {
+        // Legacy pattern: use provided replyTo email
+        await emailClient.sendCustomEmail(
+          sendTo,
+          replyTo,
+          template.subject,
+          template.htmlContent,
+          template.textContent
+        );
+      }
     } else {
-      await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToMember(input, sendTo, replyTo);
+      // New pattern: resolve owner email if clubOwnerId and transaction provided
+      if (input.clubOwnerId && tx) {
+        const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+        if (!ownerEmail) {
+          logger.error(
+            `failed to send membership deactivated by member to member email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+          );
+          return;
+        }
+        await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToMember(input, sendTo, ownerEmail);
+      } else {
+        // Legacy pattern: use provided replyTo email
+        await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToMember(input, sendTo, replyTo);
+      }
     }
   }
 
@@ -235,9 +345,20 @@ export function createEmailService(
     sendTo: Email,
     tx?: Prisma.TransactionClient
   ): Promise<void> {
-    // TODO: tx will be used in upcoming commits for owner email resolution
-    void tx;
-    await emailClient.sendDefaultEmailForApplicationWithdrawnByMemberToOwner(input, sendTo);
+    // New pattern: resolve owner email if clubOwnerId and transaction provided
+    if (input.clubOwnerId && tx) {
+      const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+      if (!ownerEmail) {
+        logger.error(
+          `failed to send application withdrawn by member to owner email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+        );
+        return;
+      }
+      await emailClient.sendDefaultEmailForApplicationWithdrawnByMemberToOwner(input, ownerEmail);
+    } else {
+      // Legacy pattern: use provided sendTo email
+      await emailClient.sendDefaultEmailForApplicationWithdrawnByMemberToOwner(input, sendTo);
+    }
   }
 
   return {
