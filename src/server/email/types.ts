@@ -70,6 +70,7 @@ export type SendDefaultEmailForMembershipApprovedInput = {
   clubName: string;
   clubPublicId: string;
   clubOwnerId: number;
+  memberUserId?: number;
 };
 
 export type SendDefaultEmailForMembershipDeclinedInput = {
@@ -78,6 +79,7 @@ export type SendDefaultEmailForMembershipDeclinedInput = {
   clubId: number;
   clubName: string;
   clubOwnerId: number;
+  memberUserId?: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput = {
@@ -96,11 +98,13 @@ export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
   clubName: string;
   clubId: number;
   clubOwnerId: number;
+  memberUserId?: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByOwnerInput = {
   membershipId: bigint;
   clubName: string;
+  memberUserId?: number;
 };
 
 export type SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput = {
