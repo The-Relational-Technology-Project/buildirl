@@ -3,7 +3,7 @@ import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
 import { StripeClient } from "~/server/payments/stripe/types";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
-import { EmailClient } from "~/server/email/client/types";
+import { EmailService } from "~/server/email/types";
 import {
   DeactivateMembershipInput,
   Membership,
@@ -29,7 +29,7 @@ export function createMembershipService(
   membershipTierService: MembershipTierService,
   followingService: FollowingService,
   stripeClient: StripeClient,
-  emailClient: EmailClient,
+  emailService: EmailService,
   accountIdResolver: AccountIdResolver
 ): MembershipService {
   async function getUserMemberships(userId: number): Promise<Membership[]> {
@@ -419,7 +419,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailClient.notifyMembershipApplicationSubmitted(
+    await emailService.notifyMembershipApplicationSubmitted(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -644,7 +644,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailClient.notifyMembershipApproved(
+    await emailService.notifyMembershipApproved(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -774,7 +774,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailClient.notifyMembershipDeclined(
+    await emailService.notifyMembershipDeclined(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -961,7 +961,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailClient.notifyMembershipDeactivatedByOwner(
+    await emailService.notifyMembershipDeactivatedByOwner(
       {
         membershipId: membershipId,
         clubName: membership.club.name
@@ -997,7 +997,7 @@ export function createMembershipService(
       return;
     }
 
-    await emailClient.notifyMembershipDeactivatedByMemberToMember(
+    await emailService.notifyMembershipDeactivatedByMemberToMember(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -1026,7 +1026,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailClient.notifyMembershipDeactivatedByMemberToOwner(
+    await emailService.notifyMembershipDeactivatedByMemberToOwner(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -1054,7 +1054,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailClient.notifyApplicationWithdrawnByMemberToOwner(
+    await emailService.notifyApplicationWithdrawnByMemberToOwner(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,

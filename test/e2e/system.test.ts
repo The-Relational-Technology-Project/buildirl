@@ -85,6 +85,7 @@ describe("service", () => {
     );
     clubService = createClubService(prisma, membershipTierService);
     followingService = createFollowingService(prisma, userService, clubService);
+    emailService = createEmailService(prisma, dummyEmailClient);
     membershipService = createMembershipService(
       prisma,
       userService,
@@ -92,7 +93,7 @@ describe("service", () => {
       membershipTierService,
       followingService,
       fakeStripeClient,
-      dummyEmailClient,
+      emailService,
       accountIdResolver
     );
     paymentService = createPaymentService(
@@ -101,7 +102,6 @@ describe("service", () => {
       accountIdResolver
     );
     paymentEventProcessor = createPaymentEventProcessor(prisma);
-    emailService = createEmailService(prisma, dummyEmailClient);
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull
   }, 30000);
