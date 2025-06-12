@@ -183,23 +183,23 @@ export function createClubService(
     }
   }
 
-  async function hasAnyActiveMembershipsOrMembershipApplications(
+  async function hasMoreThanOneActiveMembershipsOrMembershipApplications(
     clubId: number
   ) {
     try {
-      const memberCount = await prisma.membership.count({
+      const membershipCount = await prisma.membership.count({
         where: {
           membershipTier: {
             clubId: clubId
           },
-          status: { in: ["ACTIVE", "PENDING"] },
-          role: "MEMBER"
+          status: { in: ["ACTIVE", "PENDING"] }
         }
       });
       logger.info(
-        `queried all active or pending membership count for club with clubId ${clubId} with result ${memberCount}`
+        `queried all active or pending membership count for club with clubId ${clubId} with result ${membershipCount}`
       );
-      return memberCount > 0;
+      // we allow deletion if lead is the one remaining membership
+      return membershipCount > 1;
     } catch (e) {
       logger.error(
         e,
@@ -210,7 +210,7 @@ export function createClubService(
   }
 
   async function deleteClub(id: number): Promise<MutationResult> {
-    if (await hasAnyActiveMembershipsOrMembershipApplications(id)) {
+    if (await hasMoreThanOneActiveMembershipsOrMembershipApplications(id)) {
       throw new Error(
         "cannot delete club if it has any active memberships or membership applications"
       );

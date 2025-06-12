@@ -1,4 +1,4 @@
-import { type Membership } from "~/server/membership/types";
+import { type Membership, MembershipWithClub } from "~/server/membership/types";
 import { type SystemState } from "./systemState";
 import { orderByBigIntId, orderByNumberId } from "./utils";
 import { OmitRecursively } from "~/utils/omit";
@@ -74,6 +74,22 @@ function createVerifiers() {
     return {
       id: membership.id,
       user: userWithoutCreatedAt(membership.user),
+      membershipTier: membership.membershipTier,
+      status: membership.status,
+      applicationResponses: membership.applicationResponses,
+      email: membership.email,
+      role: membership.role,
+      isWelcomed: membership.isWelcomed
+    };
+  }
+
+  function membershipWithClubWithoutCreatedAt(
+    membership: MembershipWithClub
+  ): OmitRecursively<MembershipWithClub, "createdAt"> {
+    // filter out createdAt
+    return {
+      id: membership.id,
+      user: userWithoutCreatedAt(membership.user),
       club: clubWithoutCreatedAt(membership.club),
       membershipTier: membership.membershipTier,
       status: membership.status,
@@ -126,7 +142,9 @@ function createVerifiers() {
   ) {
     const memberships = await r.membership.getUserMemberships(userId);
     expect(
-      orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
+      orderByBigIntId(
+        memberships.map((m) => membershipWithClubWithoutCreatedAt(m))
+      )
     ).toEqual(orderByBigIntId(m.getUserMemberships(userId)));
   }
 

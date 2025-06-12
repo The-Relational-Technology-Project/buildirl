@@ -42,8 +42,9 @@ export default function ClubAdminPanel({ clubId }: ClubAdminPanelProps) {
     return null;
   }
 
-  const hasActiveOrPendingMemberships =
-    r.data!.length > 0 || m.data!.length > 0;
+  const hasMoreThanOneActiveOrAnyPendingMemberships =
+    // allow one remaining lead member
+    r.data!.length > 1 || m.data!.length > 0;
 
   const handleDeleteClub = () => {
     if (
@@ -60,23 +61,23 @@ export default function ClubAdminPanel({ clubId }: ClubAdminPanelProps) {
     <Stack gap="sm" mt="md" align={"center"}>
       <Alert color="red" title="Danger Zone">
         Deleting a club is an irreversible action. You can only delete a club if
-        there are no active memberships or pending applications.
+        there are no additional active memberships or pending applications.
       </Alert>
 
       <Button
         color="red"
         mt={"sm"}
         w={150}
-        disabled={hasActiveOrPendingMemberships}
+        disabled={hasMoreThanOneActiveOrAnyPendingMemberships}
         onClick={handleDeleteClub}
         loading={deleteClubMutation.isPending}
       >
         Delete Club
       </Button>
-      {hasActiveOrPendingMemberships && (
+      {hasMoreThanOneActiveOrAnyPendingMemberships && (
         <Text c={"dimmed"} size={"sm"}>
-          You cannot delete this club while it has active memberships or pending
-          applications.
+          You cannot delete this club while it has additional active memberships
+          or pending applications.
         </Text>
       )}
     </Stack>

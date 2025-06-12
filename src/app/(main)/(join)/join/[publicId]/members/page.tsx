@@ -24,7 +24,7 @@ export default function ClubMembers() {
   return (
     isLoaded(r) && (
       <WithLocalNavigationHeader>
-        <MemberList clubId={r.data!.id} owner={r.data!.owner} />
+        <MemberList clubId={r.data!.id} />
       </WithLocalNavigationHeader>
     )
   );
@@ -32,10 +32,9 @@ export default function ClubMembers() {
 
 type MemberListProps = {
   clubId: number;
-  owner: User;
 };
 
-function MemberList({ clubId, owner }: MemberListProps) {
+function MemberList({ clubId }: MemberListProps) {
   const r = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
   });
@@ -49,7 +48,7 @@ function MemberList({ clubId, owner }: MemberListProps) {
     return null;
   }
 
-  const allMembers = [owner, ...r.data!.map((m) => m.user)];
+  const allMembers = r.data!.map((r) => r.user);
 
   return (
     <Stack px={{ base: 0, md: "xl" }}>

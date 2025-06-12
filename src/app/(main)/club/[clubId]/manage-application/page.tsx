@@ -10,29 +10,29 @@ import { membershipForClub } from "~/utils/types";
 import { handleDefaultMutationError } from "~/client/logger";
 import { strictParseInt } from "~/utils";
 import MembershipInfoCard from "~/app/(main)/club/[clubId]/member/_components/MembershipInfoCard";
-import { 
-  Button, 
-  Stack, 
-  Title, 
-  Paper, 
-  Text
-} from "@mantine/core";
-import { Membership } from "~/server/membership/types";
+import { Button, Stack, Title, Paper, Text } from "@mantine/core";
+import { MembershipWithClub } from "~/server/membership/types";
 import ApplicationResponsesCard from "~/client/components/ApplicationResponsesCard";
 
+type WithdrawApplicationSectionProps = {
+  membership: MembershipWithClub;
+};
 
-
-function WithdrawApplicationSection({ membership }: { membership: Membership }) {
+function WithdrawApplicationSection({
+  membership
+}: WithdrawApplicationSectionProps) {
   const router = useRouter();
   const utils = api.useUtils();
-  
-  const withdrawMembership = api.main.withdrawMembershipApplication.useMutation({
-    onSuccess: async () => {
-      await utils.main.userMemberships.invalidate();
-      router.push(`/join/${membership.club.publicId}`);
-    },
-    onError: handleDefaultMutationError
-  });
+
+  const withdrawMembership = api.main.withdrawMembershipApplication.useMutation(
+    {
+      onSuccess: async () => {
+        await utils.main.userMemberships.invalidate();
+        router.push(`/join/${membership.club.publicId}`);
+      },
+      onError: handleDefaultMutationError
+    }
+  );
 
   const handleWithdraw = () => {
     if (
@@ -51,7 +51,8 @@ function WithdrawApplicationSection({ membership }: { membership: Membership }) 
           Actions
         </Title>
         <Text size="sm">
-          If you no longer wish to join this club, you can withdraw your application below.
+          If you no longer wish to join this club, you can withdraw your
+          application below.
         </Text>
         <Button
           color="red"
@@ -84,7 +85,9 @@ export default function ManageApplication() {
   const membership = membershipForClub(userMemberships.data!, clubId);
 
   if (!membership || membership.status !== "PENDING") {
-    throw new Error(`user should have a PENDING membership for club ${clubId} to access manage-application page`);
+    throw new Error(
+      `user should have a PENDING membership for club ${clubId} to access manage-application page`
+    );
   }
 
   const club = membership.club;
@@ -104,4 +107,4 @@ export default function ManageApplication() {
       </Stack>
     </WithLocalNavigationHeader>
   );
-} 
+}

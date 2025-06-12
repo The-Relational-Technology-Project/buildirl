@@ -9,10 +9,16 @@ import {
   Membership,
   MembershipService,
   MembershipStatus,
+  MembershipWithClub,
   SubmitMembershipApplicationInput
 } from "~/server/membership/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
-import { asMembership, MEMBERSHIP_SELECT } from "~/server/membership/utils";
+import {
+  asMembership,
+  asMembershipWithClub,
+  MEMBERSHIP_SELECT,
+  MEMBERSHIP_WITH_CLUB_SELECT
+} from "~/server/membership/utils";
 import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
 import { UserService } from "~/server/user/types";
 import { FollowingService } from "~/server/following/types";
@@ -30,16 +36,18 @@ export function createMembershipService(
   emailClient: EmailClient,
   accountIdResolver: AccountIdResolver
 ): MembershipService {
-  async function getUserMemberships(userId: number): Promise<Membership[]> {
+  async function getUserMemberships(
+    userId: number
+  ): Promise<MembershipWithClub[]> {
     try {
       const results = await prisma.membership.findMany({
-        select: MEMBERSHIP_SELECT,
+        select: MEMBERSHIP_WITH_CLUB_SELECT,
         where: {
           userId: userId
         }
       });
       const memberships = await Promise.all(
-        results.map((r) => asMembership(r))
+        results.map((r) => asMembershipWithClub(r))
       );
       logger.info(
         `queried memberships for user with userId ${userId} with result ${stringify(memberships)}`
@@ -65,8 +73,7 @@ export function createMembershipService(
           membershipTier: {
             clubId: clubId
           },
-          status: "ACTIVE",
-          role: "MEMBER"
+          status: "ACTIVE"
         }
       });
       const memberships = await Promise.all(
@@ -399,7 +406,7 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    const membership = await getMembership(membershipId, tx);
+    const membership = await getMembershipWithClub(membershipId, tx);
     const ownerEmail = await userService.getUserEmailInTransaction(
       membership.club.owner.id,
       tx
@@ -455,18 +462,18 @@ export function createMembershipService(
     }
   }
 
-  async function getMembership(
+  async function getMembershipWithClub(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<Membership> {
+  ): Promise<MembershipWithClub> {
     try {
       const result = await tx.membership.findUniqueOrThrow({
-        select: MEMBERSHIP_SELECT,
+        select: MEMBERSHIP_WITH_CLUB_SELECT,
         where: {
           id: membershipId
         }
       });
-      const memberships = asMembership(result);
+      const memberships = asMembershipWithClub(result);
       logger.info(
         `queried membership with id ${membershipId} with result ${stringify(memberships)}`
       );
@@ -615,7 +622,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     // noinspection DuplicatedCode
-    const membership = await getMembership(membershipId, tx);
+    const membership = await getMembershipWithClub(membershipId, tx);
     const memberEmail = await userService.getUserEmailInTransaction(
       membership.user.id,
       tx
@@ -745,7 +752,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     // noinspection DuplicatedCode
-    const membership = await getMembership(membershipId, tx);
+    const membership = await getMembershipWithClub(membershipId, tx);
     const memberEmail = await userService.getUserEmailInTransaction(
       membership.user.id,
       tx
@@ -940,7 +947,7 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    const membership = await getMembership(membershipId, tx);
+    const membership = await getMembershipWithClub(membershipId, tx);
     const memberEmail = await userService.getUserEmailInTransaction(
       membership.user.id,
       tx
@@ -965,7 +972,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     // noinspection DuplicatedCode
-    const membership = await getMembership(membershipId, tx);
+    const membership = await getMembershipWithClub(membershipId, tx);
     const memberEmail = await userService.getUserEmailInTransaction(
       membership.user.id,
       tx
@@ -1004,7 +1011,7 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    const membership = await getMembership(membershipId, tx);
+    const membership = await getMembershipWithClub(membershipId, tx);
     const ownerEmail = await userService.getUserEmailInTransaction(
       membership.club.owner.id,
       tx
@@ -1032,7 +1039,7 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    const membership = await getMembership(membershipId, tx);
+    const membership = await getMembershipWithClub(membershipId, tx);
     const ownerEmail = await userService.getUserEmailInTransaction(
       membership.club.owner.id,
       tx

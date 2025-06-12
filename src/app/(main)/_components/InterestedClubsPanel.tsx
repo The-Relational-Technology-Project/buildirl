@@ -3,7 +3,7 @@ import { isAllLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { Stack, Text, Title } from "@mantine/core";
 import { Club } from "~/server/club/types";
-import { Membership } from "~/server/membership/types";
+import { MembershipWithClub } from "~/server/membership/types";
 import ClubCard from "~/app/(main)/_components/ClubCard";
 import { WelcomeImage } from "~/client/components/Images";
 import { useMatches } from "@mantine/core";
@@ -22,7 +22,7 @@ function EmptyClubs() {
 }
 
 type InterestedClubsProps = {
-  membershipApplications: Membership[];
+  membershipApplications: MembershipWithClub[];
   followedClubs: Club[];
 };
 

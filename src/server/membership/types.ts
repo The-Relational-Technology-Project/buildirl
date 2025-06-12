@@ -11,7 +11,7 @@ export type MembershipService = MembershipQueries & MembershipMutations;
 
 type MembershipQueries = {
   // all memberships, regardless of status
-  getUserMemberships(userId: number): Promise<Membership[]>;
+  getUserMemberships(userId: number): Promise<MembershipWithClub[]>;
   getActiveMembershipsForClub(
     clubId: number,
     includeEmail: boolean
@@ -32,7 +32,6 @@ export type Role = "LEAD" | "MEMBER";
 export type Membership = {
   id: bigint;
   user: User;
-  club: Club;
   membershipTier: MembershipTier;
   status: MembershipStatus;
   applicationResponses: FormResponses;
@@ -46,6 +45,8 @@ export type Membership = {
   // TODO refine
   createdAt: Date;
 };
+
+export type MembershipWithClub = Membership & { club: Club };
 
 type MembershipMutations = {
   submitMembershipApplication(

@@ -23,6 +23,7 @@ import {
 import {
   Membership,
   MembershipStatus,
+  MembershipWithClub,
   Role,
   SubmitMembershipApplicationInput
 } from "~/server/membership/types";
@@ -578,6 +579,22 @@ export class SystemState {
     return {
       id: membershipState.id,
       user: this.getUser(membershipState.userId),
+      membershipTier: this.getMembershipTier(membershipState.membershipTierId),
+      status: membershipState.status,
+      applicationResponses: membershipState.applicationResponses,
+      email: includeEmail ? this.getUserEmail(membershipState.userId) : null,
+      isWelcomed: membershipState.isWelcomed,
+      role: membershipState.role
+    };
+  }
+
+  public membershipStateToMembershipWithClub(
+    membershipState: MembershipState,
+    includeEmail: boolean = false
+  ): OmitRecursively<MembershipWithClub, "createdAt"> {
+    return {
+      id: membershipState.id,
+      user: this.getUser(membershipState.userId),
       club: this.getClub(membershipState.clubId),
       membershipTier: this.getMembershipTier(membershipState.membershipTierId),
       status: membershipState.status,
@@ -630,10 +647,10 @@ export class SystemState {
 
   public getUserMemberships(
     userId: number
-  ): OmitRecursively<Membership, "createdAt">[] {
+  ): OmitRecursively<MembershipWithClub, "createdAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.userId === userId)
-      .map((m) => this.membershipStateToMembership(m, false));
+      .map((m) => this.membershipStateToMembershipWithClub(m, false));
   }
 
   public submitMembershipApplication(

@@ -4,7 +4,7 @@ import {
   MembershipTier,
   UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
-import { Membership } from "~/server/membership/types";
+import { MembershipWithClub } from "~/server/membership/types";
 import { Club } from "~/server/club/types";
 
 export type Maybe<T> = T | null;
@@ -47,9 +47,9 @@ export function isDefaultFreeTier(
 }
 
 export function membershipForClub(
-  memberships: Membership[],
+  memberships: MembershipWithClub[],
   clubId: number
-): Maybe<Membership> {
+): Maybe<MembershipWithClub> {
   const clubMembership = memberships.find((m) => m.club.id === clubId);
 
   // no membership
@@ -61,9 +61,9 @@ export function membershipForClub(
 }
 
 export function activeMembershipForClub(
-  memberships: Membership[],
+  memberships: MembershipWithClub[],
   clubId: number
-) {
+): Maybe<MembershipWithClub> {
   const clubMembership = membershipForClub(memberships, clubId);
   if (clubMembership?.status === "ACTIVE") {
     return clubMembership;
