@@ -58,6 +58,7 @@ export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
   memberLastName: string;
   clubName: string;
   clubId: number;
+  clubOwnerId?: number;
 };
 
 export type SendDefaultEmailForMembershipApprovedInput = {
@@ -67,6 +68,7 @@ export type SendDefaultEmailForMembershipApprovedInput = {
   clubId: number;
   clubName: string;
   clubPublicId: string;
+  clubOwnerId?: number;
 };
 
 export type SendDefaultEmailForMembershipDeclinedInput = {
@@ -74,6 +76,7 @@ export type SendDefaultEmailForMembershipDeclinedInput = {
   memberFirstName: string;
   clubId: number;
   clubName: string;
+  clubOwnerId?: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput = {
@@ -82,6 +85,7 @@ export type SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput = {
   memberLastName: string;
   clubName: string;
   clubId: number;
+  clubOwnerId?: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
@@ -90,6 +94,7 @@ export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
   memberLastName: string;
   clubName: string;
   clubId: number;
+  clubOwnerId?: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByOwnerInput = {
@@ -103,6 +108,7 @@ export type SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput = {
   memberLastName: string;
   clubName: string;
   clubId: number;
+  clubOwnerId?: number;
 };
 
 const EmailTemplateTypeSchema = z.enum([
