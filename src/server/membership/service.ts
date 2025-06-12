@@ -632,7 +632,8 @@ export function createMembershipService(
         clubId: membership.club.id,
         clubName: membership.club.name,
         clubPublicId: membership.club.publicId,
-        clubOwnerId: membership.club.owner.id
+        clubOwnerId: membership.club.owner.id,
+        memberUserId: membership.user.id
       },
       memberEmail,
       tx
@@ -751,7 +752,8 @@ export function createMembershipService(
         memberFirstName: membership.user.firstName,
         clubName: membership.club.name,
         clubId: membership.club.id,
-        clubOwnerId: membership.club.owner.id
+        clubOwnerId: membership.club.owner.id,
+        memberUserId: membership.user.id
       },
       memberEmail,
       tx
@@ -936,7 +938,8 @@ export function createMembershipService(
     await emailService.sendDefaultEmailForMembershipDeactivatedByOwner(
       {
         membershipId: membershipId,
-        clubName: membership.club.name
+        clubName: membership.club.name,
+        memberUserId: membership.user.id
       },
       memberEmail
     );
@@ -966,7 +969,8 @@ export function createMembershipService(
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
         clubId: membership.club.id,
-        clubOwnerId: membership.club.owner.id
+        clubOwnerId: membership.club.owner.id,
+        memberUserId: membership.user.id
       },
       memberEmail,
       tx
