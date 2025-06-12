@@ -2,7 +2,14 @@ import {
   EmailService,
   EmailTemplate,
   EmailTemplateId,
-  SetEmailTemplateInput
+  SetEmailTemplateInput,
+  SendDefaultEmailForMembershipApplicationSubmittedInput,
+  SendDefaultEmailForMembershipApprovedInput,
+  SendDefaultEmailForMembershipDeclinedInput,
+  SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
+  SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+  SendDefaultEmailForMembershipDeactivatedByOwnerInput,
+  SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput
 } from "~/server/email/types";
 import { PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
@@ -10,14 +17,7 @@ import { MutationResult, NO_ID_MUTATION_RESULT, Email } from "~/server/utils/typ
 import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
 import { 
-  EmailClient,
-  NotifyMembershipApplicationSubmittedInput,
-  NotifyMembershipApprovedInput,
-  NotifyMembershipDeclinedInput,
-  NotifyMembershipDeactivatedByMemberToOwnerInput,
-  NotifyMembershipDeactivatedByMemberToMemberInput,
-  NotifyMembershipDeactivatedByOwnerInput,
-  NotifyApplicationWithdrawnByMemberToOwnerInput
+  EmailClient
 } from "~/server/email/client/types";
 
 const logger = rootLogger.child({ module: "emailTemplateService" });
@@ -120,15 +120,15 @@ export function createEmailService(
     }
   }
 
-  async function notifyMembershipApplicationSubmitted(
-    input: NotifyMembershipApplicationSubmittedInput,
+  async function sendDefaultEmailForMembershipApplicationSubmitted(
+    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
     sendTo: Email
   ): Promise<void> {
-    await emailClient.notifyMembershipApplicationSubmitted(input, sendTo);
+    await emailClient.sendDefaultEmailForMembershipApplicationSubmitted(input, sendTo);
   }
 
-  async function notifyMembershipApproved(
-    input: NotifyMembershipApprovedInput,
+  async function sendDefaultEmailForMembershipApproved(
+    input: SendDefaultEmailForMembershipApprovedInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
@@ -146,12 +146,12 @@ export function createEmailService(
         template.textContent
       );
     } else {
-      await emailClient.notifyMembershipApproved(input, sendTo, replyTo);
+      await emailClient.sendDefaultEmailForMembershipApproved(input, sendTo, replyTo);
     }
   }
 
-  async function notifyMembershipDeclined(
-    input: NotifyMembershipDeclinedInput,
+  async function sendDefaultEmailForMembershipDeclined(
+    input: SendDefaultEmailForMembershipDeclinedInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
@@ -169,19 +169,19 @@ export function createEmailService(
         template.textContent
       );
     } else {
-      await emailClient.notifyMembershipDeclined(input, sendTo, replyTo);
+      await emailClient.sendDefaultEmailForMembershipDeclined(input, sendTo, replyTo);
     }
   }
 
-  async function notifyMembershipDeactivatedByMemberToOwner(
-    input: NotifyMembershipDeactivatedByMemberToOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
     sendTo: Email
   ): Promise<void> {
-    await emailClient.notifyMembershipDeactivatedByMemberToOwner(input, sendTo);
+    await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToOwner(input, sendTo);
   }
 
-  async function notifyMembershipDeactivatedByMemberToMember(
-    input: NotifyMembershipDeactivatedByMemberToMemberInput,
+  async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
@@ -199,34 +199,34 @@ export function createEmailService(
         template.textContent
       );
     } else {
-      await emailClient.notifyMembershipDeactivatedByMemberToMember(input, sendTo, replyTo);
+      await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToMember(input, sendTo, replyTo);
     }
   }
 
-  async function notifyMembershipDeactivatedByOwner(
-    input: NotifyMembershipDeactivatedByOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByOwner(
+    input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
     sendTo: Email
   ): Promise<void> {
-    await emailClient.notifyMembershipDeactivatedByOwner(input, sendTo);
+    await emailClient.sendDefaultEmailForMembershipDeactivatedByOwner(input, sendTo);
   }
 
-  async function notifyApplicationWithdrawnByMemberToOwner(
-    input: NotifyApplicationWithdrawnByMemberToOwnerInput,
+  async function sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
+    input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
     sendTo: Email
   ): Promise<void> {
-    await emailClient.notifyApplicationWithdrawnByMemberToOwner(input, sendTo);
+    await emailClient.sendDefaultEmailForApplicationWithdrawnByMemberToOwner(input, sendTo);
   }
 
   return {
     getEmailTemplate,
     setEmailTemplate,
     deleteEmailTemplate,
-    notifyMembershipApplicationSubmitted,
-    notifyMembershipApproved,
-    notifyMembershipDeclined,
-    notifyMembershipDeactivatedByMemberToOwner,
-    notifyMembershipDeactivatedByMemberToMember,
-    notifyMembershipDeactivatedByOwner,
-    notifyApplicationWithdrawnByMemberToOwner
+    sendDefaultEmailForMembershipApplicationSubmitted,
+    sendDefaultEmailForMembershipApproved,
+    sendDefaultEmailForMembershipDeclined,
+    sendDefaultEmailForMembershipDeactivatedByMemberToOwner,
+    sendDefaultEmailForMembershipDeactivatedByMemberToMember,
+    sendDefaultEmailForMembershipDeactivatedByOwner,
+    sendDefaultEmailForApplicationWithdrawnByMemberToOwner
   };
 }

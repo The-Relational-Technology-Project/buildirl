@@ -1,13 +1,13 @@
 import { Transporter } from "nodemailer";
 import {
   EmailClient,
-  NotifyMembershipApprovedInput,
-  NotifyMembershipDeclinedInput,
-  NotifyMembershipDeactivatedByMemberToOwnerInput,
-  NotifyMembershipDeactivatedByOwnerInput,
-  NotifyMembershipApplicationSubmittedInput,
-  NotifyMembershipDeactivatedByMemberToMemberInput,
-  NotifyApplicationWithdrawnByMemberToOwnerInput
+  SendDefaultEmailForMembershipApplicationSubmittedInput,
+  SendDefaultEmailForMembershipApprovedInput,
+  SendDefaultEmailForMembershipDeclinedInput,
+  SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
+  SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+  SendDefaultEmailForMembershipDeactivatedByOwnerInput,
+  SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput
 } from "./types";
 import { rootLogger } from "~/logger";
 import { Email } from "~/server/utils/types";
@@ -47,8 +47,8 @@ export function createEmailClient(
     }
   }
 
-  async function notifyMembershipApplicationSubmitted(
-    input: NotifyMembershipApplicationSubmittedInput,
+  async function sendDefaultEmailForMembershipApplicationSubmitted(
+    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
     sendTo: Email
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -78,8 +78,8 @@ export function createEmailClient(
     }
   }
 
-  async function notifyMembershipApproved(
-    input: NotifyMembershipApprovedInput,
+  async function sendDefaultEmailForMembershipApproved(
+    input: SendDefaultEmailForMembershipApprovedInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
@@ -114,8 +114,8 @@ export function createEmailClient(
     }
   }
 
-  async function notifyMembershipDeclined(
-    input: NotifyMembershipDeclinedInput,
+  async function sendDefaultEmailForMembershipDeclined(
+    input: SendDefaultEmailForMembershipDeclinedInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
@@ -148,8 +148,8 @@ export function createEmailClient(
     }
   }
 
-  async function notifyMembershipDeactivatedByMemberToOwner(
-    input: NotifyMembershipDeactivatedByMemberToOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
     sendTo: Email
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -181,8 +181,8 @@ export function createEmailClient(
     }
   }
 
-  async function notifyMembershipDeactivatedByMemberToMember(
-    input: NotifyMembershipDeactivatedByMemberToMemberInput,
+  async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
@@ -213,8 +213,8 @@ export function createEmailClient(
     }
   }
 
-  async function notifyMembershipDeactivatedByOwner(
-    input: NotifyMembershipDeactivatedByOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByOwner(
+    input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
     sendTo: Email
   ): Promise<void> {
     try {
@@ -244,8 +244,8 @@ export function createEmailClient(
     }
   }
 
-  async function notifyApplicationWithdrawnByMemberToOwner(
-    input: NotifyApplicationWithdrawnByMemberToOwnerInput,
+  async function sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
+    input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
     sendTo: Email
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -277,12 +277,12 @@ export function createEmailClient(
 
   return {
     sendCustomEmail,
-    notifyMembershipApplicationSubmitted,
-    notifyMembershipApproved,
-    notifyMembershipDeclined,
-    notifyMembershipDeactivatedByMemberToOwner,
-    notifyMembershipDeactivatedByMemberToMember,
-    notifyMembershipDeactivatedByOwner,
-    notifyApplicationWithdrawnByMemberToOwner
+    sendDefaultEmailForMembershipApplicationSubmitted,
+    sendDefaultEmailForMembershipApproved,
+    sendDefaultEmailForMembershipDeclined,
+    sendDefaultEmailForMembershipDeactivatedByMemberToOwner,
+    sendDefaultEmailForMembershipDeactivatedByMemberToMember,
+    sendDefaultEmailForMembershipDeactivatedByOwner,
+    sendDefaultEmailForApplicationWithdrawnByMemberToOwner
   };
 }

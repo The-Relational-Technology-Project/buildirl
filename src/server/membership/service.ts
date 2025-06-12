@@ -419,7 +419,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailService.notifyMembershipApplicationSubmitted(
+    await emailService.sendDefaultEmailForMembershipApplicationSubmitted(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -644,7 +644,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailService.notifyMembershipApproved(
+    await emailService.sendDefaultEmailForMembershipApproved(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -774,7 +774,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailService.notifyMembershipDeclined(
+    await emailService.sendDefaultEmailForMembershipDeclined(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -961,7 +961,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailService.notifyMembershipDeactivatedByOwner(
+    await emailService.sendDefaultEmailForMembershipDeactivatedByOwner(
       {
         membershipId: membershipId,
         clubName: membership.club.name
@@ -997,7 +997,7 @@ export function createMembershipService(
       return;
     }
 
-    await emailService.notifyMembershipDeactivatedByMemberToMember(
+    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToMember(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -1026,7 +1026,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailService.notifyMembershipDeactivatedByMemberToOwner(
+    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -1054,7 +1054,7 @@ export function createMembershipService(
       );
       return;
     }
-    await emailService.notifyApplicationWithdrawnByMemberToOwner(
+    await emailService.sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,

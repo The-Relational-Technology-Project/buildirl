@@ -2,15 +2,6 @@ import { z } from "zod";
 import { MutationResult } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 import { Email } from "~/server/utils/types";
-import {
-  NotifyMembershipApplicationSubmittedInput,
-  NotifyMembershipApprovedInput,
-  NotifyMembershipDeclinedInput,
-  NotifyMembershipDeactivatedByMemberToOwnerInput,
-  NotifyMembershipDeactivatedByMemberToMemberInput,
-  NotifyMembershipDeactivatedByOwnerInput,
-  NotifyApplicationWithdrawnByMemberToOwnerInput
-} from "~/server/email/client/types";
 
 export type EmailService = EmailQueries & EmailMutations & EmailNotifications;
 
@@ -28,37 +19,90 @@ type EmailMutations = {
 };
 
 type EmailNotifications = {
-  notifyMembershipApplicationSubmitted(
-    input: NotifyMembershipApplicationSubmittedInput,
+  sendDefaultEmailForMembershipApplicationSubmitted(
+    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
     sendTo: Email
   ): Promise<void>;
-  notifyMembershipApproved(
-    input: NotifyMembershipApprovedInput,
+  sendDefaultEmailForMembershipApproved(
+    input: SendDefaultEmailForMembershipApprovedInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void>;
-  notifyMembershipDeclined(
-    input: NotifyMembershipDeclinedInput,
+  sendDefaultEmailForMembershipDeclined(
+    input: SendDefaultEmailForMembershipDeclinedInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void>;
-  notifyMembershipDeactivatedByMemberToOwner(
-    input: NotifyMembershipDeactivatedByMemberToOwnerInput,
+  sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
     sendTo: Email
   ): Promise<void>;
-  notifyMembershipDeactivatedByMemberToMember(
-    input: NotifyMembershipDeactivatedByMemberToMemberInput,
+  sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void>;
-  notifyMembershipDeactivatedByOwner(
-    input: NotifyMembershipDeactivatedByOwnerInput,
+  sendDefaultEmailForMembershipDeactivatedByOwner(
+    input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
     sendTo: Email
   ): Promise<void>;
-  notifyApplicationWithdrawnByMemberToOwner(
-    input: NotifyApplicationWithdrawnByMemberToOwnerInput,
+  sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
+    input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
     sendTo: Email
   ): Promise<void>;
+};
+
+export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
+};
+
+export type SendDefaultEmailForMembershipApprovedInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubId: number;
+  clubName: string;
+  clubPublicId: string;
+};
+
+export type SendDefaultEmailForMembershipDeclinedInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  clubId: number;
+  clubName: string;
+};
+
+export type SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
+};
+
+export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
+};
+
+export type SendDefaultEmailForMembershipDeactivatedByOwnerInput = {
+  membershipId: bigint;
+  clubName: string;
+};
+
+export type SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
 };
 
 const EmailTemplateTypeSchema = z.enum([
