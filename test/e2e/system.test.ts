@@ -76,6 +76,7 @@ describe("service", () => {
     rootLogger.info("connection string: " + supabaseContainer.connectionString);
     const fakeStripeClient = createFakeStripeClient();
     const accountIdResolver = createAccountIdResolver(prisma);
+    const dummyEmailClient = createDummyEmailClient();
     userService = createUserService(prisma);
     membershipTierService = createMembershipTierService(
       prisma,
@@ -91,7 +92,7 @@ describe("service", () => {
       membershipTierService,
       followingService,
       fakeStripeClient,
-      createDummyEmailClient(),
+      dummyEmailClient,
       accountIdResolver
     );
     paymentService = createPaymentService(
@@ -100,7 +101,7 @@ describe("service", () => {
       accountIdResolver
     );
     paymentEventProcessor = createPaymentEventProcessor(prisma);
-    emailService = createEmailService(prisma);
+    emailService = createEmailService(prisma, dummyEmailClient);
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull
   }, 30000);
