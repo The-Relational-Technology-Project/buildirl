@@ -22,6 +22,34 @@ export function createEmailClient(
 ): EmailClient {
   const FROM_EMAIL = "outbound@buildirl.com";
 
+  async function sendCustomEmail(
+    sendTo: Email,
+    replyTo: Email,
+    subject: string,
+    htmlContent: string,
+    textContent: string
+  ): Promise<void> {
+    try {
+      await mailTransport.sendMail({
+        from: FROM_EMAIL,
+        to: sendTo,
+        replyTo: replyTo,
+        subject: subject,
+        text: textContent,
+        html: htmlContent
+      });
+      logger.info(
+        `sent custom email to ${sendTo} from ${replyTo} with subject "${subject}"`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to send custom email to ${sendTo} from ${replyTo} with subject "${subject}"`
+      );
+      throw e;
+    }
+  }
+
   /**
    * Returns boolean if custom email is sent which can be used to determine if fallback is required
    */
@@ -312,6 +340,7 @@ export function createEmailClient(
   }
 
   return {
+    sendCustomEmail,
     notifyMembershipApplicationSubmitted,
     notifyMembershipApproved,
     notifyMembershipDeclined,

@@ -1,6 +1,13 @@
 import { Email } from "~/server/utils/types";
 
 export type EmailClient = {
+  sendCustomEmail(
+    sendTo: Email,
+    replyTo: Email,
+    subject: string,
+    htmlContent: string,
+    textContent: string
+  ): Promise<void>;
   notifyMembershipApplicationSubmitted(
     input: NotifyMembershipApplicationSubmittedInput,
     sendTo: Email
