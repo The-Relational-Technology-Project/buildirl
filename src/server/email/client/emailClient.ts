@@ -47,24 +47,6 @@ export function createEmailClient(
     }
   }
 
-  /**
-   * NOTE: The below comments & approach is temporary; it's due to the fact I'm trying to do the emailService refactor in the least number of complete, incremental steps as possible.  
-   * Temporarily returns false to indicate no custom template sent while EmailService dependency is removed
-   * This ensures default email logic is used during the transition
-   */
-  async function sendCustomEmailWithTemplate(
-    templateId: { clubId: number; type: string },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    sendTo: Email,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    replyTo: Email
-  ): Promise<boolean> {
-    logger.info(
-      `sendCustomEmailWithTemplate called for template ${JSON.stringify(templateId)} but returning false during EmailService dependency removal`
-    );
-    return false;
-  }
-
   async function notifyMembershipApplicationSubmitted(
     input: NotifyMembershipApplicationSubmittedInput,
     sendTo: Email
@@ -101,21 +83,13 @@ export function createEmailClient(
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
-    const customEmailSent = await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "ACCEPTANCE" },
-      sendTo,
-      replyTo
-    );
-    if (customEmailSent) {
-      return;
-    }
-
     try {
       const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
 
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
+        replyTo: replyTo,
         subject: `You're in! Welcome to ${input.clubName}! 🎉`,
         text: `Hey ${input.memberFirstName} — amazing news: you're officially a member of ${input.clubName}! 🎉\n\n
         We're hyped to have you! 🥳\n\n
@@ -145,19 +119,11 @@ export function createEmailClient(
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
-    const customEmailSent = await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "REJECTION" },
-      sendTo,
-      replyTo
-    );
-    if (customEmailSent) {
-      return;
-    }
-
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
+        replyTo: replyTo,
         subject: `Sorry, your application was not accepted this time`,
         text: `Hey ${input.memberFirstName} — thanks for applying to the ${input.clubName}. 
         We couldn't accept your application this time. 💌 Plenty more clubs to explore — go find your people.
@@ -220,19 +186,11 @@ export function createEmailClient(
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
-    const customEmailSent = await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "DEPARTURE" },
-      sendTo,
-      replyTo
-    );
-    if (customEmailSent) {
-      return;
-    }
-
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
+        replyTo: replyTo,
         subject: "Sorry to see you go! 👋",
         text: `The ${input.clubName} will miss you, ${input.memberFirstName} ${input.memberLastName}! 
         Thank-you for being a contributing member! 🙏`,
