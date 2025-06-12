@@ -2,6 +2,7 @@ import { z } from "zod";
 import { MutationResult } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 import { Email } from "~/server/utils/types";
+import { Prisma } from "@prisma/client";
 
 export type EmailService = EmailQueries & EmailMutations & EmailNotifications;
 
@@ -21,26 +22,31 @@ type EmailMutations = {
 type EmailNotifications = {
   sendDefaultEmailForMembershipApplicationSubmitted(
     input: SendDefaultEmailForMembershipApplicationSubmittedInput,
-    sendTo: Email
+    sendTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipApproved(
     input: SendDefaultEmailForMembershipApprovedInput,
     sendTo: Email,
-    replyTo: Email
+    replyTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeclined(
     input: SendDefaultEmailForMembershipDeclinedInput,
     sendTo: Email,
-    replyTo: Email
+    replyTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
-    sendTo: Email
+    sendTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByMemberToMember(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
-    replyTo: Email
+    replyTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByOwner(
     input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
@@ -48,7 +54,8 @@ type EmailNotifications = {
   ): Promise<void>;
   sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
     input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
-    sendTo: Email
+    sendTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void>;
 };
 

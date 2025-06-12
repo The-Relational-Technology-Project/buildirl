@@ -11,7 +11,7 @@ import {
   SendDefaultEmailForMembershipDeactivatedByOwnerInput,
   SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput
 } from "~/server/email/types";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { MutationResult, NO_ID_MUTATION_RESULT, Email } from "~/server/utils/types";
 import { stringify } from "~/utils";
@@ -127,16 +127,22 @@ export function createEmailService(
 
   async function sendDefaultEmailForMembershipApplicationSubmitted(
     input: SendDefaultEmailForMembershipApplicationSubmittedInput,
-    sendTo: Email
+    sendTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void> {
+    // TODO: tx will be used in upcoming commits for owner email resolution
+    void tx;
     await emailClient.sendDefaultEmailForMembershipApplicationSubmitted(input, sendTo);
   }
 
   async function sendDefaultEmailForMembershipApproved(
     input: SendDefaultEmailForMembershipApprovedInput,
     sendTo: Email,
-    replyTo: Email
+    replyTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void> {
+    // TODO: tx will be used in upcoming commits for owner email resolution
+    void tx;
     const template = await getEmailTemplate({
       clubId: input.clubId,
       type: "ACCEPTANCE"
@@ -158,8 +164,11 @@ export function createEmailService(
   async function sendDefaultEmailForMembershipDeclined(
     input: SendDefaultEmailForMembershipDeclinedInput,
     sendTo: Email,
-    replyTo: Email
+    replyTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void> {
+    // TODO: tx will be used in upcoming commits for owner email resolution
+    void tx;
     const template = await getEmailTemplate({
       clubId: input.clubId,
       type: "REJECTION"
@@ -180,16 +189,22 @@ export function createEmailService(
 
   async function sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
-    sendTo: Email
+    sendTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void> {
+    // TODO: tx will be used in upcoming commits for owner email resolution
+    void tx;
     await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToOwner(input, sendTo);
   }
 
   async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
-    replyTo: Email
+    replyTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void> {
+    // TODO: tx will be used in upcoming commits for owner email resolution
+    void tx;
     const template = await getEmailTemplate({
       clubId: input.clubId,
       type: "DEPARTURE"
@@ -217,8 +232,11 @@ export function createEmailService(
 
   async function sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
     input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
-    sendTo: Email
+    sendTo: Email,
+    tx?: Prisma.TransactionClient
   ): Promise<void> {
+    // TODO: tx will be used in upcoming commits for owner email resolution
+    void tx;
     await emailClient.sendDefaultEmailForApplicationWithdrawnByMemberToOwner(input, sendTo);
   }
 
