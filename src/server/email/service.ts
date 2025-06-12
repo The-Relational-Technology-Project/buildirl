@@ -124,7 +124,6 @@ export function createEmailService(
 
   async function sendDefaultEmailForMembershipApplicationSubmitted(
     input: SendDefaultEmailForMembershipApplicationSubmittedInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
@@ -140,7 +139,6 @@ export function createEmailService(
   async function sendDefaultEmailForMembershipApproved(
     input: SendDefaultEmailForMembershipApprovedInput,
     sendTo: Email,
-    replyTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const template = await getEmailTemplate({
@@ -172,7 +170,6 @@ export function createEmailService(
   async function sendDefaultEmailForMembershipDeclined(
     input: SendDefaultEmailForMembershipDeclinedInput,
     sendTo: Email,
-    replyTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const template = await getEmailTemplate({
@@ -203,7 +200,6 @@ export function createEmailService(
 
   async function sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
@@ -219,7 +215,6 @@ export function createEmailService(
   async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
-    replyTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const template = await getEmailTemplate({
@@ -257,7 +252,6 @@ export function createEmailService(
 
   async function sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
     input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);

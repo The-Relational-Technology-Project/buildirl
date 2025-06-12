@@ -22,30 +22,25 @@ type EmailMutations = {
 type EmailNotifications = {
   sendDefaultEmailForMembershipApplicationSubmitted(
     input: SendDefaultEmailForMembershipApplicationSubmittedInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipApproved(
     input: SendDefaultEmailForMembershipApprovedInput,
     sendTo: Email,
-    replyTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeclined(
     input: SendDefaultEmailForMembershipDeclinedInput,
     sendTo: Email,
-    replyTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByMemberToMember(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
-    replyTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByOwner(
@@ -54,7 +49,6 @@ type EmailNotifications = {
   ): Promise<void>;
   sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
     input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
-    sendTo: Email,
     tx: Prisma.TransactionClient
   ): Promise<void>;
 };
