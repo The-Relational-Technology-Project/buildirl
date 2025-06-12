@@ -154,16 +154,30 @@ export function createEmailService(
       return;
     }
 
+    // Dual pattern: resolve member email internally if memberUserId provided
+    // NOTE: This is a temporary solution to ensure backwards compatibility.
+    let memberEmail = sendTo;
+    if (input.memberUserId) {
+      const resolvedMemberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+      if (!resolvedMemberEmail) {
+        logger.error(
+          `failed to send membership approved email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
+        );
+        return;
+      }
+      memberEmail = resolvedMemberEmail;
+    }
+
     if (template) {
       await emailClient.sendCustomEmail(
-        sendTo,
+        memberEmail,
         ownerEmail,
         template.subject,
         template.htmlContent,
         template.textContent
       );
     } else {
-      await emailClient.sendDefaultEmailForMembershipApproved(input, sendTo, ownerEmail);
+      await emailClient.sendDefaultEmailForMembershipApproved(input, memberEmail, ownerEmail);
     }
   }
 
@@ -185,16 +199,29 @@ export function createEmailService(
       return;
     }
 
+    // Dual pattern: resolve member email internally if memberUserId provided
+    let memberEmail = sendTo;
+    if (input.memberUserId) {
+      const resolvedMemberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+      if (!resolvedMemberEmail) {
+        logger.error(
+          `failed to send membership declined email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
+        );
+        return;
+      }
+      memberEmail = resolvedMemberEmail;
+    }
+
     if (template) {
       await emailClient.sendCustomEmail(
-        sendTo,
+        memberEmail,
         ownerEmail,
         template.subject,
         template.htmlContent,
         template.textContent
       );
     } else {
-      await emailClient.sendDefaultEmailForMembershipDeclined(input, sendTo, ownerEmail);
+      await emailClient.sendDefaultEmailForMembershipDeclined(input, memberEmail, ownerEmail);
     }
   }
 
@@ -230,16 +257,29 @@ export function createEmailService(
       return;
     }
 
+    // Dual pattern: resolve member email internally if memberUserId provided
+    let memberEmail = sendTo;
+    if (input.memberUserId) {
+      const resolvedMemberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+      if (!resolvedMemberEmail) {
+        logger.error(
+          `failed to send membership deactivated by member to member email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
+        );
+        return;
+      }
+      memberEmail = resolvedMemberEmail;
+    }
+
     if (template) {
       await emailClient.sendCustomEmail(
-        sendTo,
+        memberEmail,
         ownerEmail,
         template.subject,
         template.htmlContent,
         template.textContent
       );
     } else {
-      await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToMember(input, sendTo, ownerEmail);
+      await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToMember(input, memberEmail, ownerEmail);
     }
   }
 
@@ -247,6 +287,14 @@ export function createEmailService(
     input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
     sendTo: Email
   ): Promise<void> {
+    // Note: This function doesn't have tx parameter, so we can't resolve memberUserId yet
+    // We'll handle this in a later step when we add transaction support
+    if (input.memberUserId) {
+      logger.warn(
+        `memberUserId provided for sendDefaultEmailForMembershipDeactivatedByOwner but no transaction available - using sendTo parameter`
+      );
+    }
+
     await emailClient.sendDefaultEmailForMembershipDeactivatedByOwner(input, sendTo);
   }
 
