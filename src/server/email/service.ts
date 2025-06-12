@@ -16,9 +16,7 @@ import { rootLogger } from "~/logger";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
-import { 
-  EmailClient
-} from "~/server/email/client/types";
+import { EmailClient } from "~/server/email/client/types";
 import { UserService } from "~/server/user/types";
 
 const logger = rootLogger.child({ module: "emailTemplateService" });
@@ -126,14 +124,20 @@ export function createEmailService(
     input: SendDefaultEmailForMembershipApplicationSubmittedInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+    const ownerEmail = await userService.getUserEmailInTransaction(
+      input.clubOwnerUserId,
+      tx
+    );
     if (!ownerEmail) {
       logger.error(
-        `failed to send membership application submitted email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+        `failed to send membership application submitted email for membership ${input.membershipId} because email not found for owner with id ${input.clubOwnerUserId}`
       );
       return;
     }
-    await emailClient.sendDefaultEmailForMembershipApplicationSubmitted(input, ownerEmail);
+    await emailClient.sendDefaultEmailForMembershipApplicationSubmitted(
+      input,
+      ownerEmail
+    );
   }
 
   async function sendDefaultEmailForMembershipApproved(
@@ -144,16 +148,22 @@ export function createEmailService(
       clubId: input.clubId,
       type: "ACCEPTANCE"
     });
-    
-    const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+
+    const ownerEmail = await userService.getUserEmailInTransaction(
+      input.clubOwnerUserId,
+      tx
+    );
     if (!ownerEmail) {
       logger.error(
-        `failed to send membership approved email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+        `failed to send membership approved email for membership ${input.membershipId} because email not found for owner with id ${input.clubOwnerUserId}`
       );
       return;
     }
 
-    const memberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+    const memberEmail = await userService.getUserEmailInTransaction(
+      input.memberUserId,
+      tx
+    );
     if (!memberEmail) {
       logger.error(
         `failed to send membership approved email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
@@ -170,7 +180,11 @@ export function createEmailService(
         template.textContent
       );
     } else {
-      await emailClient.sendDefaultEmailForMembershipApproved(input, memberEmail, ownerEmail);
+      await emailClient.sendDefaultEmailForMembershipApproved(
+        input,
+        memberEmail,
+        ownerEmail
+      );
     }
   }
 
@@ -182,16 +196,22 @@ export function createEmailService(
       clubId: input.clubId,
       type: "REJECTION"
     });
-    
-    const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+
+    const ownerEmail = await userService.getUserEmailInTransaction(
+      input.clubOwnerUserId,
+      tx
+    );
     if (!ownerEmail) {
       logger.error(
-        `failed to send membership declined email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+        `failed to send membership declined email for membership ${input.membershipId} because email not found for owner with id ${input.clubOwnerUserId}`
       );
       return;
     }
 
-    const memberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+    const memberEmail = await userService.getUserEmailInTransaction(
+      input.memberUserId,
+      tx
+    );
     if (!memberEmail) {
       logger.error(
         `failed to send membership declined email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
@@ -208,7 +228,11 @@ export function createEmailService(
         template.textContent
       );
     } else {
-      await emailClient.sendDefaultEmailForMembershipDeclined(input, memberEmail, ownerEmail);
+      await emailClient.sendDefaultEmailForMembershipDeclined(
+        input,
+        memberEmail,
+        ownerEmail
+      );
     }
   }
 
@@ -216,14 +240,20 @@ export function createEmailService(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+    const ownerEmail = await userService.getUserEmailInTransaction(
+      input.clubOwnerUserId,
+      tx
+    );
     if (!ownerEmail) {
       logger.error(
-        `failed to send membership deactivated by member to owner email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+        `failed to send membership deactivated by member to owner email for membership ${input.membershipId} because email not found for owner with id ${input.clubOwnerUserId}`
       );
       return;
     }
-    await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToOwner(input, ownerEmail);
+    await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
+      input,
+      ownerEmail
+    );
   }
 
   async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
@@ -234,16 +264,22 @@ export function createEmailService(
       clubId: input.clubId,
       type: "DEPARTURE"
     });
-    
-    const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+
+    const ownerEmail = await userService.getUserEmailInTransaction(
+      input.clubOwnerUserId,
+      tx
+    );
     if (!ownerEmail) {
       logger.error(
-        `failed to send membership deactivated by member to member email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+        `failed to send membership deactivated by member to member email for membership ${input.membershipId} because email not found for owner with id ${input.clubOwnerUserId}`
       );
       return;
     }
 
-    const memberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+    const memberEmail = await userService.getUserEmailInTransaction(
+      input.memberUserId,
+      tx
+    );
     if (!memberEmail) {
       logger.error(
         `failed to send membership deactivated by member to member email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
@@ -260,7 +296,11 @@ export function createEmailService(
         template.textContent
       );
     } else {
-      await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToMember(input, memberEmail, ownerEmail);
+      await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+        input,
+        memberEmail,
+        ownerEmail
+      );
     }
   }
 
@@ -268,7 +308,10 @@ export function createEmailService(
     input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const memberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+    const memberEmail = await userService.getUserEmailInTransaction(
+      input.memberUserId,
+      tx
+    );
     if (!memberEmail) {
       logger.error(
         `failed to send membership deactivated by owner email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
@@ -276,21 +319,30 @@ export function createEmailService(
       return;
     }
 
-    await emailClient.sendDefaultEmailForMembershipDeactivatedByOwner(input, memberEmail);
+    await emailClient.sendDefaultEmailForMembershipDeactivatedByOwner(
+      input,
+      memberEmail
+    );
   }
 
   async function sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
     input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const ownerEmail = await userService.getUserEmailInTransaction(input.clubOwnerId, tx);
+    const ownerEmail = await userService.getUserEmailInTransaction(
+      input.clubOwnerUserId,
+      tx
+    );
     if (!ownerEmail) {
       logger.error(
-        `failed to send application withdrawn by member to owner email for membership ${input.membershipId} because owner email not found for clubOwnerId ${input.clubOwnerId}`
+        `failed to send application withdrawn by member to owner email for membership ${input.membershipId} because email not found for owner with id ${input.clubOwnerUserId}`
       );
       return;
     }
-    await emailClient.sendDefaultEmailForApplicationWithdrawnByMemberToOwner(input, ownerEmail);
+    await emailClient.sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
+      input,
+      ownerEmail
+    );
   }
 
   return {

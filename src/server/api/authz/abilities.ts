@@ -37,19 +37,21 @@ export async function defineAbilityFor(
       can("manage", "User", { id: userId });
       break;
     case "Club":
-      const ownedClubIds = await getOwnedClubIds(prisma, userId);
-      can("manage", "Club", { id: { $in: ownedClubIds } });
+      const ledClubIds = await getUserLedClubIds(prisma, userId);
+      can("manage", "Club", { id: { $in: ledClubIds } });
       break;
     case "Membership":
       const membershipIds = await getMembershipIdsForUser(prisma, userId);
-      const membershipIdsForOwnedClubs =
-        await getMembershipIdsToClubsOwnedByUser(prisma, userId);
+      const membershipIdsForLedClubs = await getMembershipIdsToClubsLedByUser(
+        prisma,
+        userId
+      );
       can("manage", "Membership", {
-        id: { $in: [...membershipIds, ...membershipIdsForOwnedClubs] }
+        id: { $in: [...membershipIds, ...membershipIdsForLedClubs] }
       });
       break;
     case "MembershipTier":
-      const membershipTierIds = await getMembershipTierIdsForClubsOwnedByUser(
+      const membershipTierIds = await getMembershipTierIdsForClubsLedByUser(
         prisma,
         userId
       );
@@ -63,27 +65,43 @@ export async function defineAbilityFor(
 }
 
 /**
- * Get all club IDs owned by a user
+ * Get all club IDs led by a user
  */
-async function getOwnedClubIds(
+async function getUserLedClubIds(
   prisma: PrismaClient,
   userId: number
 ): Promise<number[]> {
   const clubs = await prisma.club.findMany({
-    where: { ownerUserId: userId },
+    where: {
+      membershipTiers: {
+        some: {
+          memberships: {
+            some: {
+              userId: userId,
+              role: "LEAD"
+            }
+          }
+        }
+      }
+    },
     select: { id: true }
   });
 
   return clubs.map((club) => club.id);
 }
 
-async function getMembershipTierIdsForClubsOwnedByUser(
+async function getMembershipTierIdsForClubsLedByUser(
   prisma: PrismaClient,
   userId: number
 ): Promise<number[]> {
   const tiers = await prisma.membershipTier.findMany({
     where: {
-      club: { ownerUserId: userId }
+      memberships: {
+        some: {
+          userId: userId,
+          role: "LEAD"
+        }
+      }
     },
     select: { id: true }
   });
@@ -91,17 +109,14 @@ async function getMembershipTierIdsForClubsOwnedByUser(
   return tiers.map((t) => t.id);
 }
 
-async function getMembershipIdsToClubsOwnedByUser(
+async function getMembershipIdsToClubsLedByUser(
   prisma: PrismaClient,
   userId: number
 ): Promise<bigint[]> {
   const memberships = await prisma.membership.findMany({
     where: {
-      membershipTier: {
-        club: {
-          ownerUserId: userId
-        }
-      }
+      userId: userId,
+      role: "LEAD"
     },
     select: { id: true }
   });

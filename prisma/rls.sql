@@ -96,10 +96,11 @@ AS PERMISSIVE
 FOR INSERT
 TO authenticated
 WITH CHECK ((bucket_id = 'images'::text) AND ((storage.foldername(name))[1] = 'club'::text) AND ((storage.foldername(name))[2] IN ( SELECT (club.id)::text AS id
-   FROM club
-  WHERE (club.owner_user_id = ( SELECT "user".id
-           FROM "user"
-          WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))));
+    FROM (((club
+    JOIN membership_tier mt ON ((club.id = mt.club_id)))
+    JOIN membership m ON ((mt.id = m.membership_tier_id)))
+    JOIN "user" u ON ((m.user_id = u.id)))
+    WHERE ((m.role = 'LEAD'::"Role") AND (u.auth_user_id = ( SELECT auth.uid() AS uid))))));
 
 CREATE POLICY "Club owners can update images for their club"
 ON storage.objects 
@@ -107,10 +108,11 @@ AS PERMISSIVE
 FOR UPDATE
 TO authenticated
 USING ((bucket_id = 'images'::text) AND ((storage.foldername(name))[1] = 'club'::text) AND ((storage.foldername(name))[2] IN ( SELECT (club.id)::text AS id
-   FROM club
-  WHERE (club.owner_user_id = ( SELECT "user".id
-           FROM "user"
-          WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))));
+    FROM (((club
+    JOIN membership_tier mt ON ((club.id = mt.club_id)))
+    JOIN membership m ON ((mt.id = m.membership_tier_id)))
+    JOIN "user" u ON ((m.user_id = u.id)))
+    WHERE ((m.role = 'LEAD'::"Role") AND (u.auth_user_id = ( SELECT auth.uid() AS uid))))));
 
 CREATE POLICY "Club owners can delete images from their club"
 ON storage.objects 
@@ -118,10 +120,11 @@ AS PERMISSIVE
 FOR DELETE
 TO authenticated
 USING ((bucket_id = 'images'::text) AND ((storage.foldername(name))[1] = 'club'::text) AND ((storage.foldername(name))[2] IN ( SELECT (club.id)::text AS id
-   FROM club
-  WHERE (club.owner_user_id = ( SELECT "user".id
-           FROM "user"
-          WHERE ("user".auth_user_id = ( SELECT auth.uid() AS uid)))))));
+    FROM (((club
+    JOIN membership_tier mt ON ((club.id = mt.club_id)))
+    JOIN membership m ON ((mt.id = m.membership_tier_id)))
+    JOIN "user" u ON ((m.user_id = u.id)))
+    WHERE ((m.role = 'LEAD'::"Role") AND (u.auth_user_id = ( SELECT auth.uid() AS uid))))));
 
 -- Broad policies for authenticated users (temporary, pending conflict resolution)
 CREATE POLICY "Allow authenticated users to select from images bucket"
