@@ -4,7 +4,7 @@ import { InstagramHandleSchema, UrlSchema } from "~/server/utils/types";
 import { FormQuestionsSchema } from "~/server/club/types/form";
 import { TemplateThemeSchema } from "~/client/theme/templates";
 import { z } from "zod";
-import { Prisma } from ".prisma/client";
+import { $Enums, Prisma } from ".prisma/client";
 import ClubGetPayload = Prisma.ClubGetPayload;
 import {
   asMembershipTier,
@@ -36,12 +36,14 @@ export const CLUB_SELECT = {
         select: {
           user: {
             select: USER_SELECT
-          },
-          where: {
-            role: "LEAD"
-          },
-          take: 1
-        }
+          }
+        },
+        where: {
+          // this is needed instead of the string literal for typescript
+          // to not complain  ¯\_(ツ)_/¯
+          role: $Enums.Role.LEAD
+        },
+        take: 1
       }
     }
   }
