@@ -189,6 +189,7 @@ export function createMembershipService(
       await membershipTierService.getClubIdFromMembershipTierId(
         membershipTierId
       );
+    // TODO! this can be combined to a single check
     await checkUserIsNotClubOwner(userId, clubId);
     await checkUserDoesNotHaveActiveMembershipForClub(userId, clubId);
     const existingMembership = await userMembershipForClub(userId, clubId);

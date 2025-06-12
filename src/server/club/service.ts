@@ -14,6 +14,7 @@ import {
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import { asClub, CLUB_SELECT } from "~/server/club/utils";
 import { MembershipTierService } from "~/server/membershipTier/types";
+import { idAsNumber } from "~/utils/types";
 
 const logger = rootLogger.child({ module: "clubService" });
 
@@ -26,7 +27,16 @@ export function createClubService(
       const results = await prisma.club.findMany({
         select: CLUB_SELECT,
         where: {
-          ownerUserId: userId
+          membershipTiers: {
+            some: {
+              memberships: {
+                some: {
+                  userId: userId,
+                  role: "LEAD"
+                }
+              }
+            }
+          }
         }
       });
       const clubs = results.map((r) => asClub(r));
@@ -88,8 +98,7 @@ export function createClubService(
         }
       });
       const statistics = {
-        // plus the owner
-        memberCount: memberCount + 1
+        memberCount: memberCount
       };
       logger.info(
         `queried club statistics for club with clubId ${clubId} with result ${stringify(statistics)}`
@@ -122,7 +131,6 @@ export function createClubService(
       const { id } = await tx.club.create({
         data: {
           ...input,
-          ownerUserId: userId,
           // defaults
           tagLine: "",
           description: "",
@@ -142,11 +150,51 @@ export function createClubService(
       );
 
       // create the default free tier on each club
-      await membershipTierService.createDefaultFreeMembershipTier(id, tx);
+      const { createdEntityId: membershipTierId } =
+        await membershipTierService.createDefaultFreeMembershipTier(id, tx);
+      await createActiveLeadMembership(
+        userId,
+        idAsNumber(membershipTierId),
+        tx
+      );
 
       return { createdEntityId: id };
     } catch (e) {
       logger.error(e, `failed to create club from input ${stringify(input)}`);
+      throw e;
+    }
+  }
+
+  // TODO! move this to membershipService once the dependency on clubService has been removed
+  async function createActiveLeadMembership(
+    userId: number,
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
+    try {
+      const { id } = await tx.membership.create({
+        data: {
+          userId: userId,
+          membershipTierId: membershipTierId,
+          // empty
+          applicationResponses: { responses: [] },
+          // if not free tier, still awaiting setup intent
+          status: "ACTIVE",
+          role: "LEAD"
+        },
+        select: {
+          id: true
+        }
+      });
+
+      logger.info(
+        `created lead membership for user ${userId} on membership tier with id ${membershipTierId} with membershipId ${id}`
+      );
+      return { createdEntityId: id };
+    } catch (e) {
+      logger.info(
+        `failed to create lead membership for user ${userId} on membership tier with id ${membershipTierId}}`
+      );
       throw e;
     }
   }
@@ -207,7 +255,8 @@ export function createClubService(
           membershipTier: {
             clubId: clubId
           },
-          status: { in: ["ACTIVE", "PENDING"] }
+          status: { in: ["ACTIVE", "PENDING"] },
+          role: "MEMBER"
         }
       });
       logger.info(
@@ -270,14 +319,19 @@ export function createClubService(
 
   async function getClubOwnerUserId(clubId: number): Promise<number> {
     try {
-      const club = await prisma.club.findUniqueOrThrow({
-        select: { ownerUserId: true },
-        where: { id: clubId }
+      const membership = await prisma.membership.findFirstOrThrow({
+        select: { userId: true },
+        where: {
+          role: "LEAD",
+          membershipTier: {
+            clubId: clubId
+          }
+        }
       });
       logger.info(
-        `queried owner userId for club with clubId ${clubId} with result ${club.ownerUserId}`
+        `queried owner userId for club with clubId ${clubId} with result ${membership.userId}`
       );
-      return club.ownerUserId;
+      return membership.userId;
     } catch (e) {
       logger.error(
         e,

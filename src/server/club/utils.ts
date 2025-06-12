@@ -6,12 +6,12 @@ import { TemplateThemeSchema } from "~/client/theme/templates";
 import { z } from "zod";
 import { Prisma } from ".prisma/client";
 import ClubGetPayload = Prisma.ClubGetPayload;
-import { USER_SELECT } from "~/server/user/service";
 import {
   asMembershipTier,
   MEMBERSHIP_TIER_SELECT,
   orderedByCost
 } from "~/server/membershipTier/utils";
+import { USER_SELECT } from "~/server/user/service";
 
 export const CLUB_SELECT = {
   id: true,
@@ -20,9 +20,6 @@ export const CLUB_SELECT = {
   tagLine: true,
   description: true,
   location: true,
-  owner: {
-    select: USER_SELECT
-  },
   websiteUrl: true,
   instagramHandle: true,
   eventCalendarUrl: true,
@@ -32,20 +29,42 @@ export const CLUB_SELECT = {
   displayImageUrls: true,
   faqs: true,
   membershipTiers: {
-    select: MEMBERSHIP_TIER_SELECT
+    select: {
+      ...MEMBERSHIP_TIER_SELECT,
+      // to extract out club owner
+      memberships: {
+        select: {
+          user: {
+            select: USER_SELECT
+          },
+          where: {
+            role: "LEAD"
+          },
+          take: 1
+        }
+      }
+    }
   }
 };
 
 export function asClub(
   r: ClubGetPayload<{ select: typeof CLUB_SELECT }>
 ): Club {
+  const owner = r.membershipTiers.flatMap((tier) =>
+    tier.memberships.map((m) => m.user)
+  )[0];
+
+  if (!owner) {
+    throw new Error(`Club ${r.id} has no lead members`);
+  }
+
   return {
     id: r.id,
     publicId: r.publicId,
     name: r.name,
     tagLine: r.tagLine,
     description: r.description,
-    owner: r.owner,
+    owner: owner,
     location: r.location,
     websiteUrl: parseAsZodType(r.websiteUrl, UrlSchema.nullable()),
     instagramHandle: parseAsZodType(
