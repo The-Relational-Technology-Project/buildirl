@@ -1,4 +1,3 @@
-import { User } from "~/server/user/types";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -12,10 +11,9 @@ import { useRouter } from "next/navigation";
 
 type MemberCarouselProps = {
   clubId: number;
-  owner: User;
 };
 
-export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
+export default function MemberCarousel({ clubId }: MemberCarouselProps) {
   const router = useRouter();
   const slideWidth = useMatches({ base: 240, md: 300 });
 
@@ -32,8 +30,6 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
     return null;
   }
 
-  const allMembers = [owner, ...r.data!.map((m) => m.user)];
-
   const autoplay = Autoplay({ delay: 2000, stopOnInteraction: false });
   return (
     <Box w={"100%"}>
@@ -45,10 +41,10 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
         loop
         withControls={false}
       >
-        {allMembers.map((m) => (
+        {r.data!.map((m) => (
           <Carousel.Slide key={m.id}>
             <Stack align="center" pos="relative">
-              {m.id === owner.id && (
+              {m.role === "LEAD" && (
                 <ThemeIcon
                   variant="filled"
                   color="yellow.5"
@@ -74,11 +70,11 @@ export default function MemberCarousel({ clubId, owner }: MemberCarouselProps) {
                   h={slideWidth * 1.3}
                   w={slideWidth}
                   radius={"xs"}
-                  user={m}
+                  user={m.user}
                 />
               </Paper>
               <Text size="md" fw={500}>
-                {m.firstName}
+                {m.user.firstName}
               </Text>
             </Stack>
           </Carousel.Slide>

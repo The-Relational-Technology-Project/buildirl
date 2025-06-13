@@ -200,7 +200,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       utils.main.clubByPublicId.invalidate({
         publicId: v.input.publicId
       });
-      utils.main.userOwnedClubs.invalidate();
+      utils.main.userMemberships.invalidate();
 
       notifySuccess("Changes saved", "Your club has been updated successfully");
 

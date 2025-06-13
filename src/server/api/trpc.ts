@@ -58,28 +58,27 @@ export const createTRPCContext = async (opts: {
     stripeClient,
     accountIdResolver
   );
-  const clubService = createClubService(prisma, membershipTierService);
-  const followingService = createFollowingService(
+  const followingService = createFollowingService(prisma, userService);
+  const membershipService = createMembershipService(
     prisma,
     userService,
-    clubService
+    membershipTierService,
+    followingService,
+    stripeClient,
+    emailService,
+    accountIdResolver
   );
-
+  const clubService = createClubService(
+    prisma,
+    membershipTierService,
+    membershipService
+  );
   return {
     service: {
       user: userService,
-      club: createClubService(prisma, membershipTierService),
+      club: clubService,
       membershipTier: membershipTierService,
-      membership: createMembershipService(
-        prisma,
-        userService,
-        clubService,
-        membershipTierService,
-        followingService,
-        stripeClient,
-        emailService,
-        accountIdResolver
-      ),
+      membership: membershipService,
       following: followingService,
       email: emailService,
       payment: createPaymentService(stripeClient, prisma, accountIdResolver)

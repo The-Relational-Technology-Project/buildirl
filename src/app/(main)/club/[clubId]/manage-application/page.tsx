@@ -11,11 +11,11 @@ import { handleDefaultMutationError } from "~/client/logger";
 import { strictParseInt } from "~/utils";
 import MembershipInfoCard from "~/app/(main)/club/[clubId]/member/_components/MembershipInfoCard";
 import { Button, Stack, Title, Paper, Text } from "@mantine/core";
-import { Membership } from "~/server/membership/types";
+import { MembershipWithClub } from "~/server/membership/types";
 import ApplicationResponsesCard from "~/client/components/ApplicationResponsesCard";
 
 type WithdrawApplicationSectionProps = {
-  membership: Membership;
+  membership: MembershipWithClub;
 };
 
 function WithdrawApplicationSection({

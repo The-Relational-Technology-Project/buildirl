@@ -15,44 +15,15 @@ import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import { asClub, CLUB_SELECT } from "~/server/club/utils";
 import { MembershipTierService } from "~/server/membershipTier/types";
 import { idAsNumber } from "~/utils/types";
+import { MembershipService } from "~/server/membership/types";
 
 const logger = rootLogger.child({ module: "clubService" });
 
 export function createClubService(
   prisma: PrismaClient,
-  membershipTierService: MembershipTierService
+  membershipTierService: MembershipTierService,
+  membershipService: MembershipService
 ): ClubService {
-  async function getUserOwnedClubs(userId: number): Promise<Club[]> {
-    try {
-      const results = await prisma.club.findMany({
-        select: CLUB_SELECT,
-        where: {
-          membershipTiers: {
-            some: {
-              memberships: {
-                some: {
-                  userId: userId,
-                  role: "LEAD"
-                }
-              }
-            }
-          }
-        }
-      });
-      const clubs = results.map((r) => asClub(r));
-      logger.info(
-        `queried owned clubs for user with userId ${userId} with result ${stringify(clubs)}`
-      );
-      return clubs;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to query owned clubs for user with userId ${userId}`
-      );
-      throw e;
-    }
-  }
-
   async function getClubByPublicId(publicId: string): Promise<Club> {
     try {
       const result = await prisma.club.findUniqueOrThrow({
@@ -152,7 +123,7 @@ export function createClubService(
       // create the default free tier on each club
       const { createdEntityId: membershipTierId } =
         await membershipTierService.createDefaultFreeMembershipTier(id, tx);
-      await createActiveLeadMembership(
+      await membershipService.createLeadMembership(
         userId,
         idAsNumber(membershipTierId),
         tx
@@ -161,40 +132,6 @@ export function createClubService(
       return { createdEntityId: id };
     } catch (e) {
       logger.error(e, `failed to create club from input ${stringify(input)}`);
-      throw e;
-    }
-  }
-
-  // TODO! move this to membershipService once the dependency on clubService has been removed
-  async function createActiveLeadMembership(
-    userId: number,
-    membershipTierId: number,
-    tx: Prisma.TransactionClient
-  ): Promise<MutationResult> {
-    try {
-      const { id } = await tx.membership.create({
-        data: {
-          userId: userId,
-          membershipTierId: membershipTierId,
-          // empty
-          applicationResponses: { responses: [] },
-          // if not free tier, still awaiting setup intent
-          status: "ACTIVE",
-          role: "LEAD"
-        },
-        select: {
-          id: true
-        }
-      });
-
-      logger.info(
-        `created lead membership for user ${userId} on membership tier with id ${membershipTierId} with membershipId ${id}`
-      );
-      return { createdEntityId: id };
-    } catch (e) {
-      logger.info(
-        `failed to create lead membership for user ${userId} on membership tier with id ${membershipTierId}}`
-      );
       throw e;
     }
   }
@@ -246,23 +183,23 @@ export function createClubService(
     }
   }
 
-  async function hasAnyActiveMembershipsOrMembershipApplications(
+  async function hasMoreThanOneActiveMembershipsOrMembershipApplications(
     clubId: number
   ) {
     try {
-      const memberCount = await prisma.membership.count({
+      const membershipCount = await prisma.membership.count({
         where: {
           membershipTier: {
             clubId: clubId
           },
-          status: { in: ["ACTIVE", "PENDING"] },
-          role: "MEMBER"
+          status: { in: ["ACTIVE", "PENDING"] }
         }
       });
       logger.info(
-        `queried all active or pending membership count for club with clubId ${clubId} with result ${memberCount}`
+        `queried all active or pending membership count for club with clubId ${clubId} with result ${membershipCount}`
       );
-      return memberCount > 0;
+      // we allow deletion if lead is the one remaining membership
+      return membershipCount > 1;
     } catch (e) {
       logger.error(
         e,
@@ -273,7 +210,7 @@ export function createClubService(
   }
 
   async function deleteClub(id: number): Promise<MutationResult> {
-    if (await hasAnyActiveMembershipsOrMembershipApplications(id)) {
+    if (await hasMoreThanOneActiveMembershipsOrMembershipApplications(id)) {
       throw new Error(
         "cannot delete club if it has any active memberships or membership applications"
       );
@@ -317,36 +254,10 @@ export function createClubService(
     }
   }
 
-  async function getClubOwnerUserId(clubId: number): Promise<number> {
-    try {
-      const membership = await prisma.membership.findFirstOrThrow({
-        select: { userId: true },
-        where: {
-          role: "LEAD",
-          membershipTier: {
-            clubId: clubId
-          }
-        }
-      });
-      logger.info(
-        `queried owner userId for club with clubId ${clubId} with result ${membership.userId}`
-      );
-      return membership.userId;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to query owner userId for club with clubId ${clubId}`
-      );
-      throw e;
-    }
-  }
-
   return {
-    getUserOwnedClubs,
     getClubByPublicId,
     getClubStatistics,
     getClub,
-    getClubOwnerUserId,
     createClub,
     updateClub,
     deleteClub,

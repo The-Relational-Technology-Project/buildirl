@@ -200,7 +200,7 @@ export default function ClubJoin() {
 
           <ContributingMembersLink club={r.data!} />
 
-          <MemberCarousel clubId={r.data!.id} owner={r.data!.owner} />
+          <MemberCarousel clubId={r.data!.id} />
 
           <FAQs
             faqs={r.data!.faqs}

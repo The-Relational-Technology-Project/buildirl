@@ -28,7 +28,7 @@ export default class DeleteClubCommand
     // get this for verification before deletion
     const ownerUserId = m.getClub(this.clubId).owner.id;
     m.deleteClub(this.clubId);
-    await verifiers.verifyUserOwnedClub(ownerUserId, r, m);
+    await verifiers.verifyUserMemberships(ownerUserId, r, m);
   }
 
   toString() {

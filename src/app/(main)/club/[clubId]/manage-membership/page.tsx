@@ -12,10 +12,10 @@ import { isDefaultFreeTier, membershipForClub } from "~/utils/types";
 import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
 import ManagePaymentsButton from "~/app/(main)/club/[clubId]/manage-membership/_components/ManagePaymentsButton";
 import { handleDefaultMutationError } from "~/client/logger";
-import { Membership } from "~/server/membership/types";
+import { MembershipWithClub } from "~/server/membership/types";
 
 type DeactivateMembershipSectionProps = {
-  membership: Membership;
+  membership: MembershipWithClub;
 };
 
 function DeactivateMembershipSection({

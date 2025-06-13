@@ -5,12 +5,13 @@ import { User } from "~/server/user/types";
 import { Club } from "~/server/club/types";
 import { MembershipTier } from "~/server/membershipTier/types";
 import { Email, MutationResult } from "~/server/utils/types";
+import { Prisma } from "@prisma/client";
 
 export type MembershipService = MembershipQueries & MembershipMutations;
 
 type MembershipQueries = {
   // all memberships, regardless of status
-  getUserMemberships(userId: number): Promise<Membership[]>;
+  getUserMemberships(userId: number): Promise<MembershipWithClub[]>;
   getActiveMembershipsForClub(
     clubId: number,
     includeEmail: boolean
@@ -26,10 +27,11 @@ export type MembershipStatus =
   | "WITHDRAWN"
   | "INACTIVE";
 
+export type Role = "LEAD" | "MEMBER";
+
 export type Membership = {
   id: bigint;
   user: User;
-  club: Club;
   membershipTier: MembershipTier;
   status: MembershipStatus;
   applicationResponses: FormResponses;
@@ -37,11 +39,14 @@ export type Membership = {
   // null if user has no set email
   email: Maybe<Email>;
   isWelcomed: boolean;
+  role: Role;
   // this isn't exactly the join date as it is the date
   // the membership first was created (e.g., as `PENDING_INCOMPLETE`)
   // TODO refine
   createdAt: Date;
 };
+
+export type MembershipWithClub = Membership & { club: Club };
 
 type MembershipMutations = {
   submitMembershipApplication(
@@ -57,6 +62,12 @@ type MembershipMutations = {
     input: DeactivateMembershipInput
   ): Promise<MutationResult>;
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
+  // internal
+  createLeadMembership(
+    membershipTierId: number,
+    userId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult>;
 };
 
 export const SubmitMembershipApplicationInputSchema = z.object({

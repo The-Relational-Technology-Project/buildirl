@@ -4,14 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { strictParseInt } from "~/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import React from "react";
-import {
-  Button,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  Title
-} from "@mantine/core";
+import { Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
@@ -33,8 +26,6 @@ function findUserMembership(
     ) || null
   );
 }
-
-
 
 type PendingMembershipCardProps = {
   clubId: number;
@@ -189,18 +180,19 @@ export default function MemberApplication() {
   const userId = strictParseInt(params.userId);
   const clubId = strictParseInt(params.clubId);
 
-  const membershipApplicationsQuery =
+  const membershipApplications =
     api.main.membershipApplicationsForClub.useQuery({ clubId });
-  const activeMembershipsQuery =
-    api.main.activeMembershipsForClubWithEmail.useQuery({ clubId });
+  const activeMemberships = api.main.activeMembershipsForClubWithEmail.useQuery(
+    { clubId }
+  );
   const userQuery = api.main.userById.useQuery({ id: userId });
 
   QueryError.check({
-    result: membershipApplicationsQuery,
+    result: membershipApplications,
     fieldName: "membershipApplicationsForClub"
   });
   QueryError.check({
-    result: activeMembershipsQuery,
+    result: activeMemberships,
     fieldName: "activeMembershipsForClubWithEmail"
   });
   QueryError.check({
@@ -208,26 +200,20 @@ export default function MemberApplication() {
     fieldName: "userById"
   });
 
-  if (
-    !isAllLoaded([
-      membershipApplicationsQuery,
-      activeMembershipsQuery,
-      userQuery
-    ])
-  ) {
+  if (!isAllLoaded([membershipApplications, activeMemberships, userQuery])) {
     return null;
   }
 
   const userMembership = findUserMembership(
     userId,
-    membershipApplicationsQuery.data!,
-    activeMembershipsQuery.data!
+    membershipApplications.data!,
+    activeMemberships.data!
   );
 
-  const pendingMembership = membershipApplicationsQuery.data!.find(
+  const pendingMembership = membershipApplications.data!.find(
     (mem) => mem.user.id === userId
   );
-  const activeMembership = activeMembershipsQuery.data!.find(
+  const activeMembership = activeMemberships.data!.find(
     (mem) => mem.user.id === userId
   );
 

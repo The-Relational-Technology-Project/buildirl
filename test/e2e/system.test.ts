@@ -83,18 +83,21 @@ describe("service", () => {
       fakeStripeClient,
       accountIdResolver
     );
-    clubService = createClubService(prisma, membershipTierService);
-    followingService = createFollowingService(prisma, userService, clubService);
+    followingService = createFollowingService(prisma, userService);
     emailService = createEmailService(prisma, dummyEmailClient, userService);
     membershipService = createMembershipService(
       prisma,
       userService,
-      clubService,
       membershipTierService,
       followingService,
       fakeStripeClient,
       emailService,
       accountIdResolver
+    );
+    clubService = createClubService(
+      prisma,
+      membershipTierService,
+      membershipService
     );
     paymentService = createPaymentService(
       fakeStripeClient,
@@ -116,7 +119,7 @@ describe("service", () => {
   it("should run system", async () => {
     await assert(
       asyncProperty(
-        commands(allCommands(), { size: "medium" }),
+        commands(allCommands(), { size: "large" }),
         async (cmds) => {
           const s = () => ({
             model: new SystemState(),
