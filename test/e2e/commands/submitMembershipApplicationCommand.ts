@@ -44,7 +44,7 @@ export default class SubmitMembershipApplicationCommand
     );
     const userId = this.userIdSelector.select(m.getUserIds());
     const clubId = m.getClubIdForMembershipTier(membershipTierId);
-    return m.userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(userId, clubId);
+    return m.userDoesNotHaveActiveMembershipInClub(userId, clubId);
   }
 
   async run(m: SystemState, r: Services): Promise<void> {

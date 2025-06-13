@@ -33,6 +33,7 @@ import {
   UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
 import { CreateUserInput, UpdateUserInput, User } from "~/server/user/types";
+import { stringify } from "~/utils";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -43,7 +44,6 @@ type ClubState = {
   tagLine: string;
   description: string;
   location: string;
-  ownerUserId: number;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
   eventCalendarUrl: Maybe<Url>;
@@ -191,7 +191,6 @@ export class SystemState {
       tagLine: clubState.tagLine,
       description: clubState.description,
       location: clubState.location,
-      owner: this.getUser(clubState.ownerUserId),
       websiteUrl: clubState.websiteUrl,
       instagramHandle: clubState.instagramHandle,
       eventCalendarUrl: clubState.eventCalendarUrl,
@@ -256,7 +255,6 @@ export class SystemState {
     this.clubs.set(clubId, {
       id: clubId,
       ...input,
-      ownerUserId: userId,
       // defaults
       tagLine: "",
       description: "",
@@ -559,17 +557,13 @@ export class SystemState {
     return club.id;
   }
 
-  public userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(
+  public userDoesNotHaveActiveMembershipInClub(
     userId: number,
     clubId: number
   ): boolean {
-    return (
-      !Array.from(this.memberships.values())
-        .filter((v) => v.status === "ACTIVE")
-        .some((m) => m.userId === userId && m.clubId === clubId) &&
-      // nor are they owner
-      this.getClubState(clubId).ownerUserId !== userId
-    );
+    return !Array.from(this.memberships.values())
+      .filter((v) => v.status === "ACTIVE")
+      .some((m) => m.userId === userId && m.clubId === clubId);
   }
 
   public membershipStateToMembership(
@@ -618,6 +612,17 @@ export class SystemState {
       .filter((m) => m.clubId === clubId)
       .filter((m) => m.status === "ACTIVE")
       .map((m) => this.membershipStateToMembership(m, includeEmail));
+  }
+
+  public leadUserIdForClub(clubId: number) {
+    const activeMemberships = this.getActiveMembershipsForClub(clubId, false);
+    const leadMemberships = activeMemberships.filter((m) => m.role === "LEAD");
+    if (leadMemberships.length !== 1) {
+      throw new Error(
+        `expected exactly one lead membership but found ${stringify(leadMemberships)}`
+      );
+    }
+    return leadMemberships[0]!.user.id;
   }
 
   public getMembershipApplicationsForClub(

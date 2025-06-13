@@ -34,7 +34,6 @@ function createVerifiers() {
       tagLine: club.tagLine,
       location: club.location,
       description: club.description,
-      owner: userWithoutCreatedAt(club.owner),
       websiteUrl: club.websiteUrl,
       instagramHandle: club.instagramHandle,
       eventCalendarUrl: club.eventCalendarUrl,
