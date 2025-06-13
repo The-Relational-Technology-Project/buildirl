@@ -3,7 +3,7 @@ import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
 import { StripeClient } from "~/server/payments/stripe/types";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
-import { EmailClient } from "~/server/email/client/types";
+import { EmailService } from "~/server/email/types";
 import {
   DeactivateMembershipInput,
   Membership,
@@ -29,7 +29,7 @@ export function createMembershipService(
   membershipTierService: MembershipTierService,
   followingService: FollowingService,
   stripeClient: StripeClient,
-  emailClient: EmailClient,
+  emailService: EmailService,
   accountIdResolver: AccountIdResolver
 ): MembershipService {
   async function getUserMemberships(userId: number): Promise<Membership[]> {
@@ -414,26 +414,16 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembership(membershipId, tx);
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on membership application submitted for membership with id ${membershipId} because no email was found`
-      );
-      return;
-    }
-    await emailClient.notifyMembershipApplicationSubmitted(
+    await emailService.sendDefaultEmailForMembershipApplicationSubmitted(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubOwnerUserId: membership.club.owner.id
       },
-      ownerEmail
+      tx
     );
   }
 
@@ -628,39 +618,19 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    // noinspection DuplicatedCode
     const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userService.getUserEmailInTransaction(
-      membership.user.id,
-      tx
-    );
-    if (null === memberEmail) {
-      logger.error(
-        `failed to notify on membership approved for membership with id ${membershipId} because no member email was found`
-      );
-      return;
-    }
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on membership approved for membership with id ${membershipId} because no owner email was found`
-      );
-      return;
-    }
-    await emailClient.notifyMembershipApproved(
+    await emailService.sendDefaultEmailForMembershipApproved(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubId: membership.club.id,
         clubName: membership.club.name,
-        clubPublicId: membership.club.publicId
+        clubPublicId: membership.club.publicId,
+        clubOwnerUserId: membership.club.owner.id,
+        memberUserId: membership.user.id
       },
-      memberEmail,
-      ownerEmail
+      tx
     );
   }
 
@@ -758,37 +728,17 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    // noinspection DuplicatedCode
     const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userService.getUserEmailInTransaction(
-      membership.user.id,
-      tx
-    );
-    if (null === memberEmail) {
-      logger.error(
-        `failed to notify on membership declined for membership with id ${membershipId} because no member email was found`
-      );
-      return;
-    }
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on membership declined for membership with id ${membershipId} because no owner email was found`
-      );
-      return;
-    }
-    await emailClient.notifyMembershipDeclined(
+    await emailService.sendDefaultEmailForMembershipDeclined(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubOwnerUserId: membership.club.owner.id,
+        memberUserId: membership.user.id
       },
-      memberEmail,
-      ownerEmail
+      tx
     );
   }
 
@@ -955,22 +905,13 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userService.getUserEmailInTransaction(
-      membership.user.id,
-      tx
-    );
-    if (null === memberEmail) {
-      logger.error(
-        `failed to notify on membership deactivated by owner for membership with id ${membershipId} because no email was found`
-      );
-      return;
-    }
-    await emailClient.notifyMembershipDeactivatedByOwner(
+    await emailService.sendDefaultEmailForMembershipDeactivatedByOwner(
       {
         membershipId: membershipId,
-        clubName: membership.club.name
+        clubName: membership.club.name,
+        memberUserId: membership.user.id
       },
-      memberEmail
+      tx
     );
   }
 
@@ -978,39 +919,18 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    // noinspection DuplicatedCode
     const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userService.getUserEmailInTransaction(
-      membership.user.id,
-      tx
-    );
-    if (null === memberEmail) {
-      logger.error(
-        `failed to notify on membership deactivated by member to member for membership with id ${membershipId} because no member email was found`
-      );
-      return;
-    }
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on membership deactivated by member to member for membership with id ${membershipId} because no owner email was found`
-      );
-      return;
-    }
-
-    await emailClient.notifyMembershipDeactivatedByMemberToMember(
+    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToMember(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubOwnerUserId: membership.club.owner.id,
+        memberUserId: membership.user.id
       },
-      memberEmail,
-      ownerEmail
+      tx
     );
   }
 
@@ -1019,26 +939,16 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembership(membershipId, tx);
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on membership deactivated by member to owner for membership with id ${membershipId} because no email was found`
-      );
-      return;
-    }
-    await emailClient.notifyMembershipDeactivatedByMemberToOwner(
+    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubOwnerUserId: membership.club.owner.id
       },
-      ownerEmail
+      tx
     );
   }
 
@@ -1047,26 +957,16 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembership(membershipId, tx);
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on application withdrawn for membership with id ${membershipId} because no owner email was found`
-      );
-      return;
-    }
-    await emailClient.notifyApplicationWithdrawnByMemberToOwner(
+    await emailService.sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubOwnerUserId: membership.club.owner.id
       },
-      ownerEmail
+      tx
     );
   }
 
