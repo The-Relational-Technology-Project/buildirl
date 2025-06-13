@@ -353,8 +353,10 @@ function AuthenticatedJoinButton({ club }: JoinButtonProps) {
           Complete Application
         </PrimaryButton>
       );
-    // no membership, declined, deactivated, or withdrawn
+    case "DECLINED":
+    case "INACTIVE":
     case "WITHDRAWN":
+    // no membership
     default:
       return (
         <PrimaryButton

@@ -1,88 +1,105 @@
 import { Email } from "~/server/utils/types";
 
 export type EmailClient = {
-  notifyMembershipApplicationSubmitted(
-    input: NotifyMembershipApplicationSubmittedInput,
+  sendCustomEmail(
+    sendTo: Email,
+    replyTo: Email,
+    subject: string,
+    htmlContent: string,
+    textContent: string
+  ): Promise<void>;
+  sendDefaultEmailForMembershipApplicationSubmitted(
+    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
     sendTo: Email
   ): Promise<void>;
-  notifyMembershipApproved(
-    input: NotifyMembershipApprovedInput,
+  sendDefaultEmailForMembershipApproved(
+    input: SendDefaultEmailForMembershipApprovedInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void>;
-  notifyMembershipDeclined(
-    input: NotifyMembershipDeclinedInput,
+  sendDefaultEmailForMembershipDeclined(
+    input: SendDefaultEmailForMembershipDeclinedInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void>;
-  notifyMembershipDeactivatedByMemberToOwner(
-    input: NotifyMembershipDeactivatedByMemberToOwnerInput,
+  sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
     sendTo: Email
   ): Promise<void>;
-  notifyMembershipDeactivatedByMemberToMember(
-    input: NotifyMembershipDeactivatedByMemberToMemberInput,
+  sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void>;
-  notifyMembershipDeactivatedByOwner(
-    input: NotifyMembershipDeactivatedByOwnerInput,
+  sendDefaultEmailForMembershipDeactivatedByOwner(
+    input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
     sendTo: Email
   ): Promise<void>;
-  notifyApplicationWithdrawnByMemberToOwner(
-    input: NotifyApplicationWithdrawnByMemberToOwnerInput,
+  sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
+    input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
     sendTo: Email
   ): Promise<void>;
 };
 
-export type NotifyMembershipApplicationSubmittedInput = {
+export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
   clubName: string;
   clubId: number;
+  clubOwnerUserId: number;
 };
 
-export type NotifyMembershipApprovedInput = {
+export type SendDefaultEmailForMembershipApprovedInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
   clubId: number;
   clubName: string;
   clubPublicId: string;
+  clubOwnerUserId: number;
+  memberUserId: number;
 };
 
-export type NotifyMembershipDeclinedInput = {
+export type SendDefaultEmailForMembershipDeclinedInput = {
   membershipId: bigint;
   memberFirstName: string;
   clubId: number;
   clubName: string;
+  clubOwnerUserId: number;
+  memberUserId: number;
 };
 
-export type NotifyMembershipDeactivatedByMemberToOwnerInput = {
-  membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
-  clubName: string;
-  clubId: number;
-};
-
-export type NotifyMembershipDeactivatedByMemberToMemberInput = {
+export type SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
   clubName: string;
   clubId: number;
+  clubOwnerUserId: number;
 };
 
-export type NotifyMembershipDeactivatedByOwnerInput = {
-  membershipId: bigint;
-  clubName: string;
-};
-
-export type NotifyApplicationWithdrawnByMemberToOwnerInput = {
+export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
   clubName: string;
   clubId: number;
+  clubOwnerUserId: number;
+  memberUserId: number;
+};
+
+export type SendDefaultEmailForMembershipDeactivatedByOwnerInput = {
+  membershipId: bigint;
+  clubName: string;
+  memberUserId: number;
+};
+
+export type SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
+  clubOwnerUserId: number;
 };

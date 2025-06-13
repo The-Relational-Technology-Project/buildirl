@@ -60,7 +60,7 @@ function WithdrawApplicationSection({
           onClick={handleWithdraw}
           loading={withdrawMembership.isPending}
         >
-          Withdraw
+          Withdraw Application
         </Button>
       </Stack>
     </Paper>
@@ -84,10 +84,11 @@ export default function ManageApplication() {
 
   const membership = membershipForClub(userMemberships.data!, clubId);
 
-  if (!membership || membership.status !== "PENDING") {
-    throw new Error(
-      `user should have a PENDING membership for club ${clubId} to access manage-application page`
-    );
+  if (null === membership || membership.status != "PENDING") {
+    // we don't error here but return null page because this page
+    // gets rehydrated after withdraw membership before the router.back()
+    // is completed
+    return null;
   }
 
   const club = membership.club;

@@ -28,7 +28,8 @@ export default function ApplicationCompleted() {
             THANK YOU FOR APPLYING!
           </Title>
           <Text ta={"center"} size={"lg"}>
-          Your application is being reviewed. You’ll receive an email with an update soon.
+            Your application is being reviewed. You’ll receive an email with an
+            update soon.
           </Text>
 
           <ClubImage club={r.data!} size={240} />
@@ -41,6 +42,11 @@ export default function ApplicationCompleted() {
           >
             Return Home
           </SecondaryButton>
+
+          <Text ta={"center"} size={"sm"}>
+            If you wish to withdraw your application, you can manage your
+            application from the club page.
+          </Text>
         </Stack>
       </Center>
     )

@@ -12,27 +12,76 @@ import { isDefaultFreeTier, membershipForClub } from "~/utils/types";
 import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionAlert";
 import ManagePaymentsButton from "~/app/(main)/club/[clubId]/manage-membership/_components/ManagePaymentsButton";
 import { handleDefaultMutationError } from "~/client/logger";
+import { MembershipWithClub } from "~/server/membership/types";
 
-export default function ManageMembership() {
-  const params = useParams<{ clubId: string }>();
-  const clubId = strictParseInt(params.clubId);
+type DeactivateMembershipSectionProps = {
+  membership: MembershipWithClub;
+};
+
+function DeactivateMembershipSection({
+  membership
+}: DeactivateMembershipSectionProps) {
   const router = useRouter();
-
-  const userMemberships = api.main.userMemberships.useQuery();
-
   const utils = api.useUtils();
   const deactivateMembership = api.main.deactivateMembership.useMutation({
     onSuccess: async () => {
       await utils.main.userMemberships.invalidate();
-      await utils.main.activeMembershipsForClub.invalidate({ clubId: clubId });
-      await utils.main.activeMembershipsForClubWithEmail.invalidate({
-        clubId: clubId
+      await utils.main.activeMembershipsForClub.invalidate({
+        clubId: membership.club.id
       });
-      await utils.main.clubStatistics.invalidate({ clubId: clubId });
+      await utils.main.activeMembershipsForClubWithEmail.invalidate({
+        clubId: membership.club.id
+      });
+      await utils.main.clubStatistics.invalidate({
+        clubId: membership.club.id
+      });
       router.push("/");
     },
     onError: handleDefaultMutationError
   });
+
+  const handleDeactivateMembership = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to leave this club? You will need to reapply if you want to join again."
+      )
+    ) {
+      deactivateMembership.mutateAsync({
+        membershipId: membership.id,
+        input: { byClubOwner: false }
+      });
+    }
+  };
+
+  return (
+    <Paper p={"xl"}>
+      <Stack gap="lg">
+        <Title order={4} fw={500}>
+          Actions
+        </Title>
+        <Text size="sm">
+          If you no longer wish to be part of this club, you can cancel your
+          membership here. You will not be charged going forward if you decide
+          to leave. Re-joining will require you to re-apply.
+        </Text>
+        <Button
+          color="red"
+          size="sm"
+          onClick={handleDeactivateMembership}
+          loading={deactivateMembership.isPending}
+        >
+          Cancel Membership
+        </Button>
+      </Stack>
+    </Paper>
+  );
+}
+
+export default function ManageMembership() {
+  const params = useParams<{ clubId: string }>();
+  const clubId = strictParseInt(params.clubId);
+
+  const userMemberships = api.main.userMemberships.useQuery();
 
   QueryError.check({
     result: userMemberships,
@@ -50,19 +99,6 @@ export default function ManageMembership() {
     // is completed
     return null;
   }
-
-  const handleDeactivateMembership = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to leave this club? You will need to reapply if you want to join again."
-      )
-    ) {
-      deactivateMembership.mutateAsync({
-        membershipId: membership.id,
-        input: { byClubOwner: false }
-      });
-    }
-  };
 
   return (
     // go back explicitly to root because we might have gone
@@ -115,21 +151,7 @@ export default function ManageMembership() {
           </Stack>
         </Paper>
 
-        <Stack w={"100%"} align={"center"} mt={"md"}>
-          <Button
-            w={180}
-            color={"red"}
-            onClick={handleDeactivateMembership}
-            loading={deactivateMembership.isPending}
-          >
-            Cancel Membership
-          </Button>
-          <Text size={"sm"} w={360} style={{ textAlign: "center" }}>
-            Your membership will be canceled at the end of this billing period.
-            You will not be charged going forward if you decide to leave.
-            Re-joining will require you to re-apply.
-          </Text>
-        </Stack>
+        <DeactivateMembershipSection membership={membership} />
       </Stack>
     </WithLocalNavigationHeader>
   );
