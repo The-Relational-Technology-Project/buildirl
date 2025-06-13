@@ -998,6 +998,8 @@ export function createMembershipService(
           membershipTierId: membershipTierId,
           // empty
           applicationResponses: { responses: [] },
+          // no need to welcome the lead
+          isWelcomed: true,
           status: "ACTIVE",
           role: "LEAD"
         },

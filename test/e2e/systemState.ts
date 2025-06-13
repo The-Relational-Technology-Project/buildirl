@@ -640,8 +640,7 @@ export class SystemState {
 
   public getClubStatistics(clubId: number): ClubStatistics {
     return {
-      // plus one for owner
-      memberCount: this.membershipCountWithStatus(clubId, "ACTIVE") + 1
+      memberCount: this.membershipCountWithStatus(clubId, "ACTIVE")
     };
   }
 
