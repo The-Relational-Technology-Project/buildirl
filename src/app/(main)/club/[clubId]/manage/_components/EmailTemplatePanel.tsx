@@ -112,7 +112,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
   // this trade-off given form validation is simple and the state management is minimal
   const [subject, setSubject] = useState("");
 
-  const emailTemplate = api.main.emailTemplate.useQuery({
+  const emailTemplate = api.email.emailTemplate.useQuery({
     clubId,
     type
   });
@@ -123,9 +123,9 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
   });
 
   const utils = api.useUtils();
-  const setEmailTemplate = api.main.setEmailTemplate.useMutation({
+  const setEmailTemplate = api.email.setEmailTemplate.useMutation({
     onSuccess: () => {
-      utils.main.emailTemplate.invalidate({ clubId, type: type });
+      utils.email.emailTemplate.invalidate({ clubId, type: type });
       notifySuccess("Success", "Email template has been updated");
     },
     onError: (e) => {
@@ -133,9 +133,9 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     }
   });
 
-  const deleteEmailTemplate = api.main.deleteEmailTemplate.useMutation({
+  const deleteEmailTemplate = api.email.deleteEmailTemplate.useMutation({
     onSuccess: () => {
-      utils.main.emailTemplate.invalidate({ clubId, type: type });
+      utils.email.emailTemplate.invalidate({ clubId, type: type });
       notifySuccess("Success", "Email template has been deleted");
     },
     onError: (e) => {
