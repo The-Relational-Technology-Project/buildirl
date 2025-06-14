@@ -26,10 +26,6 @@ import {
   DeactivateMembershipInputSchema,
   SubmitMembershipApplicationInputSchema
 } from "~/server/membership/types";
-import {
-  EmailTemplateIdSchema,
-  SetEmailTemplateInputSchema
-} from "~/server/email/types";
 
 export const mainRouter = createTRPCRouter({
   user: securedProcedure.query(({ ctx }) => {
