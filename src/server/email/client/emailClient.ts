@@ -7,10 +7,10 @@ import {
   SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
   SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
   SendDefaultEmailForMembershipDeactivatedByLeadInput,
-  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput
+  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  Emails
 } from "./types";
 import { rootLogger } from "~/logger";
-import { Email } from "~/server/utils/types";
 
 const logger = rootLogger.child({ module: "emailClient" });
 
@@ -18,8 +18,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   const FROM_EMAIL = "outbound@buildirl.com";
 
   async function sendCustomEmail(
-    sendTo: Email,
-    replyTo: Email,
+    sendTo: Emails,
+    replyTo: Emails,
     subject: string,
     htmlContent: string,
     textContent: string
@@ -47,7 +47,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   async function sendDefaultEmailForMembershipApplicationSubmitted(
     input: SendDefaultEmailForMembershipApplicationSubmittedInput,
-    sendTo: Email
+    sendTo: Emails
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
     try {
@@ -78,8 +78,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   async function sendDefaultEmailForMembershipApproved(
     input: SendDefaultEmailForMembershipApprovedInput,
-    sendTo: Email,
-    replyTo: Email
+    sendTo: Emails,
+    replyTo: Emails
   ): Promise<void> {
     try {
       const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
@@ -114,8 +114,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   async function sendDefaultEmailForMembershipDeclined(
     input: SendDefaultEmailForMembershipDeclinedInput,
-    sendTo: Email,
-    replyTo: Email
+    sendTo: Emails,
+    replyTo: Emails
   ): Promise<void> {
     try {
       await mailTransport.sendMail({
@@ -148,7 +148,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   async function sendDefaultEmailForMembershipDeactivatedByMemberToLead(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
-    sendTo: Email
+    sendTo: Emails
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
     try {
@@ -181,8 +181,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
-    sendTo: Email,
-    replyTo: Email
+    sendTo: Emails,
+    replyTo: Emails
   ): Promise<void> {
     try {
       await mailTransport.sendMail({
@@ -213,7 +213,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   async function sendDefaultEmailForMembershipDeactivatedByLead(
     input: SendDefaultEmailForMembershipDeactivatedByLeadInput,
-    sendTo: Email
+    sendTo: Emails
   ): Promise<void> {
     try {
       await mailTransport.sendMail({
@@ -244,7 +244,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   async function sendDefaultEmailForApplicationWithdrawnByMemberToLead(
     input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
-    sendTo: Email
+    sendTo: Emails
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
     try {

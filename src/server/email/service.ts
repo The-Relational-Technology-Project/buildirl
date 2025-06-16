@@ -124,19 +124,13 @@ export function createEmailService(
     input: SendDefaultEmailForMembershipApplicationSubmittedInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const leadEmail = await userService.getUserEmailInTransaction(
-      input.clubLeadUserId,
+    const leadEmails = await userService.getUserEmailsInTransaction(
+      input.clubLeadUserIds,
       tx
     );
-    if (!leadEmail) {
-      logger.error(
-        `failed to send membership application submitted email for membership ${input.membershipId} because email not found for lead with id ${input.clubLeadUserId}`
-      );
-      return;
-    }
     await emailClient.sendDefaultEmailForMembershipApplicationSubmitted(
       input,
-      leadEmail
+      leadEmails
     );
   }
 
@@ -149,32 +143,20 @@ export function createEmailService(
       type: "ACCEPTANCE"
     });
 
-    const leadEmail = await userService.getUserEmailInTransaction(
-      input.clubLeadUserId,
+    const leadEmails = await userService.getUserEmailsInTransaction(
+      input.clubLeadUserIds,
       tx
     );
-    if (!leadEmail) {
-      logger.error(
-        `failed to send membership approved email for membership ${input.membershipId} because email not found for lead with id ${input.clubLeadUserId}`
-      );
-      return;
-    }
 
     const memberEmail = await userService.getUserEmailInTransaction(
       input.memberUserId,
       tx
     );
-    if (!memberEmail) {
-      logger.error(
-        `failed to send membership approved email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
-      );
-      return;
-    }
 
     if (template) {
       await emailClient.sendCustomEmail(
         memberEmail,
-        leadEmail,
+        leadEmails,
         template.subject,
         template.htmlContent,
         template.textContent
@@ -183,7 +165,7 @@ export function createEmailService(
       await emailClient.sendDefaultEmailForMembershipApproved(
         input,
         memberEmail,
-        leadEmail
+        leadEmails
       );
     }
   }
@@ -197,32 +179,19 @@ export function createEmailService(
       type: "REJECTION"
     });
 
-    const leadEmail = await userService.getUserEmailInTransaction(
-      input.clubLeadUserId,
+    const leadEmails = await userService.getUserEmailsInTransaction(
+      input.clubLeadUserIds,
       tx
     );
-    if (!leadEmail) {
-      logger.error(
-        `failed to send membership declined email for membership ${input.membershipId} because email not found for lead with id ${input.clubLeadUserId}`
-      );
-      return;
-    }
-
     const memberEmail = await userService.getUserEmailInTransaction(
       input.memberUserId,
       tx
     );
-    if (!memberEmail) {
-      logger.error(
-        `failed to send membership declined email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
-      );
-      return;
-    }
 
     if (template) {
       await emailClient.sendCustomEmail(
         memberEmail,
-        leadEmail,
+        leadEmails,
         template.subject,
         template.htmlContent,
         template.textContent
@@ -231,7 +200,7 @@ export function createEmailService(
       await emailClient.sendDefaultEmailForMembershipDeclined(
         input,
         memberEmail,
-        leadEmail
+        leadEmails
       );
     }
   }
@@ -240,19 +209,13 @@ export function createEmailService(
     input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const leadEmail = await userService.getUserEmailInTransaction(
-      input.clubLeadUserId,
+    const leadEmails = await userService.getUserEmailsInTransaction(
+      input.clubLeadUserIds,
       tx
     );
-    if (!leadEmail) {
-      logger.error(
-        `failed to send membership deactivated by member to lead email for membership ${input.membershipId} because email not found for lead with id ${input.clubLeadUserId}`
-      );
-      return;
-    }
     await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToLead(
       input,
-      leadEmail
+      leadEmails
     );
   }
 
@@ -265,32 +228,19 @@ export function createEmailService(
       type: "DEPARTURE"
     });
 
-    const leadEmail = await userService.getUserEmailInTransaction(
-      input.clubLeadUserId,
+    const leadEmails = await userService.getUserEmailsInTransaction(
+      input.clubLeadUserIds,
       tx
     );
-    if (!leadEmail) {
-      logger.error(
-        `failed to send membership deactivated by member to member email for membership ${input.membershipId} because email not found for lead with id ${input.clubLeadUserId}`
-      );
-      return;
-    }
-
     const memberEmail = await userService.getUserEmailInTransaction(
       input.memberUserId,
       tx
     );
-    if (!memberEmail) {
-      logger.error(
-        `failed to send membership deactivated by member to member email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
-      );
-      return;
-    }
 
     if (template) {
       await emailClient.sendCustomEmail(
         memberEmail,
-        leadEmail,
+        leadEmails,
         template.subject,
         template.htmlContent,
         template.textContent
@@ -299,7 +249,7 @@ export function createEmailService(
       await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToMember(
         input,
         memberEmail,
-        leadEmail
+        leadEmails
       );
     }
   }
@@ -312,13 +262,6 @@ export function createEmailService(
       input.memberUserId,
       tx
     );
-    if (!memberEmail) {
-      logger.error(
-        `failed to send membership deactivated by lead email for membership ${input.membershipId} because member email not found for memberUserId ${input.memberUserId}`
-      );
-      return;
-    }
-
     await emailClient.sendDefaultEmailForMembershipDeactivatedByLead(
       input,
       memberEmail
@@ -329,19 +272,13 @@ export function createEmailService(
     input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const leadEmail = await userService.getUserEmailInTransaction(
-      input.clubLeadUserId,
+    const leadEmails = await userService.getUserEmailsInTransaction(
+      input.clubLeadUserIds,
       tx
     );
-    if (!leadEmail) {
-      logger.error(
-        `failed to send application withdrawn by member to lead email for membership ${input.membershipId} because email not found for lead with id ${input.clubLeadUserId}`
-      );
-      return;
-    }
     await emailClient.sendDefaultEmailForApplicationWithdrawnByMemberToLead(
       input,
-      leadEmail
+      leadEmails
     );
   }
 
