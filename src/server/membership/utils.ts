@@ -41,10 +41,10 @@ export const MEMBERSHIP_WITH_CLUB_SELECT = {
   }
 };
 
-export async function asMembership(
+export function asMembership(
   r: MembershipGetPayload<{ select: typeof MEMBERSHIP_SELECT }>,
   userEmail: Maybe<Email> = null
-): Promise<Membership> {
+): Membership {
   return {
     id: r.id,
     user: r.user,

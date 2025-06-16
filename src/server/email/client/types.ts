@@ -22,8 +22,8 @@ export type EmailClient = {
     sendTo: Email,
     replyTo: Email
   ): Promise<void>;
-  sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
+  sendDefaultEmailForMembershipDeactivatedByMemberToLead(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
     sendTo: Email
   ): Promise<void>;
   sendDefaultEmailForMembershipDeactivatedByMemberToMember(
@@ -31,12 +31,12 @@ export type EmailClient = {
     sendTo: Email,
     replyTo: Email
   ): Promise<void>;
-  sendDefaultEmailForMembershipDeactivatedByOwner(
-    input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
+  sendDefaultEmailForMembershipDeactivatedByLead(
+    input: SendDefaultEmailForMembershipDeactivatedByLeadInput,
     sendTo: Email
   ): Promise<void>;
-  sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
-    input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
+  sendDefaultEmailForApplicationWithdrawnByMemberToLead(
+    input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
     sendTo: Email
   ): Promise<void>;
 };
@@ -47,7 +47,7 @@ export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
   memberLastName: string;
   clubName: string;
   clubId: number;
-  clubOwnerUserId: number;
+  clubLeadUserId: number;
 };
 
 export type SendDefaultEmailForMembershipApprovedInput = {
@@ -57,7 +57,7 @@ export type SendDefaultEmailForMembershipApprovedInput = {
   clubId: number;
   clubName: string;
   clubPublicId: string;
-  clubOwnerUserId: number;
+  clubLeadUserId: number;
   memberUserId: number;
 };
 
@@ -66,17 +66,17 @@ export type SendDefaultEmailForMembershipDeclinedInput = {
   memberFirstName: string;
   clubId: number;
   clubName: string;
-  clubOwnerUserId: number;
+  clubLeadUserId: number;
   memberUserId: number;
 };
 
-export type SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput = {
+export type SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
   clubName: string;
   clubId: number;
-  clubOwnerUserId: number;
+  clubLeadUserId: number;
 };
 
 export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
@@ -85,21 +85,21 @@ export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
   memberLastName: string;
   clubName: string;
   clubId: number;
-  clubOwnerUserId: number;
+  clubLeadUserId: number;
   memberUserId: number;
 };
 
-export type SendDefaultEmailForMembershipDeactivatedByOwnerInput = {
+export type SendDefaultEmailForMembershipDeactivatedByLeadInput = {
   membershipId: bigint;
   clubName: string;
   memberUserId: number;
 };
 
-export type SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput = {
+export type SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
   clubName: string;
   clubId: number;
-  clubOwnerUserId: number;
+  clubLeadUserId: number;
 };

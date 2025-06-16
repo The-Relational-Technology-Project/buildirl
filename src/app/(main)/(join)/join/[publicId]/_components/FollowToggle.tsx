@@ -181,7 +181,7 @@ function AuthenticatedFollowToggle({
           <Text size="md" mb="lg">
             {isFollowing
               ? "Are you sure you want to unfollow this club? You will no longer receive updates."
-              : "By following this club, you agree to share your email with the club owner for further outreach and updates."}
+              : "By following this club, you agree to share your email with the club lead for further outreach and updates."}
           </Text>
 
           <PrimaryButton w={200} size={"md"} onClick={handleConfirm}>

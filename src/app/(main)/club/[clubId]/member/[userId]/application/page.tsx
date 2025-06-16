@@ -147,7 +147,7 @@ function ActiveMembershipCard({
     ) {
       deactivateMembership.mutateAsync({
         membershipId: membership.id,
-        input: { byClubOwner: true }
+        input: { byClubLead: true }
       });
     }
   };

@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// NOTE: Added above line to prevent this file throwing type-errors. 
+// NOTE: Added above line to prevent this file throwing type-errors.
 import {
   EmailClient,
   SendDefaultEmailForMembershipApplicationSubmittedInput,
   SendDefaultEmailForMembershipApprovedInput,
   SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
-  SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
-  SendDefaultEmailForMembershipDeactivatedByOwnerInput,
+  SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
+  SendDefaultEmailForMembershipDeactivatedByLeadInput,
   SendDefaultEmailForMembershipDeclinedInput,
-  SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput
+  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput
 } from "~/server/email/client/types";
 import { Email } from "~/server/utils/types";
 
@@ -46,8 +46,8 @@ export function createDummyEmailClient(): EmailClient {
     return;
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
-    _: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByMemberToLead(
+    _: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
     __: Email
   ): Promise<void> {
     return;
@@ -61,15 +61,15 @@ export function createDummyEmailClient(): EmailClient {
     return;
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByOwner(
-    _: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByLead(
+    _: SendDefaultEmailForMembershipDeactivatedByLeadInput,
     __: Email
   ): Promise<void> {
     return;
   }
 
-  async function sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
-    _: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
+  async function sendDefaultEmailForApplicationWithdrawnByMemberToLead(
+    _: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
     __: Email
   ): Promise<void> {
     return;
@@ -79,10 +79,10 @@ export function createDummyEmailClient(): EmailClient {
     sendDefaultEmailForMembershipApplicationSubmitted,
     sendDefaultEmailForMembershipApproved,
     sendDefaultEmailForMembershipDeclined,
-    sendDefaultEmailForMembershipDeactivatedByOwner,
-    sendDefaultEmailForMembershipDeactivatedByMemberToOwner,
+    sendDefaultEmailForMembershipDeactivatedByLead,
+    sendDefaultEmailForMembershipDeactivatedByMemberToLead,
     sendDefaultEmailForMembershipDeactivatedByMemberToMember,
-    sendDefaultEmailForApplicationWithdrawnByMemberToOwner,
+    sendDefaultEmailForApplicationWithdrawnByMemberToLead,
     sendCustomEmail
   };
 }
