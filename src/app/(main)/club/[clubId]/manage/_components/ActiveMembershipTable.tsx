@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   Group,
   Paper,
@@ -17,8 +18,19 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import UserAvatar from "~/client/components/UserAvatar";
-import { Membership } from "~/server/membership/types";
+import { Membership, Role } from "~/server/membership/types";
 import { useMounted } from "@mantine/hooks";
+
+type RoleBadgeProps = {
+  role: Role;
+};
+
+function RoleBadge({ role }: RoleBadgeProps) {
+  if (role === "LEAD") {
+    return <Badge color="orange">{role}</Badge>;
+  }
+  return null;
+}
 
 type ActiveMembershipTableProps = {
   clubId: number;
@@ -33,24 +45,27 @@ export default function ActiveMembershipTable({
 
   const router = useRouter();
 
-  const r = api.main.activeMembershipsForClubWithEmail.useQuery({
-    clubId: clubId
-  });
+  const activeMembershipsForClubWithEmail =
+    api.main.activeMembershipsForClubWithEmail.useQuery({
+      clubId: clubId
+    });
 
   QueryError.check({
-    result: r,
+    result: activeMembershipsForClubWithEmail,
     fieldName: "activeMembershipsForClubWithEmail"
   });
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(activeMembershipsForClubWithEmail)) {
     return null;
   }
 
-  const rows = r.data!.map((m: Membership) => (
-    <Table.Tr 
+  const rows = activeMembershipsForClubWithEmail.data!.map((m: Membership) => (
+    <Table.Tr
       key={m.id}
       style={{ cursor: "pointer" }}
-      onClick={() => router.push(`/club/${clubId}/member/${m.user.id}/application`)}
+      onClick={() =>
+        router.push(`/club/${clubId}/member/${m.user.id}/application`)
+      }
     >
       <Table.Td>
         <Group gap={"sm"} wrap={"nowrap"}>
@@ -64,9 +79,10 @@ export default function ActiveMembershipTable({
       <Table.Td>{m.membershipTier.name}</Table.Td>
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>
-        {m.email === null ? null : (
-          <Text size="sm">{m.email}</Text>
-        )}
+        <RoleBadge role={m.role} />
+      </Table.Td>
+      <Table.Td>
+        {m.email === null ? null : <Text size="sm">{m.email}</Text>}
       </Table.Td>
       <Table.Td onClick={(e) => e.stopPropagation()}>
         <Button
@@ -88,7 +104,10 @@ export default function ActiveMembershipTable({
         <Stack px={4} gap={4}>
           <Title order={4}>Active Members</Title>
           <Group gap={4}>
-            <Text fw={"bold"} size={"sm"}>{`${r.data!.length}`}</Text>
+            <Text
+              fw={"bold"}
+              size={"sm"}
+            >{`${activeMembershipsForClubWithEmail.data!.length}`}</Text>
             <Text size={"sm"}>members</Text>
           </Group>
         </Stack>
@@ -107,6 +126,7 @@ export default function ActiveMembershipTable({
                   <Table.Th>User</Table.Th>
                   <Table.Th>Tier</Table.Th>
                   <Table.Th>Contribution</Table.Th>
+                  <Table.Th>Role</Table.Th>
                   <Table.Th>Email</Table.Th>
                 </Table.Tr>
               </Table.Thead>
