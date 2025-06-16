@@ -435,22 +435,21 @@ export function createEmailService(
         }
       });
 
-      for (const membership of memberships) {
-        const memberEmail = membership.user.settings?.email;
-        if (memberEmail) {
-          await emailClient.sendCustomEmail(
-            memberEmail,
-            leadEmail,
-            emailBlast.subject,
-            emailBlast.htmlContent,
-            emailBlast.textContent
-          );
-        }
-      }
+      const recipients = memberships
+        .map(membership => membership.user.settings?.email)
+        .filter((email): email is string => email !== null && email !== undefined);
+
+      await emailClient.sendEmailBlast({
+        subject: emailBlast.subject,
+        htmlContent: emailBlast.htmlContent,
+        textContent: emailBlast.textContent,
+        replyTo: leadEmail,
+        recipients
+      });
 
       await setEmailBlastStatus(id, "SENT");
 
-      logger.info(`sent email blast with id ${id} to ${memberships.length} members`);
+      logger.info(`sent email blast with id ${id} to ${recipients.length} members`);
     } catch (e) {
       logger.error(e, `failed to send email blast with id ${id}`);
       throw e;

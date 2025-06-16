@@ -1,6 +1,7 @@
 import { Transporter } from "nodemailer";
 import {
   EmailClient,
+  SendEmailBlastInput,
   SendDefaultEmailForMembershipApplicationSubmittedInput,
   SendDefaultEmailForMembershipApprovedInput,
   SendDefaultEmailForMembershipDeclinedInput,
@@ -40,6 +41,29 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       logger.error(
         e,
         `failed to send custom email to ${sendTo} from ${replyTo} with subject "${subject}"`
+      );
+      throw e;
+    }
+  }
+
+  async function sendEmailBlast(input: SendEmailBlastInput): Promise<void> {
+    try {
+      for (const recipient of input.recipients) {
+        await sendCustomEmail(
+          recipient,
+          input.replyTo,
+          input.subject,
+          input.htmlContent,
+          input.textContent
+        );
+      }
+      logger.info(
+        `sent email blast to ${input.recipients.length} recipients with subject "${input.subject}"`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to send email blast to recipients with subject "${input.subject}"`
       );
       throw e;
     }
@@ -275,6 +299,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   return {
     sendCustomEmail,
+    sendEmailBlast,
     sendDefaultEmailForMembershipApplicationSubmitted,
     sendDefaultEmailForMembershipApproved,
     sendDefaultEmailForMembershipDeclined,
