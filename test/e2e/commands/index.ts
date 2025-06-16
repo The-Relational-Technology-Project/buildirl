@@ -357,11 +357,11 @@ function withdrawMembershipApplicationCommands() {
 function deactivateMembershipCommands() {
   return record({
     membershipIdSelector: itemSelector<bigint>(),
-    byClubOwner: boolean()
+    byClubLead: boolean()
   }).map(
     (i) =>
       new DeactivateMembershipCommand(i.membershipIdSelector, {
-        byClubOwner: i.byClubOwner
+        byClubLead: i.byClubLead
       })
   );
 }

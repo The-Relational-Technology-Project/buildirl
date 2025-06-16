@@ -26,11 +26,11 @@ export default class FollowClubCommand
     return (
       m.hasUsers() &&
       m.hasClubs() &&
-      this.userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(m)
+      this.userIsNotLeadAndDoesNotHaveActiveMembershipInClub(m)
     );
   }
 
-  private userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(
+  private userIsNotLeadAndDoesNotHaveActiveMembershipInClub(
     m: Readonly<SystemState>
   ): boolean {
     // check ahead for selection, this should be deterministic between check and run

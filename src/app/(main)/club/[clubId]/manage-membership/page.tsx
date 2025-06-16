@@ -48,7 +48,7 @@ function DeactivateMembershipSection({
     ) {
       deactivateMembership.mutateAsync({
         membershipId: membership.id,
-        input: { byClubOwner: false }
+        input: { byClubLead: false }
       });
     }
   };

@@ -35,7 +35,7 @@ export type Membership = {
   membershipTier: MembershipTier;
   status: MembershipStatus;
   applicationResponses: FormResponses;
-  // null unless includeEmail is set explicitly to true (gated by RLS to only club owners)
+  // null unless includeEmail is set explicitly to true (gated by RLS to only club leads)
   // null if user has no set email
   email: Maybe<Email>;
   isWelcomed: boolean;
@@ -79,8 +79,8 @@ export type SubmitMembershipApplicationInput = z.infer<
 >;
 
 export const DeactivateMembershipInputSchema = z.object({
-  // is club owner deactivating or is user deactivating membership?
-  byClubOwner: z.boolean()
+  // is club lead deactivating or is user deactivating membership?
+  byClubLead: z.boolean()
 });
 export type DeactivateMembershipInput = z.infer<
   typeof DeactivateMembershipInputSchema

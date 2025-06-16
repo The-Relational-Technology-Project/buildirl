@@ -7,12 +7,12 @@ import React from "react";
 
 type InactiveSubscriptionAlertProps = {
   membershipId: bigint;
-  forClubOwner?: boolean;
+  forClubLead?: boolean;
 };
 
 export default function InactiveSubscriptionAlert({
   membershipId,
-  forClubOwner = false
+  forClubLead = false
 }: InactiveSubscriptionAlertProps) {
   const r = api.payments.subscriptionStatus.useQuery(
     { membershipId: membershipId.toString() },
@@ -42,7 +42,7 @@ export default function InactiveSubscriptionAlert({
         r.data === null
           ? "Subscription is not set up. This is not expected, please contact support."
           : `Subscription is inactive with status '${r.data!.status}'. ${
-              forClubOwner
+              forClubLead
                 ? "Please contact member to fix or cancel membership."
                 : "Please fix in Stripe customer portal or cancel your membership."
             }`

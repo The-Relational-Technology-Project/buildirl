@@ -31,11 +31,11 @@ export default class SubmitMembershipApplicationCommand
     return (
       m.hasUsers() &&
       m.hasPublishedMembershipTiers() &&
-      this.userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(m)
+      this.userIsNotLeadAndDoesNotHaveActiveMembershipInClub(m)
     );
   }
 
-  private userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(
+  private userIsNotLeadAndDoesNotHaveActiveMembershipInClub(
     m: Readonly<SystemState>
   ): boolean {
     // check ahead for selection, this should be deterministic between check and run

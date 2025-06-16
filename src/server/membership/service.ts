@@ -416,7 +416,7 @@ export function createMembershipService(
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
         clubId: membership.club.id,
-        clubOwnerUserId: leadUserId
+        clubLeadUserId: leadUserId
       },
       tx
     );
@@ -657,7 +657,7 @@ export function createMembershipService(
         clubId: membership.club.id,
         clubName: membership.club.name,
         clubPublicId: membership.club.publicId,
-        clubOwnerUserId: leadUserId,
+        clubLeadUserId: leadUserId,
         memberUserId: membership.user.id
       },
       tx
@@ -767,7 +767,7 @@ export function createMembershipService(
         memberFirstName: membership.user.firstName,
         clubName: membership.club.name,
         clubId: membership.club.id,
-        clubOwnerUserId: leadUserId,
+        clubLeadUserId: leadUserId,
         memberUserId: membership.user.id
       },
       tx
@@ -820,7 +820,7 @@ export function createMembershipService(
     return prisma.$transaction(async (tx) => {
       return deactivateMembershipInTransaction(
         membershipId,
-        input.byClubOwner,
+        input.byClubLead,
         tx
       );
     });
@@ -828,7 +828,7 @@ export function createMembershipService(
 
   async function deactivateMembershipInTransaction(
     membershipId: bigint,
-    byClubOwner: boolean,
+    byClubLead: boolean,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
@@ -846,7 +846,7 @@ export function createMembershipService(
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are reactivated
 
-      await notifyMembershipDeactivated(membershipId, byClubOwner, tx);
+      await notifyMembershipDeactivated(membershipId, byClubLead, tx);
 
       logger.info(`deactivated membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -920,24 +920,24 @@ export function createMembershipService(
 
   async function notifyMembershipDeactivated(
     membershipId: bigint,
-    byOwner: boolean,
+    byLead: boolean,
     tx: Prisma.TransactionClient
   ) {
-    if (byOwner) {
-      await notifyMembershipDeactivatedByOwner(membershipId, tx);
+    if (byLead) {
+      await notifyMembershipDeactivatedByLead(membershipId, tx);
     } else {
-      await notifyMembershipDeactivatedByMemberToOwner(membershipId, tx);
+      await notifyMembershipDeactivatedByMemberToLead(membershipId, tx);
       // sorry to see you go email
       await notifyMembershipDeactivatedByMemberToMember(membershipId, tx);
     }
   }
 
-  async function notifyMembershipDeactivatedByOwner(
+  async function notifyMembershipDeactivatedByLead(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
-    await emailService.sendDefaultEmailForMembershipDeactivatedByOwner(
+    await emailService.sendDefaultEmailForMembershipDeactivatedByLead(
       {
         membershipId: membershipId,
         clubName: membership.club.name,
@@ -961,27 +961,27 @@ export function createMembershipService(
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
         clubId: membership.club.id,
-        clubOwnerUserId: leadUserId,
+        clubLeadUserId: leadUserId,
         memberUserId: membership.user.id
       },
       tx
     );
   }
 
-  async function notifyMembershipDeactivatedByMemberToOwner(
+  async function notifyMembershipDeactivatedByMemberToLead(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserId = await getLeadUserIdForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
+    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToLead(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
         clubId: membership.club.id,
-        clubOwnerUserId: leadUserId
+        clubLeadUserId: leadUserId
       },
       tx
     );
@@ -993,14 +993,14 @@ export function createMembershipService(
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserId = await getLeadUserIdForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
+    await emailService.sendDefaultEmailForApplicationWithdrawnByMemberToLead(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
         clubId: membership.club.id,
-        clubOwnerUserId: leadUserId
+        clubLeadUserId: leadUserId
       },
       tx
     );

@@ -31,7 +31,7 @@ export default class DeactivateMembershipCommand
       m.getActiveMembershipIds()
     );
     await r.membership.deactivateMembership(this.membershipId, {
-      byClubOwner: this.input.byClubOwner
+      byClubLead: this.input.byClubLead
     });
     m.deactivateMembership(this.membershipId);
     const clubId = m.getClubIdForMembership(this.membershipId);

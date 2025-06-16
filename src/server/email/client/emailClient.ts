@@ -4,19 +4,17 @@ import {
   SendDefaultEmailForMembershipApplicationSubmittedInput,
   SendDefaultEmailForMembershipApprovedInput,
   SendDefaultEmailForMembershipDeclinedInput,
-  SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
+  SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
   SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
-  SendDefaultEmailForMembershipDeactivatedByOwnerInput,
-  SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput
+  SendDefaultEmailForMembershipDeactivatedByLeadInput,
+  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput
 } from "./types";
 import { rootLogger } from "~/logger";
 import { Email } from "~/server/utils/types";
 
 const logger = rootLogger.child({ module: "emailClient" });
 
-export function createEmailClient(
-  mailTransport: Transporter
-): EmailClient {
+export function createEmailClient(mailTransport: Transporter): EmailClient {
   const FROM_EMAIL = "outbound@buildirl.com";
 
   async function sendCustomEmail(
@@ -68,12 +66,12 @@ export function createEmailClient(
       });
 
       logger.info(
-        `sent membership application submitted email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `sent membership application submitted email to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     } catch (error) {
       logger.error(
         error,
-        `failed to send membership application submitted email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `failed to send membership application submitted email to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
@@ -148,8 +146,8 @@ export function createEmailClient(
     }
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByMemberToOwner(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByMemberToLead(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
     sendTo: Email
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -171,12 +169,12 @@ export function createEmailClient(
       });
 
       logger.info(
-        `sent membership deactivated email by member to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `sent membership deactivated email by member to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     } catch (error) {
       logger.error(
         error,
-        `failed to send membership deactivated by member email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `failed to send membership deactivated by member email to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
@@ -213,8 +211,8 @@ export function createEmailClient(
     }
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByOwner(
-    input: SendDefaultEmailForMembershipDeactivatedByOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByLead(
+    input: SendDefaultEmailForMembershipDeactivatedByLeadInput,
     sendTo: Email
   ): Promise<void> {
     try {
@@ -234,18 +232,18 @@ export function createEmailClient(
       });
 
       logger.info(
-        `sent membership deactivated email by owner to member at ${sendTo} for membership with id ${input.membershipId}`
+        `sent membership deactivated email by lead to member at ${sendTo} for membership with id ${input.membershipId}`
       );
     } catch (error) {
       logger.error(
         error,
-        `failed to send membership deactivated email by owner to member at ${sendTo} for membership with id ${input.membershipId}`
+        `failed to send membership deactivated email by lead to member at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
 
-  async function sendDefaultEmailForApplicationWithdrawnByMemberToOwner(
-    input: SendDefaultEmailForApplicationWithdrawnByMemberToOwnerInput,
+  async function sendDefaultEmailForApplicationWithdrawnByMemberToLead(
+    input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
     sendTo: Email
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -265,12 +263,12 @@ export function createEmailClient(
       });
 
       logger.info(
-        `sent application withdrawn email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `sent application withdrawn email to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     } catch (error) {
       logger.error(
         error,
-        `failed to send application withdrawn email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `failed to send application withdrawn email to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
@@ -280,9 +278,9 @@ export function createEmailClient(
     sendDefaultEmailForMembershipApplicationSubmitted,
     sendDefaultEmailForMembershipApproved,
     sendDefaultEmailForMembershipDeclined,
-    sendDefaultEmailForMembershipDeactivatedByMemberToOwner,
+    sendDefaultEmailForMembershipDeactivatedByMemberToLead,
     sendDefaultEmailForMembershipDeactivatedByMemberToMember,
-    sendDefaultEmailForMembershipDeactivatedByOwner,
-    sendDefaultEmailForApplicationWithdrawnByMemberToOwner
+    sendDefaultEmailForMembershipDeactivatedByLead,
+    sendDefaultEmailForApplicationWithdrawnByMemberToLead
   };
 }
