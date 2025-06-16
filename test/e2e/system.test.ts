@@ -27,6 +27,8 @@ import { createMembershipService } from "~/server/membership/service";
 import { createMembershipTierService } from "~/server/membershipTier/service";
 import { FollowingService } from "~/server/following/types";
 import { createFollowingService } from "~/server/following/service";
+import { RoleService } from "~/server/role/types";
+import { createRoleService } from "~/server/role/service";
 
 export type Services = {
   user: UserService;
@@ -34,6 +36,7 @@ export type Services = {
   membershipTier: MembershipTierService;
   membership: MembershipService;
   following: FollowingService;
+  role: RoleService;
   payment: PaymentService;
   paymentEvents: PaymentEventProcessor;
   email: EmailService;
@@ -55,6 +58,7 @@ describe("service", () => {
   let membershipTierService: MembershipTierService;
   let membershipService: MembershipService;
   let followingService: FollowingService;
+  let roleService: RoleService;
   let paymentService: PaymentService;
   let paymentEventProcessor: PaymentEventProcessor;
   let emailService: EmailService;
@@ -84,12 +88,14 @@ describe("service", () => {
       accountIdResolver
     );
     followingService = createFollowingService(prisma, userService);
+    roleService = createRoleService(prisma);
     emailService = createEmailService(prisma, dummyEmailClient, userService);
     membershipService = createMembershipService(
       prisma,
       userService,
       membershipTierService,
       followingService,
+      roleService,
       fakeStripeClient,
       emailService,
       accountIdResolver
@@ -129,6 +135,7 @@ describe("service", () => {
               membershipTier: membershipTierService,
               membership: membershipService,
               following: followingService,
+              role: roleService,
               payment: paymentService,
               paymentEvents: paymentEventProcessor,
               email: emailService

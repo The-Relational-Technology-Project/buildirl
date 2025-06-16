@@ -25,6 +25,7 @@ import { FollowingService } from "~/server/following/types";
 import { Maybe } from "~/utils/types";
 import { MembershipTierService } from "~/server/membershipTier/types";
 import Role = $Enums.Role;
+import { RoleService } from "~/server/role/types";
 
 const logger = rootLogger.child({ module: "membershipService" });
 
@@ -33,6 +34,7 @@ export function createMembershipService(
   userService: UserService,
   membershipTierService: MembershipTierService,
   followingService: FollowingService,
+  roleService: RoleService,
   stripeClient: StripeClient,
   emailService: EmailService,
   accountIdResolver: AccountIdResolver
@@ -812,49 +814,12 @@ export function createMembershipService(
   }
 
   async function checkIsNotLastLeadMembershipForClub(membershipId: bigint) {
-    try {
-      const membership = await prisma.membership.findUniqueOrThrow({
-        where: { id: membershipId },
-        select: {
-          role: true,
-          membershipTier: {
-            select: {
-              clubId: true
-            }
-          }
-        }
-      });
-      logger.info(
-        `queried membership with id ${membershipId} with result ${membership}`
+    if (await roleService.isMembershipLastLeadForClub(membershipId)) {
+      throw new Error(
+        // user friendly message
+        `Failed to remove membership with id ${membershipId} because it is the last lead for the club. 
+          You must first assign another member as club lead.`
       );
-
-      if (membership.role !== "LEAD") {
-        // not a lead, so can't be last lead
-        return true;
-      }
-
-      const clubId = membership.membershipTier.clubId;
-      const leadCount = await prisma.membership.count({
-        where: {
-          role: "LEAD",
-          status: "ACTIVE",
-          membershipTier: {
-            clubId: clubId
-          }
-        }
-      });
-      logger.info(
-        `queried lead count for club with id ${clubId} with result ${leadCount}`
-      );
-
-      // if more than one lead, this isn't the last one
-      return leadCount > 1;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to query if last lead membership id ${membershipId} for club`
-      );
-      throw e;
     }
   }
 

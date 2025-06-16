@@ -30,6 +30,7 @@ import { createMembershipService } from "~/server/membership/service";
 import { createEmailClient } from "~/server/email/client/emailClient";
 import { mailTransport } from "~/server/email/client/nodemailer";
 import { createFollowingService } from "~/server/following/service";
+import { createRoleService } from "~/server/role/service";
 
 /**
  * 1. CONTEXT
@@ -59,11 +60,13 @@ export const createTRPCContext = async (opts: {
     accountIdResolver
   );
   const followingService = createFollowingService(prisma, userService);
+  const roleService = createRoleService(prisma);
   const membershipService = createMembershipService(
     prisma,
     userService,
     membershipTierService,
     followingService,
+    roleService,
     stripeClient,
     emailService,
     accountIdResolver

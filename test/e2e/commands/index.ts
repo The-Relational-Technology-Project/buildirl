@@ -53,6 +53,8 @@ import { CitySchema } from "~/server/club/types/location";
 import { EmailTemplateType } from "~/server/email/types";
 import SetEmailTemplateCommand from "./setEmailTemplateCommand";
 import DeleteEmailTemplateCommand from "./deleteEmailTemplateCommand";
+import SetMembershipAsLeadCommand from "./setMembershipAsLeadCommand";
+import ClearMembershipRoleCommand from "./clearMembershipRoleCommand";
 
 export const allCommands = () => {
   return [
@@ -78,7 +80,9 @@ export const allCommands = () => {
     followClubCommands(),
     unfollowClubCommands(),
     setEmailTemplateCommands(),
-    deleteEmailTemplateCommands()
+    deleteEmailTemplateCommands(),
+    setAsLeadCommands(),
+    clearRoleCommands()
   ];
 };
 
@@ -421,4 +425,16 @@ function deleteEmailTemplateCommands() {
     (i) =>
       new DeleteEmailTemplateCommand(i.clubIdSelector, i.templateTypeSelector)
   );
+}
+
+function setAsLeadCommands() {
+  return record({
+    membershipIdSelector: itemSelector<bigint>()
+  }).map((i) => new SetMembershipAsLeadCommand(i.membershipIdSelector));
+}
+
+function clearRoleCommands() {
+  return record({
+    membershipIdSelector: itemSelector<bigint>()
+  }).map((i) => new ClearMembershipRoleCommand(i.membershipIdSelector));
 }

@@ -906,4 +906,20 @@ export class SystemState {
 
     return { clubId, type };
   }
+
+  public setMembershipAsLead(membershipId: bigint) {
+    const membershipState = this.getMembershipState(membershipId);
+    this.memberships.set(membershipId, {
+      ...membershipState,
+      role: "LEAD"
+    });
+  }
+
+  public clearMembershipRole(membershipId: bigint) {
+    const membershipState = this.getMembershipState(membershipId);
+    this.memberships.set(membershipId, {
+      ...membershipState,
+      role: "MEMBER"
+    });
+  }
 }
