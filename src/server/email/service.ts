@@ -3,13 +3,16 @@ import {
   EmailTemplate,
   EmailTemplateId,
   SetEmailTemplateInput,
+  EmailBlast,
+  SetEmailBlastInput,
   SendDefaultEmailForMembershipApplicationSubmittedInput,
   SendDefaultEmailForMembershipApprovedInput,
   SendDefaultEmailForMembershipDeclinedInput,
   SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
   SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
   SendDefaultEmailForMembershipDeactivatedByLeadInput,
-  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput
+  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  EmailBlastStatus
 } from "~/server/email/types";
 import { PrismaClient, Prisma } from "@prisma/client";
 import { rootLogger } from "~/logger";
@@ -282,16 +285,194 @@ export function createEmailService(
     );
   }
 
+  async function getEmailBlast(id: bigint): Promise<Maybe<EmailBlast>> {
+    try {
+      const emailBlast = await prisma.emailBlast.findUnique({
+        where: { id }
+      });
+
+      logger.info(`queried email blast with id ${id}`);
+      return emailBlast;
+    } catch (e) {
+      logger.error(e, `failed to query email blast with id ${id}`);
+      throw e;
+    }
+  }
+
+  async function getEmailBlasts(clubId: number): Promise<EmailBlast[]> {
+    try {
+      const emailBlasts = await prisma.emailBlast.findMany({
+        where: { clubId },
+        orderBy: { updatedAt: "desc" }
+      });
+
+      logger.info(
+        `queried email blasts for club with id ${clubId}, found ${emailBlasts.length} blasts`
+      );
+      return emailBlasts;
+    } catch (e) {
+      logger.error(e, `failed to query email blasts for club with id ${clubId}`);
+      throw e;
+    }
+  }
+
+  async function setEmailBlast(
+    id: bigint | undefined,
+    clubId: number,
+    input: SetEmailBlastInput
+  ): Promise<{ id: bigint }> {
+    try {
+      if (id !== undefined) {
+        await prisma.emailBlast.upsert({
+          where: { id },
+          update: {
+            ...input
+          },
+          create: {
+            id,
+            subject: input.subject ?? "",
+            htmlContent: input.htmlContent ?? "",
+            textContent: input.textContent ?? "",
+            status: "DRAFT",
+            clubId
+          }
+        });
+
+        logger.info(`updated email blast with id ${id} with input ${stringify(input)}`);
+        return { id };
+      } else {
+        const newBlast = await prisma.emailBlast.create({
+          data: {
+            subject: input.subject ?? "",
+            htmlContent: input.htmlContent ?? "",
+            textContent: input.textContent ?? "",
+            status: "DRAFT",
+            clubId
+          }
+        });
+
+        logger.info(`created new email blast with id ${newBlast.id} with input ${stringify(input)}`);
+        return { id: newBlast.id };
+      }
+    } catch (e) {
+      logger.error(e, `failed to set email blast with id ${id} with input ${stringify(input)}`);
+      throw e;
+    }
+  }
+
+  async function setEmailBlastStatus(
+    id: bigint,
+    status: EmailBlastStatus
+  ): Promise<MutationResult> {
+    try {
+      await prisma.emailBlast.update({
+        where: { id },
+        data: { status }
+      });
+
+      logger.info(`set email blast status with id ${id} to ${status}`);
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(e, `failed to set email blast status with id ${id} to ${status}`);
+      throw e;
+    }
+  }
+
+  async function deleteEmailBlast(id: bigint): Promise<MutationResult> {
+    try {
+      await prisma.emailBlast.delete({
+        where: { id }
+      });
+
+      logger.info(`deleted email blast with id ${id}`);
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(e, `failed to delete email blast with id ${id}`);
+      throw e;
+    }
+  }
+
+  async function sendEmailBlast(id: bigint): Promise<void> {
+    try {
+      const emailBlast = await prisma.emailBlast.findUnique({
+        where: { id }
+      });
+
+      if (!emailBlast) {
+        throw new Error("Email blast not found");
+      }
+
+      if (emailBlast.status === "SENT") {
+        throw new Error("Email blast has already been sent");
+      }
+
+      const leadMembership = await prisma.membership.findFirst({
+        where: {
+          membershipTier: { clubId: emailBlast.clubId },
+          role: "LEAD"
+        },
+        include: {
+          user: { include: { settings: true } }
+        }
+      });
+
+      if (!leadMembership?.user.settings?.email) {
+        logger.error(
+          `failed to send email blast ${id} because club owner email not found`
+        );
+        return;
+      }
+
+      const leadEmail = leadMembership.user.settings.email;
+
+      const memberships = await prisma.membership.findMany({
+        where: {
+          membershipTier: { clubId: emailBlast.clubId },
+          status: "ACTIVE"
+        },
+        include: {
+          user: { include: { settings: true } }
+        }
+      });
+
+      for (const membership of memberships) {
+        const memberEmail = membership.user.settings?.email;
+        if (memberEmail) {
+          await emailClient.sendCustomEmail(
+            memberEmail,
+            leadEmail,
+            emailBlast.subject,
+            emailBlast.htmlContent,
+            emailBlast.textContent
+          );
+        }
+      }
+
+      await setEmailBlastStatus(id, "SENT");
+
+      logger.info(`sent email blast with id ${id} to ${memberships.length} members`);
+    } catch (e) {
+      logger.error(e, `failed to send email blast with id ${id}`);
+      throw e;
+    }
+  }
+
   return {
     getEmailTemplate,
     setEmailTemplate,
     deleteEmailTemplate,
+    getEmailBlast,
+    getEmailBlasts,
+    setEmailBlast,
+    setEmailBlastStatus,
+    deleteEmailBlast,
     sendDefaultEmailForMembershipApplicationSubmitted,
     sendDefaultEmailForMembershipApproved,
     sendDefaultEmailForMembershipDeclined,
     sendDefaultEmailForMembershipDeactivatedByMemberToLead,
     sendDefaultEmailForMembershipDeactivatedByMemberToMember,
     sendDefaultEmailForMembershipDeactivatedByLead,
-    sendDefaultEmailForApplicationWithdrawnByMemberToLead
+    sendDefaultEmailForApplicationWithdrawnByMemberToLead,
+    sendEmailBlast
   };
 }

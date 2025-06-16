@@ -7,6 +7,8 @@ export type EmailService = EmailQueries & EmailMutations & EmailNotifications;
 
 type EmailQueries = {
   getEmailTemplate(id: EmailTemplateId): Promise<Maybe<EmailTemplate>>;
+  getEmailBlast(id: bigint): Promise<Maybe<EmailBlast>>;
+  getEmailBlasts(clubId: number): Promise<EmailBlast[]>;
 };
 
 type EmailMutations = {
@@ -16,6 +18,9 @@ type EmailMutations = {
   ): Promise<MutationResult>;
   // deleting email template will fall back to default
   deleteEmailTemplate(id: EmailTemplateId): Promise<MutationResult>;
+  setEmailBlast(id: bigint | undefined, clubId: number, input: SetEmailBlastInput): Promise<{ id: bigint }>;
+  setEmailBlastStatus(id: bigint, status: EmailBlastStatus): Promise<MutationResult>;
+  deleteEmailBlast(id: bigint): Promise<MutationResult>;
 };
 
 type EmailNotifications = {
@@ -47,6 +52,7 @@ type EmailNotifications = {
     input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;
+  sendEmailBlast(id: bigint): Promise<void>;
 };
 
 export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
@@ -138,3 +144,23 @@ export const SetEmailTemplateInputSchema = z.object({
   textContent: z.string().max(10000, "Length must be <= 15000")
 });
 export type SetEmailTemplateInput = z.infer<typeof SetEmailTemplateInputSchema>;
+
+export type EmailBlast = {
+  id: bigint;
+  clubId: number;
+  subject: string;
+  htmlContent: string;
+  textContent: string;
+  status: EmailBlastStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type EmailBlastStatus = "DRAFT" | "SENT";
+
+export const SetEmailBlastInputSchema = z.object({
+  subject: z.string().min(1, "Subject is required").max(500, "Subject must be <= 500 characters").optional(),
+  htmlContent: z.string().max(15000, "HTML content must be <= 15000 characters").optional(),
+  textContent: z.string().max(10000, "Text content must be <= 10000 characters").optional()
+});
+export type SetEmailBlastInput = z.infer<typeof SetEmailBlastInputSchema>;
