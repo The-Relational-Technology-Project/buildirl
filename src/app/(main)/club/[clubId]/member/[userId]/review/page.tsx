@@ -175,7 +175,7 @@ function ActiveMembershipCard({
   );
 }
 
-export default function MemberApplication() {
+export default function MemberReview() {
   const params = useParams<{ userId: string; clubId: string }>();
   const userId = strictParseInt(params.userId);
   const clubId = strictParseInt(params.clubId);

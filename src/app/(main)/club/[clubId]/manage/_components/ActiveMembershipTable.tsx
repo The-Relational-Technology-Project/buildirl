@@ -63,9 +63,7 @@ export default function ActiveMembershipTable({
     <Table.Tr
       key={m.id}
       style={{ cursor: "pointer" }}
-      onClick={() =>
-        router.push(`/club/${clubId}/member/${m.user.id}/application`)
-      }
+      onClick={() => router.push(`/club/${clubId}/member/${m.user.id}/review`)}
     >
       <Table.Td>
         <Group gap={"sm"} wrap={"nowrap"}>
@@ -89,7 +87,7 @@ export default function ActiveMembershipTable({
           color="blue"
           size="xs"
           onClick={() =>
-            router.push(`/club/${clubId}/member/${m.user.id}/application`)
+            router.push(`/club/${clubId}/member/${m.user.id}/review`)
           }
         >
           Manage Member
