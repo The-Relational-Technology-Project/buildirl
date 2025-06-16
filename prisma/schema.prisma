@@ -34,6 +34,11 @@ enum EmailTemplateType {
   DEPARTURE
 }
 
+enum EmailBlastStatus {
+  DRAFT
+  SENT
+}
+
 enum Role {
   // this role also includes club management permissions
   LEAD
@@ -90,6 +95,7 @@ model Club {
   membershipTiers                     MembershipTier[]
   following                           ClubFollowing[]
   emailTemplates                      EmailTemplate[]
+  emailBlasts                         EmailBlast[]
   stripeConnectAccountId              String?          @unique @map("stripe_connect_account_id")
   stripeCustomerPortalConfigurationId String?          @unique @map("stripe_customer_portal_configuration_id")
   createdAt                           DateTime         @default(now()) @map("created_at")
@@ -169,4 +175,20 @@ model EmailTemplate {
 
   @@id([clubId, type])
   @@map("email_template")
+}
+
+model EmailBlast {
+  id          BigInt           @id @default(autoincrement())
+  clubId      Int              @map("club_id")
+  club        Club             @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  subject     String
+  htmlContent String           @map("html_content") @db.Text
+  textContent String           @map("text_content") @db.Text
+  status      EmailBlastStatus @default(DRAFT)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@index([clubId])
+  @@index([clubId, status])
+  @@map("email_blast")
 }
