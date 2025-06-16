@@ -19,6 +19,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { Link } from "@mantine/tiptap";
 import React, { useState } from "react";
 import { EmailTemplateType } from "~/server/email/types";
+import EmailBlastPanel from "./EmailBlastPanel";
 import { Underline } from "@tiptap/extension-underline";
 import { Superscript } from "@tiptap/extension-superscript";
 import { TextAlign } from "@tiptap/extension-text-align";
@@ -34,13 +35,15 @@ import { isLoaded } from "~/client/utils";
 import { IconDeviceFloppy, IconTrash } from "@tabler/icons-react";
 import { Maybe } from "~/utils/types";
 
-type EmailTemplateMetadata = {
-  value: EmailTemplateType;
+type TabValue = EmailTemplateType | "EMAIL_BLAST";
+
+type TabMetadata = {
+  value: TabValue;
   label: string;
   description: string;
 };
 
-const TEMPLATE_METADATA: EmailTemplateMetadata[] = [
+const TAB_METADATA: TabMetadata[] = [
   {
     value: "ACCEPTANCE",
     label: "Acceptance",
@@ -58,6 +61,12 @@ const TEMPLATE_METADATA: EmailTemplateMetadata[] = [
     label: "Rejection",
     description:
       "This email is sent automatically to people who's application you have declined"
+  },
+  {
+    value: "EMAIL_BLAST",
+    label: "Email Blast",
+    description:
+      "Send emails to all active members of your club."
   }
 ];
 
@@ -221,7 +230,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     }
   };
 
-  const templateMetadata = TEMPLATE_METADATA.find((t) => t.value === type)!;
+  const templateMetadata = TAB_METADATA.find((t) => t.value === type)!;
 
   if (!isLoaded(emailTemplate)) {
     return;
@@ -343,14 +352,14 @@ type EmailTemplatePanelProps = {
 export default function EmailTemplatePanel({
   clubId
 }: EmailTemplatePanelProps) {
-  const [selectedType, setSelectedType] =
-    useState<EmailTemplateType>("ACCEPTANCE");
+  const [selectedTab, setSelectedTab] =
+    useState<TabValue>("ACCEPTANCE");
 
   return (
     <Stack py="lg" pb="xl" gap="xs">
       <Tabs
-        value={selectedType}
-        onChange={(v) => setSelectedType(v as EmailTemplateType)}
+        value={selectedTab}
+        onChange={(v) => setSelectedTab(v as TabValue)}
         styles={{
           tab: {
             // style is only to override theme and set this borderRadius value
@@ -364,7 +373,7 @@ export default function EmailTemplatePanel({
         }}
       >
         <Tabs.List mb="md">
-          {TEMPLATE_METADATA.map((t) => (
+          {TAB_METADATA.map((t) => (
             <Tabs.Tab key={t.value} value={t.value}>
               {t.label}
             </Tabs.Tab>
@@ -372,13 +381,17 @@ export default function EmailTemplatePanel({
         </Tabs.List>
       </Tabs>
 
-      <EmailTemplateEditor
-        // we need this so that each instance
-        // has its own react state
-        key={selectedType}
-        clubId={clubId}
-        type={selectedType}
-      />
+      {selectedTab === "EMAIL_BLAST" ? (
+        <EmailBlastPanel clubId={clubId} />
+      ) : (
+        <EmailTemplateEditor
+          // we need this so that each instance
+          // has its own react state
+          key={selectedTab}
+          clubId={clubId}
+          type={selectedTab as EmailTemplateType}
+        />
+      )}
     </Stack>
   );
 }
