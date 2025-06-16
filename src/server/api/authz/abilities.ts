@@ -113,15 +113,35 @@ async function getMembershipIdsToClubsLedByUser(
   prisma: PrismaClient,
   userId: number
 ): Promise<bigint[]> {
-  const memberships = await prisma.membership.findMany({
+  const leadMemberships = await prisma.membership.findMany({
     where: {
       userId: userId,
       role: "LEAD"
     },
-    select: { id: true }
+    select: {
+      membershipTier: {
+        select: {
+          clubId: true
+        }
+      }
+    }
   });
 
-  return memberships.map((m) => m.id);
+  const ledClubIds = leadMemberships.map((m) => m.membershipTier.clubId);
+  const membershipsIdsToLedClubs = await prisma.membership.findMany({
+    where: {
+      membershipTier: {
+        clubId: {
+          in: ledClubIds
+        }
+      }
+    },
+    select: {
+      id: true
+    }
+  });
+
+  return membershipsIdsToLedClubs.map((m) => m.id);
 }
 
 async function getMembershipIdsForUser(
