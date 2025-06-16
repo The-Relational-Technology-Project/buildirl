@@ -811,7 +811,9 @@ export function createMembershipService(
     }
   }
 
-  async function checkIsNotLastLeadMembershipForClub(membershipId: bigint) {
+  async function isMembershipLastLeadForClub(
+    membershipId: bigint
+  ): Promise<boolean> {
     try {
       const membership = await prisma.membership.findUniqueOrThrow({
         where: { id: membershipId },
@@ -830,7 +832,7 @@ export function createMembershipService(
 
       if (membership.role !== "LEAD") {
         // not a lead, so can't be last lead
-        return true;
+        return false;
       }
 
       const clubId = membership.membershipTier.clubId;
@@ -847,14 +849,24 @@ export function createMembershipService(
         `queried lead count for club with id ${clubId} with result ${leadCount}`
       );
 
-      // if more than one lead, this isn't the last one
-      return leadCount > 1;
+      // last lead
+      return leadCount === 1;
     } catch (e) {
       logger.error(
         e,
         `failed to query if last lead membership id ${membershipId} for club`
       );
       throw e;
+    }
+  }
+
+  async function checkIsNotLastLeadMembershipForClub(membershipId: bigint) {
+    if (await isMembershipLastLeadForClub(membershipId)) {
+      throw new Error(
+        // user friendly message
+        `Failed to remove membership with id ${membershipId} because it is the last lead for the club. 
+          You must first assign another member as club lead.`
+      );
     }
   }
 
