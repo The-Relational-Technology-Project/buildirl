@@ -705,6 +705,23 @@ export class SystemState {
     return membershipState;
   }
 
+  public isNotLastLeadMembershipForClub(membershipId: bigint): boolean {
+    const membershipState = this.getMembershipState(membershipId);
+
+    if (membershipState.role !== "LEAD") {
+      // not a lead, so can't be last lead
+      return true;
+    }
+
+    const clubId = membershipState.clubId;
+    const leadCount = Array.from(this.memberships.values()).filter(
+      (m) => m.clubId === clubId && m.role === "LEAD" && m.status === "ACTIVE"
+    ).length;
+
+    // if there's more than one lead, this isn't the last one
+    return leadCount > 1;
+  }
+
   public getClubIdForMembership(membershipId: bigint): number {
     const membershipState = this.getMembershipState(membershipId);
     return membershipState.clubId;

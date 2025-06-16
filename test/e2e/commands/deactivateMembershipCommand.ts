@@ -23,7 +23,14 @@ export default class DeactivateMembershipCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.getActiveMembershipIds().length > 0;
+    if (m.getActiveMembershipIds().length === 0) {
+      return false;
+    }
+    // deterministic look ahead
+    const membershipId = this.membershipIdSelector.select(
+      m.getActiveMembershipIds()
+    );
+    return m.isNotLastLeadMembershipForClub(membershipId);
   }
 
   async run(m: SystemState, r: Services): Promise<void> {

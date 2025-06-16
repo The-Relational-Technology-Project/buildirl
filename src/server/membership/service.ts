@@ -811,11 +811,59 @@ export function createMembershipService(
     }
   }
 
+  async function checkIsNotLastLeadMembershipForClub(membershipId: bigint) {
+    try {
+      const membership = await prisma.membership.findUniqueOrThrow({
+        where: { id: membershipId },
+        select: {
+          role: true,
+          membershipTier: {
+            select: {
+              clubId: true
+            }
+          }
+        }
+      });
+      logger.info(
+        `queried membership with id ${membershipId} with result ${membership}`
+      );
+
+      if (membership.role !== "LEAD") {
+        // not a lead, so can't be last lead
+        return true;
+      }
+
+      const clubId = membership.membershipTier.clubId;
+      const leadCount = await prisma.membership.count({
+        where: {
+          role: "LEAD",
+          status: "ACTIVE",
+          membershipTier: {
+            clubId: clubId
+          }
+        }
+      });
+      logger.info(
+        `queried lead count for club with id ${clubId} with result ${leadCount}`
+      );
+
+      // if more than one lead, this isn't the last one
+      return leadCount > 1;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query if last lead membership id ${membershipId} for club`
+      );
+      throw e;
+    }
+  }
+
   async function deactivateMembership(
     membershipId: bigint,
     input: DeactivateMembershipInput
   ): Promise<MutationResult> {
     await checkMembershipStatus(membershipId, "ACTIVE");
+    await checkIsNotLastLeadMembershipForClub(membershipId);
 
     return prisma.$transaction(async (tx) => {
       return deactivateMembershipInTransaction(
