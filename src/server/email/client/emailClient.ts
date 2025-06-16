@@ -1,65 +1,52 @@
 import { Transporter } from "nodemailer";
 import {
   EmailClient,
-  NotifyMembershipApprovedInput,
-  NotifyMembershipDeclinedInput,
-  NotifyMembershipDeactivatedByMemberToOwnerInput,
-  NotifyMembershipDeactivatedByOwnerInput,
-  NotifyMembershipApplicationSubmittedInput,
-  NotifyMembershipDeactivatedByMemberToMemberInput
+  SendDefaultEmailForMembershipApplicationSubmittedInput,
+  SendDefaultEmailForMembershipApprovedInput,
+  SendDefaultEmailForMembershipDeclinedInput,
+  SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
+  SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+  SendDefaultEmailForMembershipDeactivatedByLeadInput,
+  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput
 } from "./types";
 import { rootLogger } from "~/logger";
 import { Email } from "~/server/utils/types";
-import { EmailService, EmailTemplateId } from "~/server/email/types";
-import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "emailClient" });
 
-export function createEmailClient(
-  mailTransport: Transporter,
-  emailService: EmailService
-): EmailClient {
+export function createEmailClient(mailTransport: Transporter): EmailClient {
   const FROM_EMAIL = "outbound@buildirl.com";
 
-  /**
-   * Returns boolean if custom email is sent which can be used to determine if fallback is required
-   */
-  async function sendCustomEmailWithTemplate(
-    id: EmailTemplateId,
+  async function sendCustomEmail(
     sendTo: Email,
-    replyTo: Email
-  ): Promise<boolean> {
-    const template = await emailService.getEmailTemplate(id);
-    if (null === template) {
-      logger.info(
-        `no email template found for id ${stringify(id)}, did not send custom email`
-      );
-      return false;
-    }
+    replyTo: Email,
+    subject: string,
+    htmlContent: string,
+    textContent: string
+  ): Promise<void> {
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
         replyTo: replyTo,
-        subject: template.subject,
-        text: template.textContent,
-        html: template.htmlContent
+        subject: subject,
+        text: textContent,
+        html: htmlContent
       });
       logger.info(
-        `sent custom email with email template with id ${stringify(id)} to ${sendTo} from ${replyTo}`
+        `sent custom email to ${sendTo} from ${replyTo} with subject "${subject}"`
       );
-      return true;
     } catch (e) {
       logger.error(
         e,
-        `failed to send custom email with email template with id ${stringify(id)} to ${sendTo} from ${replyTo}`
+        `failed to send custom email to ${sendTo} from ${replyTo} with subject "${subject}"`
       );
-      return false;
+      throw e;
     }
   }
 
-  async function notifyMembershipApplicationSubmitted(
-    input: NotifyMembershipApplicationSubmittedInput,
+  async function sendDefaultEmailForMembershipApplicationSubmitted(
+    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
     sendTo: Email
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -79,36 +66,28 @@ export function createEmailClient(
       });
 
       logger.info(
-        `sent membership application submitted email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `sent membership application submitted email to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     } catch (error) {
       logger.error(
         error,
-        `failed to send membership application submitted email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `failed to send membership application submitted email to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
 
-  async function notifyMembershipApproved(
-    input: NotifyMembershipApprovedInput,
+  async function sendDefaultEmailForMembershipApproved(
+    input: SendDefaultEmailForMembershipApprovedInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
-    const customEmailSent = await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "ACCEPTANCE" },
-      sendTo,
-      replyTo
-    );
-    if (customEmailSent) {
-      return;
-    }
-
     try {
       const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
 
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
+        replyTo: replyTo,
         subject: `You're in! Welcome to ${input.clubName}! 🎉`,
         text: `Hey ${input.memberFirstName} — amazing news: you're officially a member of ${input.clubName}! 🎉\n\n
         We're hyped to have you! 🥳\n\n
@@ -133,24 +112,16 @@ export function createEmailClient(
     }
   }
 
-  async function notifyMembershipDeclined(
-    input: NotifyMembershipDeclinedInput,
+  async function sendDefaultEmailForMembershipDeclined(
+    input: SendDefaultEmailForMembershipDeclinedInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
-    const customEmailSent = await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "REJECTION" },
-      sendTo,
-      replyTo
-    );
-    if (customEmailSent) {
-      return;
-    }
-
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
+        replyTo: replyTo,
         subject: `Sorry, your application was not accepted this time`,
         text: `Hey ${input.memberFirstName} — thanks for applying to the ${input.clubName}. 
         We couldn't accept your application this time. 💌 Plenty more clubs to explore — go find your people.
@@ -175,8 +146,8 @@ export function createEmailClient(
     }
   }
 
-  async function notifyMembershipDeactivatedByMemberToOwner(
-    input: NotifyMembershipDeactivatedByMemberToOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByMemberToLead(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
     sendTo: Email
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -198,34 +169,26 @@ export function createEmailClient(
       });
 
       logger.info(
-        `sent membership deactivated email by member to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `sent membership deactivated email by member to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     } catch (error) {
       logger.error(
         error,
-        `failed to send membership deactivated by member email to club owner at ${sendTo} for membership with id ${input.membershipId}`
+        `failed to send membership deactivated by member email to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
 
-  async function notifyMembershipDeactivatedByMemberToMember(
-    input: NotifyMembershipDeactivatedByMemberToMemberInput,
+  async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
     replyTo: Email
   ): Promise<void> {
-    const customEmailSent = await sendCustomEmailWithTemplate(
-      { clubId: input.clubId, type: "DEPARTURE" },
-      sendTo,
-      replyTo
-    );
-    if (customEmailSent) {
-      return;
-    }
-
     try {
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
+        replyTo: replyTo,
         subject: "Sorry to see you go! 👋",
         text: `The ${input.clubName} will miss you, ${input.memberFirstName} ${input.memberLastName}! 
         Thank-you for being a contributing member! 🙏`,
@@ -248,8 +211,8 @@ export function createEmailClient(
     }
   }
 
-  async function notifyMembershipDeactivatedByOwner(
-    input: NotifyMembershipDeactivatedByOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByLead(
+    input: SendDefaultEmailForMembershipDeactivatedByLeadInput,
     sendTo: Email
   ): Promise<void> {
     try {
@@ -269,22 +232,55 @@ export function createEmailClient(
       });
 
       logger.info(
-        `sent membership deactivated email by owner to member at ${sendTo} for membership with id ${input.membershipId}`
+        `sent membership deactivated email by lead to member at ${sendTo} for membership with id ${input.membershipId}`
       );
     } catch (error) {
       logger.error(
         error,
-        `failed to send membership deactivated email by owner to member at ${sendTo} for membership with id ${input.membershipId}`
+        `failed to send membership deactivated email by lead to member at ${sendTo} for membership with id ${input.membershipId}`
+      );
+    }
+  }
+
+  async function sendDefaultEmailForApplicationWithdrawnByMemberToLead(
+    input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+    sendTo: Email
+  ): Promise<void> {
+    const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
+    try {
+      await mailTransport.sendMail({
+        from: FROM_EMAIL,
+        to: sendTo,
+        subject: "A membership application was withdrawn 💫",
+        text: `${input.memberFirstName} ${input.memberLastName} has decided to withdraw their application to join ${input.clubName}. These things happen! 🌟 
+        Keep building your amazing community - you can review other pending applications in your membership dashboard: ${managePeopleDashboardUrl}`,
+        html: `
+          <div>
+            <p><strong>${input.memberFirstName} ${input.memberLastName}</strong> has decided to withdraw their application to join <strong>${input.clubName}</strong>. These things happen! 🌟</p>
+            <p>Keep building your amazing community - you can review other pending applications in your <a href="${managePeopleDashboardUrl}">membership dashboard</a>. ✨</p>
+          </div>
+        `
+      });
+
+      logger.info(
+        `sent application withdrawn email to club lead at ${sendTo} for membership with id ${input.membershipId}`
+      );
+    } catch (error) {
+      logger.error(
+        error,
+        `failed to send application withdrawn email to club lead at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
 
   return {
-    notifyMembershipApplicationSubmitted,
-    notifyMembershipApproved,
-    notifyMembershipDeclined,
-    notifyMembershipDeactivatedByMemberToOwner,
-    notifyMembershipDeactivatedByMemberToMember,
-    notifyMembershipDeactivatedByOwner
+    sendCustomEmail,
+    sendDefaultEmailForMembershipApplicationSubmitted,
+    sendDefaultEmailForMembershipApproved,
+    sendDefaultEmailForMembershipDeclined,
+    sendDefaultEmailForMembershipDeactivatedByMemberToLead,
+    sendDefaultEmailForMembershipDeactivatedByMemberToMember,
+    sendDefaultEmailForMembershipDeactivatedByLead,
+    sendDefaultEmailForApplicationWithdrawnByMemberToLead
   };
 }

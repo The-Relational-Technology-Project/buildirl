@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import ClubImage from "~/client/components/ClubImage";
 import { Club } from "~/server/club/types";
 
-type ClubStatus = "OWNED" | "JOINED" | "APPLIED" | "FOLLOWING";
+type ClubStatus = "LEAD" | "JOINED" | "APPLIED" | "FOLLOWING";
 
 type ManageButtonProps = {
   clubId: number;
@@ -28,7 +28,7 @@ function ManageButton({ clubId, status, width }: ManageButtonProps) {
   });
   const router = useRouter();
 
-  if (status === "OWNED") {
+  if (status === "LEAD") {
     return (
       <Box>
         <Button w={width} onClick={() => router.push(`/club/${clubId}/manage`)}>

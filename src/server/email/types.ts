@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { MutationResult } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
+import { Prisma } from "@prisma/client";
 
-export type EmailService = EmailQueries & EmailMutations;
+export type EmailService = EmailQueries & EmailMutations & EmailNotifications;
 
 type EmailQueries = {
   getEmailTemplate(id: EmailTemplateId): Promise<Maybe<EmailTemplate>>;
@@ -15,6 +16,100 @@ type EmailMutations = {
   ): Promise<MutationResult>;
   // deleting email template will fall back to default
   deleteEmailTemplate(id: EmailTemplateId): Promise<MutationResult>;
+};
+
+type EmailNotifications = {
+  sendDefaultEmailForMembershipApplicationSubmitted(
+    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  sendDefaultEmailForMembershipApproved(
+    input: SendDefaultEmailForMembershipApprovedInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  sendDefaultEmailForMembershipDeclined(
+    input: SendDefaultEmailForMembershipDeclinedInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  sendDefaultEmailForMembershipDeactivatedByMemberToLead(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  sendDefaultEmailForMembershipDeactivatedByLead(
+    input: SendDefaultEmailForMembershipDeactivatedByLeadInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  sendDefaultEmailForApplicationWithdrawnByMemberToLead(
+    input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+};
+
+export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
+  clubLeadUserId: number;
+};
+
+export type SendDefaultEmailForMembershipApprovedInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubId: number;
+  clubName: string;
+  clubPublicId: string;
+  clubLeadUserId: number;
+  memberUserId: number;
+};
+
+export type SendDefaultEmailForMembershipDeclinedInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  clubId: number;
+  clubName: string;
+  clubLeadUserId: number;
+  memberUserId: number;
+};
+
+export type SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
+  clubLeadUserId: number;
+};
+
+export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
+  clubLeadUserId: number;
+  memberUserId: number;
+};
+
+export type SendDefaultEmailForMembershipDeactivatedByLeadInput = {
+  membershipId: bigint;
+  clubName: string;
+  memberUserId: number;
+};
+
+export type SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
+  clubLeadUserId: number;
 };
 
 const EmailTemplateTypeSchema = z.enum([

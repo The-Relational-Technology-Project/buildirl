@@ -4,28 +4,16 @@ import { useParams, useRouter } from "next/navigation";
 import { strictParseInt } from "~/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import React from "react";
-import {
-  Box,
-  Button,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  TextInput,
-  Textarea,
-  Title,
-  Radio,
-  Checkbox
-} from "@mantine/core";
+import { Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
-import { FormQuestionType, FormResponse } from "~/server/club/types/form";
 import { Membership } from "~/server/membership/types";
 import { handleDefaultMutationError } from "~/client/logger";
 import { Maybe } from "~/utils/types";
 import MembershipInfoCard from "~/app/(main)/club/[clubId]/member/_components/MembershipInfoCard";
 import UserInfoCard from "~/app/(main)/club/[clubId]/member/_components/UserInfoCard";
+import ApplicationResponsesCard from "~/client/components/ApplicationResponsesCard";
 
 function findUserMembership(
   userId: number,
@@ -36,97 +24,6 @@ function findUserMembership(
     [...membershipApplications, ...activeMemberships].find(
       (mem) => mem.user.id === userId
     ) || null
-  );
-}
-
-type ApplicationResponsesCardProps = {
-  membership: Membership;
-};
-
-function ApplicationResponsesCard({
-  membership
-}: ApplicationResponsesCardProps) {
-  const renderResponse = (response: FormResponse) => {
-    switch (response.type) {
-      case FormQuestionType.SHORT_TEXT:
-        return (
-          <TextInput
-            label={response.question}
-            value={response.response}
-            disabled
-            readOnly
-          />
-        );
-      case FormQuestionType.LONG_TEXT:
-        return (
-          <Textarea
-            label={response.question}
-            value={response.response}
-            disabled
-            readOnly
-            autosize
-          />
-        );
-      case FormQuestionType.SINGLE_SELECT:
-        return (
-          <Box>
-            <Radio.Group label={response.question} value={response.response}>
-              {response.metadata?.choices?.map((choice, index) => (
-                <Radio
-                  key={index}
-                  value={choice}
-                  label={choice}
-                  pt="xs"
-                  disabled
-                />
-              ))}
-            </Radio.Group>
-          </Box>
-        );
-      case FormQuestionType.MULTI_SELECT:
-        return (
-          <Box>
-            <Checkbox.Group label={response.question} value={response.response}>
-              {response.metadata.choices.map((choice, index) => (
-                <Checkbox
-                  key={index}
-                  value={choice}
-                  label={choice}
-                  pt={"xs"}
-                  disabled
-                />
-              ))}
-            </Checkbox.Group>
-          </Box>
-        );
-      default:
-        throw new Error(`unsupported type`);
-    }
-  };
-
-  return (
-    <Paper p={"xl"}>
-      <Stack gap="lg">
-        <Title order={4} fw={500}>
-          Application Q&A
-        </Title>
-
-        {membership.applicationResponses.responses.length === 0 ? (
-          <Text size="sm" ta="center" py="xl">
-            No responses were given. This is likely because you had no intake
-            questions.
-          </Text>
-        ) : (
-          <Stack gap="lg">
-            {membership.applicationResponses.responses.map(
-              (response: FormResponse, index: number) => (
-                <Box key={index}>{renderResponse(response)}</Box>
-              )
-            )}
-          </Stack>
-        )}
-      </Stack>
-    </Paper>
   );
 }
 
@@ -250,7 +147,7 @@ function ActiveMembershipCard({
     ) {
       deactivateMembership.mutateAsync({
         membershipId: membership.id,
-        input: { byClubOwner: true }
+        input: { byClubLead: true }
       });
     }
   };
@@ -283,18 +180,19 @@ export default function MemberApplication() {
   const userId = strictParseInt(params.userId);
   const clubId = strictParseInt(params.clubId);
 
-  const membershipApplicationsQuery =
+  const membershipApplications =
     api.main.membershipApplicationsForClub.useQuery({ clubId });
-  const activeMembershipsQuery =
-    api.main.activeMembershipsForClubWithEmail.useQuery({ clubId });
+  const activeMemberships = api.main.activeMembershipsForClubWithEmail.useQuery(
+    { clubId }
+  );
   const userQuery = api.main.userById.useQuery({ id: userId });
 
   QueryError.check({
-    result: membershipApplicationsQuery,
+    result: membershipApplications,
     fieldName: "membershipApplicationsForClub"
   });
   QueryError.check({
-    result: activeMembershipsQuery,
+    result: activeMemberships,
     fieldName: "activeMembershipsForClubWithEmail"
   });
   QueryError.check({
@@ -302,26 +200,20 @@ export default function MemberApplication() {
     fieldName: "userById"
   });
 
-  if (
-    !isAllLoaded([
-      membershipApplicationsQuery,
-      activeMembershipsQuery,
-      userQuery
-    ])
-  ) {
+  if (!isAllLoaded([membershipApplications, activeMemberships, userQuery])) {
     return null;
   }
 
   const userMembership = findUserMembership(
     userId,
-    membershipApplicationsQuery.data!,
-    activeMembershipsQuery.data!
+    membershipApplications.data!,
+    activeMemberships.data!
   );
 
-  const pendingMembership = membershipApplicationsQuery.data!.find(
+  const pendingMembership = membershipApplications.data!.find(
     (mem) => mem.user.id === userId
   );
-  const activeMembership = activeMembershipsQuery.data!.find(
+  const activeMembership = activeMemberships.data!.find(
     (mem) => mem.user.id === userId
   );
 

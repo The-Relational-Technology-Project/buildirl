@@ -40,10 +40,6 @@ export const mainRouter = createTRPCRouter({
     return ctx.user != null;
   }),
 
-  userOwnedClubs: securedProcedure.query(({ ctx }) => {
-    return ctx.service.club.getUserOwnedClubs(ctx.user.userId);
-  }),
-
   userMemberships: securedProcedure.query(({ ctx }) => {
     return ctx.service.membership.getUserMemberships(ctx.user.userId);
   }),
@@ -302,6 +298,22 @@ export const mainRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.service.membership.declineMembershipApplication(
+        input.membershipId
+      );
+    }),
+
+  withdrawMembershipApplication: securedProcedureWithAbilityFor("Membership")
+    .input(z.object({ membershipId: z.bigint() }))
+    .mutation(async ({ ctx, input }) => {
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: input.membershipId })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.membership.withdrawMembershipApplication(
         input.membershipId
       );
     }),

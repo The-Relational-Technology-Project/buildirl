@@ -23,6 +23,8 @@ import {
 import {
   Membership,
   MembershipStatus,
+  MembershipWithClub,
+  Role,
   SubmitMembershipApplicationInput
 } from "~/server/membership/types";
 import {
@@ -31,6 +33,7 @@ import {
   UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
 import { CreateUserInput, UpdateUserInput, User } from "~/server/user/types";
+import { stringify } from "~/utils";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -41,7 +44,6 @@ type ClubState = {
   tagLine: string;
   description: string;
   location: string;
-  ownerUserId: number;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
   eventCalendarUrl: Maybe<Url>;
@@ -62,6 +64,7 @@ type MembershipState = {
   status: MembershipStatus;
   applicationResponses: FormResponses;
   isWelcomed: boolean;
+  role: Role;
 };
 
 type UserState = {
@@ -188,7 +191,6 @@ export class SystemState {
       tagLine: clubState.tagLine,
       description: clubState.description,
       location: clubState.location,
-      owner: this.getUser(clubState.ownerUserId),
       websiteUrl: clubState.websiteUrl,
       instagramHandle: clubState.instagramHandle,
       eventCalendarUrl: clubState.eventCalendarUrl,
@@ -234,14 +236,6 @@ export class SystemState {
     );
   }
 
-  public getUserOwnedClubs(
-    userId: number
-  ): OmitRecursively<Club, "createdAt">[] {
-    return Array.from(this.clubs.values())
-      .filter((club) => club.ownerUserId === userId)
-      .map((club) => this.clubStateToClub(club));
-  }
-
   public isNotClubPublicIdUsed(clubPublicId: string): boolean {
     return !Array.from(this.clubs.values()).some(
       (club) => club.publicId === clubPublicId
@@ -252,7 +246,8 @@ export class SystemState {
     userId: number,
     clubId: number,
     input: CreateClubInput,
-    freeMembershipTierId: number
+    freeMembershipTierId: number,
+    leadMembershipId: bigint
   ) {
     if (!!this.clubs.get(clubId)) {
       throw new Error(`club with id ${clubId} already exists`);
@@ -260,7 +255,6 @@ export class SystemState {
     this.clubs.set(clubId, {
       id: clubId,
       ...input,
-      ownerUserId: userId,
       // defaults
       tagLine: "",
       description: "",
@@ -277,6 +271,12 @@ export class SystemState {
     });
 
     this.createFreeMembershipTier(freeMembershipTierId, clubId);
+    this.createLeadMembership(
+      leadMembershipId,
+      freeMembershipTierId,
+      clubId,
+      userId
+    );
   }
 
   private createFreeMembershipTier(
@@ -288,6 +288,24 @@ export class SystemState {
       clubId,
       DEFAULT_FREE_MEMBERSHIP_TIER
     );
+  }
+
+  private createLeadMembership(
+    leadMembershipId: bigint,
+    freeMembershipTierId: number,
+    clubId: number,
+    userId: number
+  ) {
+    this.memberships.set(leadMembershipId, {
+      id: leadMembershipId,
+      userId: userId,
+      clubId: clubId,
+      membershipTierId: freeMembershipTierId,
+      status: "ACTIVE",
+      applicationResponses: { responses: [] },
+      isWelcomed: true,
+      role: "LEAD"
+    });
   }
 
   public updateClub(id: number, input: UpdateClubInput) {
@@ -539,17 +557,13 @@ export class SystemState {
     return club.id;
   }
 
-  public userIsNotOwnerAndDoesNotHaveActiveMembershipInClub(
+  public userDoesNotHaveActiveMembershipInClub(
     userId: number,
     clubId: number
   ): boolean {
-    return (
-      !Array.from(this.memberships.values())
-        .filter((v) => v.status === "ACTIVE")
-        .some((m) => m.userId === userId && m.clubId === clubId) &&
-      // nor are they owner
-      this.getClubState(clubId).ownerUserId !== userId
-    );
+    return !Array.from(this.memberships.values())
+      .filter((v) => v.status === "ACTIVE")
+      .some((m) => m.userId === userId && m.clubId === clubId);
   }
 
   public membershipStateToMembership(
@@ -559,12 +573,29 @@ export class SystemState {
     return {
       id: membershipState.id,
       user: this.getUser(membershipState.userId),
+      membershipTier: this.getMembershipTier(membershipState.membershipTierId),
+      status: membershipState.status,
+      applicationResponses: membershipState.applicationResponses,
+      email: includeEmail ? this.getUserEmail(membershipState.userId) : null,
+      isWelcomed: membershipState.isWelcomed,
+      role: membershipState.role
+    };
+  }
+
+  public membershipStateToMembershipWithClub(
+    membershipState: MembershipState,
+    includeEmail: boolean = false
+  ): OmitRecursively<MembershipWithClub, "createdAt"> {
+    return {
+      id: membershipState.id,
+      user: this.getUser(membershipState.userId),
       club: this.getClub(membershipState.clubId),
       membershipTier: this.getMembershipTier(membershipState.membershipTierId),
       status: membershipState.status,
       applicationResponses: membershipState.applicationResponses,
       email: includeEmail ? this.getUserEmail(membershipState.userId) : null,
-      isWelcomed: membershipState.isWelcomed
+      isWelcomed: membershipState.isWelcomed,
+      role: membershipState.role
     };
   }
 
@@ -581,6 +612,17 @@ export class SystemState {
       .filter((m) => m.clubId === clubId)
       .filter((m) => m.status === "ACTIVE")
       .map((m) => this.membershipStateToMembership(m, includeEmail));
+  }
+
+  public leadUserIdForClub(clubId: number) {
+    const activeMemberships = this.getActiveMembershipsForClub(clubId, false);
+    const leadMemberships = activeMemberships.filter((m) => m.role === "LEAD");
+    if (leadMemberships.length !== 1) {
+      throw new Error(
+        `expected exactly one lead membership but found ${stringify(leadMemberships)}`
+      );
+    }
+    return leadMemberships[0]!.user.id;
   }
 
   public getMembershipApplicationsForClub(
@@ -603,17 +645,16 @@ export class SystemState {
 
   public getClubStatistics(clubId: number): ClubStatistics {
     return {
-      // plus one for owner
-      memberCount: this.membershipCountWithStatus(clubId, "ACTIVE") + 1
+      memberCount: this.membershipCountWithStatus(clubId, "ACTIVE")
     };
   }
 
   public getUserMemberships(
     userId: number
-  ): OmitRecursively<Membership, "createdAt">[] {
+  ): OmitRecursively<MembershipWithClub, "createdAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.userId === userId)
-      .map((m) => this.membershipStateToMembership(m, false));
+      .map((m) => this.membershipStateToMembershipWithClub(m, false));
   }
 
   public submitMembershipApplication(
@@ -631,7 +672,8 @@ export class SystemState {
       membershipTierId: membershipTierId,
       status: "PENDING",
       applicationResponses: input.applicationResponses,
-      isWelcomed: false
+      isWelcomed: false,
+      role: "MEMBER"
     });
   }
 
@@ -647,12 +689,37 @@ export class SystemState {
       .map((m) => m.id);
   }
 
+  public getPendingOrPendingIncompleteMembershipIds(): bigint[] {
+    return Array.from(this.memberships.values())
+      .filter(
+        (m) => m.status === "PENDING" || m.status === "PENDING_INCOMPLETE"
+      )
+      .map((m) => m.id);
+  }
+
   public getMembershipState(membershipId: bigint): MembershipState {
     const membershipState = this.memberships.get(membershipId);
     if (!membershipState) {
       throw new Error(`membership with id ${membershipId} was expected`);
     }
     return membershipState;
+  }
+
+  public isNotLastLeadMembershipForClub(membershipId: bigint): boolean {
+    const membershipState = this.getMembershipState(membershipId);
+
+    if (membershipState.role !== "LEAD") {
+      // not a lead, so can't be last lead
+      return true;
+    }
+
+    const clubId = membershipState.clubId;
+    const leadCount = Array.from(this.memberships.values()).filter(
+      (m) => m.clubId === clubId && m.role === "LEAD" && m.status === "ACTIVE"
+    ).length;
+
+    // if there's more than one lead, this isn't the last one
+    return leadCount > 1;
   }
 
   public getClubIdForMembership(membershipId: bigint): number {
@@ -687,6 +754,14 @@ export class SystemState {
     this.memberships.set(membershipId, {
       ...membershipState,
       status: "INACTIVE"
+    });
+  }
+
+  public withdrawMembershipApplication(membershipId: bigint) {
+    const membershipState = this.getMembershipState(membershipId);
+    this.memberships.set(membershipId, {
+      ...membershipState,
+      status: "WITHDRAWN"
     });
   }
 

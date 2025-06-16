@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { ClubFollower, FollowingService } from "~/server/following/types";
-import { Club, ClubService } from "~/server/club/types";
+import { Club } from "~/server/club/types";
 import { asClub, CLUB_SELECT } from "~/server/club/utils";
 import { stringify } from "~/utils";
 import { rootLogger } from "~/logger";
@@ -13,8 +13,7 @@ const logger = rootLogger.child({ module: "followingService" });
 
 export function createFollowingService(
   prisma: PrismaClient,
-  userService: UserService,
-  clubService: ClubService
+  userService: UserService
 ): FollowingService {
   async function getUserFollowedClubs(userId: number): Promise<Club[]> {
     try {
@@ -107,20 +106,10 @@ export function createFollowingService(
     }
   }
 
-  async function checkUserIsNotClubOwner(userId: number, clubId: number) {
-    const ownerUserId = await clubService.getClubOwnerUserId(clubId);
-    if (ownerUserId === userId) {
-      throw new Error(
-        `cannot follow club for club owner with userId ${userId} of clubId ${clubId}`
-      );
-    }
-  }
-
   async function followClub(
     userId: number,
     clubId: number
   ): Promise<MutationResult> {
-    await checkUserIsNotClubOwner(userId, clubId);
     await checkUserDoesNotHaveActiveMembershipForClub(userId, clubId);
 
     if (await isUserFollowingClub(userId, clubId)) {

@@ -1,11 +1,10 @@
 import { QueryError } from "~/client/utils/QueryError";
-import { isAllLoaded } from "~/client/utils";
+import { isLoaded } from "~/client/utils";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { Stack, Text, Title, Box, useMatches } from "@mantine/core";
 import { WelcomeImage } from "~/client/components/Images";
-import { Club } from "~/server/club/types";
-import { Membership } from "~/server/membership/types";
+import { MembershipWithClub } from "~/server/membership/types";
 import ClubCard from "~/app/(main)/_components/ClubCard";
 import PrimaryButton from "~/client/components/PrimaryButton";
 
@@ -31,23 +30,21 @@ function EmptyClubs() {
 }
 
 type MyClubsProps = {
-  ownedClubs: Club[];
-  activeMemberships: Membership[];
+  activeMemberships: MembershipWithClub[];
 };
 
-function MyClubs({ ownedClubs, activeMemberships }: MyClubsProps) {
+function MyClubs({ activeMemberships }: MyClubsProps) {
   const router = useRouter();
   return (
     <Stack>
-      {ownedClubs
-        .sort((c1, c2) => c1.id - c2.id)
-        .map((c) => (
-          <ClubCard key={c.id} club={c} status={"OWNED"} />
-        ))}
       {activeMemberships
         .sort((m1, m2) => m1.club.id - m2.club.id)
         .map((m) => (
-          <ClubCard key={m.club.id} club={m.club} status={"JOINED"} />
+          <ClubCard
+            key={m.club.id}
+            club={m.club}
+            status={m.role === "LEAD" ? "LEAD" : "JOINED"}
+          />
         ))}
       <Box mt={10} style={{ alignSelf: "center" }}>
         <PrimaryButton
@@ -63,28 +60,24 @@ function MyClubs({ ownedClubs, activeMemberships }: MyClubsProps) {
 }
 
 export default function MyClubsPanel() {
-  const r = api.main.userOwnedClubs.useQuery();
-  const m = api.main.userMemberships.useQuery();
+  const userMemberships = api.main.userMemberships.useQuery();
 
   QueryError.check({
-    result: r,
-    fieldName: "userOwnedClubs"
-  });
-
-  QueryError.check({
-    result: m,
+    result: userMemberships,
     fieldName: "userMemberships"
   });
 
-  if (!isAllLoaded([r, m])) {
+  if (!isLoaded(userMemberships)) {
     return null;
   }
 
-  const activeMemberships = m.data!.filter((m) => m.status === "ACTIVE");
+  const activeMemberships = userMemberships.data!.filter(
+    (m) => m.status === "ACTIVE"
+  );
 
-  if (r.data!.length === 0 && activeMemberships.length === 0) {
+  if (activeMemberships.length === 0) {
     return <EmptyClubs />;
   }
 
-  return <MyClubs ownedClubs={r.data!} activeMemberships={activeMemberships} />;
+  return <MyClubs activeMemberships={activeMemberships} />;
 }

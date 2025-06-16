@@ -6,7 +6,6 @@ import { TemplateThemeSchema } from "~/client/theme/templates";
 import { z } from "zod";
 import { Prisma } from ".prisma/client";
 import ClubGetPayload = Prisma.ClubGetPayload;
-import { USER_SELECT } from "~/server/user/service";
 import {
   asMembershipTier,
   MEMBERSHIP_TIER_SELECT,
@@ -20,9 +19,6 @@ export const CLUB_SELECT = {
   tagLine: true,
   description: true,
   location: true,
-  owner: {
-    select: USER_SELECT
-  },
   websiteUrl: true,
   instagramHandle: true,
   eventCalendarUrl: true,
@@ -32,7 +28,9 @@ export const CLUB_SELECT = {
   displayImageUrls: true,
   faqs: true,
   membershipTiers: {
-    select: MEMBERSHIP_TIER_SELECT
+    select: {
+      ...MEMBERSHIP_TIER_SELECT
+    }
   }
 };
 
@@ -45,7 +43,6 @@ export function asClub(
     name: r.name,
     tagLine: r.tagLine,
     description: r.description,
-    owner: r.owner,
     location: r.location,
     websiteUrl: parseAsZodType(r.websiteUrl, UrlSchema.nullable()),
     instagramHandle: parseAsZodType(

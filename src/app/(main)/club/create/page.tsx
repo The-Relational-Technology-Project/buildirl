@@ -19,7 +19,7 @@ function CreateClubForm(props: StackProps) {
   const utils = api.useUtils();
   const createUser = api.main.createClub.useMutation({
     onSuccess: async (r) => {
-      await utils.main.userOwnedClubs.invalidate();
+      await utils.main.userMemberships.invalidate();
       router.push(`/club/${r.createdEntityId}/manage`);
     },
     onError: handleDefaultMutationError

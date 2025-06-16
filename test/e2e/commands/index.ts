@@ -34,6 +34,7 @@ import UpdateMembershipTierCommand from "./updateMembershipTierCommand";
 import SubmitMembershipApplicationCommand from "./submitMembershipApplicationCommand";
 import ApproveMembershipApplicationCommand from "./approveMembershipApplicationCommand";
 import DeclineMembershipApplicationCommand from "./declineMembershipApplicationCommand";
+import WithdrawMembershipApplicationCommand from "./withdrawMembershipApplicationCommand";
 import DeactivateMembershipCommand from "./deactivateMembershipCommand";
 import DeleteMembershipTierCommand from "./deleteMembershipTierCommand";
 import PublishMembershipTierCommand from "./publishMembershipTierCommand";
@@ -70,6 +71,7 @@ export const allCommands = () => {
     submitMembershipApplicationCommands(),
     approveMembershipApplicationCommands(),
     declineMembershipApplicationCommands(),
+    withdrawMembershipApplicationCommands(),
     deactivateMembershipCommands(),
     setMembershipAsWelcomedCommands(),
     createStripeAccountCommands(),
@@ -344,14 +346,22 @@ function declineMembershipApplicationCommands() {
   );
 }
 
+function withdrawMembershipApplicationCommands() {
+  return record({
+    membershipIdSelector: itemSelector<bigint>()
+  }).map(
+    (i) => new WithdrawMembershipApplicationCommand(i.membershipIdSelector)
+  );
+}
+
 function deactivateMembershipCommands() {
   return record({
     membershipIdSelector: itemSelector<bigint>(),
-    byClubOwner: boolean()
+    byClubLead: boolean()
   }).map(
     (i) =>
       new DeactivateMembershipCommand(i.membershipIdSelector, {
-        byClubOwner: i.byClubOwner
+        byClubLead: i.byClubLead
       })
   );
 }

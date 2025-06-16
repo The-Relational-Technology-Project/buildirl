@@ -1,4 +1,4 @@
-import { type Membership } from "~/server/membership/types";
+import { type Membership, MembershipWithClub } from "~/server/membership/types";
 import { type SystemState } from "./systemState";
 import { orderByBigIntId, orderByNumberId } from "./utils";
 import { OmitRecursively } from "~/utils/omit";
@@ -34,7 +34,6 @@ function createVerifiers() {
       tagLine: club.tagLine,
       location: club.location,
       description: club.description,
-      owner: userWithoutCreatedAt(club.owner),
       websiteUrl: club.websiteUrl,
       instagramHandle: club.instagramHandle,
       eventCalendarUrl: club.eventCalendarUrl,
@@ -57,17 +56,6 @@ function createVerifiers() {
     expect(clubWithoutCreatedAt(clubByPublicId)).toEqual(expected);
   }
 
-  async function verifyUserOwnedClub(
-    userId: number,
-    r: Services,
-    m: SystemState
-  ) {
-    const userOwnedClubs = await r.club.getUserOwnedClubs(userId);
-    expect(
-      orderByNumberId(userOwnedClubs.map((c) => clubWithoutCreatedAt(c)))
-    ).toEqual(orderByNumberId(m.getUserOwnedClubs(userId)));
-  }
-
   async function verifyClubMemberships(
     clubId: number,
     r: Services,
@@ -85,11 +73,28 @@ function createVerifiers() {
     return {
       id: membership.id,
       user: userWithoutCreatedAt(membership.user),
+      membershipTier: membership.membershipTier,
+      status: membership.status,
+      applicationResponses: membership.applicationResponses,
+      email: membership.email,
+      role: membership.role,
+      isWelcomed: membership.isWelcomed
+    };
+  }
+
+  function membershipWithClubWithoutCreatedAt(
+    membership: MembershipWithClub
+  ): OmitRecursively<MembershipWithClub, "createdAt"> {
+    // filter out createdAt
+    return {
+      id: membership.id,
+      user: userWithoutCreatedAt(membership.user),
       club: clubWithoutCreatedAt(membership.club),
       membershipTier: membership.membershipTier,
       status: membership.status,
       applicationResponses: membership.applicationResponses,
       email: membership.email,
+      role: membership.role,
       isWelcomed: membership.isWelcomed
     };
   }
@@ -136,7 +141,9 @@ function createVerifiers() {
   ) {
     const memberships = await r.membership.getUserMemberships(userId);
     expect(
-      orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
+      orderByBigIntId(
+        memberships.map((m) => membershipWithClubWithoutCreatedAt(m))
+      )
     ).toEqual(orderByBigIntId(m.getUserMemberships(userId)));
   }
 
@@ -175,7 +182,6 @@ function createVerifiers() {
   return {
     verifyUser,
     verifyClub,
-    verifyUserOwnedClub,
     verifyClubMemberships,
     verifyUserMemberships,
     verifyClubFollowers,

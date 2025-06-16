@@ -48,7 +48,7 @@ export default function ManageIntakePanel({ club }: ManageIntakePanelProps) {
       onSuccess: (_, v) => {
         utils.main.club.invalidate({ id: v.clubId });
         utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
-        utils.main.userOwnedClubs.invalidate();
+        utils.main.userMemberships.invalidate();
 
         notifySuccess(
           "Changes saved",

@@ -52,7 +52,7 @@ export default function UpdateMembershipTierModal({
     onSuccess: () => {
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
-      utils.main.userOwnedClubs.invalidate();
+      utils.main.userMemberships.invalidate();
       handleClose();
     },
     onError: handleDefaultMutationError
@@ -262,7 +262,7 @@ function DeleteMembershipTierButton({
     onSuccess: () => {
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
-      utils.main.userOwnedClubs.invalidate();
+      utils.main.userMemberships.invalidate();
       handleClose();
     },
     onError: handleDefaultMutationError

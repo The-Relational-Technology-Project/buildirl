@@ -1,6 +1,5 @@
 import { Maybe } from "~/utils/types";
 import { City, CitySchema } from "~/server/club/types/location";
-import { User } from "~/server/user/types";
 import { FormQuestions, FormQuestionsSchema } from "~/server/club/types/form";
 import { TemplateTheme, TemplateThemeSchema } from "~/client/theme/templates";
 import { z } from "zod";
@@ -17,12 +16,9 @@ import {
 export type ClubService = ClubQueries & ClubMutations;
 
 type ClubQueries = {
-  getUserOwnedClubs(userId: number): Promise<Club[]>;
   getClubByPublicId(publicId: string): Promise<Club>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   getClub(id: number): Promise<Club>;
-  // internal
-  getClubOwnerUserId(clubId: number): Promise<number>;
 };
 
 export type Club = {
@@ -35,7 +31,6 @@ export type Club = {
   // this is nullable for backwards compatibility purposes
   location: Maybe<City>;
   description: string;
-  owner: User;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
   eventCalendarUrl: Maybe<Url>;

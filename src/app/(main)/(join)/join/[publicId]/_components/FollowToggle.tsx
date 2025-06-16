@@ -103,17 +103,11 @@ function AuthenticatedFollowToggle({
   const utils = api.useUtils();
 
   const followedClubs = api.main.userFollowedClubs.useQuery();
-  const ownedClubs = api.main.userOwnedClubs.useQuery();
   const memberships = api.main.userMemberships.useQuery();
 
   QueryError.check({
     result: followedClubs,
     fieldName: "userFollowedClubs"
-  });
-
-  QueryError.check({
-    result: ownedClubs,
-    fieldName: "userOwnedClubs"
   });
 
   QueryError.check({
@@ -143,7 +137,7 @@ function AuthenticatedFollowToggle({
     }
   });
 
-  if (!isAllLoaded([followedClubs, ownedClubs, memberships])) {
+  if (!isAllLoaded([followedClubs, memberships])) {
     return null;
   }
 
@@ -187,7 +181,7 @@ function AuthenticatedFollowToggle({
           <Text size="md" mb="lg">
             {isFollowing
               ? "Are you sure you want to unfollow this club? You will no longer receive updates."
-              : "By following this club, you agree to share your email with the club owner for further outreach and updates."}
+              : "By following this club, you agree to share your email with the club lead for further outreach and updates."}
           </Text>
 
           <PrimaryButton w={200} size={"md"} onClick={handleConfirm}>

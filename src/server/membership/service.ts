@@ -1,47 +1,54 @@
-import { Prisma, type PrismaClient } from "@prisma/client";
+import { $Enums, Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
 import { StripeClient } from "~/server/payments/stripe/types";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
-import { EmailClient } from "~/server/email/client/types";
+import { EmailService } from "~/server/email/types";
 import {
   DeactivateMembershipInput,
   Membership,
   MembershipService,
   MembershipStatus,
+  MembershipWithClub,
   SubmitMembershipApplicationInput
 } from "~/server/membership/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
-import { asMembership, MEMBERSHIP_SELECT } from "~/server/membership/utils";
+import {
+  asMembership,
+  asMembershipWithClub,
+  MEMBERSHIP_SELECT,
+  MEMBERSHIP_WITH_CLUB_SELECT
+} from "~/server/membership/utils";
 import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
 import { UserService } from "~/server/user/types";
 import { FollowingService } from "~/server/following/types";
 import { Maybe } from "~/utils/types";
 import { MembershipTierService } from "~/server/membershipTier/types";
-import { ClubService } from "~/server/club/types";
+import Role = $Enums.Role;
 
 const logger = rootLogger.child({ module: "membershipService" });
 
 export function createMembershipService(
   prisma: PrismaClient,
   userService: UserService,
-  clubService: ClubService,
   membershipTierService: MembershipTierService,
   followingService: FollowingService,
   stripeClient: StripeClient,
-  emailClient: EmailClient,
+  emailService: EmailService,
   accountIdResolver: AccountIdResolver
 ): MembershipService {
-  async function getUserMemberships(userId: number): Promise<Membership[]> {
+  async function getUserMemberships(
+    userId: number
+  ): Promise<MembershipWithClub[]> {
     try {
       const results = await prisma.membership.findMany({
-        select: MEMBERSHIP_SELECT,
+        select: MEMBERSHIP_WITH_CLUB_SELECT,
         where: {
           userId: userId
         }
       });
       const memberships = await Promise.all(
-        results.map((r) => asMembership(r))
+        results.map((r) => asMembershipWithClub(r))
       );
       logger.info(
         `queried memberships for user with userId ${userId} with result ${stringify(memberships)}`
@@ -132,15 +139,6 @@ export function createMembershipService(
     }
   }
 
-  async function checkUserIsNotClubOwner(userId: number, clubId: number) {
-    const ownerUserId = await clubService.getClubOwnerUserId(clubId);
-    if (ownerUserId === userId) {
-      throw new Error(
-        `cannot submit membership application for club owner with userId ${userId} of clubId ${clubId}`
-      );
-    }
-  }
-
   async function checkUserDoesNotHaveActiveMembershipForClub(
     userId: number,
     clubId: number
@@ -187,7 +185,6 @@ export function createMembershipService(
       await membershipTierService.getClubIdFromMembershipTierId(
         membershipTierId
       );
-    await checkUserIsNotClubOwner(userId, clubId);
     await checkUserDoesNotHaveActiveMembershipForClub(userId, clubId);
     const existingMembership = await userMembershipForClub(userId, clubId);
     const isDefaultFreeTier =
@@ -240,7 +237,8 @@ export function createMembershipService(
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
           // if not free tier, still awaiting setup intent
-          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE"
+          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
+          role: "MEMBER"
         },
         select: {
           id: true
@@ -368,6 +366,8 @@ export function createMembershipService(
           applicationResponses: input.applicationResponses,
           // if not free tier, awaiting setup intent
           status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
+          // reset role even if they left as different role
+          role: "MEMBER",
           // reset welcome status
           isWelcomed: false
           // we keep the stripeCustomerId to be reused if reactivated
@@ -407,27 +407,18 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    const membership = await getMembership(membershipId, tx);
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on membership application submitted for membership with id ${membershipId} because no email was found`
-      );
-      return;
-    }
-    await emailClient.notifyMembershipApplicationSubmitted(
+    const membership = await getMembershipWithClub(membershipId, tx);
+    const leadUserId = await getLeadUserIdForClub(membership.club.id, tx);
+    await emailService.sendDefaultEmailForMembershipApplicationSubmitted(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubLeadUserId: leadUserId
       },
-      ownerEmail
+      tx
     );
   }
 
@@ -463,24 +454,57 @@ export function createMembershipService(
     }
   }
 
-  async function getMembership(
+  async function getMembershipWithClub(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<Membership> {
+  ): Promise<MembershipWithClub> {
     try {
       const result = await tx.membership.findUniqueOrThrow({
-        select: MEMBERSHIP_SELECT,
+        select: MEMBERSHIP_WITH_CLUB_SELECT,
         where: {
           id: membershipId
         }
       });
-      const memberships = asMembership(result);
+      const memberships = asMembershipWithClub(result);
       logger.info(
         `queried membership with id ${membershipId} with result ${stringify(memberships)}`
       );
       return memberships;
     } catch (e) {
       logger.error(e, `failed to query membership with id ${membershipId}`);
+      throw e;
+    }
+  }
+
+  async function getLeadUserIdForClub(
+    clubId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<number> {
+    try {
+      const result = await tx.membership.findMany({
+        select: MEMBERSHIP_SELECT,
+        where: {
+          membershipTier: { clubId: clubId },
+          role: Role.LEAD
+        }
+      });
+
+      if (result.length !== 1) {
+        throw new Error(
+          `expected only one lead membership but found ${stringify(result)}`
+        );
+      }
+
+      const membership = asMembership(result[0]!);
+      logger.info(
+        `queried lead membership for club with id ${clubId} with result ${stringify(membership)}`
+      );
+      return membership.user.id;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query lead membership for club with id ${clubId}`
+      );
       throw e;
     }
   }
@@ -623,38 +647,20 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     // noinspection DuplicatedCode
-    const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userService.getUserEmailInTransaction(
-      membership.user.id,
-      tx
-    );
-    if (null === memberEmail) {
-      logger.error(
-        `failed to notify on membership approved for membership with id ${membershipId} because no member email was found`
-      );
-      return;
-    }
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on membership approved for membership with id ${membershipId} because no owner email was found`
-      );
-      return;
-    }
-    await emailClient.notifyMembershipApproved(
+    const membership = await getMembershipWithClub(membershipId, tx);
+    const leadUserId = await getLeadUserIdForClub(membership.club.id, tx);
+    await emailService.sendDefaultEmailForMembershipApproved(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubId: membership.club.id,
         clubName: membership.club.name,
-        clubPublicId: membership.club.publicId
+        clubPublicId: membership.club.publicId,
+        clubLeadUserId: leadUserId,
+        memberUserId: membership.user.id
       },
-      memberEmail,
-      ownerEmail
+      tx
     );
   }
 
@@ -753,37 +759,115 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     // noinspection DuplicatedCode
-    const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userService.getUserEmailInTransaction(
-      membership.user.id,
-      tx
-    );
-    if (null === memberEmail) {
-      logger.error(
-        `failed to notify on membership declined for membership with id ${membershipId} because no member email was found`
-      );
-      return;
-    }
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on membership declined for membership with id ${membershipId} because no owner email was found`
-      );
-      return;
-    }
-    await emailClient.notifyMembershipDeclined(
+    const membership = await getMembershipWithClub(membershipId, tx);
+    const leadUserId = await getLeadUserIdForClub(membership.club.id, tx);
+    await emailService.sendDefaultEmailForMembershipDeclined(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubLeadUserId: leadUserId,
+        memberUserId: membership.user.id
       },
-      memberEmail,
-      ownerEmail
+      tx
     );
+  }
+
+  async function withdrawMembershipApplication(
+    membershipId: bigint
+  ): Promise<MutationResult> {
+    await checkMembershipStatus(membershipId, "PENDING");
+
+    return prisma.$transaction(async (tx) => {
+      return withdrawMembershipApplicationInTransaction(membershipId, tx);
+    });
+  }
+
+  async function withdrawMembershipApplicationInTransaction(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
+    try {
+      await tx.membership.update({
+        data: {
+          status: "WITHDRAWN"
+        },
+        where: { id: membershipId }
+      });
+
+      await dissociateStripeSetupIntentId(membershipId, tx);
+      // keep customer id in case they reapply in future
+      await notifyApplicationWithdrawn(membershipId, tx);
+
+      logger.info(`withdrew membership application with id ${membershipId}`);
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to withdraw membership application with id ${membershipId}`
+      );
+      throw e;
+    }
+  }
+
+  async function isMembershipLastLeadForClub(
+    membershipId: bigint
+  ): Promise<boolean> {
+    try {
+      const membership = await prisma.membership.findUniqueOrThrow({
+        where: { id: membershipId },
+        select: {
+          role: true,
+          membershipTier: {
+            select: {
+              clubId: true
+            }
+          }
+        }
+      });
+      logger.info(
+        `queried membership with id ${membershipId} with result ${membership}`
+      );
+
+      if (membership.role !== "LEAD") {
+        // not a lead, so can't be last lead
+        return false;
+      }
+
+      const clubId = membership.membershipTier.clubId;
+      const leadCount = await prisma.membership.count({
+        where: {
+          role: "LEAD",
+          status: "ACTIVE",
+          membershipTier: {
+            clubId: clubId
+          }
+        }
+      });
+      logger.info(
+        `queried lead count for club with id ${clubId} with result ${leadCount}`
+      );
+
+      // last lead
+      return leadCount === 1;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query if last lead membership id ${membershipId} for club`
+      );
+      throw e;
+    }
+  }
+
+  async function checkIsNotLastLeadMembershipForClub(membershipId: bigint) {
+    if (await isMembershipLastLeadForClub(membershipId)) {
+      throw new Error(
+        // user friendly message
+        `Failed to remove membership with id ${membershipId} because it is the last lead for the club. 
+          You must first assign another member as club lead.`
+      );
+    }
   }
 
   async function deactivateMembership(
@@ -791,11 +875,12 @@ export function createMembershipService(
     input: DeactivateMembershipInput
   ): Promise<MutationResult> {
     await checkMembershipStatus(membershipId, "ACTIVE");
+    await checkIsNotLastLeadMembershipForClub(membershipId);
 
     return prisma.$transaction(async (tx) => {
       return deactivateMembershipInTransaction(
         membershipId,
-        input.byClubOwner,
+        input.byClubLead,
         tx
       );
     });
@@ -803,7 +888,7 @@ export function createMembershipService(
 
   async function deactivateMembershipInTransaction(
     membershipId: bigint,
-    byClubOwner: boolean,
+    byClubLead: boolean,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
@@ -821,7 +906,7 @@ export function createMembershipService(
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are reactivated
 
-      await notifyMembershipDeactivated(membershipId, byClubOwner, tx);
+      await notifyMembershipDeactivated(membershipId, byClubLead, tx);
 
       logger.info(`deactivated membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
@@ -895,39 +980,30 @@ export function createMembershipService(
 
   async function notifyMembershipDeactivated(
     membershipId: bigint,
-    byOwner: boolean,
+    byLead: boolean,
     tx: Prisma.TransactionClient
   ) {
-    if (byOwner) {
-      await notifyMembershipDeactivatedByOwner(membershipId, tx);
+    if (byLead) {
+      await notifyMembershipDeactivatedByLead(membershipId, tx);
     } else {
-      await notifyMembershipDeactivatedByMemberToOwner(membershipId, tx);
+      await notifyMembershipDeactivatedByMemberToLead(membershipId, tx);
       // sorry to see you go email
       await notifyMembershipDeactivatedByMemberToMember(membershipId, tx);
     }
   }
 
-  async function notifyMembershipDeactivatedByOwner(
+  async function notifyMembershipDeactivatedByLead(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userService.getUserEmailInTransaction(
-      membership.user.id,
-      tx
-    );
-    if (null === memberEmail) {
-      logger.error(
-        `failed to notify on membership deactivated by owner for membership with id ${membershipId} because no email was found`
-      );
-      return;
-    }
-    await emailClient.notifyMembershipDeactivatedByOwner(
+    const membership = await getMembershipWithClub(membershipId, tx);
+    await emailService.sendDefaultEmailForMembershipDeactivatedByLead(
       {
         membershipId: membershipId,
-        clubName: membership.club.name
+        clubName: membership.club.name,
+        memberUserId: membership.user.id
       },
-      memberEmail
+      tx
     );
   }
 
@@ -936,66 +1012,57 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     // noinspection DuplicatedCode
-    const membership = await getMembership(membershipId, tx);
-    const memberEmail = await userService.getUserEmailInTransaction(
-      membership.user.id,
-      tx
-    );
-    if (null === memberEmail) {
-      logger.error(
-        `failed to notify on membership deactivated by member to member for membership with id ${membershipId} because no member email was found`
-      );
-      return;
-    }
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on membership deactivated by member to member for membership with id ${membershipId} because no owner email was found`
-      );
-      return;
-    }
-
-    await emailClient.notifyMembershipDeactivatedByMemberToMember(
+    const membership = await getMembershipWithClub(membershipId, tx);
+    const leadUserId = await getLeadUserIdForClub(membership.club.id, tx);
+    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToMember(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubLeadUserId: leadUserId,
+        memberUserId: membership.user.id
       },
-      memberEmail,
-      ownerEmail
+      tx
     );
   }
 
-  async function notifyMembershipDeactivatedByMemberToOwner(
+  async function notifyMembershipDeactivatedByMemberToLead(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    const membership = await getMembership(membershipId, tx);
-    const ownerEmail = await userService.getUserEmailInTransaction(
-      membership.club.owner.id,
-      tx
-    );
-
-    if (null === ownerEmail) {
-      logger.error(
-        `failed to notify on membership deactivated by member to owner for membership with id ${membershipId} because no email was found`
-      );
-      return;
-    }
-    await emailClient.notifyMembershipDeactivatedByMemberToOwner(
+    const membership = await getMembershipWithClub(membershipId, tx);
+    const leadUserId = await getLeadUserIdForClub(membership.club.id, tx);
+    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToLead(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
         memberLastName: membership.user.lastName,
         clubName: membership.club.name,
-        clubId: membership.club.id
+        clubId: membership.club.id,
+        clubLeadUserId: leadUserId
       },
-      ownerEmail
+      tx
+    );
+  }
+
+  async function notifyApplicationWithdrawn(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ) {
+    const membership = await getMembershipWithClub(membershipId, tx);
+    const leadUserId = await getLeadUserIdForClub(membership.club.id, tx);
+    await emailService.sendDefaultEmailForApplicationWithdrawnByMemberToLead(
+      {
+        membershipId: membershipId,
+        memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
+        clubName: membership.club.name,
+        clubId: membership.club.id,
+        clubLeadUserId: leadUserId
+      },
+      tx
     );
   }
 
@@ -1019,6 +1086,40 @@ export function createMembershipService(
     }
   }
 
+  async function createLeadMembership(
+    userId: number,
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
+    try {
+      const { id } = await tx.membership.create({
+        data: {
+          userId: userId,
+          membershipTierId: membershipTierId,
+          // empty
+          applicationResponses: { responses: [] },
+          // no need to welcome the lead
+          isWelcomed: true,
+          status: "ACTIVE",
+          role: "LEAD"
+        },
+        select: {
+          id: true
+        }
+      });
+
+      logger.info(
+        `created lead membership for user ${userId} on membership tier with id ${membershipTierId} with membershipId ${id}`
+      );
+      return { createdEntityId: id };
+    } catch (e) {
+      logger.info(
+        `failed to create lead membership for user ${userId} on membership tier with id ${membershipTierId}}`
+      );
+      throw e;
+    }
+  }
+
   return {
     getUserMemberships,
     getActiveMembershipsForClub,
@@ -1026,7 +1127,9 @@ export function createMembershipService(
     submitMembershipApplication,
     approveMembershipApplication,
     declineMembershipApplication,
+    withdrawMembershipApplication,
     deactivateMembership,
-    setMembershipAsWelcomed
+    setMembershipAsWelcomed,
+    createLeadMembership
   };
 }

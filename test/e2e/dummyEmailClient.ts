@@ -1,66 +1,88 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// NOTE: Added above line to prevent this file throwing type-errors.
 import {
   EmailClient,
-  NotifyMembershipApplicationSubmittedInput,
-  NotifyMembershipApprovedInput,
-  NotifyMembershipDeactivatedByMemberToMemberInput,
-  NotifyMembershipDeactivatedByMemberToOwnerInput,
-  NotifyMembershipDeactivatedByOwnerInput,
-  NotifyMembershipDeclinedInput
+  SendDefaultEmailForMembershipApplicationSubmittedInput,
+  SendDefaultEmailForMembershipApprovedInput,
+  SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+  SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
+  SendDefaultEmailForMembershipDeactivatedByLeadInput,
+  SendDefaultEmailForMembershipDeclinedInput,
+  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput
 } from "~/server/email/client/types";
 import { Email } from "~/server/utils/types";
 
 export function createDummyEmailClient(): EmailClient {
-  async function notifyMembershipApplicationSubmitted(
-    _: NotifyMembershipApplicationSubmittedInput,
+  async function sendCustomEmail(
+    _: Email,
+    __: Email,
+    ___: string,
+    ____: string,
+    _____: string
+  ): Promise<void> {
+    return;
+  }
+
+  async function sendDefaultEmailForMembershipApplicationSubmitted(
+    _: SendDefaultEmailForMembershipApplicationSubmittedInput,
     __: Email
   ): Promise<void> {
     return;
   }
 
-  async function notifyMembershipApproved(
-    _: NotifyMembershipApprovedInput,
+  async function sendDefaultEmailForMembershipApproved(
+    _: SendDefaultEmailForMembershipApprovedInput,
     __: Email,
     ___: Email
   ): Promise<void> {
     return;
   }
 
-  async function notifyMembershipDeclined(
-    _: NotifyMembershipDeclinedInput,
+  async function sendDefaultEmailForMembershipDeclined(
+    _: SendDefaultEmailForMembershipDeclinedInput,
     __: Email,
     ___: Email
   ): Promise<void> {
     return;
   }
 
-  async function notifyMembershipDeactivatedByMemberToOwner(
-    _: NotifyMembershipDeactivatedByMemberToOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByMemberToLead(
+    _: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
     __: Email
   ): Promise<void> {
     return;
   }
 
-  async function notifyMembershipDeactivatedByMemberToMember(
-    _: NotifyMembershipDeactivatedByMemberToMemberInput,
+  async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+    _: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
     __: Email,
     ___: Email
   ): Promise<void> {
     return;
   }
 
-  async function notifyMembershipDeactivatedByOwner(
-    _: NotifyMembershipDeactivatedByOwnerInput,
+  async function sendDefaultEmailForMembershipDeactivatedByLead(
+    _: SendDefaultEmailForMembershipDeactivatedByLeadInput,
+    __: Email
+  ): Promise<void> {
+    return;
+  }
+
+  async function sendDefaultEmailForApplicationWithdrawnByMemberToLead(
+    _: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
     __: Email
   ): Promise<void> {
     return;
   }
 
   return {
-    notifyMembershipApplicationSubmitted,
-    notifyMembershipApproved,
-    notifyMembershipDeclined,
-    notifyMembershipDeactivatedByOwner,
-    notifyMembershipDeactivatedByMemberToOwner,
-    notifyMembershipDeactivatedByMemberToMember
+    sendDefaultEmailForMembershipApplicationSubmitted,
+    sendDefaultEmailForMembershipApproved,
+    sendDefaultEmailForMembershipDeclined,
+    sendDefaultEmailForMembershipDeactivatedByLead,
+    sendDefaultEmailForMembershipDeactivatedByMemberToLead,
+    sendDefaultEmailForMembershipDeactivatedByMemberToMember,
+    sendDefaultEmailForApplicationWithdrawnByMemberToLead,
+    sendCustomEmail
   };
 }

@@ -76,23 +76,28 @@ describe("service", () => {
     rootLogger.info("connection string: " + supabaseContainer.connectionString);
     const fakeStripeClient = createFakeStripeClient();
     const accountIdResolver = createAccountIdResolver(prisma);
+    const dummyEmailClient = createDummyEmailClient();
     userService = createUserService(prisma);
     membershipTierService = createMembershipTierService(
       prisma,
       fakeStripeClient,
       accountIdResolver
     );
-    clubService = createClubService(prisma, membershipTierService);
-    followingService = createFollowingService(prisma, userService, clubService);
+    followingService = createFollowingService(prisma, userService);
+    emailService = createEmailService(prisma, dummyEmailClient, userService);
     membershipService = createMembershipService(
       prisma,
       userService,
-      clubService,
       membershipTierService,
       followingService,
       fakeStripeClient,
-      createDummyEmailClient(),
+      emailService,
       accountIdResolver
+    );
+    clubService = createClubService(
+      prisma,
+      membershipTierService,
+      membershipService
     );
     paymentService = createPaymentService(
       fakeStripeClient,
@@ -100,7 +105,6 @@ describe("service", () => {
       accountIdResolver
     );
     paymentEventProcessor = createPaymentEventProcessor(prisma);
-    emailService = createEmailService(prisma);
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull
   }, 30000);
@@ -115,7 +119,7 @@ describe("service", () => {
   it("should run system", async () => {
     await assert(
       asyncProperty(
-        commands(allCommands(), { size: "medium" }),
+        commands(allCommands(), { size: "large" }),
         async (cmds) => {
           const s = () => ({
             model: new SystemState(),

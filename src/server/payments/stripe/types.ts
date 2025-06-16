@@ -1,9 +1,9 @@
-import { Email, MonetaryValue, Url } from "~/server/utils/types";
+import { MonetaryValue, Url } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 
 export type StripeClient = {
   // connected account management
-  createAccount(input: CreateAccountInput): Promise<CreateAccountResponse>;
+  createAccount(): Promise<CreateAccountResponse>;
   createAccountLink(
     input: CreateAccountLinkInput
   ): Promise<CreateAccountLinkResponse>;
@@ -57,10 +57,6 @@ export type StripeClient = {
     input: CreateCustomerPortalSessionInput,
     byAccountId: string
   ): Promise<CreateCustomerPortalSessionResponse>;
-};
-
-export type CreateAccountInput = {
-  email: Email;
 };
 
 export type CreateAccountLinkInput = {
