@@ -1,5 +1,4 @@
 import {
-  Badge,
   Button,
   Group,
   Paper,
@@ -18,19 +17,9 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import UserAvatar from "~/client/components/UserAvatar";
-import { Membership, Role } from "~/server/membership/types";
+import { Membership } from "~/server/membership/types";
 import { useMounted } from "@mantine/hooks";
-
-type RoleBadgeProps = {
-  role: Role;
-};
-
-function RoleBadge({ role }: RoleBadgeProps) {
-  if (role === "LEAD") {
-    return <Badge color="orange">{role}</Badge>;
-  }
-  return null;
-}
+import RoleBadge from "~/client/components/RoleBadge";
 
 type ActiveMembershipTableProps = {
   clubId: number;
@@ -77,7 +66,7 @@ export default function ActiveMembershipTable({
       <Table.Td>{m.membershipTier.name}</Table.Td>
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>
-        <RoleBadge role={m.role} />
+        <RoleBadge role={m.role} hideMember />
       </Table.Td>
       <Table.Td>
         {m.email === null ? null : <Text size="sm">{m.email}</Text>}
