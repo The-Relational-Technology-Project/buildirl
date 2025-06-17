@@ -5,7 +5,6 @@ import {
   RequiredStringSchema
 } from "~/server/utils/types";
 import { z } from "zod";
-import { Maybe } from "~/utils/types";
 import { Prisma } from "@prisma/client";
 
 export type UserService = UserQueries & UserMutations;
@@ -14,11 +13,15 @@ export type UserQueries = {
   // top-level
   getUser(id: number): Promise<User>;
   // internal
-  getUserEmail(userId: number): Promise<Maybe<Email>>;
+  getUserEmail(userId: number): Promise<Email>;
   getUserEmailInTransaction(
     userId: number,
     tx: Prisma.TransactionClient
-  ): Promise<Maybe<Email>>;
+  ): Promise<Email>;
+  getUserEmailsInTransaction(
+    userIds: number[],
+    tx: Prisma.TransactionClient
+  ): Promise<Email[]>;
 };
 
 export type User = {

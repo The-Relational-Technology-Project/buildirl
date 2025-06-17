@@ -12,7 +12,6 @@ import {
   MutationResult,
   NO_ID_MUTATION_RESULT
 } from "~/server/utils/types";
-import { Maybe } from "~/utils/types";
 
 const logger = rootLogger.child({ module: "userService" });
 
@@ -41,7 +40,7 @@ export function createUserService(prisma: PrismaClient): UserService {
     }
   }
 
-  async function getUserEmail(userId: number): Promise<Maybe<Email>> {
+  async function getUserEmail(userId: number): Promise<Email> {
     return prisma.$transaction(async (tx) => {
       return getUserEmailInTransaction(userId, tx);
     });
@@ -50,7 +49,7 @@ export function createUserService(prisma: PrismaClient): UserService {
   async function getUserEmailInTransaction(
     userId: number,
     tx: Prisma.TransactionClient
-  ): Promise<Maybe<Email>> {
+  ): Promise<Email> {
     try {
       const userSettings = await tx.userSettings.findUniqueOrThrow({
         where: {
@@ -58,11 +57,27 @@ export function createUserService(prisma: PrismaClient): UserService {
         }
       });
       logger.info(`queried user email for user with id ${userId}`);
+
+      if (!userSettings.email) {
+        const errorMessage = `failed to find required email for user with id ${userId}`;
+        logger.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
       return userSettings.email;
     } catch (e) {
       logger.error(e, `failed to query user email for user with id ${userId}`);
       throw e;
     }
+  }
+
+  async function getUserEmailsInTransaction(
+    userIds: number[],
+    tx: Prisma.TransactionClient
+  ): Promise<Email[]> {
+    return Promise.all(
+      userIds.map((userId) => getUserEmailInTransaction(userId, tx))
+    );
   }
 
   async function createUser(
@@ -150,6 +165,7 @@ export function createUserService(prisma: PrismaClient): UserService {
     getUser,
     getUserEmail,
     getUserEmailInTransaction,
+    getUserEmailsInTransaction,
     createUser,
     updateUser
   };

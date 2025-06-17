@@ -11,8 +11,8 @@ type ManagePeoplePanelProps = {
 export function ManagePeoplePanel({ clubId }: ManagePeoplePanelProps) {
   return (
     <Stack gap={0} pb={"xl"}>
-      <MembershipApplicationTable clubId={clubId} />
       <ActiveMembershipTable clubId={clubId} />
+      <MembershipApplicationTable clubId={clubId} />
       <ClubFollowerTable clubId={clubId} />
     </Stack>
   );

@@ -412,5 +412,33 @@ export const mainRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.service.email.deleteEmailTemplate(input);
+    }),
+
+  setMembershipAsLead: securedProcedureWithAbilityFor("Membership")
+    .input(z.object({ membershipId: z.bigint() }))
+    .mutation(({ ctx, input }) => {
+      if (
+        !ctx.ability.can(
+          "admin",
+          subject("Membership", { id: input.membershipId })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.role.setMembershipAsLead(input.membershipId);
+    }),
+
+  clearMembershipRole: securedProcedureWithAbilityFor("Membership")
+    .input(z.object({ membershipId: z.bigint() }))
+    .mutation(({ ctx, input }) => {
+      if (
+        !ctx.ability.can(
+          "admin",
+          subject("Membership", { id: input.membershipId })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.role.clearMembershipRole(input.membershipId);
     })
 });

@@ -14,6 +14,7 @@ import { Maybe } from "~/utils/types";
 import MembershipInfoCard from "~/app/(main)/club/[clubId]/member/_components/MembershipInfoCard";
 import UserInfoCard from "~/app/(main)/club/[clubId]/member/_components/UserInfoCard";
 import ApplicationResponsesCard from "~/client/components/ApplicationResponsesCard";
+import ActiveMembershipCard from "~/app/(main)/club/[clubId]/member/_components/ActiveMembershipCard";
 
 function findUserMembership(
   userId: number,
@@ -44,6 +45,9 @@ function PendingMembershipCard({
       onSuccess: async () => {
         await utils.main.membershipApplicationsForClub.invalidate({ clubId });
         await utils.main.activeMembershipsForClubWithEmail.invalidate({
+          clubId
+        });
+        await utils.main.activeMembershipsForClub.invalidate({
           clubId
         });
         await utils.main.clubStatistics.invalidate({ clubId });
@@ -118,64 +122,7 @@ function PendingMembershipCard({
   );
 }
 
-type ActiveMembershipCardProps = {
-  clubId: number;
-  membership: Membership;
-};
-
-function ActiveMembershipCard({
-  clubId,
-  membership
-}: ActiveMembershipCardProps) {
-  const utils = api.useUtils();
-  const router = useRouter();
-
-  const deactivateMembership = api.main.deactivateMembership.useMutation({
-    onSuccess: async () => {
-      await utils.main.activeMembershipsForClubWithEmail.invalidate({ clubId });
-      await utils.main.clubStatistics.invalidate({ clubId });
-      router.push(`/club/${clubId}/manage?tab=people`);
-    },
-    onError: handleDefaultMutationError
-  });
-
-  const handleCancelMembership = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to cancel this membership? This action cannot be undone."
-      )
-    ) {
-      deactivateMembership.mutateAsync({
-        membershipId: membership.id,
-        input: { byClubLead: true }
-      });
-    }
-  };
-
-  return (
-    <Paper p="xl">
-      <Stack gap="lg">
-        <Title order={4} fw={500}>
-          Actions
-        </Title>
-        <Text size="sm">
-          This member is currently active. You can cancel their membership if
-          needed.
-        </Text>
-        <Button
-          color="red"
-          size="sm"
-          onClick={handleCancelMembership}
-          loading={deactivateMembership.isPending}
-        >
-          Cancel Membership
-        </Button>
-      </Stack>
-    </Paper>
-  );
-}
-
-export default function MemberApplication() {
+export default function MemberReview() {
   const params = useParams<{ userId: string; clubId: string }>();
   const userId = strictParseInt(params.userId);
   const clubId = strictParseInt(params.clubId);

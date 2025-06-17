@@ -1,4 +1,5 @@
-export type AppAction = "manage";
+// admin is super-management capabilities (e.g., elevated role updates on membership, etc)
+export type AppAction = "manage" | "admin";
 
 export type AppSubject = keyof AppSubjects | AppSubjects[keyof AppSubjects];
 

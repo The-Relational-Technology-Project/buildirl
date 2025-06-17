@@ -30,7 +30,7 @@ export default function MembershipApplicationTable({
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
   const mounted = useMounted();
-  
+
   const router = useRouter();
   const r = api.main.membershipApplicationsForClub.useQuery({ clubId: clubId });
 
@@ -44,10 +44,10 @@ export default function MembershipApplicationTable({
   }
 
   const rows = r.data!.map((m: Membership) => (
-    <Table.Tr 
-      key={m.id} 
+    <Table.Tr
+      key={m.id}
       style={{ cursor: "pointer" }}
-      onClick={() => router.push(`/club/${clubId}/member/${m.user.id}/application`)}
+      onClick={() => router.push(`/club/${clubId}/member/${m.user.id}/review`)}
     >
       <Table.Td>
         <Group gap={"sm"} wrap="nowrap">
@@ -62,16 +62,14 @@ export default function MembershipApplicationTable({
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
       <Table.Td>
-        {m.email === null ? null : (
-          <Text size="sm">{m.email}</Text>
-        )}
+        {m.email === null ? null : <Text size="sm">{m.email}</Text>}
       </Table.Td>
       <Table.Td onClick={(e) => e.stopPropagation()}>
         <Button
           color="blue"
           size="xs"
           onClick={() =>
-            router.push(`/club/${clubId}/member/${m.user.id}/application`)
+            router.push(`/club/${clubId}/member/${m.user.id}/review`)
           }
         >
           Review Application
