@@ -13,7 +13,7 @@ import {
   TextInput,
   BoxProps
 } from "@mantine/core";
-import { IconPlus, IconSend, IconEdit, IconTrash, IconDeviceFloppy } from "@tabler/icons-react";
+import { IconPlus, IconSend, IconEdit, IconTrash, IconDeviceFloppy, IconEye } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
@@ -38,6 +38,7 @@ type EmailBlastPanelProps = {
 type EmailBlastListProps = {
   emailBlasts: EmailBlast[];
   onSelect: (blast: EmailBlast) => void;
+  onView: (blast: EmailBlast) => void;
   onDelete: (id: bigint) => void;
 };
 
@@ -48,6 +49,7 @@ type EmailBlastEditorProps = {
   onCancel: () => void;
   onDelete: (id: bigint) => void;
   onSend: (id: bigint) => void;
+  readOnly?: boolean;
 };
 
 type ClickableEditorContentProps = {
@@ -66,10 +68,12 @@ function ClickableEditorContent({
   return <RichTextEditor.Content {...props} onClick={handleClick} />;
 }
 
-function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend }: EmailBlastEditorProps) {
+function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, readOnly }: EmailBlastEditorProps) {
   const [subject, setSubject] = useState(blast?.subject ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  
+  const isReadOnly = readOnly || blast?.status === "SENT";
   
   const utils = api.useUtils();
   const setEmailBlast = api.email.setEmailBlast.useMutation({
@@ -94,11 +98,12 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend }:
       Highlight,
       TextAlign.configure({ types: ["heading", "paragraph"] })
     ],
-    content: blast?.htmlContent || ""
+    content: blast?.htmlContent || "",
+    editable: !isReadOnly
   });
 
   const handleSave = async () => {
-    if (!editor) {
+    if (!editor || isReadOnly) {
       notifyError("Editor was not available during save; this is unexpected.");
       return;
     }
@@ -120,7 +125,7 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend }:
   };
 
   const handleSaveAndSend = async () => {
-    if (!editor) {
+    if (!editor || isReadOnly) {
       notifyError("Editor was not available during save; this is unexpected.");
       return;
     }
@@ -155,14 +160,14 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend }:
   };
 
   const handleDelete = async () => {
-    if (!blast?.id) {
+    if (!blast?.id || isReadOnly) {
       onCancel();
       return;
     }
     await onDelete(blast.id);
   };
 
-  const canSend = blast?.status !== "SENT";
+  const canSend = blast?.status !== "SENT" && !isReadOnly;
 
   return (
     <Paper withBorder p="xl">
@@ -172,49 +177,52 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend }:
           placeholder="Enter email subject..."
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
+          readOnly={isReadOnly}
         />
 
         <Box>
           <Text size="sm" fw={500} mb={4}>Content</Text>
           <RichTextEditor editor={editor}>
-            <RichTextEditor.Toolbar sticky stickyOffset={60}>
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Bold />
-                <RichTextEditor.Italic />
-                <RichTextEditor.Underline />
-                <RichTextEditor.Strikethrough />
-                <RichTextEditor.ClearFormatting />
-                <RichTextEditor.Highlight />
-              </RichTextEditor.ControlsGroup>
+            {!isReadOnly && (
+              <RichTextEditor.Toolbar sticky stickyOffset={60}>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.Bold />
+                  <RichTextEditor.Italic />
+                  <RichTextEditor.Underline />
+                  <RichTextEditor.Strikethrough />
+                  <RichTextEditor.ClearFormatting />
+                  <RichTextEditor.Highlight />
+                </RichTextEditor.ControlsGroup>
 
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.H1 />
-                <RichTextEditor.H2 />
-                <RichTextEditor.H3 />
-                <RichTextEditor.H4 />
-              </RichTextEditor.ControlsGroup>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.H1 />
+                  <RichTextEditor.H2 />
+                  <RichTextEditor.H3 />
+                  <RichTextEditor.H4 />
+                </RichTextEditor.ControlsGroup>
 
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Blockquote />
-                <RichTextEditor.Hr />
-                <RichTextEditor.BulletList />
-                <RichTextEditor.OrderedList />
-                <RichTextEditor.Subscript />
-                <RichTextEditor.Superscript />
-              </RichTextEditor.ControlsGroup>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.Blockquote />
+                  <RichTextEditor.Hr />
+                  <RichTextEditor.BulletList />
+                  <RichTextEditor.OrderedList />
+                  <RichTextEditor.Subscript />
+                  <RichTextEditor.Superscript />
+                </RichTextEditor.ControlsGroup>
 
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Link />
-                <RichTextEditor.Unlink />
-              </RichTextEditor.ControlsGroup>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.Link />
+                  <RichTextEditor.Unlink />
+                </RichTextEditor.ControlsGroup>
 
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.AlignLeft />
-                <RichTextEditor.AlignCenter />
-                <RichTextEditor.AlignJustify />
-                <RichTextEditor.AlignRight />
-              </RichTextEditor.ControlsGroup>
-            </RichTextEditor.Toolbar>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.AlignLeft />
+                  <RichTextEditor.AlignCenter />
+                  <RichTextEditor.AlignJustify />
+                  <RichTextEditor.AlignRight />
+                </RichTextEditor.ControlsGroup>
+              </RichTextEditor.Toolbar>
+            )}
 
             <ClickableEditorContent editor={editor} />
           </RichTextEditor>
@@ -223,43 +231,47 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend }:
         <Flex gap="md" justify="space-between">
           <Flex gap="md">
             <Button variant="light" onClick={onCancel}>
-              Cancel
+              {isReadOnly ? "Back to List" : "Cancel"}
             </Button>
-            <Button 
-              variant="light" 
-              color="red" 
-              leftSection={<IconTrash size={16} />} 
-              onClick={handleDelete}
-            >
-              Delete
-            </Button>
+            {!isReadOnly && (
+              <Button 
+                variant="light" 
+                color="red" 
+                leftSection={<IconTrash size={16} />} 
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            )}
           </Flex>
           
-          <Flex gap="md">
-            <Button 
-              leftSection={<IconSend size={16} />} 
-              onClick={handleSaveAndSend}
-              disabled={!canSend}
-              loading={isSending}
-              color="blue"
-            >
-              {blast?.status === "SENT" ? "Already Sent" : "Save & Send"}
-            </Button>
-            <Button 
-              leftSection={<IconDeviceFloppy size={16} />} 
-              onClick={handleSave}
-              loading={isSaving && !isSending}
-            >
-              Save
-            </Button>
-          </Flex>
+          {!isReadOnly && (
+            <Flex gap="md">
+              <Button 
+                leftSection={<IconSend size={16} />} 
+                onClick={handleSaveAndSend}
+                disabled={!canSend}
+                loading={isSending}
+                color="blue"
+              >
+                {blast?.status === "SENT" ? "Already Sent" : "Save & Send"}
+              </Button>
+              <Button 
+                leftSection={<IconDeviceFloppy size={16} />} 
+                onClick={handleSave}
+                loading={isSaving && !isSending}
+              >
+                Save
+              </Button>
+            </Flex>
+          )}
         </Flex>
       </Stack>
     </Paper>
   );
 }
 
-function EmailBlastList({ emailBlasts, onSelect, onDelete }: EmailBlastListProps) {
+function EmailBlastList({ emailBlasts, onSelect, onView, onDelete }: EmailBlastListProps) {
   if (emailBlasts.length === 0) {
     return (
       <Paper withBorder p="xl">
@@ -289,7 +301,7 @@ function EmailBlastList({ emailBlasts, onSelect, onDelete }: EmailBlastListProps
               <Table.Td>
                 <Text 
                   style={{ cursor: "pointer" }}
-                  onClick={() => onSelect(blast)}
+                  onClick={() => blast.status === "SENT" ? onView(blast) : onSelect(blast)}
                   fw={500}
                 >
                   {blast.subject || "Untitled"}
@@ -310,21 +322,33 @@ function EmailBlastList({ emailBlasts, onSelect, onDelete }: EmailBlastListProps
               </Table.Td>
               <Table.Td>
                 <Group gap="xs">
-                  <ActionIcon
-                    variant="subtle"
-                    onClick={() => onSelect(blast)}
-                    aria-label="Edit"
-                  >
-                    <IconEdit size={16} />
-                  </ActionIcon>
-                  <ActionIcon
-                    variant="subtle"
-                    color="red"
-                    onClick={() => onDelete(blast.id)}
-                    aria-label="Delete"
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
+                  {blast.status === "SENT" ? (
+                    <ActionIcon
+                      variant="subtle"
+                      onClick={() => onView(blast)}
+                      aria-label="View"
+                    >
+                      <IconEye size={16} />
+                    </ActionIcon>
+                  ) : (
+                    <>
+                      <ActionIcon
+                        variant="subtle"
+                        onClick={() => onSelect(blast)}
+                        aria-label="Edit"
+                      >
+                        <IconEdit size={16} />
+                      </ActionIcon>
+                      <ActionIcon
+                        variant="subtle"
+                        color="red"
+                        onClick={() => onDelete(blast.id)}
+                        aria-label="Delete"
+                      >
+                        <IconTrash size={16} />
+                      </ActionIcon>
+                    </>
+                  )}
                 </Group>
               </Table.Td>
             </Table.Tr>
@@ -338,6 +362,7 @@ function EmailBlastList({ emailBlasts, onSelect, onDelete }: EmailBlastListProps
 export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
   const [selectedBlast, setSelectedBlast] = useState<EmailBlast | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [viewMode, setViewMode] = useState<"EDIT" | "VIEW" | null>(null);
 
   const emailBlasts = api.email.emailBlasts.useQuery({ clubId });
 
@@ -348,11 +373,19 @@ export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
 
   const handleCreateNew = () => {
     setSelectedBlast(null);
+    setViewMode("EDIT");
     setIsEditing(true);
   };
 
   const handleSelect = (blast: EmailBlast) => {
     setSelectedBlast(blast);
+    setViewMode("EDIT");
+    setIsEditing(true);
+  };
+
+  const handleView = (blast: EmailBlast) => {
+    setSelectedBlast(blast);
+    setViewMode("VIEW");
     setIsEditing(true);
   };
 
@@ -386,6 +419,7 @@ export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
       if (selectedBlast?.id === id) {
         setSelectedBlast(null);
         setIsEditing(false);
+        setViewMode(null);
       }
     }
   };
@@ -401,15 +435,18 @@ export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
 
   const handleEditorSave = () => {
     setIsEditing(false);
+    setViewMode(null);
   };
 
   const handleEditorCancel = () => {
     setIsEditing(false);
+    setViewMode(null);
   };
 
   const handleBackToList = () => {
     setIsEditing(false);
     setSelectedBlast(null);
+    setViewMode(null);
   };
 
   if (!isLoaded(emailBlasts)) {
@@ -420,19 +457,27 @@ export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
     );
   }
 
+  const isViewMode = viewMode === "VIEW";
+
   return (
     <Stack gap="md">
       <Flex justify="space-between" align="center">
         <Box>
           <Title order={3}>
             {isEditing 
-              ? (selectedBlast ? "Edit Email Blast" : "Create Email Blast")
+              ? (isViewMode 
+                  ? "View Email Blast" 
+                  : selectedBlast ? "Edit Email Blast" : "Create Email Blast"
+                )
               : "Email Blasts"
             }
           </Title>
           <Text size="sm" c="dimmed">
             {isEditing
-              ? (selectedBlast ? "Edit and manage your email blast" : "Create a new email blast for your members")
+              ? (isViewMode 
+                  ? "View the content of this sent email blast" 
+                  : selectedBlast ? "Edit and manage your email blast" : "Create a new email blast for your members"
+                )
               : "Send emails to all active members of your club"
             }
           </Text>
@@ -462,11 +507,13 @@ export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
           onCancel={handleEditorCancel}
           onDelete={handleDelete}
           onSend={handleSend}
+          readOnly={isViewMode}
         />
       ) : (
         <EmailBlastList
           emailBlasts={emailBlasts.data!}
           onSelect={handleSelect}
+          onView={handleView}
           onDelete={handleDelete}
         />
       )}
