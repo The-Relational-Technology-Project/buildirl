@@ -39,7 +39,6 @@ type EmailBlastListProps = {
   emailBlasts: EmailBlast[];
   onSelect: (blast: EmailBlast) => void;
   onDelete: (id: bigint) => void;
-  onSend: (id: bigint) => void;
 };
 
 type EmailBlastEditorProps = {
@@ -260,7 +259,7 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend }:
   );
 }
 
-function EmailBlastList({ emailBlasts, onSelect, onDelete, onSend }: EmailBlastListProps) {
+function EmailBlastList({ emailBlasts, onSelect, onDelete }: EmailBlastListProps) {
   if (emailBlasts.length === 0) {
     return (
       <Paper withBorder p="xl">
@@ -317,15 +316,6 @@ function EmailBlastList({ emailBlasts, onSelect, onDelete, onSend }: EmailBlastL
                     aria-label="Edit"
                   >
                     <IconEdit size={16} />
-                  </ActionIcon>
-                  <ActionIcon
-                    variant="subtle"
-                    color="blue"
-                    onClick={() => onSend(blast.id)}
-                    aria-label={blast.status === "SENT" ? "Already sent" : "Send"}
-                    disabled={blast.status === "SENT"}
-                  >
-                    <IconSend size={16} />
                   </ActionIcon>
                   <ActionIcon
                     variant="subtle"
@@ -478,7 +468,6 @@ export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
           emailBlasts={emailBlasts.data!}
           onSelect={handleSelect}
           onDelete={handleDelete}
-          onSend={handleSend}
         />
       )}
     </Stack>
