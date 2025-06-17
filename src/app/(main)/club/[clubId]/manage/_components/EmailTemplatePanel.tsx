@@ -45,19 +45,19 @@ const TEMPLATE_METADATA: EmailTemplateMetadata[] = [
     value: "ACCEPTANCE",
     label: "Acceptance",
     description:
-      "This email is sent automatically to new members after you have approved them."
+      "This email is sent automatically to new members after you have approved them"
   },
   {
     value: "DEPARTURE",
     label: "Departure",
     description:
-      "This email is sent automatically to members after they leave the club."
+      "This email is sent automatically to members after they leave the club"
   },
   {
     value: "REJECTION",
     label: "Rejection",
     description:
-      "This email is sent automatically to people who's application you have declined."
+      "This email is sent automatically to people who's application you have declined"
   }
 ];
 
@@ -320,13 +320,16 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
   ) : (
     <Paper withBorder p="xl">
       <Stack align="center" gap="md">
-        <Title order={5}>
-          {`No custom email template defined for ${templateMetadata.label}`}
-        </Title>
-        <Text size="md">{`${templateMetadata.description}`}</Text>
-        <Text size="md">{}</Text>
+        <Title
+          order={5}
+          style={{ textAlign: "center" }}
+        >{`Default email will be used for ${templateMetadata.label}.`}</Title>
+        <Text
+          size="md"
+          style={{ textAlign: "center" }}
+        >{`${templateMetadata.description}. You can define a custom email to be sent instead.`}</Text>
         <Button onClick={() => setDraftState("DRAFT")}>
-          Create Email Template
+          Edit Custom Email
         </Button>
       </Stack>
     </Paper>
