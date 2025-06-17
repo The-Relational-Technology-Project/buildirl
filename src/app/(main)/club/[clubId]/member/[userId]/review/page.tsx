@@ -1,20 +1,20 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { strictParseInt } from "~/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import React from "react";
-import { Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import { Stack } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { Membership } from "~/server/membership/types";
-import { handleDefaultMutationError } from "~/client/logger";
 import { Maybe } from "~/utils/types";
 import MembershipInfoCard from "~/app/(main)/club/[clubId]/member/_components/MembershipInfoCard";
 import UserInfoCard from "~/app/(main)/club/[clubId]/member/_components/UserInfoCard";
 import ApplicationResponsesCard from "~/client/components/ApplicationResponsesCard";
-import ActiveMembershipCard from "~/app/(main)/club/[clubId]/member/_components/ActiveMembershipCard";
+import ActiveMembershipActionCard from "~/app/(main)/club/[clubId]/member/_components/ActiveMembershipActionCard";
+import MembershipApplicationActionCard from "~/app/(main)/club/[clubId]/member/_components/MembershipApplicationActionCard";
 
 function findUserMembership(
   userId: number,
@@ -25,100 +25,6 @@ function findUserMembership(
     [...membershipApplications, ...activeMemberships].find(
       (mem) => mem.user.id === userId
     ) || null
-  );
-}
-
-type PendingMembershipCardProps = {
-  clubId: number;
-  membership: Membership;
-};
-
-function PendingMembershipCard({
-  clubId,
-  membership
-}: PendingMembershipCardProps) {
-  const utils = api.useUtils();
-  const router = useRouter();
-
-  const approveMembershipApplication =
-    api.main.approveMembershipApplication.useMutation({
-      onSuccess: async () => {
-        await utils.main.membershipApplicationsForClub.invalidate({ clubId });
-        await utils.main.activeMembershipsForClubWithEmail.invalidate({
-          clubId
-        });
-        await utils.main.activeMembershipsForClub.invalidate({
-          clubId
-        });
-        await utils.main.clubStatistics.invalidate({ clubId });
-        router.push(`/club/${clubId}/manage?tab=people`);
-      },
-      onError: handleDefaultMutationError
-    });
-
-  const declineMembershipApplication =
-    api.main.declineMembershipApplication.useMutation({
-      onSuccess: async () => {
-        await utils.main.membershipApplicationsForClub.invalidate({ clubId });
-        router.push(`/club/${clubId}/manage?tab=people`);
-      },
-      onError: handleDefaultMutationError
-    });
-
-  const handleApproveMembership = async () => {
-    if (
-      window.confirm(
-        "Ready to approve this application? Don't forget to review the application intake form before approving."
-      )
-    ) {
-      await approveMembershipApplication.mutateAsync({
-        membershipId: membership.id
-      });
-    }
-  };
-
-  const handleDeclineMembership = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to decline this application? This action cannot be undone."
-      )
-    ) {
-      await declineMembershipApplication.mutateAsync({
-        membershipId: membership.id
-      });
-    }
-  };
-
-  return (
-    <Paper p="xl">
-      <Stack gap="lg">
-        <Title order={4} fw={500}>
-          Actions
-        </Title>
-        <Text size="sm">
-          Review this application and decide whether to approve or decline
-          membership.
-        </Text>
-        <Group grow>
-          <Button
-            color="green"
-            size="sm"
-            onClick={handleApproveMembership}
-            loading={approveMembershipApplication.isPending}
-          >
-            Approve
-          </Button>
-          <Button
-            color="red"
-            size="sm"
-            onClick={handleDeclineMembership}
-            loading={declineMembershipApplication.isPending}
-          >
-            Decline
-          </Button>
-        </Group>
-      </Stack>
-    </Paper>
   );
 }
 
@@ -173,7 +79,7 @@ export default function MemberReview() {
       {/* include this at the top so the reviewer does not miss it */}
       <Stack gap="xl" pb="xl">
         {pendingMembership && (
-          <PendingMembershipCard
+          <MembershipApplicationActionCard
             clubId={clubId}
             membership={pendingMembership}
           />
@@ -186,7 +92,10 @@ export default function MemberReview() {
         <ApplicationResponsesCard membership={userMembership} />
 
         {activeMembership && (
-          <ActiveMembershipCard clubId={clubId} membership={activeMembership} />
+          <ActiveMembershipActionCard
+            clubId={clubId}
+            membership={activeMembership}
+          />
         )}
       </Stack>
     </WithLocalNavigationHeader>

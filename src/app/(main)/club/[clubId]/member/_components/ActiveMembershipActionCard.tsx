@@ -183,15 +183,15 @@ function DeactivateMembershipSection({
   );
 }
 
-type ActiveMembershipCardProps = {
+type ActiveMembershipActionCardProps = {
   clubId: number;
   membership: Membership;
 };
 
-export default function ActiveMembershipCard({
+export default function ActiveMembershipActionCard({
   clubId,
   membership
-}: ActiveMembershipCardProps) {
+}: ActiveMembershipActionCardProps) {
   return (
     <Paper p="xl">
       <Stack gap="lg">
@@ -202,7 +202,7 @@ export default function ActiveMembershipCard({
           clubId={clubId}
           membership={membership}
         />
-        <Divider />
+        <Divider size={"sm"} />
         <DeactivateMembershipSection clubId={clubId} membership={membership} />
       </Stack>
     </Paper>
