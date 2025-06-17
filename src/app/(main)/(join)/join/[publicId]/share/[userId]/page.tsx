@@ -15,20 +15,20 @@ export default function Share() {
   const userId = strictParseInt(params.userId);
   const router = useRouter();
 
-  const r = api.main.clubByPublicId.useQuery({ publicId });
-  const u = api.main.userById.useQuery({ id: userId });
+  const club = api.main.clubByPublicId.useQuery({ publicId });
+  const user = api.main.userById.useQuery({ id: userId });
 
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
 
   QueryError.check({
-    result: u,
+    result: user,
     fieldName: "userById"
   });
 
-  if (!isAllLoaded([r, u])) {
+  if (!isAllLoaded([club, user])) {
     return null;
   }
 
@@ -43,13 +43,13 @@ export default function Share() {
           {"I'M A PROUD JOINER!"}
         </Title>
 
-        <UserClubHandshake user={u.data!} club={r.data!} />
+        <UserClubHandshake user={user.data!} club={club.data!} />
 
         <Stack gap={"sm"} align={"center"}>
           <Title order={2} mt={"sm"} fw={400}>
             I Am a Member Of
           </Title>
-          <Title order={2}>{r.data!.name}!</Title>
+          <Title order={2}>{club.data!.name}!</Title>
         </Stack>
 
         <PrimaryButton onClick={() => router.push(`/join/${publicId}`)}>

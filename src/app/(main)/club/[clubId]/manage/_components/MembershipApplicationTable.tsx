@@ -32,18 +32,19 @@ export default function MembershipApplicationTable({
   const mounted = useMounted();
 
   const router = useRouter();
-  const r = api.main.membershipApplicationsForClub.useQuery({ clubId: clubId });
+  const membershipApplicationsForClub =
+    api.main.membershipApplicationsForClub.useQuery({ clubId: clubId });
 
   QueryError.check({
-    result: r,
+    result: membershipApplicationsForClub,
     fieldName: "membershipApplicationsForClub"
   });
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(membershipApplicationsForClub)) {
     return null;
   }
 
-  const rows = r.data!.map((m: Membership) => (
+  const rows = membershipApplicationsForClub.data!.map((m: Membership) => (
     <Table.Tr
       key={m.id}
       style={{ cursor: "pointer" }}
@@ -84,7 +85,10 @@ export default function MembershipApplicationTable({
         <Stack px={4} gap={4}>
           <Title order={4}>Pending Applications</Title>
           <Group gap={4}>
-            <Text fw={"bold"} size={"sm"}>{`${r.data!.length}`}</Text>
+            <Text
+              fw={"bold"}
+              size={"sm"}
+            >{`${membershipApplicationsForClub.data!.length}`}</Text>
             <Text size={"sm"}>new applications</Text>
           </Group>
         </Stack>

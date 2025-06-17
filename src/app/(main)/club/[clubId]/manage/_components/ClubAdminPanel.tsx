@@ -22,29 +22,31 @@ export default function ClubAdminPanel({ clubId }: ClubAdminPanelProps) {
     onError: handleDefaultMutationError
   });
 
-  const r = api.main.activeMembershipsForClub.useQuery({
+  const activeMembershipsForClub = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
   });
-  const m = api.main.membershipApplicationsForClub.useQuery({
-    clubId: clubId
-  });
+  const membershipApplicationsForClub =
+    api.main.membershipApplicationsForClub.useQuery({
+      clubId: clubId
+    });
 
   QueryError.check({
-    result: r,
+    result: activeMembershipsForClub,
     fieldName: "activeMembershipsForClub"
   });
   QueryError.check({
-    result: r,
+    result: activeMembershipsForClub,
     fieldName: "membershipApplicationsForClub"
   });
 
-  if (!isAllLoaded([r, m])) {
+  if (!isAllLoaded([activeMembershipsForClub, membershipApplicationsForClub])) {
     return null;
   }
 
   const hasMoreThanOneActiveOrAnyPendingMemberships =
     // allow one remaining lead member
-    r.data!.length > 1 || m.data!.length > 0;
+    activeMembershipsForClub.data!.length > 1 ||
+    membershipApplicationsForClub.data!.length > 0;
 
   const handleDeleteClub = () => {
     if (

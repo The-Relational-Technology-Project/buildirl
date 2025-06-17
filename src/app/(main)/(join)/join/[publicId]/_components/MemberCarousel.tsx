@@ -17,16 +17,16 @@ export default function MemberCarousel({ clubId }: MemberCarouselProps) {
   const router = useRouter();
   const slideWidth = useMatches({ base: 240, md: 300 });
 
-  const r = api.main.activeMembershipsForClub.useQuery({
+  const activeMembershipsForClub = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
   });
 
   QueryError.check({
-    result: r,
+    result: activeMembershipsForClub,
     fieldName: "activeMembershipsForClub"
   });
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(activeMembershipsForClub)) {
     return null;
   }
 
@@ -41,7 +41,7 @@ export default function MemberCarousel({ clubId }: MemberCarouselProps) {
         loop
         withControls={false}
       >
-        {r.data!.map((m) => (
+        {activeMembershipsForClub.data!.map((m) => (
           <Carousel.Slide key={m.id}>
             <Stack align="center" pos="relative">
               {m.role === "LEAD" && (

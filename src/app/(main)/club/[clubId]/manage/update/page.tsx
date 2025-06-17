@@ -305,18 +305,18 @@ export default function UpdateClub() {
   const params = useParams<{ clubId: string }>();
   const clubId = strictParseInt(params.clubId);
 
-  const r = api.main.club.useQuery({ id: clubId });
+  const club = api.main.club.useQuery({ id: clubId });
 
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "club"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(club) && (
       <WithLocalNavigationHeader>
         <Stack px={{ base: 20, sm: 150 }} mb={"md"}>
-          <UpdateClubForm club={r.data!} />
+          <UpdateClubForm club={club.data!} />
         </Stack>
       </WithLocalNavigationHeader>
     )

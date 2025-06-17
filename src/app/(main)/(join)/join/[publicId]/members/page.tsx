@@ -12,19 +12,19 @@ import UserAvatar from "~/client/components/UserAvatar";
 
 export default function ClubMembers() {
   const params = useParams<{ publicId: string }>();
-  const r = api.main.clubByPublicId.useQuery({
+  const club = api.main.clubByPublicId.useQuery({
     publicId: params.publicId
   });
 
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(club) && (
       <WithLocalNavigationHeader>
-        <MemberList clubId={r.data!.id} />
+        <MemberList clubId={club.data!.id} />
       </WithLocalNavigationHeader>
     )
   );
@@ -35,20 +35,20 @@ type MemberListProps = {
 };
 
 function MemberList({ clubId }: MemberListProps) {
-  const r = api.main.activeMembershipsForClub.useQuery({
+  const activeMembershipsForClub = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
   });
 
   QueryError.check({
-    result: r,
+    result: activeMembershipsForClub,
     fieldName: "activeMembershipsForClub"
   });
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(activeMembershipsForClub)) {
     return null;
   }
 
-  const allMembers = r.data!.map((r) => r.user);
+  const allMembers = activeMembershipsForClub.data!.map((r) => r.user);
 
   return (
     <Stack px={{ base: 0, md: "xl" }}>

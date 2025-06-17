@@ -71,28 +71,28 @@ export default function IntakePage() {
   const searchParams = useSearchParams();
   const membershipTierId = strictParseInt(searchParams.get("membershipTierId"));
 
-  const r = api.main.clubByPublicId.useQuery({
+  const club = api.main.clubByPublicId.useQuery({
     publicId: params.publicId
   });
 
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(club)) {
     return;
   }
 
   const defaultFreeTier = isDefaultFreeTier(
-    membershipTier(r.data!, membershipTierId)
+    membershipTier(club.data!, membershipTierId)
   );
 
   return (
     <Stack pt={"xl"} px={{ base: undefined, md: 180 }}>
       <WithLocalNavigationHeader>
         <ApplicationForm
-          applicationQuestions={r.data!.applicationQuestions}
+          applicationQuestions={club.data!.applicationQuestions}
           membershipTierId={membershipTierId}
           isDefaultFreeTier={defaultFreeTier}
           clubPublicId={params.publicId}

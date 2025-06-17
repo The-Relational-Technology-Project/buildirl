@@ -563,7 +563,7 @@ export function createMembershipTierService(
     membershipTierId: number
   ): Promise<boolean> {
     try {
-      const r = await prisma.membershipTier.findUniqueOrThrow({
+      const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
         select: {
           status: true
         },
@@ -572,9 +572,9 @@ export function createMembershipTierService(
         }
       });
       logger.info(
-        `queried status ${r.status} for membership tier with id ${membershipTierId}`
+        `queried status ${membershipTier.status} for membership tier with id ${membershipTierId}`
       );
-      return r.status === "PUBLISHED";
+      return membershipTier.status === "PUBLISHED";
     } catch (e) {
       logger.error(
         e,
