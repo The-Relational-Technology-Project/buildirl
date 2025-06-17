@@ -47,6 +47,8 @@ type EmailBlastEditorProps = {
   blast: EmailBlast | null;
   onSave: () => void;
   onCancel: () => void;
+  onDelete: (id: bigint) => void;
+  onSend: (id: bigint) => void;
 };
 
 type ClickableEditorContentProps = {
@@ -65,18 +67,21 @@ function ClickableEditorContent({
   return <RichTextEditor.Content {...props} onClick={handleClick} />;
 }
 
-function EmailBlastEditor({ clubId, blast, onSave, onCancel }: EmailBlastEditorProps) {
+function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend }: EmailBlastEditorProps) {
   const [subject, setSubject] = useState(blast?.subject ?? "");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   
   const utils = api.useUtils();
   const setEmailBlast = api.email.setEmailBlast.useMutation({
     onSuccess: () => {
       utils.email.emailBlasts.invalidate({ clubId });
       notifySuccess("Success", "Email blast has been saved");
-      onSave();
+      setIsSaving(false);
     },
     onError: (e) => {
       handleDefaultMutationError(e);
+      setIsSaving(false);
     }
   });
 
@@ -99,6 +104,7 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel }: EmailBlastEditorP
       return;
     }
 
+    setIsSaving(true);
     await setEmailBlast.mutateAsync({
       id: blast?.id,
       clubId,
@@ -108,7 +114,56 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel }: EmailBlastEditorP
         textContent: editor.getText()
       }
     });
+    
+    if (!isSending) {
+      onSave();
+    }
   };
+
+  const handleSaveAndSend = async () => {
+    if (!editor) {
+      notifyError("Editor was not available during save; this is unexpected.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "This will save and send the email blast to all active members. This action cannot be undone. Continue?"
+    );
+    if (!confirmed) return;
+   
+    try {
+      setIsSaving(true);
+      setIsSending(true);
+      
+      const savedBlast = await setEmailBlast.mutateAsync({
+        id: blast?.id,
+        clubId,
+        input: {
+          subject,
+          htmlContent: editor.getHTML(),
+          textContent: editor.getText()
+        }
+      });
+
+      const blastId = blast?.id || savedBlast.id;
+      await onSend(blastId);
+      
+      setIsSending(false);
+      onSave(); 
+    } catch {
+      setIsSending(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!blast?.id) {
+      onCancel();
+      return;
+    }
+    await onDelete(blast.id);
+  };
+
+  const canSend = blast?.status !== "SENT";
 
   return (
     <Paper withBorder p="xl">
@@ -166,13 +221,39 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel }: EmailBlastEditorP
           </RichTextEditor>
         </Box>
 
-        <Flex gap="md" justify="flex-end">
-          <Button variant="light" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button leftSection={<IconDeviceFloppy size={16} />} onClick={handleSave}>
-            Save
-          </Button>
+        <Flex gap="md" justify="space-between">
+          <Flex gap="md">
+            <Button variant="light" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button 
+              variant="light" 
+              color="red" 
+              leftSection={<IconTrash size={16} />} 
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </Flex>
+          
+          <Flex gap="md">
+            <Button 
+              leftSection={<IconSend size={16} />} 
+              onClick={handleSaveAndSend}
+              disabled={!canSend}
+              loading={isSending}
+              color="blue"
+            >
+              {blast?.status === "SENT" ? "Already Sent" : "Save & Send"}
+            </Button>
+            <Button 
+              leftSection={<IconDeviceFloppy size={16} />} 
+              onClick={handleSave}
+              loading={isSaving && !isSending}
+            >
+              Save
+            </Button>
+          </Flex>
         </Flex>
       </Stack>
     </Paper>
@@ -237,16 +318,15 @@ function EmailBlastList({ emailBlasts, onSelect, onDelete, onSend }: EmailBlastL
                   >
                     <IconEdit size={16} />
                   </ActionIcon>
-                  {blast.status === "DRAFT" && (
-                    <ActionIcon
-                      variant="subtle"
-                      color="blue"
-                      onClick={() => onSend(blast.id)}
-                      aria-label="Send"
-                    >
-                      <IconSend size={16} />
-                    </ActionIcon>
-                  )}
+                  <ActionIcon
+                    variant="subtle"
+                    color="blue"
+                    onClick={() => onSend(blast.id)}
+                    aria-label={blast.status === "SENT" ? "Already sent" : "Send"}
+                    disabled={blast.status === "SENT"}
+                  >
+                    <IconSend size={16} />
+                  </ActionIcon>
                   <ActionIcon
                     variant="subtle"
                     color="red"
@@ -337,6 +417,11 @@ export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
     setIsEditing(false);
   };
 
+  const handleBackToList = () => {
+    setIsEditing(false);
+    setSelectedBlast(null);
+  };
+
   if (!isLoaded(emailBlasts)) {
     return (
       <Paper withBorder p="xl">
@@ -349,32 +434,51 @@ export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
     <Stack gap="md">
       <Flex justify="space-between" align="center">
         <Box>
-          <Title order={3}>Email Blasts</Title>
+          <Title order={3}>
+            {isEditing 
+              ? (selectedBlast ? "Edit Email Blast" : "Create Email Blast")
+              : "Email Blasts"
+            }
+          </Title>
           <Text size="sm" c="dimmed">
-            Send emails to all active members of your club
+            {isEditing
+              ? (selectedBlast ? "Edit and manage your email blast" : "Create a new email blast for your members")
+              : "Send emails to all active members of your club"
+            }
           </Text>
         </Box>
-        <Button 
-          leftSection={<IconPlus size={16} />}
-          onClick={handleCreateNew}
-        >
-          Create New Blast
-        </Button>
+        {isEditing ? (
+          <Button 
+            variant="light"
+            onClick={handleBackToList}
+          >
+            Back to List
+          </Button>
+        ) : (
+          <Button 
+            leftSection={<IconPlus size={16} />}
+            onClick={handleCreateNew}
+          >
+            Create New Blast
+          </Button>
+        )}
       </Flex>
 
-      <EmailBlastList
-        emailBlasts={emailBlasts.data!}
-        onSelect={handleSelect}
-        onDelete={handleDelete}
-        onSend={handleSend}
-      />
-
-      {isEditing && (
+      {isEditing ? (
         <EmailBlastEditor
           clubId={clubId}
           blast={selectedBlast}
           onSave={handleEditorSave}
           onCancel={handleEditorCancel}
+          onDelete={handleDelete}
+          onSend={handleSend}
+        />
+      ) : (
+        <EmailBlastList
+          emailBlasts={emailBlasts.data!}
+          onSelect={handleSelect}
+          onDelete={handleDelete}
+          onSend={handleSend}
         />
       )}
     </Stack>
