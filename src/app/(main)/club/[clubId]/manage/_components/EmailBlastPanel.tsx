@@ -9,14 +9,27 @@ import {
   Group,
   ActionIcon,
   Flex,
-  Box
+  Box,
+  TextInput,
+  BoxProps
 } from "@mantine/core";
-import { IconPlus, IconSend, IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconPlus, IconSend, IconEdit, IconTrash, IconDeviceFloppy } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
 import { EmailBlast } from "~/server/email/types";
 import { useState } from "react";
+import { RichTextEditor } from "@mantine/tiptap";
+import { Editor, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { Link } from "@mantine/tiptap";
+import { Underline } from "@tiptap/extension-underline";
+import { Superscript } from "@tiptap/extension-superscript";
+import { TextAlign } from "@tiptap/extension-text-align";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Highlight } from "@tiptap/extension-highlight";
+import { handleDefaultMutationError, notifyError, notifySuccess } from "~/client/logger";
+import { Maybe } from "~/utils/types";
 
 type EmailBlastPanelProps = {
   clubId: number;
@@ -28,6 +41,143 @@ type EmailBlastListProps = {
   onDelete: (id: bigint) => void;
   onSend: (id: bigint) => void;
 };
+
+type EmailBlastEditorProps = {
+  clubId: number;
+  blast: EmailBlast | null;
+  onSave: () => void;
+  onCancel: () => void;
+};
+
+type ClickableEditorContentProps = {
+  editor: Maybe<Editor>;
+};
+
+function ClickableEditorContent({
+  editor,
+  ...props
+}: ClickableEditorContentProps & BoxProps) {
+  const handleClick = () => {
+    if (editor && !editor.isFocused) {
+      editor.commands.focus("end");
+    }
+  };
+  return <RichTextEditor.Content {...props} onClick={handleClick} />;
+}
+
+function EmailBlastEditor({ clubId, blast, onSave, onCancel }: EmailBlastEditorProps) {
+  const [subject, setSubject] = useState(blast?.subject ?? "");
+  
+  const utils = api.useUtils();
+  const setEmailBlast = api.email.setEmailBlast.useMutation({
+    onSuccess: () => {
+      utils.email.emailBlasts.invalidate({ clubId });
+      notifySuccess("Success", "Email blast has been saved");
+      onSave();
+    },
+    onError: (e) => {
+      handleDefaultMutationError(e);
+    }
+  });
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      Link,
+      Superscript,
+      Subscript,
+      Highlight,
+      TextAlign.configure({ types: ["heading", "paragraph"] })
+    ],
+    content: blast?.htmlContent || ""
+  });
+
+  const handleSave = async () => {
+    if (!editor) {
+      notifyError("Editor was not available during save; this is unexpected.");
+      return;
+    }
+
+    await setEmailBlast.mutateAsync({
+      id: blast?.id,
+      clubId,
+      input: {
+        subject,
+        htmlContent: editor.getHTML(),
+        textContent: editor.getText()
+      }
+    });
+  };
+
+  return (
+    <Paper withBorder p="xl">
+      <Stack gap="md">
+        <TextInput
+          label="Subject"
+          placeholder="Enter email subject..."
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        />
+
+        <Box>
+          <Text size="sm" fw={500} mb={4}>Content</Text>
+          <RichTextEditor editor={editor}>
+            <RichTextEditor.Toolbar sticky stickyOffset={60}>
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Bold />
+                <RichTextEditor.Italic />
+                <RichTextEditor.Underline />
+                <RichTextEditor.Strikethrough />
+                <RichTextEditor.ClearFormatting />
+                <RichTextEditor.Highlight />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.H1 />
+                <RichTextEditor.H2 />
+                <RichTextEditor.H3 />
+                <RichTextEditor.H4 />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Blockquote />
+                <RichTextEditor.Hr />
+                <RichTextEditor.BulletList />
+                <RichTextEditor.OrderedList />
+                <RichTextEditor.Subscript />
+                <RichTextEditor.Superscript />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Link />
+                <RichTextEditor.Unlink />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.AlignLeft />
+                <RichTextEditor.AlignCenter />
+                <RichTextEditor.AlignJustify />
+                <RichTextEditor.AlignRight />
+              </RichTextEditor.ControlsGroup>
+            </RichTextEditor.Toolbar>
+
+            <ClickableEditorContent editor={editor} />
+          </RichTextEditor>
+        </Box>
+
+        <Flex gap="md" justify="flex-end">
+          <Button variant="light" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button leftSection={<IconDeviceFloppy size={16} />} onClick={handleSave}>
+            Save
+          </Button>
+        </Flex>
+      </Stack>
+    </Paper>
+  );
+}
 
 function EmailBlastList({ emailBlasts, onSelect, onDelete, onSend }: EmailBlastListProps) {
   if (emailBlasts.length === 0) {
@@ -117,6 +267,7 @@ function EmailBlastList({ emailBlasts, onSelect, onDelete, onSend }: EmailBlastL
 
 export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
   const [selectedBlast, setSelectedBlast] = useState<EmailBlast | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const emailBlasts = api.email.emailBlasts.useQuery({ clubId });
 
@@ -126,24 +277,64 @@ export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
   });
 
   const handleCreateNew = () => {
-    // TODO: Implement create new blast
-    console.log("Create new email blast for club", clubId);
+    setSelectedBlast(null);
+    setIsEditing(true);
   };
 
   const handleSelect = (blast: EmailBlast) => {
     setSelectedBlast(blast);
-    // TODO: Implement email blast editor
-    console.log("Selected email blast:", blast.id);
+    setIsEditing(true);
   };
 
-  const handleDelete = (id: bigint) => {
-    // TODO: Implement delete
-    console.log("Delete email blast:", id);
+  const utils = api.useUtils();
+  const deleteEmailBlast = api.email.deleteEmailBlast.useMutation({
+    onSuccess: () => {
+      utils.email.emailBlasts.invalidate({ clubId });
+      notifySuccess("Success", "Email blast has been deleted");
+    },
+    onError: (e) => {
+      handleDefaultMutationError(e);
+    }
+  });
+
+  const sendEmailBlast = api.email.sendEmailBlast.useMutation({
+    onSuccess: () => {
+      utils.email.emailBlasts.invalidate({ clubId });
+      notifySuccess("Success", "Email blast has been sent");
+    },
+    onError: (e) => {
+      handleDefaultMutationError(e);
+    }
+  });
+
+  const handleDelete = async (id: bigint) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this email blast? This action cannot be undone."
+    );
+    if (confirmed) {
+      await deleteEmailBlast.mutateAsync({ id });
+      if (selectedBlast?.id === id) {
+        setSelectedBlast(null);
+        setIsEditing(false);
+      }
+    }
   };
 
-  const handleSend = (id: bigint) => {
-    // TODO: Implement send
-    console.log("Send email blast:", id);
+  const handleSend = async (id: bigint) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to send this email blast to all active members? This action cannot be undone."
+    );
+    if (confirmed) {
+      await sendEmailBlast.mutateAsync({ id });
+    }
+  };
+
+  const handleEditorSave = () => {
+    setIsEditing(false);
+  };
+
+  const handleEditorCancel = () => {
+    setIsEditing(false);
   };
 
   if (!isLoaded(emailBlasts)) {
@@ -178,15 +369,13 @@ export default function EmailBlastPanel({ clubId }: EmailBlastPanelProps) {
         onSend={handleSend}
       />
 
-      {selectedBlast && (
-        <Paper withBorder p="md">
-          <Text size="sm" c="dimmed">
-            Selected: {selectedBlast.subject} (ID: {selectedBlast.id.toString()})
-          </Text>
-          <Text size="sm">
-            Editor coming in next step...
-          </Text>
-        </Paper>
+      {isEditing && (
+        <EmailBlastEditor
+          clubId={clubId}
+          blast={selectedBlast}
+          onSave={handleEditorSave}
+          onCancel={handleEditorCancel}
+        />
       )}
     </Stack>
   );
