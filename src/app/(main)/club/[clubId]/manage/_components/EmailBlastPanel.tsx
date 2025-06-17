@@ -129,11 +129,6 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, r
       notifyError("Editor was not available during save; this is unexpected.");
       return;
     }
-
-    const confirmed = window.confirm(
-      "This will save and send the email blast to all active members. This action cannot be undone. Continue?"
-    );
-    if (!confirmed) return;
    
     try {
       setIsSaving(true);
