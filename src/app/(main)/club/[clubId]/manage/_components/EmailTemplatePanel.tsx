@@ -3,37 +3,25 @@ import {
   ActionIcon,
   Badge,
   Box,
-  BoxProps,
   Button,
   Flex,
   Paper,
   Stack,
   Tabs,
   Text,
-  TextInput,
   Title
 } from "@mantine/core";
-import { RichTextEditor } from "@mantine/tiptap";
-import { Editor, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { Link } from "@mantine/tiptap";
 import React, { useState } from "react";
 import { EmailTemplateType } from "~/server/email/types";
 import EmailBlastPanel from "./EmailBlastPanel";
-import { Underline } from "@tiptap/extension-underline";
-import { Superscript } from "@tiptap/extension-superscript";
-import { TextAlign } from "@tiptap/extension-text-align";
-import { Subscript } from "@tiptap/extension-subscript";
-import { Highlight } from "@tiptap/extension-highlight";
 import {
   handleDefaultMutationError,
-  notifyError,
   notifySuccess
 } from "~/client/logger";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { IconDeviceFloppy, IconTrash } from "@tabler/icons-react";
-import { Maybe } from "~/utils/types";
+import { IconTrash } from "@tabler/icons-react";
+import EmailEditor from "~/client/components/EmailEditor";
 
 type TabValue = EmailTemplateType | "EMAIL_BLAST";
 
@@ -70,22 +58,6 @@ const TAB_METADATA: TabMetadata[] = [
   }
 ];
 
-type ClickableEditorContentProps = {
-  editor: Maybe<Editor>;
-};
-
-function ClickableEditorContent({
-  editor,
-  ...props
-}: ClickableEditorContentProps & BoxProps) {
-  const handleClick = () => {
-    if (editor && !editor.isFocused) {
-      editor.commands.focus("end");
-    }
-  };
-  return <RichTextEditor.Content {...props} onClick={handleClick} />;
-}
-
 type DraftBadgeProps = {
   state: DraftState;
 };
@@ -120,6 +92,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
   // it is complex to integrate tiptap with react-hook-forms or mantine-forms. we are accepting
   // this trade-off given form validation is simple and the state management is minimal
   const [subject, setSubject] = useState("");
+  const [htmlContent, setHtmlContent] = useState("");
 
   const emailTemplate = api.email.emailTemplate.useQuery({
     clubId,
@@ -152,32 +125,18 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     }
   });
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline,
-      Link,
-      Superscript,
-      Subscript,
-      Highlight,
-      TextAlign.configure({ types: ["heading", "paragraph"] })
-    ],
-    content: emailTemplate.data?.htmlContent || ""
-  });
-
   React.useEffect(() => {
-    if (!editor) return;
     if (!emailTemplate.data) return;
-    editor.commands.setContent(emailTemplate.data.htmlContent);
     setSubject(emailTemplate.data.subject);
-  }, [editor, emailTemplate.data]);
+    setHtmlContent(emailTemplate.data.htmlContent);
+  }, [emailTemplate.data]);
+
+  const handleContentChange = (newSubject: string, newHtmlContent: string) => {
+    setSubject(newSubject);
+    setHtmlContent(newHtmlContent);
+  };
 
   const handleSave = async () => {
-    if (!editor) {
-      notifyError("Editor was not available during save; this is unexpected.");
-      return;
-    }
-
     if (draftState === "DRAFT") {
       const confirmed = window.confirm(
         `The email template will become live immediately after save. Confirm save?`
@@ -188,8 +147,8 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
           id: { clubId, type: type },
           input: {
             subject,
-            htmlContent: editor.getHTML(),
-            textContent: editor.getText()
+            htmlContent,
+            textContent: ""
           }
         });
       }
@@ -200,18 +159,15 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
       id: { clubId, type: type },
       input: {
         subject,
-        htmlContent: editor.getHTML(),
-        textContent: editor.getText()
+        htmlContent,
+        textContent: ""
       }
     });
   };
 
   const clearContent = () => {
     setSubject("");
-    if (editor) {
-      editor.commands.setContent("");
-    }
-    return;
+    setHtmlContent("");
   };
 
   const handleDelete = async () => {
@@ -226,6 +182,13 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
         setDraftState("NO_DRAFT");
         await deleteEmailTemplate.mutateAsync({ clubId, type: type });
       }
+      clearContent();
+    }
+  };
+
+  const handleCancel = () => {
+    if (draftState === "DRAFT") {
+      setDraftState("NO_DRAFT");
       clearContent();
     }
   };
@@ -256,74 +219,16 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
             <IconTrash size={20} />
           </ActionIcon>
         </Flex>
-        <Stack gap={"xs"}>
-          <Text size={"sm"} fw={500}>
-            Email Subject
-          </Text>
-          <TextInput
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            required
-            mb="sm"
-          />
-
-          <Text size="sm" fw={500}>
-            Email Content
-          </Text>
-          <RichTextEditor editor={editor}>
-            <RichTextEditor.Toolbar sticky stickyOffset={0}>
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Bold />
-                <RichTextEditor.Italic />
-                <RichTextEditor.Underline />
-                <RichTextEditor.Strikethrough />
-                <RichTextEditor.ClearFormatting />
-                <RichTextEditor.Highlight />
-                <RichTextEditor.Code />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.H1 />
-                <RichTextEditor.H2 />
-                <RichTextEditor.H3 />
-                <RichTextEditor.H4 />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Blockquote />
-                <RichTextEditor.Hr />
-                <RichTextEditor.BulletList />
-                <RichTextEditor.OrderedList />
-                <RichTextEditor.Subscript />
-                <RichTextEditor.Superscript />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Link />
-                <RichTextEditor.Unlink />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.AlignLeft />
-                <RichTextEditor.AlignCenter />
-                <RichTextEditor.AlignJustify />
-                <RichTextEditor.AlignRight />
-              </RichTextEditor.ControlsGroup>
-            </RichTextEditor.Toolbar>
-
-            <ClickableEditorContent editor={editor} mih={240} />
-          </RichTextEditor>
-
-          <Box style={{ alignSelf: "center" }} mt={"sm"}>
-            <Button
-              leftSection={<IconDeviceFloppy size={16} />}
-              onClick={handleSave}
-              loading={setEmailTemplate.isPending}
-            >
-              Save Template
-            </Button>
-          </Box>
-        </Stack>
+        <EmailEditor
+          subject={subject}
+          htmlContent={htmlContent}
+          onContentChange={handleContentChange}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          saveButtonText="Save Template"
+          saveButtonLoading={setEmailTemplate.isPending}
+          minHeight={240}
+        />
       </Stack>
     </Paper>
   ) : (

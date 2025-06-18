@@ -9,27 +9,16 @@ import {
   Group,
   ActionIcon,
   Flex,
-  Box,
-  TextInput,
-  BoxProps
+  Box
 } from "@mantine/core";
-import { IconPlus, IconSend, IconEdit, IconTrash, IconDeviceFloppy, IconEye } from "@tabler/icons-react";
+import { IconPlus, IconEdit, IconTrash, IconEye } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
 import { EmailBlast } from "~/server/email/types";
 import { useState } from "react";
-import { RichTextEditor } from "@mantine/tiptap";
-import { Editor, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { Link } from "@mantine/tiptap";
-import { Underline } from "@tiptap/extension-underline";
-import { Superscript } from "@tiptap/extension-superscript";
-import { TextAlign } from "@tiptap/extension-text-align";
-import { Subscript } from "@tiptap/extension-subscript";
-import { Highlight } from "@tiptap/extension-highlight";
 import { handleDefaultMutationError, notifyError, notifySuccess } from "~/client/logger";
-import { Maybe } from "~/utils/types";
+import EmailEditor from "~/client/components/EmailEditor";
 
 type EmailBlastPanelProps = {
   clubId: number;
@@ -52,24 +41,9 @@ type EmailBlastEditorProps = {
   readOnly?: boolean;
 };
 
-type ClickableEditorContentProps = {
-  editor: Maybe<Editor>;
-};
-
-function ClickableEditorContent({
-  editor,
-  ...props
-}: ClickableEditorContentProps & BoxProps) {
-  const handleClick = () => {
-    if (editor && !editor.isFocused) {
-      editor.commands.focus("end");
-    }
-  };
-  return <RichTextEditor.Content {...props} onClick={handleClick} />;
-}
-
 function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, readOnly }: EmailBlastEditorProps) {
   const [subject, setSubject] = useState(blast?.subject ?? "");
+  const [htmlContent, setHtmlContent] = useState(blast?.htmlContent ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [isSending, setIsSending] = useState(false);
   
@@ -100,46 +74,35 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, r
     }
   });
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline,
-      Link,
-      Superscript,
-      Subscript,
-      Highlight,
-      TextAlign.configure({ types: ["heading", "paragraph"] })
-    ],
-    content: blast?.htmlContent || "",
-    editable: !isReadOnly
-  });
+  const handleContentChange = (newSubject: string, newHtmlContent: string) => {
+    setSubject(newSubject);
+    setHtmlContent(newHtmlContent);
+  };
 
   const handleSave = async () => {
-    if (!editor || isReadOnly) {
-      notifyError("Editor was not available during save; this is unexpected.");
+    if (isReadOnly) {
+      notifyError("Cannot save in read-only mode.");
       return;
     }
 
     setIsSaving(true);
     
     if (blast?.id) {
-      // UPDATE existing blast
       await updateEmailBlast.mutateAsync({
         id: blast.id,
         input: {
           subject,
-          htmlContent: editor.getHTML(),
-          textContent: editor.getText()
+          htmlContent,
+          textContent: ""
         }
       });
     } else {
-      // CREATE new blast
       await createEmailBlast.mutateAsync({
         clubId,
         input: {
           subject,
-          htmlContent: editor.getHTML(),
-          textContent: editor.getText()
+          htmlContent,
+          textContent: ""
         }
       });
     }
@@ -150,8 +113,8 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, r
   };
 
   const handleSaveAndSend = async () => {
-    if (!editor || isReadOnly) {
-      notifyError("Editor was not available during save; this is unexpected.");
+    if (isReadOnly) {
+      notifyError("Cannot save and send in read-only mode.");
       return;
     }
    
@@ -162,24 +125,22 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, r
       let blastId: bigint;
       
       if (blast?.id) {
-        // UPDATE existing blast
         await updateEmailBlast.mutateAsync({
           id: blast.id,
           input: {
             subject,
-            htmlContent: editor.getHTML(),
-            textContent: editor.getText()
+            htmlContent,
+            textContent: ""
           }
         });
         blastId = blast.id;
       } else {
-        // CREATE new blast
         const savedBlast = await createEmailBlast.mutateAsync({
           clubId,
           input: {
             subject,
-            htmlContent: editor.getHTML(),
-            textContent: editor.getText()
+            htmlContent,
+            textContent: ""
           }
         });
         blastId = savedBlast.id;
@@ -206,106 +167,22 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, r
 
   return (
     <Paper withBorder p="xl">
-      <Stack gap="md">
-        <TextInput
-          label="Subject"
-          placeholder="Enter email subject..."
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          readOnly={isReadOnly}
-        />
-
-        <Box>
-          <Text size="sm" fw={500} mb={4}>Content</Text>
-          <RichTextEditor editor={editor}>
-            {!isReadOnly && (
-              <RichTextEditor.Toolbar sticky stickyOffset={60}>
-                <RichTextEditor.ControlsGroup>
-                  <RichTextEditor.Bold />
-                  <RichTextEditor.Italic />
-                  <RichTextEditor.Underline />
-                  <RichTextEditor.Strikethrough />
-                  <RichTextEditor.ClearFormatting />
-                  <RichTextEditor.Highlight />
-                </RichTextEditor.ControlsGroup>
-
-                <RichTextEditor.ControlsGroup>
-                  <RichTextEditor.H1 />
-                  <RichTextEditor.H2 />
-                  <RichTextEditor.H3 />
-                  <RichTextEditor.H4 />
-                </RichTextEditor.ControlsGroup>
-
-                <RichTextEditor.ControlsGroup>
-                  <RichTextEditor.Blockquote />
-                  <RichTextEditor.Hr />
-                  <RichTextEditor.BulletList />
-                  <RichTextEditor.OrderedList />
-                  <RichTextEditor.Subscript />
-                  <RichTextEditor.Superscript />
-                </RichTextEditor.ControlsGroup>
-
-                <RichTextEditor.ControlsGroup>
-                  <RichTextEditor.Link />
-                  <RichTextEditor.Unlink />
-                </RichTextEditor.ControlsGroup>
-
-                <RichTextEditor.ControlsGroup>
-                  <RichTextEditor.AlignLeft />
-                  <RichTextEditor.AlignCenter />
-                  <RichTextEditor.AlignJustify />
-                  <RichTextEditor.AlignRight />
-                </RichTextEditor.ControlsGroup>
-              </RichTextEditor.Toolbar>
-            )}
-
-            <ClickableEditorContent editor={editor} />
-          </RichTextEditor>
-        </Box>
-
-        <Flex gap="md" justify="space-between">
-          <Flex gap="md">
-            <Button variant="light" onClick={onCancel}>
-              {isReadOnly ? "Back to List" : "Cancel"}
-            </Button>
-            {!isReadOnly && (
-              <Button 
-                variant="light" 
-                color="red" 
-                leftSection={<IconTrash size={16} />} 
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-            )}
-          </Flex>
-          
-          {!isReadOnly && (
-            <Flex gap="md">
-              <Button 
-                leftSection={<IconSend size={16} />} 
-                onClick={handleSaveAndSend}
-                disabled={!canSend}
-                loading={isSending}
-                color="blue"
-              >
-                {blast?.status === "SENT" ? "Already Sent" : "Save & Send"}
-              </Button>
-              <Button 
-                leftSection={<IconDeviceFloppy size={16} />} 
-                onClick={handleSave}
-                loading={
-                  blast?.id 
-                    ? (isSaving && !isSending) ? updateEmailBlast.isPending : false
-                    : (isSaving && !isSending) ? createEmailBlast.isPending : false
-                }
-              >
-                Save
-              </Button>
-            </Flex>
-          )}
-        </Flex>
-      </Stack>
+      <EmailEditor
+        subject={subject}
+        htmlContent={htmlContent}
+        onContentChange={handleContentChange}
+        readOnly={isReadOnly}
+        onSave={handleSave}
+        onSend={handleSaveAndSend}
+        onDelete={handleDelete}
+        onCancel={onCancel}
+        saveButtonLoading={isSaving && !isSending}
+        sendButtonLoading={isSending}
+        sendButtonDisabled={!canSend}
+        sendButtonText={blast?.status === "SENT" ? "Already Sent" : "Save & Send"}
+        showDeleteButton={true}
+        showSendButton={true}
+      />
     </Paper>
   );
 }
