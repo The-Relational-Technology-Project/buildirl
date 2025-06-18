@@ -12,10 +12,18 @@ export default function RoleBadge({
   hideMember = false
 }: RoleBadgeProps) {
   if (role === "LEAD") {
-    return <Badge color="orange">{role}</Badge>;
+    return (
+      <Badge w={60} color="orange">
+        {role}
+      </Badge>
+    );
   }
   if (!hideMember && role === "MEMBER") {
-    return <Badge color="grey">{role}</Badge>;
+    return (
+      <Badge w={80} color="grey">
+        {role}
+      </Badge>
+    );
   }
   return null;
 }
