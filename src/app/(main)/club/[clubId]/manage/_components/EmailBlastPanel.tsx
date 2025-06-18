@@ -76,7 +76,19 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, r
   const isReadOnly = readOnly || blast?.status === "SENT";
   
   const utils = api.useUtils();
-  const setEmailBlast = api.email.setEmailBlast.useMutation({
+  const createEmailBlast = api.email.createEmailBlast.useMutation({
+    onSuccess: () => {
+      utils.email.emailBlasts.invalidate({ clubId });
+      notifySuccess("Success", "Email blast has been saved");
+      setIsSaving(false);
+    },
+    onError: (e) => {
+      handleDefaultMutationError(e);
+      setIsSaving(false);
+    }
+  });
+
+  const updateEmailBlast = api.email.updateEmailBlast.useMutation({
     onSuccess: () => {
       utils.email.emailBlasts.invalidate({ clubId });
       notifySuccess("Success", "Email blast has been saved");
@@ -109,15 +121,28 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, r
     }
 
     setIsSaving(true);
-    await setEmailBlast.mutateAsync({
-      id: blast?.id,
-      clubId,
-      input: {
-        subject,
-        htmlContent: editor.getHTML(),
-        textContent: editor.getText()
-      }
-    });
+    
+    if (blast?.id) {
+      // UPDATE existing blast
+      await updateEmailBlast.mutateAsync({
+        id: blast.id,
+        input: {
+          subject,
+          htmlContent: editor.getHTML(),
+          textContent: editor.getText()
+        }
+      });
+    } else {
+      // CREATE new blast
+      await createEmailBlast.mutateAsync({
+        clubId,
+        input: {
+          subject,
+          htmlContent: editor.getHTML(),
+          textContent: editor.getText()
+        }
+      });
+    }
     
     if (!isSending) {
       onSave();
@@ -134,17 +159,32 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, r
       setIsSaving(true);
       setIsSending(true);
       
-      const savedBlast = await setEmailBlast.mutateAsync({
-        id: blast?.id,
-        clubId,
-        input: {
-          subject,
-          htmlContent: editor.getHTML(),
-          textContent: editor.getText()
-        }
-      });
+      let blastId: bigint;
+      
+      if (blast?.id) {
+        // UPDATE existing blast
+        await updateEmailBlast.mutateAsync({
+          id: blast.id,
+          input: {
+            subject,
+            htmlContent: editor.getHTML(),
+            textContent: editor.getText()
+          }
+        });
+        blastId = blast.id;
+      } else {
+        // CREATE new blast
+        const savedBlast = await createEmailBlast.mutateAsync({
+          clubId,
+          input: {
+            subject,
+            htmlContent: editor.getHTML(),
+            textContent: editor.getText()
+          }
+        });
+        blastId = savedBlast.id;
+      }
 
-      const blastId = blast?.id || savedBlast.id;
       await onSend(blastId);
       
       setIsSending(false);
@@ -254,7 +294,11 @@ function EmailBlastEditor({ clubId, blast, onSave, onCancel, onDelete, onSend, r
               <Button 
                 leftSection={<IconDeviceFloppy size={16} />} 
                 onClick={handleSave}
-                loading={isSaving && !isSending}
+                loading={
+                  blast?.id 
+                    ? (isSaving && !isSending) ? updateEmailBlast.isPending : false
+                    : (isSaving && !isSending) ? createEmailBlast.isPending : false
+                }
               >
                 Save
               </Button>

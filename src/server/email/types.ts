@@ -17,7 +17,8 @@ type EmailMutations = {
   ): Promise<MutationResult>;
   // deleting email template will fall back to default
   deleteEmailTemplate(id: EmailTemplateId): Promise<MutationResult>;
-  setEmailBlast(id: bigint | undefined, clubId: number, input: SetEmailBlastInput): Promise<{ id: bigint }>;
+  createEmailBlast(clubId: number, input: EmailBlastInput): Promise<{ id: bigint }>;
+  updateEmailBlast(id: bigint, input: EmailBlastInput): Promise<{ id: bigint }>;
   deleteEmailBlast(id: bigint): Promise<MutationResult>;
 };
 
@@ -156,9 +157,9 @@ export type EmailBlast = {
 
 export type EmailBlastStatus = "DRAFT" | "SENT";
 
-export const SetEmailBlastInputSchema = z.object({
+export const EmailBlastInputSchema = z.object({
   subject: z.string().min(1, "Subject is required").max(500, "Subject must be <= 500 characters").optional(),
   htmlContent: z.string().max(15000, "HTML content must be <= 15000 characters").optional(),
   textContent: z.string().max(10000, "Text content must be <= 10000 characters").optional()
 });
-export type SetEmailBlastInput = z.infer<typeof SetEmailBlastInputSchema>;
+export type EmailBlastInput = z.infer<typeof EmailBlastInputSchema>;

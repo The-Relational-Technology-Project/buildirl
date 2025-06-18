@@ -6,7 +6,7 @@ import {
   DEFAULT_APPLICATION_QUESTIONS,
   DEFAULT_FREE_MEMBERSHIP_TIER
 } from "~/server/utils/defaults";
-import { EmailTemplateType, SetEmailTemplateInput, EmailBlastStatus, SetEmailBlastInput } from "~/server/email/types";
+import { EmailTemplateType, SetEmailTemplateInput, EmailBlastStatus, EmailBlastInput } from "~/server/email/types";
 import { EmailTemplate } from "~/server/email/types";
 import { EmailTemplateId } from "~/server/email/types";
 import { ItemSelector } from "./utils/itemSelector";
@@ -929,7 +929,7 @@ export class SystemState {
     return { clubId, type };
   }
 
-  public createEmailBlast(id: bigint, clubId: number, input: SetEmailBlastInput) {
+  public createEmailBlast(id: bigint, clubId: number, input: EmailBlastInput) {
     if (this.emailBlasts.has(id)) {
       throw new Error(`email blast with id ${id} already exists`);
     }
@@ -943,7 +943,7 @@ export class SystemState {
     });
   }
 
-  public updateEmailBlast(id: bigint, input: SetEmailBlastInput) {
+  public updateEmailBlast(id: bigint, input: EmailBlastInput) {
     const emailBlast = this.getEmailBlastState(id);
     this.emailBlasts.set(id, {
       ...emailBlast,

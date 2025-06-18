@@ -4,7 +4,7 @@ import {
   EmailTemplateId,
   SetEmailTemplateInput,
   EmailBlast,
-  SetEmailBlastInput,
+  EmailBlastInput,
   SendDefaultEmailForMembershipApplicationSubmittedInput,
   SendDefaultEmailForMembershipApprovedInput,
   SendDefaultEmailForMembershipDeclinedInput,
@@ -302,46 +302,45 @@ export function createEmailService(
     }
   }
 
-  async function setEmailBlast(
-    id: bigint | undefined,
+  async function createEmailBlast(
     clubId: number,
-    input: SetEmailBlastInput
+    input: EmailBlastInput
   ): Promise<{ id: bigint }> {
     try {
-      if (id !== undefined) {
-        await prisma.emailBlast.upsert({
-          where: { id },
-          update: {
-            ...input
-          },
-          create: {
-            id,
-            subject: input.subject ?? "",
-            htmlContent: input.htmlContent ?? "",
-            textContent: input.textContent ?? "",
-            status: "DRAFT",
-            clubId
-          }
-        });
+      const newBlast = await prisma.emailBlast.create({
+        data: {
+          subject: input.subject ?? "",
+          htmlContent: input.htmlContent ?? "",
+          textContent: input.textContent ?? "",
+          status: "DRAFT",
+          clubId
+        }
+      });
 
-        logger.info(`updated email blast with id ${id} with input ${stringify(input)}`);
-        return { id };
-      } else {
-        const newBlast = await prisma.emailBlast.create({
-          data: {
-            subject: input.subject ?? "",
-            htmlContent: input.htmlContent ?? "",
-            textContent: input.textContent ?? "",
-            status: "DRAFT",
-            clubId
-          }
-        });
-
-        logger.info(`created new email blast with id ${newBlast.id} with input ${stringify(input)}`);
-        return { id: newBlast.id };
-      }
+      logger.info(`created new email blast with id ${newBlast.id} with input ${stringify(input)}`);
+      return { id: newBlast.id };
     } catch (e) {
-      logger.error(e, `failed to set email blast with id ${id} with input ${stringify(input)}`);
+      logger.error(e, `failed to create email blast with input ${stringify(input)}`);
+      throw e;
+    }
+  }
+
+  async function updateEmailBlast(
+    id: bigint,
+    input: EmailBlastInput
+  ): Promise<{ id: bigint }> {
+    try {
+      await prisma.emailBlast.update({
+        where: { id },
+        data: {
+          ...input
+        }
+      });
+
+      logger.info(`updated email blast with id ${id} with input ${stringify(input)}`);
+      return { id };
+    } catch (e) {
+      logger.error(e, `failed to update email blast with id ${id} with input ${stringify(input)}`);
       throw e;
     }
   }
@@ -443,7 +442,8 @@ export function createEmailService(
     setEmailTemplate,
     deleteEmailTemplate,
     getEmailBlasts,
-    setEmailBlast,
+    createEmailBlast,
+    updateEmailBlast,
     deleteEmailBlast,
     sendDefaultEmailForMembershipApplicationSubmitted,
     sendDefaultEmailForMembershipApproved,

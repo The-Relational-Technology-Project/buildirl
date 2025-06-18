@@ -53,7 +53,8 @@ import { CitySchema } from "~/server/club/types/location";
 import { EmailTemplateType } from "~/server/email/types";
 import SetEmailTemplateCommand from "./setEmailTemplateCommand";
 import DeleteEmailTemplateCommand from "./deleteEmailTemplateCommand";
-import SetEmailBlastCommand from "./setEmailBlastCommand";
+import CreateEmailBlastCommand from "./createEmailBlastCommand";
+import UpdateEmailBlastCommand from "./updateEmailBlastCommand";
 import DeleteEmailBlastCommand from "./deleteEmailBlastCommand";
 import SendEmailBlastCommand from "./sendEmailBlastCommand";
 import SetMembershipAsLeadCommand from "./setMembershipAsLeadCommand";
@@ -86,7 +87,8 @@ export const allCommands = () => {
     deleteEmailTemplateCommands(),
     setAsLeadCommands(),
     clearRoleCommands(),
-    setEmailBlastCommands(),
+    createEmailBlastCommands(),
+    updateEmailBlastCommands(),
     deleteEmailBlastCommands(),
     sendEmailBlastCommands()
   ];
@@ -433,25 +435,40 @@ function deleteEmailTemplateCommands() {
   );
 }
 
-function setEmailBlastCommands() {
+function createEmailBlastCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
-    emailBlastIdSelector: itemSelector<bigint>(),
     subject: string({ maxLength: 200 }),
     htmlContent: string({ maxLength: 20000 }),
-    textContent: string({ maxLength: 20000 }),
-    isUpdate: boolean()
+    textContent: string({ maxLength: 20000 })
   }).map(
     (i) =>
-      new SetEmailBlastCommand(
-        i.clubIdSelector,
-        i.emailBlastIdSelector,
+      new CreateEmailBlastCommand(
         {
           subject: i.subject,
           htmlContent: i.htmlContent,
           textContent: i.textContent
         },
-        i.isUpdate
+        i.clubIdSelector
+      )
+  );
+}
+
+function updateEmailBlastCommands() {
+  return record({
+    emailBlastIdSelector: itemSelector<bigint>(),
+    subject: string({ maxLength: 200 }),
+    htmlContent: string({ maxLength: 20000 }),
+    textContent: string({ maxLength: 20000 })
+  }).map(
+    (i) =>
+      new UpdateEmailBlastCommand(
+        i.emailBlastIdSelector,
+        {
+          subject: i.subject,
+          htmlContent: i.htmlContent,
+          textContent: i.textContent
+        }
       )
   );
 }

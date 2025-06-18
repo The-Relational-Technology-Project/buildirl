@@ -8,7 +8,7 @@ import { TRPCError } from "@trpc/server";
 import {
   EmailTemplateIdSchema,
   SetEmailTemplateInputSchema,
-  SetEmailBlastInputSchema
+  EmailBlastInputSchema
 } from "~/server/email/types";
 
 export const emailRouter = createTRPCRouter({
@@ -55,19 +55,32 @@ export const emailRouter = createTRPCRouter({
       return ctx.service.email.getEmailBlasts(input.clubId);
     }),
 
-  setEmailBlast: securedProcedureWithAbilityFor("Club")
+  createEmailBlast: securedProcedureWithAbilityFor("Club")
     .input(
       z.object({
-        id: z.bigint().optional(),
         clubId: z.number(),
-        input: SetEmailBlastInputSchema
+        input: EmailBlastInputSchema
       })
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.email.setEmailBlast(input.id, input.clubId, input.input);
+      return ctx.service.email.createEmailBlast(input.clubId, input.input);
+    }),
+
+  updateEmailBlast: securedProcedureWithAbilityFor("EmailBlast")
+    .input(
+      z.object({
+        id: z.bigint(),
+        input: EmailBlastInputSchema
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.ability.can("manage", subject("EmailBlast", { id: input.id }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.email.updateEmailBlast(input.id, input.input);
     }),
 
   deleteEmailBlast: securedProcedureWithAbilityFor("EmailBlast")
