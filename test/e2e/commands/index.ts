@@ -55,7 +55,6 @@ import SetEmailTemplateCommand from "./setEmailTemplateCommand";
 import DeleteEmailTemplateCommand from "./deleteEmailTemplateCommand";
 import SetEmailBlastCommand from "./setEmailBlastCommand";
 import DeleteEmailBlastCommand from "./deleteEmailBlastCommand";
-import SetEmailBlastStatusCommand from "./setEmailBlastStatusCommand";
 import SendEmailBlastCommand from "./sendEmailBlastCommand";
 import SetMembershipAsLeadCommand from "./setMembershipAsLeadCommand";
 import ClearMembershipRoleCommand from "./clearMembershipRoleCommand";
@@ -89,7 +88,6 @@ export const allCommands = () => {
     clearRoleCommands(),
     setEmailBlastCommands(),
     deleteEmailBlastCommands(),
-    setEmailBlastStatusCommands(),
     sendEmailBlastCommands()
   ];
 };
@@ -463,16 +461,6 @@ function deleteEmailBlastCommands() {
     emailBlastIdSelector: itemSelector<bigint>()
   }).map(
     (i) => new DeleteEmailBlastCommand(i.emailBlastIdSelector)
-  );
-}
-
-function setEmailBlastStatusCommands() {
-  return record({
-    emailBlastIdSelector: itemSelector<bigint>(),
-    status: constant("SENT" as const)
-  }).map(
-    (i) =>
-      new SetEmailBlastStatusCommand(i.emailBlastIdSelector, i.status)
   );
 }
 

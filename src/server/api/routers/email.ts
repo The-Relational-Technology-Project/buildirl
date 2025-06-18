@@ -55,19 +55,6 @@ export const emailRouter = createTRPCRouter({
       return ctx.service.email.getEmailBlasts(input.clubId);
     }),
 
-  emailBlast: securedProcedureWithAbilityFor("Club")
-    .input(z.object({ id: z.bigint() }))
-    .query(async ({ ctx, input }) => {
-      const emailBlast = await ctx.service.email.getEmailBlast(input.id);
-      if (!emailBlast) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
-      if (!ctx.ability.can("manage", subject("Club", { id: emailBlast.clubId }))) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
-      return emailBlast;
-    }),
-
   setEmailBlast: securedProcedureWithAbilityFor("Club")
     .input(
       z.object({

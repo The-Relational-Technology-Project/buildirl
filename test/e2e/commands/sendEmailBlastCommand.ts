@@ -27,7 +27,7 @@ export default class SendEmailBlastCommand
     this.clubId = m.getEmailBlast(this.emailBlastId).clubId;
     
     await r.email.sendEmailBlast(this.emailBlastId);
-    m.setEmailBlastStatus(this.emailBlastId, "SENT");
+    m.sendEmailBlast(this.emailBlastId);
 
     await verifiers.verifyEmailBlast(this.emailBlastId, r.email, m);
     await verifiers.verifyEmailBlasts(this.clubId, r.email, m);

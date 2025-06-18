@@ -19,7 +19,6 @@ type EmailMutations = {
   // deleting email template will fall back to default
   deleteEmailTemplate(id: EmailTemplateId): Promise<MutationResult>;
   setEmailBlast(id: bigint | undefined, clubId: number, input: SetEmailBlastInput): Promise<{ id: bigint }>;
-  setEmailBlastStatus(id: bigint, status: EmailBlastStatus): Promise<MutationResult>;
   deleteEmailBlast(id: bigint): Promise<MutationResult>;
 };
 

@@ -947,14 +947,6 @@ export class SystemState {
     this.emailBlasts.delete(id);
   }
 
-  public setEmailBlastStatus(id: bigint, status: EmailBlastStatus) {
-    const emailBlast = this.getEmailBlastState(id);
-    this.emailBlasts.set(id, {
-      ...emailBlast,
-      status
-    });
-  }
-
   private getEmailBlastState(id: bigint): EmailBlastState {
     const emailBlast = this.emailBlasts.get(id);
     if (!emailBlast) {
@@ -997,6 +989,14 @@ export class SystemState {
 
   public selectEmailBlast(emailBlastIdSelector: ItemSelector<bigint>): bigint {
     return emailBlastIdSelector.select(this.getEmailBlastIds());
+  }
+
+  public sendEmailBlast(id: bigint) {
+    const emailBlast = this.getEmailBlastState(id);
+    this.emailBlasts.set(id, {
+      ...emailBlast,
+      status: "SENT"
+    });
   }
 
   private deleteEmailBlastsForClub(clubId: number) {

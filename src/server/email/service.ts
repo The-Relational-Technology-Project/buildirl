@@ -463,7 +463,6 @@ export function createEmailService(
     getEmailBlast,
     getEmailBlasts,
     setEmailBlast,
-    setEmailBlastStatus,
     deleteEmailBlast,
     sendDefaultEmailForMembershipApplicationSubmitted,
     sendDefaultEmailForMembershipApproved,
