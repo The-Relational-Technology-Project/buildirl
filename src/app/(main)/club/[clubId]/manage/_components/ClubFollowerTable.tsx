@@ -48,10 +48,20 @@ export default function ClubFollowerTable({ clubId }: ClubFollowerTableProps) {
         </Group>
       </Table.Td>
 
-      <Table.Td>{`${toDisplayDate(f.createdAt)}`}</Table.Td>
+      <Table.Td>
+        <Text
+          size={"sm"}
+          style={{ textWrap: "nowrap" }}
+        >{`${toDisplayDate(f.createdAt)}`}</Text>
+      </Table.Td>
 
       <Table.Td>
-        <Anchor size={"sm"} c={"black"} href={`mailto:${f.email}`}>
+        <Anchor
+          size={"sm"}
+          c={"black"}
+          style={{ textWrap: "nowrap" }}
+          href={`mailto:${f.email}`}
+        >
           {f.email}
         </Anchor>
       </Table.Td>

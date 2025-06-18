@@ -59,11 +59,29 @@ export default function MembershipApplicationTable({
           >{`${m.user.firstName} ${m.user.lastName}`}</Text>
         </Group>
       </Table.Td>
-      <Table.Td>{m.membershipTier.name}</Table.Td>
-      <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
-      <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
       <Table.Td>
-        {m.email === null ? null : <Text size="sm">{m.email}</Text>}
+        <Text size={"sm"} style={{ textWrap: "nowrap" }}>
+          {m.membershipTier.name}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text
+          size={"sm"}
+          style={{ textWrap: "nowrap" }}
+        >{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Text>
+      </Table.Td>
+      <Table.Td>
+        <Text
+          size={"sm"}
+          style={{ textWrap: "nowrap" }}
+        >{`${toDisplayDate(m.createdAt)}`}</Text>
+      </Table.Td>
+      <Table.Td>
+        {m.email === null ? null : (
+          <Text size="sm" style={{ textWrap: "nowrap" }}>
+            {m.email}
+          </Text>
+        )}
       </Table.Td>
       <Table.Td onClick={(e) => e.stopPropagation()}>
         <Button

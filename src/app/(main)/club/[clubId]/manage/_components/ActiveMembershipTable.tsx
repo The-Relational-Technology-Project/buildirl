@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Group,
   Paper,
@@ -63,13 +64,25 @@ export default function ActiveMembershipTable({
           >{`${m.user.firstName} ${m.user.lastName}`}</Text>
         </Group>
       </Table.Td>
-      <Table.Td>{m.membershipTier.name}</Table.Td>
-      <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
+      <Table.Td>
+        <Text size={"sm"} style={{ textWrap: "nowrap" }}>
+          {m.membershipTier.name}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text size={"sm"} style={{ textWrap: "nowrap" }}>
+          {`$${m.membershipTier.costPerMonthInUSD}.00/month`}
+        </Text>
+      </Table.Td>
       <Table.Td>
         <RoleBadge role={m.role} hideMember />
       </Table.Td>
       <Table.Td>
-        {m.email === null ? null : <Text size="sm">{m.email}</Text>}
+        {m.email === null ? null : (
+          <Text size="sm" style={{ textWrap: "nowrap" }}>
+            {m.email}
+          </Text>
+        )}
       </Table.Td>
       <Table.Td onClick={(e) => e.stopPropagation()}>
         <Button
