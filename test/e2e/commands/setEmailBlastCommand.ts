@@ -55,7 +55,6 @@ export default class SetEmailBlastCommand
       m.createEmailBlast(this.id, this.clubId, this.input);
     }
 
-    await verifiers.verifyEmailBlast(this.id, r.email, m);
     await verifiers.verifyEmailBlasts(this.clubId, r.email, m);
   }
 

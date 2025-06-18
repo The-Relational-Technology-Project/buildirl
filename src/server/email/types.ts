@@ -7,7 +7,6 @@ export type EmailService = EmailQueries & EmailMutations & EmailNotifications;
 
 type EmailQueries = {
   getEmailTemplate(id: EmailTemplateId): Promise<Maybe<EmailTemplate>>;
-  getEmailBlast(id: bigint): Promise<Maybe<EmailBlast>>;
   getEmailBlasts(clubId: number): Promise<EmailBlast[]>;
 };
 

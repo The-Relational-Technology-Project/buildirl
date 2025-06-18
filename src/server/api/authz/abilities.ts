@@ -60,6 +60,13 @@ export async function defineAbilityFor(
       );
       can("manage", "MembershipTier", { id: { $in: membershipTierIds } });
       break;
+    case "EmailBlast":
+      const emailBlastIds = await getEmailBlastIdsForClubsLedByUser(
+        prisma,
+        userId
+      );
+      can("manage", "EmailBlast", { id: { $in: emailBlastIds } });
+      break;
     default:
       throw new Error(`unrecognized subject type ${subject}`);
   }
@@ -157,4 +164,17 @@ async function getMembershipIdsForUser(
   });
 
   return memberships.map((m) => m.id);
+}
+
+async function getEmailBlastIdsForClubsLedByUser(
+  prisma: PrismaClient,
+  userId: number
+): Promise<bigint[]> {
+  const ledClubIds = await getUserLedClubIds(prisma, userId);
+  const emailBlasts = await prisma.emailBlast.findMany({
+    where: { clubId: { in: ledClubIds } },
+    select: { id: true }
+  });
+
+  return emailBlasts.map((blast) => blast.id);
 }

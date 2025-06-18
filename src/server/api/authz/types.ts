@@ -19,9 +19,14 @@ export type MembershipSubject = {
   id: bigint;
 };
 
+export type EmailBlastSubject = {
+  id: bigint;
+};
+
 export type AppSubjects = {
   User: Partial<UserSubject>;
   Club: Partial<ClubSubject>;
   MembershipTier: Partial<MembershipTierSubject>;
   Membership: Partial<MembershipSubject>;
+  EmailBlast: Partial<EmailBlastSubject>;
 };

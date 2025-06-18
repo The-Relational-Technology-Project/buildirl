@@ -192,19 +192,6 @@ function createVerifiers() {
     };
   }
 
-  async function verifyEmailBlast(
-    id: bigint,
-    r: EmailService,
-    m: SystemState
-  ) {
-    const emailBlast = await r.getEmailBlast(id);
-    if (emailBlast) {
-      expect(emailBlastWithoutCreatedAt(emailBlast)).toEqual(m.getEmailBlast(id));
-    } else {
-      expect(emailBlast).toBeNull();
-    }
-  }
-
   async function verifyEmailBlasts(
     clubId: number,
     r: EmailService,
@@ -224,7 +211,6 @@ function createVerifiers() {
     verifyClubFollowers,
     verifyUserFollowedClubs,
     verifyEmailTemplate,
-    verifyEmailBlast,
     verifyEmailBlasts
   };
 }

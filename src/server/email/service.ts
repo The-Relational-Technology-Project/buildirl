@@ -285,20 +285,6 @@ export function createEmailService(
     );
   }
 
-  async function getEmailBlast(id: bigint): Promise<Maybe<EmailBlast>> {
-    try {
-      const emailBlast = await prisma.emailBlast.findUnique({
-        where: { id }
-      });
-
-      logger.info(`queried email blast with id ${id}`);
-      return emailBlast;
-    } catch (e) {
-      logger.error(e, `failed to query email blast with id ${id}`);
-      throw e;
-    }
-  }
-
   async function getEmailBlasts(clubId: number): Promise<EmailBlast[]> {
     try {
       const emailBlasts = await prisma.emailBlast.findMany({
@@ -456,7 +442,6 @@ export function createEmailService(
     getEmailTemplate,
     setEmailTemplate,
     deleteEmailTemplate,
-    getEmailBlast,
     getEmailBlasts,
     setEmailBlast,
     deleteEmailBlast,

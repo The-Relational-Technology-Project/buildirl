@@ -64,44 +64,25 @@ export const emailRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // For updates, validate the existing blast belongs to the club
-      if (input.id !== undefined) {
-        const existingBlast = await ctx.service.email.getEmailBlast(input.id);
-        if (!existingBlast) {
-          throw new TRPCError({ code: "NOT_FOUND" });
-        }
-        if (existingBlast.clubId !== input.clubId) {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "Email blast does not belong to specified club" });
-        }
-      }
-      
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.service.email.setEmailBlast(input.id, input.clubId, input.input);
     }),
 
-  deleteEmailBlast: securedProcedureWithAbilityFor("Club")
+  deleteEmailBlast: securedProcedureWithAbilityFor("EmailBlast")
     .input(z.object({ id: z.bigint() }))
     .mutation(async ({ ctx, input }) => {
-      const emailBlast = await ctx.service.email.getEmailBlast(input.id);
-      if (!emailBlast) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
-      if (!ctx.ability.can("manage", subject("Club", { id: emailBlast.clubId }))) {
+      if (!ctx.ability.can("manage", subject("EmailBlast", { id: input.id }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.service.email.deleteEmailBlast(input.id);
     }),
 
-  sendEmailBlast: securedProcedureWithAbilityFor("Club")
+  sendEmailBlast: securedProcedureWithAbilityFor("EmailBlast")
     .input(z.object({ id: z.bigint() }))
     .mutation(async ({ ctx, input }) => {
-      const emailBlast = await ctx.service.email.getEmailBlast(input.id);
-      if (!emailBlast) {
-        throw new TRPCError({ code: "NOT_FOUND" });
-      }
-      if (!ctx.ability.can("manage", subject("Club", { id: emailBlast.clubId }))) {
+      if (!ctx.ability.can("manage", subject("EmailBlast", { id: input.id }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.service.email.sendEmailBlast(input.id);

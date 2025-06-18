@@ -29,7 +29,6 @@ export default class SendEmailBlastCommand
     await r.email.sendEmailBlast(this.emailBlastId);
     m.sendEmailBlast(this.emailBlastId);
 
-    await verifiers.verifyEmailBlast(this.emailBlastId, r.email, m);
     await verifiers.verifyEmailBlasts(this.clubId, r.email, m);
   }
 
