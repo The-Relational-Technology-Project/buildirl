@@ -48,15 +48,13 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   async function sendEmailBlast(input: SendEmailBlastInput): Promise<void> {
     try {
-      for (const recipient of input.recipients) {
-        await sendCustomEmail(
-          recipient,
-          input.replyTo,
-          input.subject,
-          input.htmlContent,
-          input.textContent
-        );
-      }
+      await sendCustomEmail(
+        input.recipients,
+        input.replyTo,
+        input.subject,
+        input.htmlContent,
+        input.textContent
+      );
       logger.info(
         `sent email blast to ${input.recipients.length} recipients with subject "${input.subject}"`
       );
