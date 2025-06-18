@@ -1,5 +1,11 @@
 import { FormQuestions, FormQuestionType } from "~/server/club/types/form";
 
+export const EMAIL_CONTENT_LIMITS = {
+  SUBJECT_MAX_LENGTH: 500,
+  HTML_CONTENT_MAX_LENGTH: 15000,
+  TEXT_CONTENT_MAX_LENGTH: 15000
+} as const;
+
 export const DEFAULT_FREE_MEMBERSHIP_TIER = {
   name: "The Club Crew",
   benefitDescription:

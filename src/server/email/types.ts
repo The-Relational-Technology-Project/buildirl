@@ -2,6 +2,7 @@ import { z } from "zod";
 import { MutationResult } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 import { Prisma } from "@prisma/client";
+import { EMAIL_CONTENT_LIMITS } from "~/server/utils/defaults";
 
 export type EmailService = EmailQueries & EmailMutations & EmailNotifications;
 
@@ -138,9 +139,9 @@ export type EmailTemplate = {
 };
 
 export const SetEmailTemplateInputSchema = z.object({
-  subject: z.string().max(500, "Length must be <= 500"),
-  htmlContent: z.string().max(15000, "Length must be <= 15000"),
-  textContent: z.string().max(10000, "Length must be <= 15000")
+  subject: z.string().max(EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH, `Length must be <= ${EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH}`),
+  htmlContent: z.string().max(EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH, `Length must be <= ${EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH}`),
+  textContent: z.string().max(EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH, `Length must be <= ${EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH}`)
 });
 export type SetEmailTemplateInput = z.infer<typeof SetEmailTemplateInputSchema>;
 
@@ -158,8 +159,8 @@ export type EmailBlast = {
 export type EmailBlastStatus = "DRAFT" | "SENT";
 
 export const EmailBlastInputSchema = z.object({
-  subject: z.string().min(1, "Subject is required").max(500, "Subject must be <= 500 characters").optional(),
-  htmlContent: z.string().max(15000, "HTML content must be <= 15000 characters").optional(),
-  textContent: z.string().max(10000, "Text content must be <= 10000 characters").optional()
+  subject: z.string().min(1, "Subject is required").max(EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH, `Subject must be <= ${EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH} characters`).optional(),
+  htmlContent: z.string().max(EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH, `HTML content must be <= ${EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH} characters`).optional(),
+  textContent: z.string().max(EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH, `Text content must be <= ${EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH} characters`).optional()
 });
 export type EmailBlastInput = z.infer<typeof EmailBlastInputSchema>;

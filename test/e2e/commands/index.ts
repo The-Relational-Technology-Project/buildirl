@@ -59,6 +59,7 @@ import DeleteEmailBlastCommand from "./deleteEmailBlastCommand";
 import SendEmailBlastCommand from "./sendEmailBlastCommand";
 import SetMembershipAsLeadCommand from "./setMembershipAsLeadCommand";
 import ClearMembershipRoleCommand from "./clearMembershipRoleCommand";
+import { EMAIL_CONTENT_LIMITS } from "~/server/utils/defaults";
 
 export const allCommands = () => {
   return [
@@ -412,9 +413,9 @@ function setEmailTemplateCommands() {
         constant(v as EmailTemplateType)
       )
     ),
-    subject: string({ maxLength: 200 }),
-    htmlContent: string({ maxLength: 20000 }),
-    textContent: string({ maxLength: 20000 })
+    subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
+    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
+    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
   }).map(
     (i) =>
       new SetEmailTemplateCommand(i.clubIdSelector, i.templateType, {
@@ -438,9 +439,9 @@ function deleteEmailTemplateCommands() {
 function createEmailBlastCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
-    subject: string({ maxLength: 200 }),
-    htmlContent: string({ maxLength: 20000 }),
-    textContent: string({ maxLength: 20000 })
+    subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
+    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
+    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
   }).map(
     (i) =>
       new CreateEmailBlastCommand(
@@ -457,9 +458,9 @@ function createEmailBlastCommands() {
 function updateEmailBlastCommands() {
   return record({
     emailBlastIdSelector: itemSelector<bigint>(),
-    subject: string({ maxLength: 200 }),
-    htmlContent: string({ maxLength: 20000 }),
-    textContent: string({ maxLength: 20000 })
+    subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
+    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
+    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
   }).map(
     (i) =>
       new UpdateEmailBlastCommand(
