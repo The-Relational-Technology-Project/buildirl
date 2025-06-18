@@ -14,6 +14,7 @@ export type UserQueries = {
   getUser(id: number): Promise<User>;
   // internal
   getUserEmail(userId: number): Promise<Email>;
+  getUserEmails(userIds: number[]): Promise<Email[]>;
   getUserEmailInTransaction(
     userId: number,
     tx: Prisma.TransactionClient

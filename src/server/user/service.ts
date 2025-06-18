@@ -46,6 +46,12 @@ export function createUserService(prisma: PrismaClient): UserService {
     });
   }
 
+  async function getUserEmails(userIds: number[]): Promise<Email[]> {
+    return prisma.$transaction(async (tx) => {
+      return getUserEmailsInTransaction(userIds, tx);
+    });
+  }
+
   async function getUserEmailInTransaction(
     userId: number,
     tx: Prisma.TransactionClient
@@ -164,6 +170,7 @@ export function createUserService(prisma: PrismaClient): UserService {
   return {
     getUser,
     getUserEmail,
+    getUserEmails,
     getUserEmailInTransaction,
     getUserEmailsInTransaction,
     createUser,

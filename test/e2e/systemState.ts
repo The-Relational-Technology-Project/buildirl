@@ -616,6 +616,16 @@ export class SystemState {
     return user.email;
   }
 
+  private getUserEmails(userIds: number[]): string[] {
+    return userIds.map(userId => {
+      const email = this.getUserEmail(userId);
+      if (!email) {
+        throw new Error(`failed to find required email for user with id ${userId}`);
+      }
+      return email;
+    });
+  }
+
   public getActiveMembershipsForClub(
     clubId: number,
     includeEmail: boolean

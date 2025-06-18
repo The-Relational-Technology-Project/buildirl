@@ -411,33 +411,29 @@ export function createEmailService(
           membershipTier: { clubId: emailBlast.clubId },
           role: "LEAD"
         },
-        include: {
-          user: { include: { settings: true } }
+        select: {
+          userId: true
         }
       });
 
-      if (!leadMembership?.user.settings?.email) {
-        logger.error(
-          `failed to send email blast ${id} because club owner email not found`
-        );
-        return;
+      if (!leadMembership) {
+        throw new Error(`No lead membership found for club ${emailBlast.clubId}`);
       }
 
-      const leadEmail = leadMembership.user.settings.email;
+      const leadEmail = await userService.getUserEmail(leadMembership.userId);
 
       const memberships = await prisma.membership.findMany({
         where: {
           membershipTier: { clubId: emailBlast.clubId },
           status: "ACTIVE"
         },
-        include: {
-          user: { include: { settings: true } }
+        select: {
+          userId: true
         }
       });
 
-      const recipients = memberships
-        .map(membership => membership.user.settings?.email)
-        .filter((email): email is string => email !== null && email !== undefined);
+      const memberUserIds = memberships.map(membership => membership.userId);
+      const recipients = await userService.getUserEmails(memberUserIds);
 
       await emailClient.sendEmailBlast({
         subject: emailBlast.subject,
