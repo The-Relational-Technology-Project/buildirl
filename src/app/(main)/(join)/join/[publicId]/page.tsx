@@ -47,18 +47,18 @@ function WithRedirectToWelcomePage({
   const searchParams = useSearchParams();
   const fromWelcome = searchParams.get("fromWelcome") === "true";
 
-  const r = api.main.clubByPublicId.useQuery({
+  const club = api.main.clubByPublicId.useQuery({
     publicId
   });
-  const m = api.main.userMemberships.useQuery();
+  const userMemberships = api.main.userMemberships.useQuery();
 
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
 
   QueryError.check({
-    result: m,
+    result: userMemberships,
     fieldName: "userMemberships"
   });
 
@@ -67,18 +67,21 @@ function WithRedirectToWelcomePage({
   useEffect(() => {
     // cannot put this after isAllLoaded because useEffect must not be
     // conditionally instantiated
-    if (!isAllLoaded([m, r])) {
+    if (!isAllLoaded([userMemberships, club])) {
       return;
     }
     // do not redirect if user is coming from the welcome page
     if (fromWelcome) {
       return;
     }
-    const membership = activeMembershipForClub(m.data!, r.data!.id);
+    const membership = activeMembershipForClub(
+      userMemberships.data!,
+      club.data!.id
+    );
     if (membership !== null && !membership.isWelcomed) {
       router.push(`/apply/${publicId}/welcome`);
     }
-  }, [m, r, fromWelcome]);
+  }, [userMemberships, club, fromWelcome]);
 
   // no-op; just for the effect
   return null;
@@ -93,25 +96,27 @@ export default function ClubJoin() {
   const publicId = params.publicId;
   const router = useRouter();
 
-  const r = api.main.clubByPublicId.useQuery({
+  const club = api.main.clubByPublicId.useQuery({
     publicId
   });
-  const s = api.main.isUserAuthenticated.useQuery();
+  const isUserAuthenticated = api.main.isUserAuthenticated.useQuery();
 
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
   QueryError.check({
-    result: s,
+    result: isUserAuthenticated,
     fieldName: "isUserAuthenticated"
   });
 
   return (
     mounted &&
-    isAllLoaded([r, s]) && (
+    isAllLoaded([club, isUserAuthenticated]) && (
       <>
-        {s.data! && <WithRedirectToWelcomePage publicId={publicId} />}
+        {isUserAuthenticated.data! && (
+          <WithRedirectToWelcomePage publicId={publicId} />
+        )}
         <Stack
           pt={50}
           pb={"lg"}
@@ -130,29 +135,29 @@ export default function ClubJoin() {
             }}
           >
             <ShareIconButton
-              clubPublicId={r.data!.publicId}
-              clubName={r.data!.name}
+              clubPublicId={club.data!.publicId}
+              clubName={club.data!.name}
             />
           </Box>
 
-          <ClubImage club={r.data!} size={clubImageSize} />
+          <ClubImage club={club.data!} size={clubImageSize} />
 
           <Stack align={"center"} gap={0}>
             <Title
               fz={{ base: 32, md: 45 }}
               style={{
                 // TODO apply this dynamically across all headings
-                fontFamily: r.data!.themeHeadingFont ?? "inherit",
+                fontFamily: club.data!.themeHeadingFont ?? "inherit",
                 textAlign: "center"
               }}
             >
-              {r.data!.name}
+              {club.data!.name}
             </Title>
 
             <Stack align={"center"} gap={8} mt={4}>
-              {r.data!.tagLine !== "" && (
+              {club.data!.tagLine !== "" && (
                 <Text ta={"center"} size={"lg"}>
-                  {r.data!.tagLine}
+                  {club.data!.tagLine}
                 </Text>
               )}
 
@@ -165,25 +170,25 @@ export default function ClubJoin() {
               </Text>
 
               <LinkIcons
-                websiteUrl={r.data!.websiteUrl}
-                instagramHandle={r.data!.instagramHandle}
+                websiteUrl={club.data!.websiteUrl}
+                instagramHandle={club.data!.instagramHandle}
               />
 
-              {r.data!.location && (
+              {club.data!.location && (
                 <Group gap={6}>
                   <IconMapPin size={18} stroke={1.5} />
-                  <Text size="sm">{r.data!.location}</Text>
+                  <Text size="sm">{club.data!.location}</Text>
                 </Group>
               )}
             </Stack>
           </Stack>
 
-          <JoinButton club={r.data!} />
+          <JoinButton club={club.data!} />
 
-          {r.data!.eventCalendarUrl && (
+          {club.data!.eventCalendarUrl && (
             <SecondaryButton
               includeIcon
-              onClick={() => window.open(r.data!.eventCalendarUrl!)}
+              onClick={() => window.open(club.data!.eventCalendarUrl!)}
               mt={"sm"}
             >
               Come to an event
@@ -191,20 +196,20 @@ export default function ClubJoin() {
           )}
 
           <FollowToggle
-            clubId={r.data!.id}
+            clubId={club.data!.id}
             mt={10}
             redirectTo={`/join/${publicId}`}
           />
 
-          <ClubDisplayImageGallery club={r.data!} mt={"xs"} />
+          <ClubDisplayImageGallery club={club.data!} mt={"xs"} />
 
-          <ContributingMembersLink club={r.data!} />
+          <ContributingMembersLink club={club.data!} />
 
-          <MemberCarousel clubId={r.data!.id} />
+          <MemberCarousel clubId={club.data!.id} />
 
           <FAQs
-            faqs={r.data!.faqs}
-            themeHeadingFont={r.data!.themeHeadingFont}
+            faqs={club.data!.faqs}
+            themeHeadingFont={club.data!.themeHeadingFont}
             mt={"lg"}
           />
 
@@ -256,15 +261,15 @@ function ContributingMembersLink({
   club
 }: ContributingMembersLinkProps & GroupProps) {
   const router = useRouter();
-  const r = api.main.clubStatistics.useQuery({ clubId: club.id });
+  const clubStatistics = api.main.clubStatistics.useQuery({ clubId: club.id });
 
   QueryError.check({
-    result: r,
+    result: clubStatistics,
     fieldName: "clubStatistics"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(clubStatistics) && (
       <Stack align={"center"} gap={4}>
         <Title
           order={1}
@@ -280,7 +285,7 @@ function ContributingMembersLink({
           onClick={() => router.push(`/join/${club.publicId}/members`)}
           size={"md"}
         >
-          {`${r.data!.memberCount} contributing member${r.data!.memberCount > 1 ? "s" : ""} >`}
+          {`${clubStatistics.data!.memberCount} contributing member${clubStatistics.data!.memberCount > 1 ? "s" : ""} >`}
         </Text>
       </Stack>
     )
@@ -292,10 +297,10 @@ type JoinButtonProps = {
 };
 
 function JoinButton({ club }: JoinButtonProps) {
-  const r = api.main.isUserAuthenticated.useQuery();
+  const isUserAuthenticated = api.main.isUserAuthenticated.useQuery();
 
   QueryError.check({
-    result: r,
+    result: isUserAuthenticated,
     fieldName: "isUserAuthenticated"
   });
 
@@ -305,7 +310,7 @@ function JoinButton({ club }: JoinButtonProps) {
     return <PrimaryButton disabled>Coming soon!</PrimaryButton>;
   }
 
-  if (r.data!) {
+  if (isUserAuthenticated.data!) {
     return <AuthenticatedJoinButton club={club} />;
   }
   return <DefaultJoinButton club={club} />;
@@ -313,13 +318,13 @@ function JoinButton({ club }: JoinButtonProps) {
 
 function AuthenticatedJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
-  const r = api.main.userMemberships.useQuery();
+  const userMemberships = api.main.userMemberships.useQuery();
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(userMemberships)) {
     return null;
   }
 
-  const membership = membershipForClub(r.data!, club.id);
+  const membership = membershipForClub(userMemberships.data!, club.id);
 
   switch (membership?.status) {
     case "PENDING":

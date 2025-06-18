@@ -18,9 +18,9 @@ export default function Welcome() {
   const publicId = params.publicId;
   const router = useRouter();
 
-  const r = api.main.clubByPublicId.useQuery({ publicId });
-  const u = api.main.user.useQuery();
-  const m = api.main.userMemberships.useQuery();
+  const club = api.main.clubByPublicId.useQuery({ publicId });
+  const user = api.main.user.useQuery();
+  const userMemberships = api.main.userMemberships.useQuery();
 
   const utils = api.useUtils();
   const setMembershipAsWelcomed = api.main.setMembershipAsWelcomed.useMutation({
@@ -31,17 +31,17 @@ export default function Welcome() {
   });
 
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
 
   QueryError.check({
-    result: u,
+    result: user,
     fieldName: "user"
   });
 
   QueryError.check({
-    result: m,
+    result: userMemberships,
     fieldName: "userMemberships"
   });
 
@@ -53,21 +53,24 @@ export default function Welcome() {
     });
   }, []);
 
-  if (!isAllLoaded([r, u, m])) {
+  if (!isAllLoaded([club, user, userMemberships])) {
     return null;
   }
 
   // only active members can view this page
-  const membership = activeMembershipForClub(m.data!, r.data!.id);
+  const membership = activeMembershipForClub(
+    userMemberships.data!,
+    club.data!.id
+  );
   if (null === membership) {
-    throw new Error(`user is not an active member of club ${r.data!.id}`);
+    throw new Error(`user is not an active member of club ${club.data!.id}`);
   }
 
   const onShare = () => {
-    const shareUrl = `${window.location.origin}/join/${publicId}/share/${u.data!.id}`;
+    const shareUrl = `${window.location.origin}/join/${publicId}/share/${user.data!.id}`;
     if (navigator.share) {
       void navigator.share({
-        title: `Join me at ${r.data!.name}!`,
+        title: `Join me at ${club.data!.name}!`,
         url: shareUrl
       });
     } else {
@@ -83,17 +86,17 @@ export default function Welcome() {
           {"YOU'VE BEEN APPROVED!"}
         </Title>
 
-        <UserClubHandshake user={u.data!} club={r.data!} />
+        <UserClubHandshake user={user.data!} club={club.data!} />
 
         <Stack gap={"sm"} align={"center"}>
           <Title order={2} fw={700} style={{ textAlign: "center" }}>
-            Welcome {u.data!.firstName}!
+            Welcome {user.data!.firstName}!
           </Title>
           <Title order={3} fw={400}>
             {"You Are Now a Member Of"}
           </Title>
           <Title order={3} style={{ textAlign: "center" }}>
-            {r.data!.name}!
+            {club.data!.name}!
           </Title>
         </Stack>
 

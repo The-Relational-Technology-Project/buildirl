@@ -11,29 +11,29 @@ import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHe
 export default function ClubAbout() {
   const params = useParams<{ publicId: string }>();
 
-  const r = api.main.clubByPublicId.useQuery({
+  const club = api.main.clubByPublicId.useQuery({
     publicId: params.publicId
   });
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(club) && (
       <WithLocalNavigationHeader>
         <Stack px={{ base: 0, md: "xl" }}>
-          <Title order={3}>{r.data!.name}</Title>
-          {r.data!.description.length > 0 && (
+          <Title order={3}>{club.data!.name}</Title>
+          {club.data!.description.length > 0 && (
             <Text
               size={"md"}
               mb={{ base: "sm", md: "lg" }}
               style={{ whiteSpace: "pre-line" }}
             >
-              {r.data!.description}
+              {club.data!.description}
             </Text>
           )}
-          <ClubStatistics clubId={r.data!.id} />
+          <ClubStatistics clubId={club.data!.id} />
         </Stack>
       </WithLocalNavigationHeader>
     )
@@ -48,24 +48,24 @@ function ClubStatistics({
   clubId,
   ...props
 }: ClubStatisticsProps & StackProps) {
-  const r = api.main.clubStatistics.useQuery({
+  const clubStatistics = api.main.clubStatistics.useQuery({
     clubId
   });
   QueryError.check({
-    result: r,
+    result: clubStatistics,
     fieldName: "clubStatistics"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(clubStatistics) && (
       <Stack gap={4} {...props}>
         <Group gap={4}>
           <Text size={"md"} fw={700}>
-            {r.data!.memberCount}
+            {clubStatistics.data!.memberCount}
           </Text>
           <Text
             size={"md"}
-          >{`contributing member${r.data!.memberCount > 1 ? "s" : ""}`}</Text>
+          >{`contributing member${clubStatistics.data!.memberCount > 1 ? "s" : ""}`}</Text>
         </Group>
       </Stack>
     )

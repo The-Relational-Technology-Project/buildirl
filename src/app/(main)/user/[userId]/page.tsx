@@ -15,29 +15,29 @@ type UserProfileProps = {
 };
 
 function UserProfile({ userId }: UserProfileProps) {
-  const r = api.main.userById.useQuery({ id: userId });
+  const user = api.main.userById.useQuery({ id: userId });
 
   QueryError.check({
-    result: r,
+    result: user,
     fieldName: "userById"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(user) && (
       <Stack w={600}>
         <Group align={"flex-start"} gap={"lg"}>
-          <UserAvatar size={"md"} user={r.data!} />
+          <UserAvatar size={"md"} user={user.data!} />
           <Stack gap={4}>
             <Title order={3} fw={500} pt={10}>
-              {r.data!.firstName} {r.data!.lastName}
+              {user.data!.firstName} {user.data!.lastName}
             </Title>
           </Stack>
         </Group>
-        {r.data!.description !== "" && (
+        {user.data!.description !== "" && (
           <>
             <Divider my={"md"} />
             <Title order={4}>Bio</Title>
-            <Text size={"sm"}>{r.data!.description}</Text>
+            <Text size={"sm"}>{user.data!.description}</Text>
           </>
         )}
       </Stack>

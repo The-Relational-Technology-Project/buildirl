@@ -183,28 +183,35 @@ function UpdateMembershipTierButton({
   membershipTierId,
   isLoading
 }: UpdateMembershipTierButtonProps) {
-  const r = api.main.activeMembershipsForClub.useQuery({
+  const activeMembershipsForClub = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
   });
-  const m = api.main.membershipApplicationsForClub.useQuery({
-    clubId: clubId
-  });
+  const membershipApplicationsForClub =
+    api.main.membershipApplicationsForClub.useQuery({
+      clubId: clubId
+    });
 
   QueryError.check({
-    result: r,
+    result: activeMembershipsForClub,
     fieldName: "activeMembershipsForClub"
   });
   QueryError.check({
-    result: r,
+    result: membershipApplicationsForClub,
     fieldName: "membershipApplicationsForClub"
   });
 
   const membershipTierRequiresWarningBeforeUpdate =
     // allows button to display as disabled until ready
-    (isAllLoaded([r, m]) &&
+    (isAllLoaded([activeMembershipsForClub, membershipApplicationsForClub]) &&
       // tier with active members or pending applications require warning before update
-      !hasNoMembershipsForMembershipTier(r.data!, membershipTierId)) ||
-    !hasNoMembershipsForMembershipTier(m.data!, membershipTierId);
+      !hasNoMembershipsForMembershipTier(
+        activeMembershipsForClub.data!,
+        membershipTierId
+      )) ||
+    !hasNoMembershipsForMembershipTier(
+      membershipApplicationsForClub.data!,
+      membershipTierId
+    );
 
   return (
     <Button
@@ -242,19 +249,20 @@ function DeleteMembershipTierButton({
 }: DeleteMembershipButtonProps) {
   const utils = api.useUtils();
 
-  const r = api.main.activeMembershipsForClub.useQuery({
+  const activeMembershipsForClub = api.main.activeMembershipsForClub.useQuery({
     clubId: club.id
   });
-  const m = api.main.membershipApplicationsForClub.useQuery({
-    clubId: club.id
-  });
+  const membershipApplicationsForClub =
+    api.main.membershipApplicationsForClub.useQuery({
+      clubId: club.id
+    });
 
   QueryError.check({
-    result: r,
+    result: activeMembershipsForClub,
     fieldName: "activeMembershipsForClub"
   });
   QueryError.check({
-    result: r,
+    result: activeMembershipsForClub,
     fieldName: "membershipApplicationsForClub"
   });
 
@@ -273,10 +281,16 @@ function DeleteMembershipTierButton({
     // default free tier cannot be deleted
     !isDefaultFreeTier(membershipTier) &&
     // allows button to display as disabled until ready
-    isAllLoaded([r, m]) &&
+    isAllLoaded([activeMembershipsForClub, membershipApplicationsForClub]) &&
     // only tier with no active members or pending applications can be deleted
-    hasNoMembershipsForMembershipTier(r.data!, membershipTier.id) &&
-    hasNoMembershipsForMembershipTier(m.data!, membershipTier.id);
+    hasNoMembershipsForMembershipTier(
+      activeMembershipsForClub.data!,
+      membershipTier.id
+    ) &&
+    hasNoMembershipsForMembershipTier(
+      membershipApplicationsForClub.data!,
+      membershipTier.id
+    );
 
   return (
     <Tooltip

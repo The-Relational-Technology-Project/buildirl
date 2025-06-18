@@ -79,21 +79,21 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
 
 function ProfileMenu({ ...props }: BoxProps) {
   const router = useRouter();
-  const r = api.main.user.useQuery();
+  const user = api.main.user.useQuery();
 
   QueryError.check({
-    result: r,
+    result: user,
     fieldName: "user"
   });
 
   const supabase = createComponentClient();
   return (
-    isLoaded(r) && (
+    isLoaded(user) && (
       <Box {...props}>
         <Menu position="bottom-end" shadow="md">
           <Menu.Target>
             <UserAvatar
-              user={r.data!}
+              user={user.data!}
               size={"sm"}
               style={{
                 cursor: "pointer"
@@ -106,13 +106,13 @@ function ProfileMenu({ ...props }: BoxProps) {
               size={"sm"}
               px={"sm"}
               fw={500}
-              onClick={() => router.push(`/user/${r.data!.id}`)}
+              onClick={() => router.push(`/user/${user.data!.id}`)}
               style={{ cursor: "pointer" }}
-            >{`${r.data!.firstName} ${r.data!.lastName}`}</Text>
+            >{`${user.data!.firstName} ${user.data!.lastName}`}</Text>
             <Menu.Divider />
             <Menu.Item
               onClick={() => {
-                router.push(`/user/${r.data!.id}`);
+                router.push(`/user/${user.data!.id}`);
               }}
             >
               View profile

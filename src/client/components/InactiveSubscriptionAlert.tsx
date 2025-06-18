@@ -14,7 +14,7 @@ export default function InactiveSubscriptionAlert({
   membershipId,
   forClubLead = false
 }: InactiveSubscriptionAlertProps) {
-  const r = api.payments.subscriptionStatus.useQuery(
+  const subscriptionStatus = api.payments.subscriptionStatus.useQuery(
     { membershipId: membershipId.toString() },
     {
       // refetch every 5 minute as data can be changed externally in Stripe
@@ -23,25 +23,25 @@ export default function InactiveSubscriptionAlert({
   );
 
   QueryError.checkNullable({
-    result: r,
+    result: subscriptionStatus,
     fieldName: "subscriptionStatus"
   });
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(subscriptionStatus)) {
     return;
   }
 
   // active subscription requires no warning
-  if (r.data !== null && r.data!.isActive) {
+  if (subscriptionStatus.data !== null && subscriptionStatus.data!.isActive) {
     return;
   }
 
   return (
     <Tooltip
       label={
-        r.data === null
+        subscriptionStatus.data === null
           ? "Subscription is not set up. This is not expected, please contact support."
-          : `Subscription is inactive with status '${r.data!.status}'. ${
+          : `Subscription is inactive with status '${subscriptionStatus.data!.status}'. ${
               forClubLead
                 ? "Please contact member to fix or cancel membership."
                 : "Please fix in Stripe customer portal or cancel your membership."

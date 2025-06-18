@@ -49,6 +49,9 @@ export async function defineAbilityFor(
       can("manage", "Membership", {
         id: { $in: [...membershipIds, ...membershipIdsForLedClubs] }
       });
+      can("admin", "Membership", {
+        id: { $in: [...membershipIdsForLedClubs] }
+      });
       break;
     case "MembershipTier":
       const membershipTierIds = await getMembershipTierIdsForClubsLedByUser(

@@ -12,11 +12,13 @@ import {
   IconMail,
   IconCalendar,
   IconCoin,
-  IconMenu4
+  IconMenu4,
+  IconUser
 } from "@tabler/icons-react";
 import { Membership } from "~/server/membership/types";
 import { toDisplayDate } from "~/client/utils";
 import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
+import RoleBadge from "~/client/components/RoleBadge";
 
 type MembershipInfoCardProps = {
   membership: Membership;
@@ -25,8 +27,6 @@ type MembershipInfoCardProps = {
 export default function MembershipInfoCard({
   membership
 }: MembershipInfoCardProps) {
-  const isPendingStatus = membership.status === "PENDING";
-
   return (
     <Paper p={"xl"}>
       <Stack gap="lg">
@@ -57,7 +57,19 @@ export default function MembershipInfoCard({
             </Text>
           </Group>
 
-          {isPendingStatus && (
+          {membership.status === "ACTIVE" && (
+            <Group gap="xs">
+              <ColorSchemeAwareThemeIcon size="xs">
+                <IconUser size={18} />
+              </ColorSchemeAwareThemeIcon>
+              <Text size="sm" fw={500}>
+                Role:
+              </Text>
+              <RoleBadge role={membership.role} />
+            </Group>
+          )}
+
+          {membership.status === "PENDING" && (
             <Group gap="xs">
               <ColorSchemeAwareThemeIcon size="xs">
                 <IconCalendar size={18} />

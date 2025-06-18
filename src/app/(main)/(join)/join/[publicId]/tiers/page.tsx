@@ -31,20 +31,20 @@ export default function ClubTiers() {
 
   const params = useParams<{ publicId: string }>();
 
-  const r = api.main.clubByPublicId.useQuery({
+  const club = api.main.clubByPublicId.useQuery({
     publicId: params.publicId
   });
 
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(club)) {
     return null;
   }
 
-  const publishedTiers = r.data!.membershipTiers.filter(
+  const publishedTiers = club.data!.membershipTiers.filter(
     (t) => t.status === "PUBLISHED"
   );
 

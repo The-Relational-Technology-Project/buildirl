@@ -30,24 +30,25 @@ export default function MembershipApplicationTable({
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
   const mounted = useMounted();
-  
+
   const router = useRouter();
-  const r = api.main.membershipApplicationsForClub.useQuery({ clubId: clubId });
+  const membershipApplicationsForClub =
+    api.main.membershipApplicationsForClub.useQuery({ clubId: clubId });
 
   QueryError.check({
-    result: r,
+    result: membershipApplicationsForClub,
     fieldName: "membershipApplicationsForClub"
   });
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(membershipApplicationsForClub)) {
     return null;
   }
 
-  const rows = r.data!.map((m: Membership) => (
-    <Table.Tr 
-      key={m.id} 
+  const rows = membershipApplicationsForClub.data!.map((m: Membership) => (
+    <Table.Tr
+      key={m.id}
       style={{ cursor: "pointer" }}
-      onClick={() => router.push(`/club/${clubId}/member/${m.user.id}/application`)}
+      onClick={() => router.push(`/club/${clubId}/member/${m.user.id}/review`)}
     >
       <Table.Td>
         <Group gap={"sm"} wrap="nowrap">
@@ -62,16 +63,14 @@ export default function MembershipApplicationTable({
       <Table.Td>{`$${m.membershipTier.costPerMonthInUSD}.00/month`}</Table.Td>
       <Table.Td>{`${toDisplayDate(m.createdAt)}`}</Table.Td>
       <Table.Td>
-        {m.email === null ? null : (
-          <Text size="sm">{m.email}</Text>
-        )}
+        {m.email === null ? null : <Text size="sm">{m.email}</Text>}
       </Table.Td>
       <Table.Td onClick={(e) => e.stopPropagation()}>
         <Button
           color="blue"
           size="xs"
           onClick={() =>
-            router.push(`/club/${clubId}/member/${m.user.id}/application`)
+            router.push(`/club/${clubId}/member/${m.user.id}/review`)
           }
         >
           Review Application
@@ -86,7 +85,10 @@ export default function MembershipApplicationTable({
         <Stack px={4} gap={4}>
           <Title order={4}>Pending Applications</Title>
           <Group gap={4}>
-            <Text fw={"bold"} size={"sm"}>{`${r.data!.length}`}</Text>
+            <Text
+              fw={"bold"}
+              size={"sm"}
+            >{`${membershipApplicationsForClub.data!.length}`}</Text>
             <Text size={"sm"}>new applications</Text>
           </Group>
         </Stack>

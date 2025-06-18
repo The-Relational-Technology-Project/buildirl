@@ -13,17 +13,17 @@ export default function JoinLayout({
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
 
-  const r = api.main.clubByPublicId.useQuery({
+  const club = api.main.clubByPublicId.useQuery({
     publicId
   });
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
 
   return (
-    isLoaded(r) && (
-      <WithTemplateTheme theme={r.data!.theme}>{children}</WithTemplateTheme>
+    isLoaded(club) && (
+      <WithTemplateTheme theme={club.data!.theme}>{children}</WithTemplateTheme>
     )
   );
 }

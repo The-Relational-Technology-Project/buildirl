@@ -34,18 +34,18 @@ export default function ManageClub() {
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") ?? "overview";
 
-  const r = api.main.club.useQuery({ id: clubId });
+  const club = api.main.club.useQuery({ id: clubId });
 
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "club"
   });
 
   return (
     mounted &&
-    isLoaded(r) && (
+    isLoaded(club) && (
       <Stack pt={"xl"}>
-        <Title order={2}>{r.data!.name} Dashboard</Title>
+        <Title order={2}>{club.data!.name} Dashboard</Title>
 
         <Tabs
           // hacky but how we support dark mode with defaults
@@ -69,25 +69,25 @@ export default function ManageClub() {
           <Divider />
 
           <Tabs.Panel value={"overview"}>
-            <ClubOverviewPanel club={r.data!} />
+            <ClubOverviewPanel club={club.data!} />
           </Tabs.Panel>
           <Tabs.Panel value={"memberships"}>
-            <ManageMembershipTiersPanel club={r.data!} />
+            <ManageMembershipTiersPanel club={club.data!} />
           </Tabs.Panel>
           <Tabs.Panel value={"intake"}>
-            <ManageIntakePanel club={r.data!} />
+            <ManageIntakePanel club={club.data!} />
           </Tabs.Panel>
           <Tabs.Panel value={"people"}>
-            <ManagePeoplePanel clubId={r.data!.id} />
+            <ManagePeoplePanel clubId={club.data!.id} />
           </Tabs.Panel>
           <Tabs.Panel value={"email"}>
-            <EmailTemplatePanel clubId={r.data!.id} />
+            <EmailTemplatePanel clubId={club.data!.id} />
           </Tabs.Panel>
           <Tabs.Panel value={"stripe-connect"}>
-            <StripeConnectPanel clubId={r.data!.id} />
+            <StripeConnectPanel clubId={club.data!.id} />
           </Tabs.Panel>
           <Tabs.Panel value={"admin"}>
-            <ClubAdminPanel clubId={r.data!.id} />
+            <ClubAdminPanel clubId={club.data!.id} />
           </Tabs.Panel>
         </Tabs>
       </Stack>

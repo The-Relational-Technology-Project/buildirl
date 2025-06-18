@@ -12,16 +12,16 @@ export default function ApplicationCompleted() {
   const params = useParams<{ publicId: string }>();
   const router = useRouter();
 
-  const r = api.main.clubByPublicId.useQuery({
+  const club = api.main.clubByPublicId.useQuery({
     publicId: params.publicId
   });
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(club) && (
       <Center pt={80} px={{ base: undefined, md: 200 }}>
         <Stack align="center" gap={"lg"}>
           <Title order={1} ta={"center"}>
@@ -32,7 +32,7 @@ export default function ApplicationCompleted() {
             update soon.
           </Text>
 
-          <ClubImage club={r.data!} size={240} />
+          <ClubImage club={club.data!} size={240} />
 
           <SecondaryButton
             mt={"lg"}

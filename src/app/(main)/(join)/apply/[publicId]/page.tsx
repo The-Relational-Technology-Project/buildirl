@@ -19,17 +19,17 @@ export default function Apply() {
   const membershipTierId = strictParseInt(searchParams.get("membershipTierId"));
   const router = useRouter();
 
-  const r = api.main.clubByPublicId.useQuery({
+  const club = api.main.clubByPublicId.useQuery({
     publicId: params.publicId
   });
 
   QueryError.check({
-    result: r,
+    result: club,
     fieldName: "clubByPublicId"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(club) && (
       // TODO there is an edge case with anonymous users signing up with Google SSO
       //  clicking back here causing issues. I haven't thought of an elegant way to
       //  handle this
@@ -48,7 +48,7 @@ export default function Apply() {
               mt={"md"}
               onClick={() => {
                 router.push(
-                  `/apply/${r.data!.publicId}/intake?membershipTierId=${membershipTierId}`
+                  `/apply/${club.data!.publicId}/intake?membershipTierId=${membershipTierId}`
                 );
               }}
             >

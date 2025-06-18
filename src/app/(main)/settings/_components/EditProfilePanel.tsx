@@ -74,18 +74,18 @@ function UpdateUserForm({ user }: UserFormProps) {
 }
 
 export default function EditProfilePanel() {
-  const r = api.main.user.useQuery();
+  const user = api.main.user.useQuery();
 
   QueryError.check({
-    result: r,
+    result: user,
     fieldName: "user"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(user) && (
       <Stack mt="lg" gap="md" w="100%" maw={800} mx="auto">
         <Stack align="center" gap="md">
-          <EditableUserAvatar size={120} user={r.data!} />
+          <EditableUserAvatar size={120} user={user.data!} />
           <Stack gap={2} align="center">
             <Title order={4}>Your Profile</Title>
             <Text size="md">
@@ -94,7 +94,7 @@ export default function EditProfilePanel() {
           </Stack>
         </Stack>
 
-        <UpdateUserForm user={r.data!} />
+        <UpdateUserForm user={user.data!} />
       </Stack>
     )
   );

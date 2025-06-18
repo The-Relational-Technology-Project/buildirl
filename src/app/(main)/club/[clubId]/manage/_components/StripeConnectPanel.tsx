@@ -165,7 +165,7 @@ type StripeConnectPanelProps = {
 export default function StripeConnectPanel({
   clubId
 }: StripeConnectPanelProps) {
-  const r = api.payments.accountStatus.useQuery(
+  const accountStatus = api.payments.accountStatus.useQuery(
     { clubId },
     {
       // refetch every 1 minute as data can be changed externally in Stripe
@@ -174,21 +174,24 @@ export default function StripeConnectPanel({
   );
 
   QueryError.checkNullable({
-    result: r,
+    result: accountStatus,
     fieldName: "accountStatus"
   });
 
   return (
-    isLoaded(r) && (
+    isLoaded(accountStatus) && (
       <Stack>
         <Stack mt={"xl"} gap={4} align={"center"}>
           <Text size={"md"}>
             Manage your Stripe Connect account to receive member contributions
           </Text>
-          {r.data === null ? (
+          {accountStatus.data === null ? (
             <CreateStripeConnectAccount clubId={clubId} />
           ) : (
-            <ManageStripeConnectAccount clubId={clubId} status={r.data!} />
+            <ManageStripeConnectAccount
+              clubId={clubId}
+              status={accountStatus.data!}
+            />
           )}
         </Stack>
         <StripeGuidePanel mt={20} />

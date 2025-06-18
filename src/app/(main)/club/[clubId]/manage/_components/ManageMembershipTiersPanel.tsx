@@ -43,7 +43,7 @@ export default function ManageMembershipTiersPanel({
     { open: openStripeModal, close: closeStripeModal }
   ] = useDisclosure(false);
 
-  const r = api.payments.accountStatus.useQuery(
+  const accountStatus = api.payments.accountStatus.useQuery(
     { clubId: club.id },
     {
       // refetch every 1 minute as data can be changed externally in Stripe
@@ -52,11 +52,11 @@ export default function ManageMembershipTiersPanel({
   );
 
   QueryError.checkNullable({
-    result: r,
+    result: accountStatus,
     fieldName: "accountStatus"
   });
 
-  if (!isLoaded(r)) {
+  if (!isLoaded(accountStatus)) {
     return;
   }
 
@@ -70,7 +70,7 @@ export default function ManageMembershipTiersPanel({
   const handleCreateTierClick = () => {
     // do not allow create and prompt for Stripe Connect setup
     // if not complete
-    if (null === r.data || !r.data!.isComplete) {
+    if (null === accountStatus.data || !accountStatus.data!.isComplete) {
       openStripeModal();
     } else {
       openCreateModal();
