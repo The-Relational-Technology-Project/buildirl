@@ -35,8 +35,6 @@ function EmailBlastEditorContent() {
 
   const [subject, setSubject] = useState(blast?.subject ?? "");
   const [htmlContent, setHtmlContent] = useState(blast?.htmlContent ?? "");
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     if (blast) {
@@ -50,11 +48,9 @@ function EmailBlastEditorContent() {
     onSuccess: () => {
       utils.email.emailBlasts.invalidate({ clubId: clubIdNumber });
       notifySuccess("Success", "Email blast has been saved");
-      setIsSaving(false);
     },
     onError: (e) => {
       handleDefaultMutationError(e);
-      setIsSaving(false);
     }
   });
 
@@ -62,11 +58,9 @@ function EmailBlastEditorContent() {
     onSuccess: () => {
       utils.email.emailBlasts.invalidate({ clubId: clubIdNumber });
       notifySuccess("Success", "Email blast has been saved");
-      setIsSaving(false);
     },
     onError: (e) => {
       handleDefaultMutationError(e);
-      setIsSaving(false);
     }
   });
 
@@ -101,9 +95,6 @@ function EmailBlastEditorContent() {
       notifyError("Cannot save in read-only mode.");
       return;
     }
-
-    setIsSaving(true);
-    
     if (blast?.id) {
       await updateEmailBlast.mutateAsync({
         id: blast.id,
@@ -124,9 +115,7 @@ function EmailBlastEditorContent() {
       });
     }
     
-    if (!isSending) {
-      router.push(`/club/${clubId}/manage?tab=email`);
-    }
+    router.push(`/club/${clubId}/manage?tab=email`);
   };
 
   const handleSaveAndSend = async () => {
@@ -135,46 +124,38 @@ function EmailBlastEditorContent() {
       return;
     }
    
-    try {
-      setIsSaving(true);
-      setIsSending(true);
-      
-      let blastId: bigint;
-      
-      if (blast?.id) {
-        await updateEmailBlast.mutateAsync({
-          id: blast.id,
-          input: {
-            subject,
-            htmlContent,
-            textContent: ""
-          }
-        });
-        blastId = blast.id;
-      } else {
-        const savedBlast = await createEmailBlast.mutateAsync({
-          clubId: clubIdNumber,
-          input: {
-            subject,
-            htmlContent,
-            textContent: ""
-          }
-        });
-        blastId = savedBlast.id;
-      }
-
-      const confirmed = window.confirm(
-        "Are you sure you want to send this email blast to all active members? This action cannot be undone."
-      );
-      if (confirmed) {
-        await sendEmailBlast.mutateAsync({ id: blastId });
-      }
-      
-      setIsSending(false);
-      router.push(`/club/${clubId}/manage?tab=email`);
-    } catch {
-      setIsSending(false);
+    let blastId: bigint;
+    
+    if (blast?.id) {
+      await updateEmailBlast.mutateAsync({
+        id: blast.id,
+        input: {
+          subject,
+          htmlContent,
+          textContent: ""
+        }
+      });
+      blastId = blast.id;
+    } else {
+      const savedBlast = await createEmailBlast.mutateAsync({
+        clubId: clubIdNumber,
+        input: {
+          subject,
+          htmlContent,
+          textContent: ""
+        }
+      });
+      blastId = savedBlast.id;
     }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to send this email blast to all active members? This action cannot be undone."
+    );
+    if (confirmed) {
+      await sendEmailBlast.mutateAsync({ id: blastId });
+    }
+    
+    router.push(`/club/${clubId}/manage?tab=email`);
   };
 
   const handleDelete = async () => {
@@ -230,8 +211,8 @@ function EmailBlastEditorContent() {
           onSend={handleSaveAndSend}
           onDelete={handleDelete}
           onCancel={handleCancel}
-          saveButtonLoading={isSaving && !isSending}
-          sendButtonLoading={isSending}
+          saveButtonLoading={updateEmailBlast.isPending || createEmailBlast.isPending}
+          sendButtonLoading={sendEmailBlast.isPending}
           sendButtonDisabled={!canSend}
           sendButtonText={blast?.status === "SENT" ? "Already Sent" : "Save & Send"}
           showDeleteButton={true}
