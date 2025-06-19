@@ -258,7 +258,7 @@ export default function EmailTemplatePanel({
   clubId
 }: EmailTemplatePanelProps) {
   const [selectedTab, setSelectedTab] =
-    useState<TabValue>("ACCEPTANCE");
+    useState<TabValue>("EMAIL_BLAST");
 
   const handleTabChange = (value: string | null) => {
     setSelectedTab(value as TabValue);
