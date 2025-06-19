@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import React, { useState } from "react";
 import { EmailTemplateType } from "~/server/email/types";
-import EmailBlastPanel from "./EmailBlastPanel";
+import EmailBlastListPanel from "./EmailBlastListPanel";
 import {
   handleDefaultMutationError,
   notifySuccess
@@ -260,11 +260,15 @@ export default function EmailTemplatePanel({
   const [selectedTab, setSelectedTab] =
     useState<TabValue>("ACCEPTANCE");
 
+  const handleTabChange = (value: string | null) => {
+    setSelectedTab(value as TabValue);
+  };
+
   return (
     <Stack py="lg" pb="xl" gap="xs">
       <Tabs
         value={selectedTab}
-        onChange={(v) => setSelectedTab(v as TabValue)}
+        onChange={handleTabChange}
         styles={{
           tab: {
             // style is only to override theme and set this borderRadius value
@@ -287,14 +291,14 @@ export default function EmailTemplatePanel({
       </Tabs>
 
       {selectedTab === "EMAIL_BLAST" ? (
-        <EmailBlastPanel clubId={clubId} />
+        <EmailBlastListPanel clubId={clubId} />
       ) : (
         <EmailTemplateEditor
           // we need this so that each instance
           // has its own react state
           key={selectedTab}
           clubId={clubId}
-          type={selectedTab as EmailTemplateType}
+          type={selectedTab}
         />
       )}
     </Stack>
