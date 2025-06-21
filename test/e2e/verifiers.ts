@@ -2,7 +2,11 @@ import { type Membership, MembershipWithClub } from "~/server/membership/types";
 import { type SystemState } from "./systemState";
 import { orderByBigIntId, orderByNumberId } from "./utils";
 import { OmitRecursively } from "~/utils/omit";
-import { EmailService, EmailTemplateId, EmailBlast } from "~/server/email/types";
+import {
+  EmailService,
+  EmailTemplateId,
+  EmailBlast
+} from "~/server/email/types";
 import { User } from "~/server/user/types";
 import { Club } from "~/server/club/types";
 import { Services } from "./system.test";
@@ -197,10 +201,10 @@ function createVerifiers() {
     r: EmailService,
     m: SystemState
   ) {
-    const emailBlasts = await r.getEmailBlastsForClub(clubId);
+    const emailBlasts = await r.getEmailBlasts(clubId);
     expect(
       orderByBigIntId(emailBlasts.map((b) => emailBlastWithoutCreatedAt(b)))
-    ).toEqual(orderByBigIntId(m.getEmailBlastsForClub(clubId)));
+    ).toEqual(orderByBigIntId(m.getEmailBlasts(clubId)));
   }
 
   return {

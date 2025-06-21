@@ -6,7 +6,12 @@ import {
   DEFAULT_APPLICATION_QUESTIONS,
   DEFAULT_FREE_MEMBERSHIP_TIER
 } from "~/server/utils/defaults";
-import { EmailTemplateType, SetEmailTemplateInput, EmailBlastStatus, EmailBlastInput } from "~/server/email/types";
+import {
+  EmailTemplateType,
+  SetEmailTemplateInput,
+  EmailBlastStatus,
+  EmailBlastInput
+} from "~/server/email/types";
 import { EmailTemplate } from "~/server/email/types";
 import { EmailTemplateId } from "~/server/email/types";
 import { ItemSelector } from "./utils/itemSelector";
@@ -617,10 +622,12 @@ export class SystemState {
   }
 
   private getUserEmails(userIds: number[]): string[] {
-    return userIds.map(userId => {
+    return userIds.map((userId) => {
       const email = this.getUserEmail(userId);
       if (!email) {
-        throw new Error(`failed to find required email for user with id ${userId}`);
+        throw new Error(
+          `failed to find required email for user with id ${userId}`
+        );
       }
       return email;
     });
@@ -969,7 +976,7 @@ export class SystemState {
     return this.getEmailBlastState(id);
   }
 
-  public getEmailBlastsForClub(clubId: number): EmailBlastState[] {
+  public getEmailBlasts(clubId: number): EmailBlastState[] {
     return Array.from(this.emailBlasts.values())
       .filter((blast) => blast.clubId === clubId)
       .sort((a, b) => Number(b.id - a.id)); // simulate updatedAt desc ordering

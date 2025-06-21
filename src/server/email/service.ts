@@ -285,7 +285,7 @@ export function createEmailService(
     );
   }
 
-  async function getEmailBlastsForClub(clubId: number): Promise<EmailBlast[]> {
+  async function getEmailBlasts(clubId: number): Promise<EmailBlast[]> {
     try {
       const emailBlasts = await prisma.emailBlast.findMany({
         where: { clubId },
@@ -297,7 +297,10 @@ export function createEmailService(
       );
       return emailBlasts;
     } catch (e) {
-      logger.error(e, `failed to query email blasts for club with id ${clubId}`);
+      logger.error(
+        e,
+        `failed to query email blasts for club with id ${clubId}`
+      );
       throw e;
     }
   }
@@ -317,10 +320,15 @@ export function createEmailService(
         }
       });
 
-      logger.info(`created new email blast with id ${newBlast.id} with input ${stringify(input)}`);
+      logger.info(
+        `created new email blast with id ${newBlast.id} with input ${stringify(input)}`
+      );
       return { id: newBlast.id };
     } catch (e) {
-      logger.error(e, `failed to create email blast with input ${stringify(input)}`);
+      logger.error(
+        e,
+        `failed to create email blast with input ${stringify(input)}`
+      );
       throw e;
     }
   }
@@ -337,10 +345,15 @@ export function createEmailService(
         }
       });
 
-      logger.info(`updated email blast with id ${id} with input ${stringify(input)}`);
+      logger.info(
+        `updated email blast with id ${id} with input ${stringify(input)}`
+      );
       return { id };
     } catch (e) {
-      logger.error(e, `failed to update email blast with id ${id} with input ${stringify(input)}`);
+      logger.error(
+        e,
+        `failed to update email blast with id ${id} with input ${stringify(input)}`
+      );
       throw e;
     }
   }
@@ -358,7 +371,10 @@ export function createEmailService(
       logger.info(`set email blast status with id ${id} to ${status}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
-      logger.error(e, `failed to set email blast status with id ${id} to ${status}`);
+      logger.error(
+        e,
+        `failed to set email blast status with id ${id} to ${status}`
+      );
       throw e;
     }
   }
@@ -398,9 +414,11 @@ export function createEmailService(
         }
       });
 
-      const leadUserIds = leadMemberships.map(m => m.userId);
+      const leadUserIds = leadMemberships.map((m) => m.userId);
       if (leadUserIds.length === 0) {
-        throw new Error(`No lead memberships found for club ${emailBlast.clubId}`);
+        throw new Error(
+          `No lead memberships found for club ${emailBlast.clubId}`
+        );
       }
 
       const leadEmails = await userService.getUserEmails(leadUserIds);
@@ -418,7 +436,7 @@ export function createEmailService(
         }
       });
 
-      const memberUserIds = memberships.map(membership => membership.userId);
+      const memberUserIds = memberships.map((membership) => membership.userId);
       const recipients = await userService.getUserEmails(memberUserIds);
 
       await emailClient.sendEmailBlast({
@@ -431,7 +449,9 @@ export function createEmailService(
 
       await setEmailBlastStatus(id, "SENT");
 
-      logger.info(`sent email blast with id ${id} to ${recipients.length} members`);
+      logger.info(
+        `sent email blast with id ${id} to ${recipients.length} members`
+      );
     } catch (e) {
       logger.error(e, `failed to send email blast with id ${id}`);
       throw e;
@@ -442,7 +462,7 @@ export function createEmailService(
     getEmailTemplate,
     setEmailTemplate,
     deleteEmailTemplate,
-    getEmailBlastsForClub,
+    getEmailBlasts,
     createEmailBlast,
     updateEmailBlast,
     deleteEmailBlast,
