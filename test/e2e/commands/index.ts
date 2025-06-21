@@ -59,7 +59,7 @@ import DeleteEmailBlastCommand from "./deleteEmailBlastCommand";
 import SendEmailBlastCommand from "./sendEmailBlastCommand";
 import SetMembershipAsLeadCommand from "./setMembershipAsLeadCommand";
 import ClearMembershipRoleCommand from "./clearMembershipRoleCommand";
-import { EMAIL_CONTENT_LIMITS } from "~/server/utils/defaults";
+import { EMAIL_CONTENT_LIMITS } from "~/server/email/types";
 
 export const allCommands = () => {
   return [

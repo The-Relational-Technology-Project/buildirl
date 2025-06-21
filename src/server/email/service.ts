@@ -379,21 +379,18 @@ export function createEmailService(
 
   async function sendEmailBlast(id: bigint): Promise<void> {
     try {
-      const emailBlast = await prisma.emailBlast.findUnique({
+      const emailBlast = await prisma.emailBlast.findUniqueOrThrow({
         where: { id }
       });
-
-      if (!emailBlast) {
-        throw new Error("Email blast not found");
-      }
 
       if (emailBlast.status === "SENT") {
         throw new Error("Email blast has already been sent");
       }
 
-      const leadMembership = await prisma.membership.findFirst({
+      const leadMemberships = await prisma.membership.findMany({
         where: {
           membershipTier: { clubId: emailBlast.clubId },
+          status: "ACTIVE",
           role: "LEAD"
         },
         select: {
@@ -401,11 +398,15 @@ export function createEmailService(
         }
       });
 
-      if (!leadMembership) {
-        throw new Error(`No lead membership found for club ${emailBlast.clubId}`);
+      const leadUserIds = leadMemberships.map(m => m.userId);
+      if (leadUserIds.length === 0) {
+        throw new Error(`No lead memberships found for club ${emailBlast.clubId}`);
       }
 
-      const leadEmail = await userService.getUserEmail(leadMembership.userId);
+      const leadEmails = await userService.getUserEmails(leadUserIds);
+      if (leadEmails.length === 0) {
+        throw new Error(`No lead emails found for club ${emailBlast.clubId}`);
+      }
 
       const memberships = await prisma.membership.findMany({
         where: {
@@ -424,7 +425,7 @@ export function createEmailService(
         subject: emailBlast.subject,
         htmlContent: emailBlast.htmlContent,
         textContent: emailBlast.textContent,
-        replyTo: leadEmail,
+        replyTo: leadEmails,
         recipients
       });
 

@@ -2,7 +2,12 @@ import { z } from "zod";
 import { MutationResult } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 import { Prisma } from "@prisma/client";
-import { EMAIL_CONTENT_LIMITS } from "~/server/utils/defaults";
+
+export const EMAIL_CONTENT_LIMITS = {
+  SUBJECT_MAX_LENGTH: 500,
+  HTML_CONTENT_MAX_LENGTH: 15000,
+  TEXT_CONTENT_MAX_LENGTH: 15000
+};
 
 export type EmailService = EmailQueries & EmailMutations & EmailNotifications;
 
