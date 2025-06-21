@@ -6,7 +6,7 @@ import {
   DEFAULT_APPLICATION_QUESTIONS,
   DEFAULT_FREE_MEMBERSHIP_TIER
 } from "~/server/utils/defaults";
-import { EmailTemplateType, SetEmailTemplateInput } from "~/server/email/types";
+import { EmailTemplateType, SetEmailTemplateInput, EmailBlastStatus, EmailBlastInput } from "~/server/email/types";
 import { EmailTemplate } from "~/server/email/types";
 import { EmailTemplateId } from "~/server/email/types";
 import { ItemSelector } from "./utils/itemSelector";
@@ -56,6 +56,15 @@ type ClubState = {
   faqs: FAQs;
 };
 
+type EmailBlastState = {
+  id: bigint;
+  clubId: number;
+  subject: string;
+  htmlContent: string;
+  textContent: string;
+  status: EmailBlastStatus;
+};
+
 type MembershipState = {
   id: bigint;
   userId: number;
@@ -88,6 +97,7 @@ export class SystemState {
     number,
     Map<EmailTemplateType, EmailTemplate>
   >;
+  private readonly emailBlasts: Map<bigint, EmailBlastState>;
 
   constructor() {
     this.users = new Map();
@@ -96,6 +106,7 @@ export class SystemState {
     this.memberships = new Map();
     this.clubFollowing = new Map();
     this.emailTemplates = new Map();
+    this.emailBlasts = new Map();
   }
 
   // use this only for internal operations as it also contains
@@ -318,6 +329,7 @@ export class SystemState {
 
   public deleteClub(id: number) {
     this.deleteMembershipTiersForClub(id);
+    this.deleteEmailBlastsForClub(id);
     // cascading delete
     this.clubFollowing.delete(id);
     this.clubs.delete(id);
@@ -602,6 +614,16 @@ export class SystemState {
   private getUserEmail(userId: number): Maybe<string> {
     const user = this.getUserState(userId);
     return user.email;
+  }
+
+  private getUserEmails(userIds: number[]): string[] {
+    return userIds.map(userId => {
+      const email = this.getUserEmail(userId);
+      if (!email) {
+        throw new Error(`failed to find required email for user with id ${userId}`);
+      }
+      return email;
+    });
   }
 
   public getActiveMembershipsForClub(
@@ -905,6 +927,92 @@ export class SystemState {
     const type = templateTypeSelector.select(Array.from(clubTemplates.keys()));
 
     return { clubId, type };
+  }
+
+  public createEmailBlast(id: bigint, clubId: number, input: EmailBlastInput) {
+    if (this.emailBlasts.has(id)) {
+      throw new Error(`email blast with id ${id} already exists`);
+    }
+    this.emailBlasts.set(id, {
+      id,
+      clubId,
+      subject: input.subject,
+      htmlContent: input.htmlContent,
+      textContent: input.textContent,
+      status: "DRAFT"
+    });
+  }
+
+  public updateEmailBlast(id: bigint, input: EmailBlastInput) {
+    const emailBlast = this.getEmailBlastState(id);
+    this.emailBlasts.set(id, {
+      ...emailBlast,
+      subject: input.subject,
+      htmlContent: input.htmlContent,
+      textContent: input.textContent
+    });
+  }
+
+  public deleteEmailBlast(id: bigint) {
+    this.emailBlasts.delete(id);
+  }
+
+  private getEmailBlastState(id: bigint): EmailBlastState {
+    const emailBlast = this.emailBlasts.get(id);
+    if (!emailBlast) {
+      throw new Error(`email blast with id ${id} was expected`);
+    }
+    return emailBlast;
+  }
+
+  public getEmailBlast(id: bigint): EmailBlastState {
+    return this.getEmailBlastState(id);
+  }
+
+  public getEmailBlastsForClub(clubId: number): EmailBlastState[] {
+    return Array.from(this.emailBlasts.values())
+      .filter((blast) => blast.clubId === clubId)
+      .sort((a, b) => Number(b.id - a.id)); // simulate updatedAt desc ordering
+  }
+
+  public hasEmailBlasts(): boolean {
+    return this.emailBlasts.size > 0;
+  }
+
+  public hasEmailBlastsWithStatus(status: EmailBlastStatus): boolean {
+    return this.getEmailBlastIdsWithStatus(status).length > 0;
+  }
+
+  public getEmailBlastIds(): bigint[] {
+    return Array.from(this.emailBlasts.keys());
+  }
+
+  public getEmailBlastIdsWithStatus(status: EmailBlastStatus): bigint[] {
+    return Array.from(this.emailBlasts.values())
+      .filter((blast) => blast.status === status)
+      .map((blast) => blast.id);
+  }
+
+  public getDraftEmailBlastIds(): bigint[] {
+    return this.getEmailBlastIdsWithStatus("DRAFT");
+  }
+
+  public sendEmailBlast(id: bigint) {
+    const emailBlast = this.getEmailBlastState(id);
+    this.emailBlasts.set(id, {
+      ...emailBlast,
+      status: "SENT"
+    });
+  }
+
+  private deleteEmailBlastsForClub(clubId: number) {
+    const emailBlastsForClub = Array.from(this.emailBlasts.values()).filter(
+      (blast) => blast.clubId === clubId
+    );
+
+    for (const emailBlast of emailBlastsForClub) {
+      this.emailBlasts.delete(emailBlast.id);
+    }
   }
 
   public setMembershipAsLead(membershipId: bigint) {

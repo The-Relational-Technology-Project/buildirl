@@ -3,10 +3,17 @@ import { MutationResult } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 import { Prisma } from "@prisma/client";
 
+export const EMAIL_CONTENT_LIMITS = {
+  SUBJECT_MAX_LENGTH: 500,
+  HTML_CONTENT_MAX_LENGTH: 15000,
+  TEXT_CONTENT_MAX_LENGTH: 15000
+};
+
 export type EmailService = EmailQueries & EmailMutations & EmailNotifications;
 
 type EmailQueries = {
   getEmailTemplate(id: EmailTemplateId): Promise<Maybe<EmailTemplate>>;
+  getEmailBlastsForClub(clubId: number): Promise<EmailBlast[]>;
 };
 
 type EmailMutations = {
@@ -16,6 +23,9 @@ type EmailMutations = {
   ): Promise<MutationResult>;
   // deleting email template will fall back to default
   deleteEmailTemplate(id: EmailTemplateId): Promise<MutationResult>;
+  createEmailBlast(clubId: number, input: EmailBlastInput): Promise<{ id: bigint }>;
+  updateEmailBlast(id: bigint, input: EmailBlastInput): Promise<{ id: bigint }>;
+  deleteEmailBlast(id: bigint): Promise<MutationResult>;
 };
 
 type EmailNotifications = {
@@ -47,6 +57,7 @@ type EmailNotifications = {
     input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;
+  sendEmailBlast(id: bigint): Promise<void>;
 };
 
 export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
@@ -133,8 +144,28 @@ export type EmailTemplate = {
 };
 
 export const SetEmailTemplateInputSchema = z.object({
-  subject: z.string().max(500, "Length must be <= 500"),
-  htmlContent: z.string().max(15000, "Length must be <= 15000"),
-  textContent: z.string().max(10000, "Length must be <= 15000")
+  subject: z.string().max(EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH, `Length must be <= ${EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH}`),
+  htmlContent: z.string().max(EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH, `Length must be <= ${EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH}`),
+  textContent: z.string().max(EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH, `Length must be <= ${EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH}`)
 });
 export type SetEmailTemplateInput = z.infer<typeof SetEmailTemplateInputSchema>;
+
+export type EmailBlast = {
+  id: bigint;
+  clubId: number;
+  subject: string;
+  htmlContent: string;
+  textContent: string;
+  status: EmailBlastStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type EmailBlastStatus = "DRAFT" | "SENT";
+
+export const EmailBlastInputSchema = z.object({
+  subject: z.string().min(1, "Subject is required").max(EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH, `Subject must be <= ${EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH} characters`),
+  htmlContent: z.string().max(EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH, `HTML content must be <= ${EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH} characters`),
+  textContent: z.string().max(EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH, `Text content must be <= ${EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH} characters`)
+});
+export type EmailBlastInput = z.infer<typeof EmailBlastInputSchema>;

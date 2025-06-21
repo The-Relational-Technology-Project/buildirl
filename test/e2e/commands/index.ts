@@ -53,8 +53,13 @@ import { CitySchema } from "~/server/club/types/location";
 import { EmailTemplateType } from "~/server/email/types";
 import SetEmailTemplateCommand from "./setEmailTemplateCommand";
 import DeleteEmailTemplateCommand from "./deleteEmailTemplateCommand";
+import CreateEmailBlastCommand from "./createEmailBlastCommand";
+import UpdateEmailBlastCommand from "./updateEmailBlastCommand";
+import DeleteEmailBlastCommand from "./deleteEmailBlastCommand";
+import SendEmailBlastCommand from "./sendEmailBlastCommand";
 import SetMembershipAsLeadCommand from "./setMembershipAsLeadCommand";
 import ClearMembershipRoleCommand from "./clearMembershipRoleCommand";
+import { EMAIL_CONTENT_LIMITS } from "~/server/email/types";
 
 export const allCommands = () => {
   return [
@@ -82,7 +87,11 @@ export const allCommands = () => {
     setEmailTemplateCommands(),
     deleteEmailTemplateCommands(),
     setAsLeadCommands(),
-    clearRoleCommands()
+    clearRoleCommands(),
+    createEmailBlastCommands(),
+    updateEmailBlastCommands(),
+    deleteEmailBlastCommands(),
+    sendEmailBlastCommands()
   ];
 };
 
@@ -404,9 +413,9 @@ function setEmailTemplateCommands() {
         constant(v as EmailTemplateType)
       )
     ),
-    subject: string({ maxLength: 200 }),
-    htmlContent: string({ maxLength: 20000 }),
-    textContent: string({ maxLength: 20000 })
+    subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
+    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
+    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
   }).map(
     (i) =>
       new SetEmailTemplateCommand(i.clubIdSelector, i.templateType, {
@@ -424,6 +433,60 @@ function deleteEmailTemplateCommands() {
   }).map(
     (i) =>
       new DeleteEmailTemplateCommand(i.clubIdSelector, i.templateTypeSelector)
+  );
+}
+
+function createEmailBlastCommands() {
+  return record({
+    clubIdSelector: itemSelector<number>(),
+    subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
+    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
+    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
+  }).map(
+    (i) =>
+      new CreateEmailBlastCommand(
+        {
+          subject: i.subject,
+          htmlContent: i.htmlContent,
+          textContent: i.textContent
+        },
+        i.clubIdSelector
+      )
+  );
+}
+
+function updateEmailBlastCommands() {
+  return record({
+    emailBlastIdSelector: itemSelector<bigint>(),
+    subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
+    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
+    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
+  }).map(
+    (i) =>
+      new UpdateEmailBlastCommand(
+        i.emailBlastIdSelector,
+        {
+          subject: i.subject,
+          htmlContent: i.htmlContent,
+          textContent: i.textContent
+        }
+      )
+  );
+}
+
+function deleteEmailBlastCommands() {
+  return record({
+    emailBlastIdSelector: itemSelector<bigint>()
+  }).map(
+    (i) => new DeleteEmailBlastCommand(i.emailBlastIdSelector)
+  );
+}
+
+function sendEmailBlastCommands() {
+  return record({
+    emailBlastIdSelector: itemSelector<bigint>()
+  }).map(
+    (i) => new SendEmailBlastCommand(i.emailBlastIdSelector)
   );
 }
 
