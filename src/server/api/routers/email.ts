@@ -52,7 +52,7 @@ export const emailRouter = createTRPCRouter({
       if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
-      return ctx.service.email.getEmailBlasts(input.clubId);
+      return ctx.service.email.getEmailBlastsForClub(input.clubId);
     }),
 
   createEmailBlast: securedProcedureWithAbilityFor("Club")

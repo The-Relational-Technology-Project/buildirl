@@ -46,8 +46,8 @@ export type SendEmailBlastInput = {
   subject: string;
   htmlContent: string;
   textContent: string;
-  replyTo: Email;
-  recipients: Email[];
+  replyTo: Emails;
+  recipients: Emails;
 };
 
 export type Emails = Email | Email[];

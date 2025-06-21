@@ -197,10 +197,10 @@ function createVerifiers() {
     r: EmailService,
     m: SystemState
   ) {
-    const emailBlasts = await r.getEmailBlasts(clubId);
+    const emailBlasts = await r.getEmailBlastsForClub(clubId);
     expect(
       orderByBigIntId(emailBlasts.map((b) => emailBlastWithoutCreatedAt(b)))
-    ).toEqual(orderByBigIntId(m.getEmailBlasts(clubId)));
+    ).toEqual(orderByBigIntId(m.getEmailBlastsForClub(clubId)));
   }
 
   return {

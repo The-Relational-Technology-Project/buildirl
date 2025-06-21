@@ -285,7 +285,7 @@ export function createEmailService(
     );
   }
 
-  async function getEmailBlasts(clubId: number): Promise<EmailBlast[]> {
+  async function getEmailBlastsForClub(clubId: number): Promise<EmailBlast[]> {
     try {
       const emailBlasts = await prisma.emailBlast.findMany({
         where: { clubId },
@@ -441,7 +441,7 @@ export function createEmailService(
     getEmailTemplate,
     setEmailTemplate,
     deleteEmailTemplate,
-    getEmailBlasts,
+    getEmailBlastsForClub,
     createEmailBlast,
     updateEmailBlast,
     deleteEmailBlast,

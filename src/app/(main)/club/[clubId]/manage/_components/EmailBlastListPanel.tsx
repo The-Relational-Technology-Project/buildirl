@@ -18,7 +18,6 @@ import { isLoaded, toDisplayDate } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
 import { EmailBlast } from "~/server/email/types";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
-import { Suspense } from "react";
 
 type EmailBlastListPanelProps = {
   clubId: number;

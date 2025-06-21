@@ -969,7 +969,7 @@ export class SystemState {
     return this.getEmailBlastState(id);
   }
 
-  public getEmailBlasts(clubId: number): EmailBlastState[] {
+  public getEmailBlastsForClub(clubId: number): EmailBlastState[] {
     return Array.from(this.emailBlasts.values())
       .filter((blast) => blast.clubId === clubId)
       .sort((a, b) => Number(b.id - a.id)); // simulate updatedAt desc ordering
@@ -995,10 +995,6 @@ export class SystemState {
 
   public getDraftEmailBlastIds(): bigint[] {
     return this.getEmailBlastIdsWithStatus("DRAFT");
-  }
-
-  public selectEmailBlast(emailBlastIdSelector: ItemSelector<bigint>): bigint {
-    return emailBlastIdSelector.select(this.getEmailBlastIds());
   }
 
   public sendEmailBlast(id: bigint) {
