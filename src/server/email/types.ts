@@ -159,8 +159,8 @@ export type EmailBlast = {
 export type EmailBlastStatus = "DRAFT" | "SENT";
 
 export const EmailBlastInputSchema = z.object({
-  subject: z.string().min(1, "Subject is required").max(EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH, `Subject must be <= ${EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH} characters`).optional(),
-  htmlContent: z.string().max(EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH, `HTML content must be <= ${EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH} characters`).optional(),
-  textContent: z.string().max(EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH, `Text content must be <= ${EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH} characters`).optional()
+  subject: z.string().min(1, "Subject is required").max(EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH, `Subject must be <= ${EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH} characters`),
+  htmlContent: z.string().max(EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH, `HTML content must be <= ${EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH} characters`),
+  textContent: z.string().max(EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH, `Text content must be <= ${EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH} characters`)
 });
 export type EmailBlastInput = z.infer<typeof EmailBlastInputSchema>;

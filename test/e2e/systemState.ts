@@ -936,9 +936,9 @@ export class SystemState {
     this.emailBlasts.set(id, {
       id,
       clubId,
-      subject: input.subject ?? "",
-      htmlContent: input.htmlContent ?? "",
-      textContent: input.textContent ?? "",
+      subject: input.subject,
+      htmlContent: input.htmlContent,
+      textContent: input.textContent,
       status: "DRAFT"
     });
   }
@@ -947,9 +947,9 @@ export class SystemState {
     const emailBlast = this.getEmailBlastState(id);
     this.emailBlasts.set(id, {
       ...emailBlast,
-      subject: input.subject ?? emailBlast.subject,
-      htmlContent: input.htmlContent ?? emailBlast.htmlContent,
-      textContent: input.textContent ?? emailBlast.textContent
+      subject: input.subject,
+      htmlContent: input.htmlContent,
+      textContent: input.textContent
     });
   }
 
