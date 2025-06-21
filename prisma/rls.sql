@@ -20,6 +20,7 @@ ALTER TABLE "public"."membership_tier" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."membership" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."club_following" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."email_template" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."email_blast" ENABLE ROW LEVEL SECURITY;
 -- This table has no defined RLS policies that allows access but the postgres user bypasses RLS
 ALTER TABLE "public"."_prisma_migrations" ENABLE ROW LEVEL SECURITY;
 

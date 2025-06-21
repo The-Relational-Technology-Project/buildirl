@@ -3,44 +3,32 @@ import {
   ActionIcon,
   Badge,
   Box,
-  BoxProps,
   Button,
   Flex,
   Paper,
   Stack,
   Tabs,
   Text,
-  TextInput,
   Title
 } from "@mantine/core";
-import { RichTextEditor } from "@mantine/tiptap";
-import { Editor, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { Link } from "@mantine/tiptap";
 import React, { useState } from "react";
 import { EmailTemplateType } from "~/server/email/types";
-import { Underline } from "@tiptap/extension-underline";
-import { Superscript } from "@tiptap/extension-superscript";
-import { TextAlign } from "@tiptap/extension-text-align";
-import { Subscript } from "@tiptap/extension-subscript";
-import { Highlight } from "@tiptap/extension-highlight";
-import {
-  handleDefaultMutationError,
-  notifyError,
-  notifySuccess
-} from "~/client/logger";
+import EmailBlastListPanel from "./EmailBlastListPanel";
+import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { IconDeviceFloppy, IconTrash } from "@tabler/icons-react";
-import { Maybe } from "~/utils/types";
+import { IconTrash } from "@tabler/icons-react";
+import EmailEditor from "~/client/components/EmailEditor";
 
-type EmailTemplateMetadata = {
-  value: EmailTemplateType;
+type TabValue = EmailTemplateType | "EMAIL_BLAST";
+
+type TabMetadata = {
+  value: TabValue;
   label: string;
   description: string;
 };
 
-const TEMPLATE_METADATA: EmailTemplateMetadata[] = [
+const TAB_METADATA: TabMetadata[] = [
   {
     value: "ACCEPTANCE",
     label: "Acceptance",
@@ -58,24 +46,13 @@ const TEMPLATE_METADATA: EmailTemplateMetadata[] = [
     label: "Rejection",
     description:
       "This email is sent automatically to people who's application you have declined"
+  },
+  {
+    value: "EMAIL_BLAST",
+    label: "Email Blast",
+    description: "Send emails to all active members of your club."
   }
 ];
-
-type ClickableEditorContentProps = {
-  editor: Maybe<Editor>;
-};
-
-function ClickableEditorContent({
-  editor,
-  ...props
-}: ClickableEditorContentProps & BoxProps) {
-  const handleClick = () => {
-    if (editor && !editor.isFocused) {
-      editor.commands.focus("end");
-    }
-  };
-  return <RichTextEditor.Content {...props} onClick={handleClick} />;
-}
 
 type DraftBadgeProps = {
   state: DraftState;
@@ -111,8 +88,10 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
   // it is complex to integrate tiptap with react-hook-forms or mantine-forms. we are accepting
   // this trade-off given form validation is simple and the state management is minimal
   const [subject, setSubject] = useState("");
+  const [htmlContent, setHtmlContent] = useState("");
+  const [textContent, setTextContent] = useState("");
 
-  const emailTemplate = api.main.emailTemplate.useQuery({
+  const emailTemplate = api.email.emailTemplate.useQuery({
     clubId,
     type
   });
@@ -123,9 +102,9 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
   });
 
   const utils = api.useUtils();
-  const setEmailTemplate = api.main.setEmailTemplate.useMutation({
+  const setEmailTemplate = api.email.setEmailTemplate.useMutation({
     onSuccess: () => {
-      utils.main.emailTemplate.invalidate({ clubId, type: type });
+      utils.email.emailTemplate.invalidate({ clubId, type: type });
       notifySuccess("Success", "Email template has been updated");
     },
     onError: (e) => {
@@ -133,9 +112,9 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     }
   });
 
-  const deleteEmailTemplate = api.main.deleteEmailTemplate.useMutation({
+  const deleteEmailTemplate = api.email.deleteEmailTemplate.useMutation({
     onSuccess: () => {
-      utils.main.emailTemplate.invalidate({ clubId, type: type });
+      utils.email.emailTemplate.invalidate({ clubId, type: type });
       notifySuccess("Success", "Email template has been deleted");
     },
     onError: (e) => {
@@ -143,32 +122,24 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     }
   });
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline,
-      Link,
-      Superscript,
-      Subscript,
-      Highlight,
-      TextAlign.configure({ types: ["heading", "paragraph"] })
-    ],
-    content: emailTemplate.data?.htmlContent || ""
-  });
-
   React.useEffect(() => {
-    if (!editor) return;
     if (!emailTemplate.data) return;
-    editor.commands.setContent(emailTemplate.data.htmlContent);
     setSubject(emailTemplate.data.subject);
-  }, [editor, emailTemplate.data]);
+    setHtmlContent(emailTemplate.data.htmlContent);
+    setTextContent(emailTemplate.data.textContent);
+  }, [emailTemplate.data]);
+
+  const handleContentChange = (
+    newSubject: string,
+    newHtmlContent: string,
+    newTextContent: string
+  ) => {
+    setSubject(newSubject);
+    setHtmlContent(newHtmlContent);
+    setTextContent(newTextContent);
+  };
 
   const handleSave = async () => {
-    if (!editor) {
-      notifyError("Editor was not available during save; this is unexpected.");
-      return;
-    }
-
     if (draftState === "DRAFT") {
       const confirmed = window.confirm(
         `The email template will become live immediately after save. Confirm save?`
@@ -179,8 +150,8 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
           id: { clubId, type: type },
           input: {
             subject,
-            htmlContent: editor.getHTML(),
-            textContent: editor.getText()
+            htmlContent,
+            textContent
           }
         });
       }
@@ -191,18 +162,16 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
       id: { clubId, type: type },
       input: {
         subject,
-        htmlContent: editor.getHTML(),
-        textContent: editor.getText()
+        htmlContent,
+        textContent
       }
     });
   };
 
   const clearContent = () => {
     setSubject("");
-    if (editor) {
-      editor.commands.setContent("");
-    }
-    return;
+    setHtmlContent("");
+    setTextContent("");
   };
 
   const handleDelete = async () => {
@@ -221,7 +190,14 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     }
   };
 
-  const templateMetadata = TEMPLATE_METADATA.find((t) => t.value === type)!;
+  const handleCancel = () => {
+    if (draftState === "DRAFT") {
+      setDraftState("NO_DRAFT");
+      clearContent();
+    }
+  };
+
+  const templateMetadata = TAB_METADATA.find((t) => t.value === type)!;
 
   if (!isLoaded(emailTemplate)) {
     return;
@@ -247,74 +223,16 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
             <IconTrash size={20} />
           </ActionIcon>
         </Flex>
-        <Stack gap={"xs"}>
-          <Text size={"sm"} fw={500}>
-            Email Subject
-          </Text>
-          <TextInput
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            required
-            mb="sm"
-          />
-
-          <Text size="sm" fw={500}>
-            Email Content
-          </Text>
-          <RichTextEditor editor={editor}>
-            <RichTextEditor.Toolbar sticky stickyOffset={0}>
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Bold />
-                <RichTextEditor.Italic />
-                <RichTextEditor.Underline />
-                <RichTextEditor.Strikethrough />
-                <RichTextEditor.ClearFormatting />
-                <RichTextEditor.Highlight />
-                <RichTextEditor.Code />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.H1 />
-                <RichTextEditor.H2 />
-                <RichTextEditor.H3 />
-                <RichTextEditor.H4 />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Blockquote />
-                <RichTextEditor.Hr />
-                <RichTextEditor.BulletList />
-                <RichTextEditor.OrderedList />
-                <RichTextEditor.Subscript />
-                <RichTextEditor.Superscript />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.Link />
-                <RichTextEditor.Unlink />
-              </RichTextEditor.ControlsGroup>
-
-              <RichTextEditor.ControlsGroup>
-                <RichTextEditor.AlignLeft />
-                <RichTextEditor.AlignCenter />
-                <RichTextEditor.AlignJustify />
-                <RichTextEditor.AlignRight />
-              </RichTextEditor.ControlsGroup>
-            </RichTextEditor.Toolbar>
-
-            <ClickableEditorContent editor={editor} mih={240} />
-          </RichTextEditor>
-
-          <Box style={{ alignSelf: "center" }} mt={"sm"}>
-            <Button
-              leftSection={<IconDeviceFloppy size={16} />}
-              onClick={handleSave}
-              loading={setEmailTemplate.isPending}
-            >
-              Save Template
-            </Button>
-          </Box>
-        </Stack>
+        <EmailEditor
+          subject={subject}
+          htmlContent={htmlContent}
+          onContentChange={handleContentChange}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          saveButtonText="Save Template"
+          saveButtonLoading={setEmailTemplate.isPending}
+          minHeight={240}
+        />
       </Stack>
     </Paper>
   ) : (
@@ -343,14 +261,17 @@ type EmailTemplatePanelProps = {
 export default function EmailTemplatePanel({
   clubId
 }: EmailTemplatePanelProps) {
-  const [selectedType, setSelectedType] =
-    useState<EmailTemplateType>("ACCEPTANCE");
+  const [selectedTab, setSelectedTab] = useState<TabValue>("EMAIL_BLAST");
+
+  const handleTabChange = (value: string | null) => {
+    setSelectedTab(value as TabValue);
+  };
 
   return (
     <Stack py="lg" pb="xl" gap="xs">
       <Tabs
-        value={selectedType}
-        onChange={(v) => setSelectedType(v as EmailTemplateType)}
+        value={selectedTab}
+        onChange={handleTabChange}
         styles={{
           tab: {
             // style is only to override theme and set this borderRadius value
@@ -364,7 +285,7 @@ export default function EmailTemplatePanel({
         }}
       >
         <Tabs.List mb="md">
-          {TEMPLATE_METADATA.map((t) => (
+          {TAB_METADATA.map((t) => (
             <Tabs.Tab key={t.value} value={t.value}>
               {t.label}
             </Tabs.Tab>
@@ -372,13 +293,17 @@ export default function EmailTemplatePanel({
         </Tabs.List>
       </Tabs>
 
-      <EmailTemplateEditor
-        // we need this so that each instance
-        // has its own react state
-        key={selectedType}
-        clubId={clubId}
-        type={selectedType}
-      />
+      {selectedTab === "EMAIL_BLAST" ? (
+        <EmailBlastListPanel clubId={clubId} />
+      ) : (
+        <EmailTemplateEditor
+          // we need this so that each instance
+          // has its own react state
+          key={selectedTab}
+          clubId={clubId}
+          type={selectedTab}
+        />
+      )}
     </Stack>
   );
 }

@@ -26,10 +26,6 @@ import {
   DeactivateMembershipInputSchema,
   SubmitMembershipApplicationInputSchema
 } from "~/server/membership/types";
-import {
-  EmailTemplateIdSchema,
-  SetEmailTemplateInputSchema
-} from "~/server/email/types";
 
 export const mainRouter = createTRPCRouter({
   user: securedProcedure.query(({ ctx }) => {
@@ -378,40 +374,6 @@ export const mainRouter = createTRPCRouter({
     .input(z.object({ clubId: z.number() }))
     .mutation(({ ctx, input }) => {
       return ctx.service.following.unfollowClub(ctx.user.userId, input.clubId);
-    }),
-
-  emailTemplate: securedProcedureWithAbilityFor("Club")
-    .input(EmailTemplateIdSchema)
-    .query(({ ctx, input }) => {
-      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
-      return ctx.service.email.getEmailTemplate(input);
-    }),
-
-  setEmailTemplate: securedProcedureWithAbilityFor("Club")
-    .input(
-      z.object({
-        id: EmailTemplateIdSchema,
-        input: SetEmailTemplateInputSchema
-      })
-    )
-    .mutation(({ ctx, input }) => {
-      if (
-        !ctx.ability.can("manage", subject("Club", { id: input.id.clubId }))
-      ) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
-      return ctx.service.email.setEmailTemplate(input.id, input.input);
-    }),
-
-  deleteEmailTemplate: securedProcedureWithAbilityFor("Club")
-    .input(EmailTemplateIdSchema)
-    .mutation(({ ctx, input }) => {
-      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
-      return ctx.service.email.deleteEmailTemplate(input);
     }),
 
   setMembershipAsLead: securedProcedureWithAbilityFor("Membership")

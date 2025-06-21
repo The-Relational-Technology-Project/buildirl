@@ -2,7 +2,11 @@ import { type Membership, MembershipWithClub } from "~/server/membership/types";
 import { type SystemState } from "./systemState";
 import { orderByBigIntId, orderByNumberId } from "./utils";
 import { OmitRecursively } from "~/utils/omit";
-import { EmailService, EmailTemplateId } from "~/server/email/types";
+import {
+  EmailService,
+  EmailTemplateId,
+  EmailBlast
+} from "~/server/email/types";
 import { User } from "~/server/user/types";
 import { Club } from "~/server/club/types";
 import { Services } from "./system.test";
@@ -179,6 +183,30 @@ function createVerifiers() {
     expect(template).toEqual(m.getEmailTemplate(id));
   }
 
+  function emailBlastWithoutCreatedAt(
+    emailBlast: EmailBlast
+  ): OmitRecursively<EmailBlast, "createdAt" | "updatedAt"> {
+    return {
+      id: emailBlast.id,
+      clubId: emailBlast.clubId,
+      subject: emailBlast.subject,
+      htmlContent: emailBlast.htmlContent,
+      textContent: emailBlast.textContent,
+      status: emailBlast.status
+    };
+  }
+
+  async function verifyEmailBlasts(
+    clubId: number,
+    r: EmailService,
+    m: SystemState
+  ) {
+    const emailBlasts = await r.getEmailBlasts(clubId);
+    expect(
+      orderByBigIntId(emailBlasts.map((b) => emailBlastWithoutCreatedAt(b)))
+    ).toEqual(orderByBigIntId(m.getEmailBlasts(clubId)));
+  }
+
   return {
     verifyUser,
     verifyClub,
@@ -186,7 +214,8 @@ function createVerifiers() {
     verifyUserMemberships,
     verifyClubFollowers,
     verifyUserFollowedClubs,
-    verifyEmailTemplate
+    verifyEmailTemplate,
+    verifyEmailBlasts
   };
 }
 
