@@ -14,7 +14,7 @@ import {
 import { IconPlus, IconEdit, IconTrash, IconEye } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
-import { isLoaded } from "~/client/utils";
+import { isLoaded, toDisplayDate } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
 import { EmailBlast } from "~/server/email/types";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
@@ -26,9 +26,9 @@ type EmailBlastListPanelProps = {
 
 type EmailBlastTableProps = {
   emailBlasts: EmailBlast[];
-  onEdit: (blast: EmailBlast) => void;
+  onEdit: (emailBlast: EmailBlast) => void;
   onView: (blast: EmailBlast) => void;
-  onDelete: (id: bigint) => void;
+  onDelete: (emailBlastId: bigint) => void;
 };
 
 function EmailBlastTable({ emailBlasts, onEdit, onView, onDelete }: EmailBlastTableProps) {
@@ -64,7 +64,7 @@ function EmailBlastTable({ emailBlasts, onEdit, onView, onDelete }: EmailBlastTa
                   onClick={() => blast.status === "SENT" ? onView(blast) : onEdit(blast)}
                   fw={500}
                 >
-                  {blast.subject || "Untitled"}
+                  {blast.subject || <i>Untitled</i>}
                 </Text>
               </Table.Td>
               <Table.Td>
@@ -77,7 +77,7 @@ function EmailBlastTable({ emailBlasts, onEdit, onView, onDelete }: EmailBlastTa
               </Table.Td>
               <Table.Td>
                 <Text size="sm" c="dimmed">
-                  {new Date(blast.updatedAt).toLocaleDateString()}
+                  {toDisplayDate(new Date(blast.updatedAt))}
                 </Text>
               </Table.Td>
               <Table.Td>
@@ -144,20 +144,20 @@ function EmailBlastListContent({ clubId }: EmailBlastListPanelProps) {
     router.push(`/club/${clubId}/manage/email-blasts/new`, { scroll: false });
   };
 
-  const handleEdit = (blast: EmailBlast) => {
-    router.push(`/club/${clubId}/manage/email-blasts/${blast.id}`, { scroll: false });
+  const handleEdit = (emailBlast: EmailBlast) => {
+    router.push(`/club/${clubId}/manage/email-blasts/${emailBlast.id}`, { scroll: false });
   };
 
   const handleView = (blast: EmailBlast) => {
     router.push(`/club/${clubId}/manage/email-blasts/${blast.id}`, { scroll: false });
   };
 
-  const handleDelete = async (id: bigint) => {
+  const handleDelete = async (emailBlastId: bigint) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this email blast? This action cannot be undone."
     );
     if (confirmed) {
-      await deleteEmailBlast.mutateAsync({ id });
+      await deleteEmailBlast.mutateAsync({ id: emailBlastId });
     }
   };
 
@@ -193,9 +193,5 @@ function EmailBlastListContent({ clubId }: EmailBlastListPanelProps) {
 }
 
 export default function EmailBlastListPanel({ clubId }: EmailBlastListPanelProps) {
-  return (
-    <Suspense fallback={null}>
-      <EmailBlastListContent clubId={clubId} />
-    </Suspense>
-  );
+  return <EmailBlastListContent clubId={clubId} />;
 } 
