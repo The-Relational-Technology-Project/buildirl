@@ -64,7 +64,7 @@ function CreateEmailBlastContent() {
           onSave={handleSave}
           onCancel={handleCancel}
           saveButtonLoading={createEmailBlast.isPending}
-          saveButtonText="Create Blast"
+          saveButtonText="Create Draft"
           showDeleteButton={false}
           showSendButton={false}
         />
@@ -83,4 +83,4 @@ export default function CreateEmailBlastPage() {
       </Suspense>
     </WithLocalNavigationHeader>
   );
-} 
+}

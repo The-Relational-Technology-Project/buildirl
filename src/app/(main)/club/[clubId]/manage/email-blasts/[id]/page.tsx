@@ -1,47 +1,50 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { Stack, Title, Text, Paper } from "@mantine/core";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
 import { strictParseInt } from "~/utils";
-import { handleDefaultMutationError, notifyError, notifySuccess } from "~/client/logger";
+import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import EmailEditor from "~/client/components/EmailEditor";
 
 function EmailBlastEditorContent() {
-  const { clubId, id } = useParams<{ clubId: string; id: string }>();
+  const params = useParams<{ clubId: string; id: string }>();
   const router = useRouter();
-  const clubIdNumber = strictParseInt(clubId);
+  const clubId = strictParseInt(params.clubId);
 
-  const emailBlasts = api.email.emailBlasts.useQuery({ clubId: clubIdNumber });
+  const emailBlasts =
+    api.email.emailBlasts.useQuery({ clubId: clubId }) || null;
 
   QueryError.checkNullable({
     result: emailBlasts,
     fieldName: "emailBlasts"
   });
 
-  const blast = emailBlasts.data?.find(b => b.id.toString() === id) || null;
+  const blast = emailBlasts.data?.find((b) => b.id.toString() === params.id);
+
+  if (blast === undefined) {
+    throw new Error("blast was not found, this is not expected");
+  }
+
   const isViewMode = blast?.status === "SENT";
-  const isReadOnly = isViewMode;
 
   const [subject, setSubject] = useState(blast?.subject ?? "");
   const [htmlContent, setHtmlContent] = useState(blast?.htmlContent ?? "");
 
   useEffect(() => {
-    if (blast) {
-      setSubject(blast.subject);
-      setHtmlContent(blast.htmlContent);
-    }
+    setSubject(blast.subject);
+    setHtmlContent(blast.htmlContent);
   }, [blast]);
 
   const utils = api.useUtils();
 
   const updateEmailBlast = api.email.updateEmailBlast.useMutation({
     onSuccess: () => {
-      utils.email.emailBlasts.invalidate({ clubId: clubIdNumber });
+      utils.email.emailBlasts.invalidate({ clubId: clubId });
       notifySuccess("Success", "Email blast has been saved");
     },
     onError: (e) => {
@@ -51,7 +54,7 @@ function EmailBlastEditorContent() {
 
   const deleteEmailBlast = api.email.deleteEmailBlast.useMutation({
     onSuccess: () => {
-      utils.email.emailBlasts.invalidate({ clubId: clubIdNumber });
+      utils.email.emailBlasts.invalidate({ clubId: clubId });
       notifySuccess("Success", "Email blast has been deleted");
       router.push(`/club/${clubId}/manage?tab=email`);
     },
@@ -62,7 +65,7 @@ function EmailBlastEditorContent() {
 
   const sendEmailBlast = api.email.sendEmailBlast.useMutation({
     onSuccess: () => {
-      utils.email.emailBlasts.invalidate({ clubId: clubIdNumber });
+      utils.email.emailBlasts.invalidate({ clubId: clubId });
       notifySuccess("Success", "Email blast has been sent");
     },
     onError: (e) => {
@@ -76,11 +79,13 @@ function EmailBlastEditorContent() {
   };
 
   const handleSave = async () => {
-    if (isReadOnly || !blast?.id) {
-      notifyError("Cannot save - email blast not found or in read-only mode.");
-      return;
+    // TODO! these runtime check is only needed because of the generalization of
+    //  the EmailEditor fails to enforce this with the type system. It should be removed
+    //  once the EmailEditor is refactored
+    if (isViewMode) {
+      throw new Error("unexpected operation  in read-only mode.");
     }
-    
+
     await updateEmailBlast.mutateAsync({
       id: blast.id,
       input: {
@@ -89,16 +94,15 @@ function EmailBlastEditorContent() {
         textContent: ""
       }
     });
-    
+
     router.push(`/club/${clubId}/manage?tab=email`);
   };
 
   const handleSaveAndSend = async () => {
-    if (isReadOnly || !blast?.id) {
-      notifyError("Cannot save and send - email blast not found or in read-only mode.");
-      return;
+    if (isViewMode) {
+      throw new Error("unexpected operation  in read-only mode.");
     }
-   
+
     await updateEmailBlast.mutateAsync({
       id: blast.id,
       input: {
@@ -114,14 +118,13 @@ function EmailBlastEditorContent() {
     if (confirmed) {
       await sendEmailBlast.mutateAsync({ id: blast.id });
     }
-    
+
     router.push(`/club/${clubId}/manage?tab=email`);
   };
 
   const handleDelete = async () => {
-    if (!blast?.id || isReadOnly) {
-      router.push(`/club/${clubId}/manage?tab=email`);
-      return;
+    if (isViewMode) {
+      throw new Error("unexpected operation  in read-only mode.");
     }
 
     const confirmed = window.confirm(
@@ -140,18 +143,15 @@ function EmailBlastEditorContent() {
     return null;
   }
 
-  const canSend = blast?.status !== "SENT" && !isReadOnly;
-
   return (
     <Stack gap="md">
       <Title order={3}>
         {isViewMode ? "View Email Blast" : "Edit Email Blast"}
       </Title>
       <Text size="sm" c="dimmed">
-        {isViewMode 
+        {isViewMode
           ? "View the content of this sent email blast"
-          : "Edit and manage your email blast"
-        }
+          : "Edit and manage your email blast"}
       </Text>
 
       <Paper withBorder p="xl">
@@ -159,15 +159,17 @@ function EmailBlastEditorContent() {
           subject={subject}
           htmlContent={htmlContent}
           onContentChange={handleContentChange}
-          readOnly={isReadOnly}
+          readOnly={isViewMode}
           onSave={handleSave}
           onSend={handleSaveAndSend}
           onDelete={handleDelete}
           onCancel={handleCancel}
           saveButtonLoading={updateEmailBlast.isPending}
           sendButtonLoading={sendEmailBlast.isPending}
-          sendButtonDisabled={!canSend}
-          sendButtonText={blast?.status === "SENT" ? "Already Sent" : "Save & Send"}
+          sendButtonDisabled={isViewMode}
+          sendButtonText={
+            blast?.status === "SENT" ? "Already Sent" : "Save & Send"
+          }
           showDeleteButton={true}
           showSendButton={true}
         />
@@ -181,9 +183,7 @@ export default function EmailBlastEditorPage() {
 
   return (
     <WithLocalNavigationHeader navigateTo={`/club/${clubId}/manage?tab=email`}>
-      <Suspense fallback={null}>
-        <EmailBlastEditorContent />
-      </Suspense>
+      <EmailBlastEditorContent />
     </WithLocalNavigationHeader>
   );
-} 
+}
