@@ -1,11 +1,11 @@
-import { 
-  Box, 
-  Button, 
-  Flex, 
-  Stack, 
-  Text, 
+import {
+  Box,
+  Button,
+  Flex,
+  Stack,
+  Text,
   TextInput,
-  BoxProps 
+  BoxProps
 } from "@mantine/core";
 import { RichTextEditor } from "@mantine/tiptap";
 import { Editor, useEditor } from "@tiptap/react";
@@ -39,15 +39,19 @@ function ClickableEditorContent({
 export type EmailEditorProps = {
   subject: string;
   htmlContent: string;
-  onContentChange: (subject: string, htmlContent: string, textContent?: string) => void;
-  
+  onContentChange: (
+    subject: string,
+    htmlContent: string,
+    textContent: string
+  ) => void;
+
   readOnly?: boolean;
-  
+
   onSave?: () => void;
   onSend?: () => void;
   onDelete?: () => void;
   onCancel?: () => void;
-  
+
   saveButtonText?: string;
   saveButtonLoading?: boolean;
   sendButtonText?: string;
@@ -125,7 +129,9 @@ export default function EmailEditor({
       />
 
       <Box>
-        <Text size="sm" fw={500} mb={4}>Content</Text>
+        <Text size="sm" fw={500} mb={4}>
+          Content
+        </Text>
         <RichTextEditor editor={editor}>
           {!readOnly && (
             <RichTextEditor.Toolbar>
@@ -179,22 +185,22 @@ export default function EmailEditor({
             {readOnly ? "Back to List" : cancelButtonText}
           </Button>
           {showDeleteButton && !readOnly && (
-            <Button 
-              variant="light" 
-              color="red" 
-              leftSection={<IconTrash size={16} />} 
+            <Button
+              variant="light"
+              color="red"
+              leftSection={<IconTrash size={16} />}
               onClick={onDelete}
             >
               Delete
             </Button>
           )}
         </Flex>
-        
+
         {!readOnly && (onSave || onSend) && (
           <Flex gap="md">
             {showSendButton && onSend && (
-              <Button 
-                leftSection={<IconSend size={16} />} 
+              <Button
+                leftSection={<IconSend size={16} />}
                 onClick={onSend}
                 disabled={sendButtonDisabled}
                 loading={sendButtonLoading}
@@ -204,8 +210,8 @@ export default function EmailEditor({
               </Button>
             )}
             {onSave && (
-              <Button 
-                leftSection={<IconDeviceFloppy size={16} />} 
+              <Button
+                leftSection={<IconDeviceFloppy size={16} />}
                 onClick={onSave}
                 loading={saveButtonLoading}
               >
@@ -217,4 +223,4 @@ export default function EmailEditor({
       </Flex>
     </Stack>
   );
-} 
+}

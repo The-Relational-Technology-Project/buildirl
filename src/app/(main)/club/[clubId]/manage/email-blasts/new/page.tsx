@@ -16,6 +16,7 @@ function CreateEmailBlastContent() {
 
   const [subject, setSubject] = useState("");
   const [htmlContent, setHtmlContent] = useState("");
+  const [textContent, setTextContent] = useState("");
 
   const utils = api.useUtils();
   const createEmailBlast = api.email.createEmailBlast.useMutation({
@@ -29,9 +30,14 @@ function CreateEmailBlastContent() {
     }
   });
 
-  const handleContentChange = (newSubject: string, newHtmlContent: string) => {
+  const handleContentChange = (
+    newSubject: string,
+    newHtmlContent: string,
+    newTextContent: string
+  ) => {
     setSubject(newSubject);
     setHtmlContent(newHtmlContent);
+    setTextContent(newTextContent);
   };
 
   const handleSave = async () => {
@@ -40,7 +46,7 @@ function CreateEmailBlastContent() {
       input: {
         subject,
         htmlContent,
-        textContent: ""
+        textContent
       }
     });
   };

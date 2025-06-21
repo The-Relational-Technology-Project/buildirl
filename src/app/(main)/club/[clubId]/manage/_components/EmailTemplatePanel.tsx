@@ -14,10 +14,7 @@ import {
 import React, { useState } from "react";
 import { EmailTemplateType } from "~/server/email/types";
 import EmailBlastListPanel from "./EmailBlastListPanel";
-import {
-  handleDefaultMutationError,
-  notifySuccess
-} from "~/client/logger";
+import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { IconTrash } from "@tabler/icons-react";
@@ -53,8 +50,7 @@ const TAB_METADATA: TabMetadata[] = [
   {
     value: "EMAIL_BLAST",
     label: "Email Blast",
-    description:
-      "Send emails to all active members of your club."
+    description: "Send emails to all active members of your club."
   }
 ];
 
@@ -93,6 +89,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
   // this trade-off given form validation is simple and the state management is minimal
   const [subject, setSubject] = useState("");
   const [htmlContent, setHtmlContent] = useState("");
+  const [textContent, setTextContent] = useState("");
 
   const emailTemplate = api.email.emailTemplate.useQuery({
     clubId,
@@ -129,11 +126,17 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     if (!emailTemplate.data) return;
     setSubject(emailTemplate.data.subject);
     setHtmlContent(emailTemplate.data.htmlContent);
+    setTextContent(emailTemplate.data.textContent);
   }, [emailTemplate.data]);
 
-  const handleContentChange = (newSubject: string, newHtmlContent: string) => {
+  const handleContentChange = (
+    newSubject: string,
+    newHtmlContent: string,
+    newTextContent: string
+  ) => {
     setSubject(newSubject);
     setHtmlContent(newHtmlContent);
+    setTextContent(newTextContent);
   };
 
   const handleSave = async () => {
@@ -148,7 +151,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
           input: {
             subject,
             htmlContent,
-            textContent: ""
+            textContent
           }
         });
       }
@@ -160,7 +163,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
       input: {
         subject,
         htmlContent,
-        textContent: ""
+        textContent
       }
     });
   };
@@ -168,6 +171,7 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
   const clearContent = () => {
     setSubject("");
     setHtmlContent("");
+    setTextContent("");
   };
 
   const handleDelete = async () => {
@@ -257,8 +261,7 @@ type EmailTemplatePanelProps = {
 export default function EmailTemplatePanel({
   clubId
 }: EmailTemplatePanelProps) {
-  const [selectedTab, setSelectedTab] =
-    useState<TabValue>("EMAIL_BLAST");
+  const [selectedTab, setSelectedTab] = useState<TabValue>("EMAIL_BLAST");
 
   const handleTabChange = (value: string | null) => {
     setSelectedTab(value as TabValue);

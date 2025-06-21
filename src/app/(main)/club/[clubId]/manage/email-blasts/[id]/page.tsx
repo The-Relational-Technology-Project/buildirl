@@ -34,10 +34,12 @@ function EmailBlastEditorContent() {
 
   const [subject, setSubject] = useState(blast?.subject ?? "");
   const [htmlContent, setHtmlContent] = useState(blast?.htmlContent ?? "");
+  const [textContent, setTextContent] = useState(blast?.textContent ?? "");
 
   useEffect(() => {
     setSubject(blast.subject);
     setHtmlContent(blast.htmlContent);
+    setTextContent(blast.textContent);
   }, [blast]);
 
   const utils = api.useUtils();
@@ -73,9 +75,14 @@ function EmailBlastEditorContent() {
     }
   });
 
-  const handleContentChange = (newSubject: string, newHtmlContent: string) => {
+  const handleContentChange = (
+    newSubject: string,
+    newHtmlContent: string,
+    newTextContent: string
+  ) => {
     setSubject(newSubject);
     setHtmlContent(newHtmlContent);
+    setTextContent(newTextContent);
   };
 
   const handleSave = async () => {
@@ -91,7 +98,7 @@ function EmailBlastEditorContent() {
       input: {
         subject,
         htmlContent,
-        textContent: ""
+        textContent
       }
     });
 
@@ -108,7 +115,7 @@ function EmailBlastEditorContent() {
       input: {
         subject,
         htmlContent,
-        textContent: ""
+        textContent
       }
     });
 
