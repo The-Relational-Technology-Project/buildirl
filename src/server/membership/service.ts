@@ -278,16 +278,6 @@ export function createMembershipService(
             select: {
               costPerMonthInUSD: true
             }
-          },
-          user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              settings: {
-                select: { email: true }
-              }
-            }
           }
         }
       });
@@ -302,33 +292,18 @@ export function createMembershipService(
         return;
       }
 
-      if (!membership.user.settings?.email) {
-        throw new Error(
-          `user with id ${membership.user.id} has no settings with email to create Stripe customer`
-        );
-      }
-
-      const accountId = await accountIdResolver.fromMembershipInTransaction(
+      const { customerId } = await paymentService.createCustomerForMembership(
         membershipId,
         tx
       );
 
-      const response = await stripeClient.createCustomerForMembership(
-        {
-          email: membership.user.settings.email,
-          name: `${membership.user.firstName} ${membership.user.lastName}`,
-          membershipId: membershipId
-        },
-        accountId
-      );
-
       await tx.membership.update({
-        data: { stripeCustomerId: response.customerId },
+        data: { stripeCustomerId: customerId },
         where: { id: membershipId }
       });
 
       logger.info(
-        `updated membership with id ${membershipId} with stripeCustomerId ${response.customerId}`
+        `updated membership with id ${membershipId} with stripeCustomerId ${customerId}`
       );
     } catch (e) {
       logger.error(
