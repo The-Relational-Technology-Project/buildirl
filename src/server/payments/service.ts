@@ -11,7 +11,8 @@ import {
   CreateAccountInput,
   CreateCheckoutSessionResult,
   CreateCustomerPortalSessionResult,
-  CreateCustomerPortalSessionInput
+  CreateCustomerPortalSessionInput,
+  CreateCustomerForMembershipResult
 } from "~/server/payments/types";
 import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
@@ -290,12 +291,68 @@ export function createPaymentService(
     }
   }
 
+  async function createCustomerForMembership(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<CreateCustomerForMembershipResult> {
+    try {
+      const membership = await tx.membership.findUniqueOrThrow({
+        where: { id: membershipId },
+        select: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              settings: {
+                select: { email: true }
+              }
+            }
+          }
+        }
+      });
+
+      if (!membership.user.settings?.email) {
+        throw new Error(
+          `user with id ${membership.user.id} has no settings with email to create Stripe customer`
+        );
+      }
+
+      const accountId = await accountIdResolver.fromMembershipInTransaction(
+        membershipId,
+        tx
+      );
+
+      const response = await stripeClient.createCustomerForMembership(
+        {
+          email: membership.user.settings.email,
+          name: `${membership.user.firstName} ${membership.user.lastName}`,
+          membershipId: membershipId
+        },
+        accountId
+      );
+
+      logger.info(
+        `created stripe customer ${response.customerId} for membership with id ${membershipId}`
+      );
+
+      return { customerId: response.customerId };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create stripe customer for membership with id ${membershipId}`
+      );
+      throw e;
+    }
+  }
+
   return {
     getAccountStatus,
     getSubscriptionStatus,
     createAccount,
     createAccountLink,
     createCheckoutSession,
-    createCustomerPortalSession
+    createCustomerPortalSession,
+    createCustomerForMembership
   };
 }
