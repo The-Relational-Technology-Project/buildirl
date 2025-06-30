@@ -26,6 +26,7 @@ import { Maybe } from "~/utils/types";
 import { MembershipTierService } from "~/server/membershipTier/types";
 import Role = $Enums.Role;
 import { RoleService } from "~/server/role/types";
+import { PaymentService } from "~/server/payments/types";
 
 const logger = rootLogger.child({ module: "membershipService" });
 
@@ -37,7 +38,8 @@ export function createMembershipService(
   roleService: RoleService,
   stripeClient: StripeClient,
   emailService: EmailService,
-  accountIdResolver: AccountIdResolver
+  accountIdResolver: AccountIdResolver,
+  paymentService: PaymentService
 ): MembershipService {
   async function getUserMemberships(
     userId: number
