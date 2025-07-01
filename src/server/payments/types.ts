@@ -108,15 +108,11 @@ export type CreateCustomerForMembershipResult = {
 };
 
 export type CreateSubscriptionForMembershipInput = {
-  customerId: string;
-  priceId: string;
-  initiationFeePriceId: Maybe<string>;
-  setupIntentId: string;
   membershipId: bigint;
 };
 
 export type CreateSubscriptionForMembershipResult = {
-  subscriptionId: string;
+  subscriptionId: Maybe<string>;
 };
 
 export type CreateProductAndPricesForMembershipTierInput = {

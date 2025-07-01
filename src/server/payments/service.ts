@@ -378,6 +378,63 @@ export function createPaymentService(
     input: CreateSubscriptionForMembershipInput
   ): Promise<CreateSubscriptionForMembershipResult> {
     try {
+      const membership = await prisma.membership.findUniqueOrThrow({
+        select: {
+          stripeSetupIntentId: true,
+          stripeCustomerId: true,
+          membershipTier: {
+            select: {
+              id: true,
+              stripePriceId: true,
+              costPerMonthInUSD: true,
+              initiationFeeStripePriceId: true,
+              club: {
+                select: {
+                  id: true,
+                  stripeConnectAccountId: true
+                }
+              }
+            }
+          }
+        },
+        where: { id: input.membershipId }
+      });
+
+      // free tier does not need to create subscription
+      if (membership.membershipTier.costPerMonthInUSD.toNumber() === 0) {
+        logger.info(
+          `membership with id ${input.membershipId} is free tier, no subscription needed`
+        );
+        return { subscriptionId: null };
+      }
+
+      const customerId = membership.stripeCustomerId;
+      const stripeAccountId = membership.membershipTier.club.stripeConnectAccountId;
+      const setupIntentId = membership.stripeSetupIntentId;
+      const priceId = membership.membershipTier.stripePriceId;
+      const initiationFeeStripePriceId = membership.membershipTier.initiationFeeStripePriceId;
+
+      if (!customerId) {
+        throw new Error(
+          `membership with id ${input.membershipId} has no stripeCustomerId to create subscription`
+        );
+      }
+      if (!stripeAccountId) {
+        throw new Error(
+          `club with id ${membership.membershipTier.club.id} has no stripeAccountId create subscription`
+        );
+      }
+      if (!setupIntentId) {
+        throw new Error(
+          `membership with id ${input.membershipId} has no stripeSetupIntentId to create subscription`
+        );
+      }
+      if (!priceId) {
+        throw new Error(
+          `membership tier with id ${membership.membershipTier.id} has no priceId to create subscription`
+        );
+      }
+
       const accountId = await accountIdResolver.fromMembership(
         input.membershipId
       );
@@ -385,11 +442,11 @@ export function createPaymentService(
       const { subscriptionId } =
         await stripeClient.createSubscriptionForMembership(
           {
-            setupIntentId: input.setupIntentId,
-            customerId: input.customerId,
-            priceId: input.priceId,
+            setupIntentId: setupIntentId,
+            customerId: customerId,
+            priceId: priceId,
             membershipId: input.membershipId,
-            initiationFeePriceId: input.initiationFeePriceId
+            initiationFeePriceId: initiationFeeStripePriceId
           },
           accountId
         );
