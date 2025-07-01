@@ -16,7 +16,9 @@ import {
   CreateSubscriptionForMembershipInput,
   CreateSubscriptionForMembershipResult,
   CreateProductAndPricesForMembershipTierInput,
-  CreateProductAndPricesForMembershipTierResult
+  CreateProductAndPricesForMembershipTierResult,
+  UpdateProductAndPricesForMembershipTierInput,
+  UpdateProductAndPricesForMembershipTierResult
 } from "~/server/payments/types";
 import { stringify, asNullFilteredList } from "~/utils";
 import { Maybe } from "~/utils/types";
@@ -510,6 +512,33 @@ export function createPaymentService(
     );
   }
 
+  async function updateProductAndPricesForMembershipTier(
+    input: UpdateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<UpdateProductAndPricesForMembershipTierResult> {
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      input.membershipTierId,
+      tx
+    );
+
+    const { updatedPriceId, updatedInitiationFeePriceId } =
+      await stripeClient.updateProductAndPricesForMembershipTier(
+        {
+          productId: input.productId,
+          name: input.name,
+          description: input.description,
+          priceId: input.priceId,
+          pricePerMonthInUSD: input.pricePerMonthInUSD,
+          initiationFee: {
+            priceId: input.initiationFeePriceId,
+            priceInUSD: input.initiationFeeInUSD
+          }
+        },
+        accountId
+      );
+    return { updatedPriceId, updatedInitiationFeePriceId };
+  }
+
   return {
     getAccountStatus,
     getSubscriptionStatus,
@@ -522,6 +551,7 @@ export function createPaymentService(
     cancelSubscription,
     createProductAndPricesForMembershipTier,
     archiveProductAndPricesForMembershipTier,
-    publishProductAndPricesForMembershipTier
+    publishProductAndPricesForMembershipTier,
+    updateProductAndPricesForMembershipTier
   };
 }
