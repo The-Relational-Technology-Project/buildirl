@@ -44,6 +44,10 @@ type PaymentMutations = {
     membershipTierId: number,
     tx: Prisma.TransactionClient
   ): Promise<void>;
+  publishProductAndPricesForMembershipTier(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
 };
 
 export type AccountStatus = {

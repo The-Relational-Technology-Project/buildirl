@@ -474,6 +474,42 @@ export function createPaymentService(
     );
   }
 
+  async function publishProductAndPricesForMembershipTier(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+      select: {
+        stripeProductId: true,
+        stripePriceId: true,
+        initiationFeeStripePriceId: true
+      },
+      where: { id: membershipTierId }
+    });
+
+    if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
+      throw new Error(
+        `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be published`
+      );
+    }
+
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    await stripeClient.publishProductAndPricesForMembershipTier(
+      {
+        productId: membershipTier.stripeProductId,
+        priceIds: asNullFilteredList(
+          membershipTier.stripePriceId,
+          membershipTier.initiationFeeStripePriceId
+        )
+      },
+      accountId
+    );
+  }
+
   return {
     getAccountStatus,
     getSubscriptionStatus,
@@ -485,6 +521,7 @@ export function createPaymentService(
     createSubscriptionForMembership,
     cancelSubscription,
     createProductAndPricesForMembershipTier,
-    archiveProductAndPricesForMembershipTier
+    archiveProductAndPricesForMembershipTier,
+    publishProductAndPricesForMembershipTier
   };
 }
