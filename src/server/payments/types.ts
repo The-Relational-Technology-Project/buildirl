@@ -35,7 +35,7 @@ type PaymentMutations = {
   cancelSubscription(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<void>;
+  ): Promise<CancelSubscriptionResult>;
   createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
@@ -147,4 +147,8 @@ export type NullablePriceIdResult = {
 export type UpdateProductAndPricesForMembershipTierResult = {
   updatedPriceId: Maybe<string>;
   updatedInitiationFeePriceId: Maybe<NullablePriceIdResult>;
+};
+
+export type CancelSubscriptionResult = {
+  wasCancelled: boolean;
 };

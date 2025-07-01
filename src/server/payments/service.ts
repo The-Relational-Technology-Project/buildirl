@@ -18,7 +18,8 @@ import {
   CreateProductAndPricesForMembershipTierInput,
   CreateProductAndPricesForMembershipTierResult,
   UpdateProductAndPricesForMembershipTierInput,
-  UpdateProductAndPricesForMembershipTierResult
+  UpdateProductAndPricesForMembershipTierResult,
+  CancelSubscriptionResult
 } from "~/server/payments/types";
 import { stringify, asNullFilteredList } from "~/utils";
 import { Maybe } from "~/utils/types";
@@ -467,30 +468,58 @@ export function createPaymentService(
   async function cancelSubscription(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<void> {
-    const membership = await tx.membership.findUniqueOrThrow({
-      select: {
-        stripeSubscriptionId: true
-      },
-      where: { id: membershipId }
-    });
+  ): Promise<CancelSubscriptionResult> {
+    try {
+      const membership = await tx.membership.findUniqueOrThrow({
+        select: {
+          membershipTier: {
+            select: {
+              costPerMonthInUSD: true
+            }
+          },
+          stripeSubscriptionId: true
+        },
+        where: { id: membershipId }
+      });
 
-    if (!membership.stripeSubscriptionId) {
-      logger.error(
-        `membership with id ${membershipId} has no stripeSubscriptionId to cancel`
+      // free tier does not need to cancel subscription
+      if (membership.membershipTier.costPerMonthInUSD.toNumber() === 0) {
+        logger.info(
+          `membership with id ${membershipId} is free tier, no subscription to cancel`
+        );
+        return { wasCancelled: false };
+      }
+
+      if (!membership.stripeSubscriptionId) {
+        // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
+        // we should not block
+        logger.error(
+          `membership with id ${membershipId} has no stripeSubscriptionId to cancel`
+        );
+        return { wasCancelled: false };
+      }
+
+      const accountId = await accountIdResolver.fromMembershipInTransaction(
+        membershipId,
+        tx
       );
-      return;
+
+      await stripeClient.cancelSubscription(
+        membership.stripeSubscriptionId,
+        accountId
+      );
+
+      logger.info(
+        `cancelled stripe subscription ${membership.stripeSubscriptionId} for membership with id ${membershipId}`
+      );
+      return { wasCancelled: true };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to cancel stripe subscription for membership with id ${membershipId}`
+      );
+      throw e;
     }
-
-    const accountId = await accountIdResolver.fromMembershipInTransaction(
-      membershipId,
-      tx
-    );
-
-    await stripeClient.cancelSubscription(
-      membership.stripeSubscriptionId,
-      accountId
-    );
   }
 
   async function createProductAndPricesForMembershipTier(

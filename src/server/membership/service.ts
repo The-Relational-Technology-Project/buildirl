@@ -765,48 +765,27 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    const membership = await tx.membership.findUniqueOrThrow({
-      select: {
-        membershipTier: {
-          select: {
-            costPerMonthInUSD: true
-          }
-        },
-        stripeSubscriptionId: true
-      },
-      where: { id: membershipId }
-    });
-
-    // free tier does not need to cancel subscription
-    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
-      return;
-    }
-
-    if (!membership.stripeSubscriptionId) {
-      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
-      // we should not block
-      logger.error(
-        `membership with id ${membershipId} has no stripeSubscriptionId to cancel`
-      );
-      return;
-    }
-
-    await paymentService.cancelSubscription(membershipId, tx);
-
     try {
-      await tx.membership.update({
-        data: {
-          stripeSubscriptionId: null
-        },
-        where: { id: membershipId }
-      });
-      logger.info(
-        `updated membership with id ${membershipId} to set subscriptionId to null`
+      const { wasCancelled } = await paymentService.cancelSubscription(
+        membershipId,
+        tx
       );
+
+      if (wasCancelled) {
+        await tx.membership.update({
+          data: {
+            stripeSubscriptionId: null
+          },
+          where: { id: membershipId }
+        });
+        logger.info(
+          `updated membership with id ${membershipId} to set subscriptionId to null`
+        );
+      }
     } catch (e) {
       logger.error(
         e,
-        `failed to update membership with id ${membershipId} to set subscriptionId to null`
+        `failed to cancel stripe subscription for membership with id ${membershipId}`
       );
       throw e;
     }
