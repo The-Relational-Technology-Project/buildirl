@@ -1,8 +1,6 @@
 import { $Enums, Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
-import { StripeClient } from "~/server/payments/stripe/types";
-import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailService } from "~/server/email/types";
 import {
   DeactivateMembershipInput,
@@ -36,9 +34,7 @@ export function createMembershipService(
   membershipTierService: MembershipTierService,
   followingService: FollowingService,
   roleService: RoleService,
-  stripeClient: StripeClient,
   emailService: EmailService,
-  accountIdResolver: AccountIdResolver,
   paymentService: PaymentService
 ): MembershipService {
   async function getUserMemberships(

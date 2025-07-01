@@ -2,9 +2,7 @@ import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
 import { isDefaultFreeTier } from "~/utils/types";
-import { StripeClient } from "~/server/payments/stripe/types";
 import { DEFAULT_FREE_MEMBERSHIP_TIER } from "~/server/utils/defaults";
-import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import {
   CreateMembershipTierInput,
   MembershipTierService,
@@ -18,8 +16,6 @@ const logger = rootLogger.child({ module: "membershipTierService" });
 
 export function createMembershipTierService(
   prisma: PrismaClient,
-  stripeClient: StripeClient,
-  accountIdResolver: AccountIdResolver,
   paymentService: PaymentService
 ): MembershipTierService {
   async function createMembershipTier(
