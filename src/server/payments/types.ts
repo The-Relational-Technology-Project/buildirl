@@ -32,6 +32,10 @@ type PaymentMutations = {
   createSubscriptionForMembership(
     input: CreateSubscriptionForMembershipInput
   ): Promise<CreateSubscriptionForMembershipResult>;
+  cancelSubscription(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
 };
 
 export type AccountStatus = {

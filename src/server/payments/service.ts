@@ -381,6 +381,35 @@ export function createPaymentService(
     }
   }
 
+  async function cancelSubscription(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    const membership = await tx.membership.findUniqueOrThrow({
+      select: {
+        stripeSubscriptionId: true
+      },
+      where: { id: membershipId }
+    });
+
+    if (!membership.stripeSubscriptionId) {
+      logger.error(
+        `membership with id ${membershipId} has no stripeSubscriptionId to cancel`
+      );
+      return;
+    }
+
+    const accountId = await accountIdResolver.fromMembershipInTransaction(
+      membershipId,
+      tx
+    );
+
+    await stripeClient.cancelSubscription(
+      membership.stripeSubscriptionId,
+      accountId
+    );
+  }
+
   return {
     getAccountStatus,
     getSubscriptionStatus,
@@ -389,6 +418,7 @@ export function createPaymentService(
     createCheckoutSession,
     createCustomerPortalSession,
     createCustomerForMembership,
-    createSubscriptionForMembership
+    createSubscriptionForMembership,
+    cancelSubscription
   };
 }
