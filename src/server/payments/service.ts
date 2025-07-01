@@ -576,39 +576,60 @@ export function createPaymentService(
     membershipTierId: number,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const membershipTier = await tx.membershipTier.findUniqueOrThrow({
-      select: {
-        stripeProductId: true,
-        stripePriceId: true,
-        initiationFeeStripePriceId: true
-      },
-      where: { id: membershipTierId }
-    });
+    try {
+      const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+        select: {
+          costPerMonthInUSD: true,
+          stripeProductId: true,
+          stripePriceId: true,
+          initiationFeeStripePriceId: true
+        },
+        where: { id: membershipTierId }
+      });
 
-    if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
-      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
-      // we should not block
-      logger.error(
-        `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be archived`
+      // free tier does not need to archive product
+      if (membershipTier.costPerMonthInUSD.toNumber() === 0) {
+        logger.info(
+          `membership tier with id ${membershipTierId} is free tier, no Stripe products to archive`
+        );
+        return;
+      }
+
+      if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
+        // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
+        // we should not block
+        logger.error(
+          `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be archived`
+        );
+        return;
+      }
+
+      const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+        membershipTierId,
+        tx
       );
-      return;
+
+      await stripeClient.archiveProductAndPricesForMembershipTier(
+        {
+          productId: membershipTier.stripeProductId,
+          priceIds: asNullFilteredList(
+            membershipTier.stripePriceId,
+            membershipTier.initiationFeeStripePriceId
+          )
+        },
+        accountId
+      );
+
+      logger.info(
+        `archived stripe product ${membershipTier.stripeProductId} for membership tier with id ${membershipTierId}`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to archive stripe product and prices for membership tier with id ${membershipTierId}`
+      );
+      throw e;
     }
-
-    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
-      membershipTierId,
-      tx
-    );
-
-    await stripeClient.archiveProductAndPricesForMembershipTier(
-      {
-        productId: membershipTier.stripeProductId,
-        priceIds: asNullFilteredList(
-          membershipTier.stripePriceId,
-          membershipTier.initiationFeeStripePriceId
-        )
-      },
-      accountId
-    );
   }
 
   async function publishProductAndPricesForMembershipTier(
