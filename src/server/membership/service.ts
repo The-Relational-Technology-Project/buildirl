@@ -582,22 +582,14 @@ export function createMembershipService(
       );
     }
 
-    const accountId = await accountIdResolver.fromMembershipInTransaction(
-      membershipId,
-      tx
-    );
-
     const { subscriptionId } =
-      await stripeClient.createSubscriptionForMembership(
-        {
-          setupIntentId: setupIntentId,
-          customerId: customerId,
-          priceId: priceId,
-          membershipId: membershipId,
-          initiationFeePriceId: initiationFeeStripePriceId
-        },
-        accountId
-      );
+      await paymentService.createSubscriptionForMembership({
+        setupIntentId: setupIntentId,
+        customerId: customerId,
+        priceId: priceId,
+        membershipId: membershipId,
+        initiationFeePriceId: initiationFeeStripePriceId
+      });
 
     try {
       await tx.membership.update({
