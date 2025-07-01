@@ -79,13 +79,8 @@ export function createMembershipTierService(
       return;
     }
 
-    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
-      membershipTierId,
-      tx
-    );
-
     const { productId, priceId, initiationFeePriceId } =
-      await stripeClient.createProductAndPricesForMembershipTier(
+      await paymentService.createProductAndPricesForMembershipTier(
         {
           name: input.name,
           description: input.benefitDescription,
@@ -93,7 +88,7 @@ export function createMembershipTierService(
           initiationFeeInUSD: input.initiationFeeCostInUSD,
           membershipTierId: membershipTierId
         },
-        accountId
+        tx
       );
 
     try {
