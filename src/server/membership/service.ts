@@ -868,15 +868,7 @@ export function createMembershipService(
       return;
     }
 
-    const accountId = await accountIdResolver.fromMembershipInTransaction(
-      membershipId,
-      tx
-    );
-
-    await stripeClient.cancelSubscription(
-      membership.stripeSubscriptionId,
-      accountId
-    );
+    await paymentService.cancelSubscription(membershipId, tx);
 
     try {
       await tx.membership.update({
