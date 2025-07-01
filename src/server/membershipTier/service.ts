@@ -2,10 +2,7 @@ import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
 import { isDefaultFreeTier } from "~/utils/types";
-import {
-  StripeClient,
-  UpsertNullablePriceInput
-} from "~/server/payments/stripe/types";
+import { StripeClient } from "~/server/payments/stripe/types";
 import { DEFAULT_FREE_MEMBERSHIP_TIER } from "~/server/utils/defaults";
 import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import {
@@ -14,8 +11,6 @@ import {
   UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
-import Decimal = Prisma.Decimal;
-import { Maybe } from "~/utils/types";
 import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
 import { PaymentService } from "~/server/payments/types";
 
@@ -359,19 +354,6 @@ export function createMembershipTierService(
     }
   }
 
-  function asUpdateInitiationFeePriceInput(
-    initiationFeeStripePriceId: Maybe<string>,
-    initiationFeeCostInUSD: Maybe<Decimal>
-  ): UpsertNullablePriceInput {
-    return {
-      priceId: initiationFeeStripePriceId,
-      priceInUSD:
-        null === initiationFeeCostInUSD
-          ? null
-          : initiationFeeCostInUSD.toNumber()
-    };
-  }
-
   async function updateStripeProductAndPrices(
     membershipTierId: number,
     input: UpdateMembershipTierInput,
@@ -403,25 +385,19 @@ export function createMembershipTierService(
       );
     }
 
-    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
-      membershipTierId,
-      tx
-    );
-
     const { updatedPriceId, updatedInitiationFeePriceId } =
-      await stripeClient.updateProductAndPricesForMembershipTier(
+      await paymentService.updateProductAndPricesForMembershipTier(
         {
           productId: membershipTier.stripeProductId,
           name: input.name,
           description: input.benefitDescription,
           priceId: membershipTier.stripePriceId,
           pricePerMonthInUSD: input.costPerMonthInUSD,
-          initiationFee: asUpdateInitiationFeePriceInput(
-            membershipTier.initiationFeeStripePriceId,
-            membershipTier.initiationFeeCostInUSD
-          )
+          initiationFeePriceId: membershipTier.initiationFeeStripePriceId,
+          initiationFeeInUSD: input.initiationFeeCostInUSD,
+          membershipTierId: membershipTierId
         },
-        accountId
+        tx
       );
 
     // only update price ids if it they have changed
