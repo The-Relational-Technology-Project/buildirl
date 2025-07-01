@@ -90,7 +90,8 @@ describe("service", () => {
     membershipTierService = createMembershipTierService(
       prisma,
       fakeStripeClient,
-      accountIdResolver
+      accountIdResolver,
+      paymentService
     );
     followingService = createFollowingService(prisma, userService);
     roleService = createRoleService(prisma);

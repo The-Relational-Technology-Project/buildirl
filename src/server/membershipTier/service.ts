@@ -17,13 +17,15 @@ import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import Decimal = Prisma.Decimal;
 import { Maybe } from "~/utils/types";
 import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
+import { PaymentService } from "~/server/payments/types";
 
 const logger = rootLogger.child({ module: "membershipTierService" });
 
 export function createMembershipTierService(
   prisma: PrismaClient,
   stripeClient: StripeClient,
-  accountIdResolver: AccountIdResolver
+  accountIdResolver: AccountIdResolver,
+  paymentService: PaymentService
 ): MembershipTierService {
   async function createMembershipTier(
     clubId: number,

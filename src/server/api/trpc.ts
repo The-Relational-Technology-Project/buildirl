@@ -62,7 +62,8 @@ export const createTRPCContext = async (opts: {
   const membershipTierService = createMembershipTierService(
     prisma,
     stripeClient,
-    accountIdResolver
+    accountIdResolver,
+    paymentService
   );
   const followingService = createFollowingService(prisma, userService);
   const roleService = createRoleService(prisma);
