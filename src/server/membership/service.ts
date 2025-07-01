@@ -270,45 +270,26 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     try {
-      const membership = await tx.membership.findUniqueOrThrow({
-        where: { id: membershipId },
-        select: {
-          stripeCustomerId: true,
-          membershipTier: {
-            select: {
-              costPerMonthInUSD: true
-            }
-          }
-        }
-      });
-
-      if (membership.stripeCustomerId !== null) {
-        // already have a stripeCustomerId, no need to create a new one
-        return;
-      }
-
-      if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
-        // no Stripe customer needed for default free tier
-        return;
-      }
-
       const { customerId } = await paymentService.createCustomerForMembership(
         membershipId,
         tx
       );
 
-      await tx.membership.update({
-        data: { stripeCustomerId: customerId },
-        where: { id: membershipId }
-      });
+      // Only update the database if a customer was created (not null for free tier)
+      if (customerId) {
+        await tx.membership.update({
+          data: { stripeCustomerId: customerId },
+          where: { id: membershipId }
+        });
 
-      logger.info(
-        `updated membership with id ${membershipId} with stripeCustomerId ${customerId}`
-      );
+        logger.info(
+          `updated membership with id ${membershipId} with stripeCustomerId ${customerId}`
+        );
+      }
     } catch (e) {
       logger.error(
         e,
-        `failed to update membership with id ${membershipId} with stripeCustomerId`
+        `failed to create stripe customer for membership with id ${membershipId}`
       );
       throw e;
     }

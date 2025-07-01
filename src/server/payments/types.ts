@@ -104,7 +104,7 @@ export type CreateCustomerPortalSessionResult = {
 };
 
 export type CreateCustomerForMembershipResult = {
-  customerId: string;
+  customerId: Maybe<string>;
 };
 
 export type CreateSubscriptionForMembershipInput = {

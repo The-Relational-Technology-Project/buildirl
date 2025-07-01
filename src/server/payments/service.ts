@@ -305,6 +305,12 @@ export function createPaymentService(
       const membership = await tx.membership.findUniqueOrThrow({
         where: { id: membershipId },
         select: {
+          stripeCustomerId: true,
+          membershipTier: {
+            select: {
+              costPerMonthInUSD: true
+            }
+          },
           user: {
             select: {
               id: true,
@@ -317,6 +323,22 @@ export function createPaymentService(
           }
         }
       });
+
+      if (membership.stripeCustomerId !== null) {
+        // already have a stripeCustomerId, no need to create a new one
+        logger.info(
+          `membership with id ${membershipId} already has stripeCustomerId ${membership.stripeCustomerId}`
+        );
+        return { customerId: membership.stripeCustomerId };
+      }
+
+      // no Stripe customer needed for default free tier
+      if (membership.membershipTier.costPerMonthInUSD.toNumber() === 0) {
+        logger.info(
+          `membership with id ${membershipId} is free tier, no Stripe customer needed`
+        );
+        return { customerId: null };
+      }
 
       if (!membership.user.settings?.email) {
         throw new Error(
