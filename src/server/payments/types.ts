@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Url } from "~/server/utils/types";
+import { MonetaryValue, Url } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 import { Prisma } from "@prisma/client";
 
@@ -36,6 +36,10 @@ type PaymentMutations = {
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ): Promise<void>;
+  createProductAndPricesForMembershipTier(
+    input: CreateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<CreateProductAndPricesForMembershipTierResult>;
 };
 
 export type AccountStatus = {
@@ -101,4 +105,18 @@ export type CreateSubscriptionForMembershipInput = {
 
 export type CreateSubscriptionForMembershipResult = {
   subscriptionId: string;
+};
+
+export type CreateProductAndPricesForMembershipTierInput = {
+  name: string;
+  description: Maybe<string>;
+  pricePerMonthInUSD: MonetaryValue;
+  initiationFeeInUSD: Maybe<MonetaryValue>;
+  membershipTierId: number;
+};
+
+export type CreateProductAndPricesForMembershipTierResult = {
+  productId: string;
+  priceId: string;
+  initiationFeePriceId: Maybe<string>;
 };

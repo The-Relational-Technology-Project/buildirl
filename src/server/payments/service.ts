@@ -14,7 +14,9 @@ import {
   CreateCustomerPortalSessionInput,
   CreateCustomerForMembershipResult,
   CreateSubscriptionForMembershipInput,
-  CreateSubscriptionForMembershipResult
+  CreateSubscriptionForMembershipResult,
+  CreateProductAndPricesForMembershipTierInput,
+  CreateProductAndPricesForMembershipTierResult
 } from "~/server/payments/types";
 import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
@@ -410,6 +412,29 @@ export function createPaymentService(
     );
   }
 
+  async function createProductAndPricesForMembershipTier(
+    input: CreateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<CreateProductAndPricesForMembershipTierResult> {
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      input.membershipTierId,
+      tx
+    );
+
+    const { productId, priceId, initiationFeePriceId } =
+      await stripeClient.createProductAndPricesForMembershipTier(
+        {
+          name: input.name,
+          description: input.description ?? undefined,
+          pricePerMonthInUSD: input.pricePerMonthInUSD,
+          initiationFeeInUSD: input.initiationFeeInUSD,
+          membershipTierId: input.membershipTierId
+        },
+        accountId
+      );
+    return { productId, priceId, initiationFeePriceId };
+  }
+
   return {
     getAccountStatus,
     getSubscriptionStatus,
@@ -419,6 +444,7 @@ export function createPaymentService(
     createCustomerPortalSession,
     createCustomerForMembership,
     createSubscriptionForMembership,
-    cancelSubscription
+    cancelSubscription,
+    createProductAndPricesForMembershipTier
   };
 }
