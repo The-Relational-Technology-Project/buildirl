@@ -65,39 +65,37 @@ export function createMembershipTierService(
     input: CreateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    // free tier does not require Stripe product and prices
-    if (isDefaultFreeTier(input)) {
-      return;
-    }
-
-    const { productId, priceId, initiationFeePriceId } =
-      await paymentService.createProductAndPricesForMembershipTier(
-        {
-          name: input.name,
-          description: input.benefitDescription,
-          pricePerMonthInUSD: input.costPerMonthInUSD,
-          initiationFeeInUSD: input.initiationFeeCostInUSD,
-          membershipTierId: membershipTierId
-        },
-        tx
-      );
-
     try {
-      await tx.membershipTier.update({
-        where: { id: membershipTierId },
-        data: {
-          stripeProductId: productId,
-          stripePriceId: priceId,
-          initiationFeeStripePriceId: initiationFeePriceId
-        }
-      });
-      logger.info(
-        `updated membership tier with id ${membershipTierId} with stripeProductId ${productId}, stripePriceId ${priceId}, and initiationFeeStripePriceId ${initiationFeePriceId}`
-      );
+      const { productId, priceId, initiationFeePriceId } =
+        await paymentService.createProductAndPricesForMembershipTier(
+          {
+            name: input.name,
+            description: input.benefitDescription,
+            pricePerMonthInUSD: input.costPerMonthInUSD,
+            initiationFeeInUSD: input.initiationFeeCostInUSD,
+            membershipTierId: membershipTierId
+          },
+          tx
+        );
+
+      // Only update the database if products were created (not null for free tier)
+      if (productId && priceId) {
+        await tx.membershipTier.update({
+          where: { id: membershipTierId },
+          data: {
+            stripeProductId: productId,
+            stripePriceId: priceId,
+            initiationFeeStripePriceId: initiationFeePriceId
+          }
+        });
+        logger.info(
+          `updated membership tier with id ${membershipTierId} with stripeProductId ${productId}, stripePriceId ${priceId}, and initiationFeeStripePriceId ${initiationFeePriceId}`
+        );
+      }
     } catch (e) {
       logger.error(
         e,
-        `failed to update membership tier with id ${membershipTierId} with stripeProductId ${productId}, stripePriceId ${priceId}, and initiationFeeStripePriceId ${initiationFeePriceId}`
+        `failed to create stripe product and prices for membership tier with id ${membershipTierId}`
       );
       throw e;
     }

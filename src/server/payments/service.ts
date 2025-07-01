@@ -526,23 +526,50 @@ export function createPaymentService(
     input: CreateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<CreateProductAndPricesForMembershipTierResult> {
-    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
-      input.membershipTierId,
-      tx
-    );
+    try {
+      const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+        where: { id: input.membershipTierId },
+        select: {
+          costPerMonthInUSD: true
+        }
+      });
 
-    const { productId, priceId, initiationFeePriceId } =
-      await stripeClient.createProductAndPricesForMembershipTier(
-        {
-          name: input.name,
-          description: input.description ?? undefined,
-          pricePerMonthInUSD: input.pricePerMonthInUSD,
-          initiationFeeInUSD: input.initiationFeeInUSD,
-          membershipTierId: input.membershipTierId
-        },
-        accountId
+      // free tier does not require Stripe product and prices
+      if (membershipTier.costPerMonthInUSD.toNumber() === 0) {
+        logger.info(
+          `membership tier with id ${input.membershipTierId} is free tier, no Stripe products needed`
+        );
+        return { productId: null, priceId: null, initiationFeePriceId: null };
+      }
+
+      const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+        input.membershipTierId,
+        tx
       );
-    return { productId, priceId, initiationFeePriceId };
+
+      const { productId, priceId, initiationFeePriceId } =
+        await stripeClient.createProductAndPricesForMembershipTier(
+          {
+            name: input.name,
+            description: input.description ?? undefined,
+            pricePerMonthInUSD: input.pricePerMonthInUSD,
+            initiationFeeInUSD: input.initiationFeeInUSD,
+            membershipTierId: input.membershipTierId
+          },
+          accountId
+        );
+
+      logger.info(
+        `created stripe product ${productId} with price ${priceId} for membership tier with id ${input.membershipTierId}`
+      );
+      return { productId, priceId, initiationFeePriceId };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create stripe product and prices for membership tier with id ${input.membershipTierId}`
+      );
+      throw e;
+    }
   }
 
   async function archiveProductAndPricesForMembershipTier(

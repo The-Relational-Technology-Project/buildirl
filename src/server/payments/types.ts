@@ -124,8 +124,8 @@ export type CreateProductAndPricesForMembershipTierInput = {
 };
 
 export type CreateProductAndPricesForMembershipTierResult = {
-  productId: string;
-  priceId: string;
+  productId: Maybe<string>;
+  priceId: Maybe<string>;
   initiationFeePriceId: Maybe<string>;
 };
 
