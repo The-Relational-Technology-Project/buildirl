@@ -636,36 +636,57 @@ export function createPaymentService(
     membershipTierId: number,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const membershipTier = await tx.membershipTier.findUniqueOrThrow({
-      select: {
-        stripeProductId: true,
-        stripePriceId: true,
-        initiationFeeStripePriceId: true
-      },
-      where: { id: membershipTierId }
-    });
+    try {
+      const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+        select: {
+          costPerMonthInUSD: true,
+          stripeProductId: true,
+          stripePriceId: true,
+          initiationFeeStripePriceId: true
+        },
+        where: { id: membershipTierId }
+      });
 
-    if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
-      throw new Error(
-        `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be published`
+      // free tier does not need to publish product
+      if (membershipTier.costPerMonthInUSD.toNumber() === 0) {
+        logger.info(
+          `membership tier with id ${membershipTierId} is free tier, no Stripe products to publish`
+        );
+        return;
+      }
+
+      if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
+        throw new Error(
+          `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be published`
+        );
+      }
+
+      const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+        membershipTierId,
+        tx
       );
+
+      await stripeClient.publishProductAndPricesForMembershipTier(
+        {
+          productId: membershipTier.stripeProductId,
+          priceIds: asNullFilteredList(
+            membershipTier.stripePriceId,
+            membershipTier.initiationFeeStripePriceId
+          )
+        },
+        accountId
+      );
+
+      logger.info(
+        `published stripe product ${membershipTier.stripeProductId} for membership tier with id ${membershipTierId}`
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to publish stripe product and prices for membership tier with id ${membershipTierId}`
+      );
+      throw e;
     }
-
-    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
-      membershipTierId,
-      tx
-    );
-
-    await stripeClient.publishProductAndPricesForMembershipTier(
-      {
-        productId: membershipTier.stripeProductId,
-        priceIds: asNullFilteredList(
-          membershipTier.stripePriceId,
-          membershipTier.initiationFeeStripePriceId
-        )
-      },
-      accountId
-    );
   }
 
   async function updateProductAndPricesForMembershipTier(

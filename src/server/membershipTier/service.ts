@@ -560,22 +560,18 @@ export function createMembershipTierService(
     membershipTierId: number,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const membershipTier = await tx.membershipTier.findUniqueOrThrow({
-      select: {
-        costPerMonthInUSD: true
-      },
-      where: { id: membershipTierId }
-    });
-
-    // free tier does not need to publish product
-    if (isPrismaResultDefaultFreeTier(membershipTier)) {
-      return;
+    try {
+      await paymentService.publishProductAndPricesForMembershipTier(
+        membershipTierId,
+        tx
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to publish stripe product and prices for membership tier with id ${membershipTierId}`
+      );
+      throw e;
     }
-
-    await paymentService.publishProductAndPricesForMembershipTier(
-      membershipTierId,
-      tx
-    );
   }
 
   async function isMembershipTierLastPublishedTier(membershipTierId: number) {
