@@ -517,9 +517,6 @@ export function createMembershipTierService(
   ): Promise<void> {
     const membershipTier = await tx.membershipTier.findUniqueOrThrow({
       select: {
-        stripeProductId: true,
-        stripePriceId: true,
-        initiationFeeStripePriceId: true,
         costPerMonthInUSD: true
       },
       where: { id: membershipTierId }
@@ -529,30 +526,9 @@ export function createMembershipTierService(
     if (isPrismaResultDefaultFreeTier(membershipTier)) {
       return;
     }
-
-    if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
-      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
-      // we should not block
-      logger.error(
-        `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be archived`
-      );
-      return;
-    }
-
-    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+    await paymentService.archiveProductAndPricesForMembershipTier(
       membershipTierId,
       tx
-    );
-
-    await stripeClient.archiveProductAndPricesForMembershipTier(
-      {
-        productId: membershipTier.stripeProductId,
-        priceIds: asNullFilteredList(
-          membershipTier.stripePriceId,
-          membershipTier.initiationFeeStripePriceId
-        )
-      },
-      accountId
     );
   }
 

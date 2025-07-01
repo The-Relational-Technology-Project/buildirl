@@ -449,6 +449,8 @@ export function createPaymentService(
     });
 
     if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
+      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
+      // we should not block
       logger.error(
         `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be archived`
       );
