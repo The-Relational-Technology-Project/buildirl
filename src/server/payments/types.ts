@@ -130,12 +130,9 @@ export type CreateProductAndPricesForMembershipTierResult = {
 };
 
 export type UpdateProductAndPricesForMembershipTierInput = {
-  productId: string;
   name: string;
   description: string;
-  priceId: string;
   pricePerMonthInUSD: MonetaryValue;
-  initiationFeePriceId: Maybe<string>;
   initiationFeeInUSD: Maybe<MonetaryValue>;
   membershipTierId: number;
 };

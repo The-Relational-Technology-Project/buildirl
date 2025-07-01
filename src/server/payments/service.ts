@@ -693,27 +693,68 @@ export function createPaymentService(
     input: UpdateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<UpdateProductAndPricesForMembershipTierResult> {
-    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
-      input.membershipTierId,
-      tx
-    );
+    try {
+      const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+        where: { id: input.membershipTierId },
+        select: {
+          costPerMonthInUSD: true,
+          stripeProductId: true,
+          stripePriceId: true,
+          initiationFeeStripePriceId: true
+        }
+      });
 
-    const { updatedPriceId, updatedInitiationFeePriceId } =
-      await stripeClient.updateProductAndPricesForMembershipTier(
-        {
-          productId: input.productId,
-          name: input.name,
-          description: input.description,
-          priceId: input.priceId,
-          pricePerMonthInUSD: input.pricePerMonthInUSD,
-          initiationFee: {
-            priceId: input.initiationFeePriceId,
-            priceInUSD: input.initiationFeeInUSD
-          }
-        },
-        accountId
+      // free tier does not require Stripe product and prices
+      if (membershipTier.costPerMonthInUSD.toNumber() === 0) {
+        logger.info(
+          `membership tier with id ${input.membershipTierId} is free tier, no Stripe products to update`
+        );
+        return { updatedPriceId: null, updatedInitiationFeePriceId: null };
+      }
+
+      if (!membershipTier.stripeProductId) {
+        throw new Error(
+          `membership tier with id ${input.membershipTierId} requires stripeProductId to be updated`
+        );
+      }
+      if (!membershipTier.stripePriceId) {
+        throw new Error(
+          `membership tier with id ${input.membershipTierId} requires stripePriceId to be updated`
+        );
+      }
+
+      const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+        input.membershipTierId,
+        tx
       );
-    return { updatedPriceId, updatedInitiationFeePriceId };
+
+      const { updatedPriceId, updatedInitiationFeePriceId } =
+        await stripeClient.updateProductAndPricesForMembershipTier(
+          {
+            productId: membershipTier.stripeProductId,
+            name: input.name,
+            description: input.description,
+            priceId: membershipTier.stripePriceId,
+            pricePerMonthInUSD: input.pricePerMonthInUSD,
+            initiationFee: {
+              priceId: membershipTier.initiationFeeStripePriceId,
+              priceInUSD: input.initiationFeeInUSD
+            }
+          },
+          accountId
+        );
+
+      logger.info(
+        `updated stripe product ${membershipTier.stripeProductId} for membership tier with id ${input.membershipTierId}`
+      );
+      return { updatedPriceId, updatedInitiationFeePriceId };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update stripe product and prices for membership tier with id ${input.membershipTierId}`
+      );
+      throw e;
+    }
   }
 
   return {
