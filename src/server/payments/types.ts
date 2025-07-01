@@ -29,6 +29,9 @@ type PaymentMutations = {
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ): Promise<CreateCustomerForMembershipResult>;
+  createSubscriptionForMembership(
+    input: CreateSubscriptionForMembershipInput
+  ): Promise<CreateSubscriptionForMembershipResult>;
 };
 
 export type AccountStatus = {
@@ -82,4 +85,16 @@ export type CreateCustomerPortalSessionResult = {
 
 export type CreateCustomerForMembershipResult = {
   customerId: string;
+};
+
+export type CreateSubscriptionForMembershipInput = {
+  customerId: string;
+  priceId: string;
+  initiationFeePriceId: Maybe<string>;
+  setupIntentId: string;
+  membershipId: bigint;
+};
+
+export type CreateSubscriptionForMembershipResult = {
+  subscriptionId: string;
 };

@@ -12,7 +12,9 @@ import {
   CreateCheckoutSessionResult,
   CreateCustomerPortalSessionResult,
   CreateCustomerPortalSessionInput,
-  CreateCustomerForMembershipResult
+  CreateCustomerForMembershipResult,
+  CreateSubscriptionForMembershipInput,
+  CreateSubscriptionForMembershipResult
 } from "~/server/payments/types";
 import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
@@ -346,6 +348,39 @@ export function createPaymentService(
     }
   }
 
+  async function createSubscriptionForMembership(
+    input: CreateSubscriptionForMembershipInput
+  ): Promise<CreateSubscriptionForMembershipResult> {
+    try {
+      const accountId = await accountIdResolver.fromMembership(
+        input.membershipId
+      );
+
+      const { subscriptionId } =
+        await stripeClient.createSubscriptionForMembership(
+          {
+            setupIntentId: input.setupIntentId,
+            customerId: input.customerId,
+            priceId: input.priceId,
+            membershipId: input.membershipId,
+            initiationFeePriceId: input.initiationFeePriceId
+          },
+          accountId
+        );
+
+      logger.info(
+        `created stripe subscription ${subscriptionId} for membership with id ${input.membershipId}`
+      );
+      return { subscriptionId };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create stripe subscription for membership with id ${input.membershipId}`
+      );
+      throw e;
+    }
+  }
+
   return {
     getAccountStatus,
     getSubscriptionStatus,
@@ -353,6 +388,7 @@ export function createPaymentService(
     createAccountLink,
     createCheckoutSession,
     createCustomerPortalSession,
-    createCustomerForMembership
+    createCustomerForMembership,
+    createSubscriptionForMembership
   };
 }
