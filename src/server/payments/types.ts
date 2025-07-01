@@ -40,6 +40,10 @@ type PaymentMutations = {
     input: CreateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<CreateProductAndPricesForMembershipTierResult>;
+  archiveProductAndPricesForMembershipTier(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
 };
 
 export type AccountStatus = {

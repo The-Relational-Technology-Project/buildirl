@@ -18,7 +18,7 @@ import {
   CreateProductAndPricesForMembershipTierInput,
   CreateProductAndPricesForMembershipTierResult
 } from "~/server/payments/types";
-import { stringify } from "~/utils";
+import { stringify, asNullFilteredList } from "~/utils";
 import { Maybe } from "~/utils/types";
 import { AccountIdResolver } from "./accountIdResolver";
 
@@ -435,6 +435,43 @@ export function createPaymentService(
     return { productId, priceId, initiationFeePriceId };
   }
 
+  async function archiveProductAndPricesForMembershipTier(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    const membershipTier = await tx.membershipTier.findUniqueOrThrow({
+      select: {
+        stripeProductId: true,
+        stripePriceId: true,
+        initiationFeeStripePriceId: true
+      },
+      where: { id: membershipTierId }
+    });
+
+    if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
+      logger.error(
+        `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be archived`
+      );
+      return;
+    }
+
+    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+      membershipTierId,
+      tx
+    );
+
+    await stripeClient.archiveProductAndPricesForMembershipTier(
+      {
+        productId: membershipTier.stripeProductId,
+        priceIds: asNullFilteredList(
+          membershipTier.stripePriceId,
+          membershipTier.initiationFeeStripePriceId
+        )
+      },
+      accountId
+    );
+  }
+
   return {
     getAccountStatus,
     getSubscriptionStatus,
@@ -445,6 +482,7 @@ export function createPaymentService(
     createCustomerForMembership,
     createSubscriptionForMembership,
     cancelSubscription,
-    createProductAndPricesForMembershipTier
+    createProductAndPricesForMembershipTier,
+    archiveProductAndPricesForMembershipTier
   };
 }
