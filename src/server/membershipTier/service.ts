@@ -1,6 +1,6 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
-import { asNullFilteredList, stringify } from "~/utils";
+import { stringify } from "~/utils";
 import { isDefaultFreeTier } from "~/utils/types";
 import {
   StripeClient,
@@ -595,9 +595,6 @@ export function createMembershipTierService(
   ): Promise<void> {
     const membershipTier = await tx.membershipTier.findUniqueOrThrow({
       select: {
-        stripeProductId: true,
-        stripePriceId: true,
-        initiationFeeStripePriceId: true,
         costPerMonthInUSD: true
       },
       where: { id: membershipTierId }
@@ -608,26 +605,9 @@ export function createMembershipTierService(
       return;
     }
 
-    if (!membershipTier.stripeProductId || !membershipTier.stripePriceId) {
-      throw new Error(
-        `membership tier with id ${membershipTierId} requires stripeProductId and stripePriceId to be published`
-      );
-    }
-
-    const accountId = await accountIdResolver.fromMembershipTierInTransaction(
+    await paymentService.publishProductAndPricesForMembershipTier(
       membershipTierId,
       tx
-    );
-
-    await stripeClient.publishProductAndPricesForMembershipTier(
-      {
-        productId: membershipTier.stripeProductId,
-        priceIds: asNullFilteredList(
-          membershipTier.stripePriceId,
-          membershipTier.initiationFeeStripePriceId
-        )
-      },
-      accountId
     );
   }
 
