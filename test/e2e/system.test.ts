@@ -82,10 +82,14 @@ describe("service", () => {
     const accountIdResolver = createAccountIdResolver(prisma);
     const dummyEmailClient = createDummyEmailClient();
     userService = createUserService(prisma);
+    paymentService = createPaymentService(
+      fakeStripeClient,
+      prisma,
+      accountIdResolver
+    );
     membershipTierService = createMembershipTierService(
       prisma,
-      fakeStripeClient,
-      accountIdResolver
+      paymentService
     );
     followingService = createFollowingService(prisma, userService);
     roleService = createRoleService(prisma);
@@ -96,19 +100,13 @@ describe("service", () => {
       membershipTierService,
       followingService,
       roleService,
-      fakeStripeClient,
       emailService,
-      accountIdResolver
+      paymentService
     );
     clubService = createClubService(
       prisma,
       membershipTierService,
       membershipService
-    );
-    paymentService = createPaymentService(
-      fakeStripeClient,
-      prisma,
-      accountIdResolver
     );
     paymentEventProcessor = createPaymentEventProcessor(prisma);
     // container start ~15 seconds on mli's M1 Macbook;

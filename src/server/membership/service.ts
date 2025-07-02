@@ -1,8 +1,6 @@
 import { $Enums, Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
-import { StripeClient } from "~/server/payments/stripe/types";
-import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailService } from "~/server/email/types";
 import {
   DeactivateMembershipInput,
@@ -26,6 +24,7 @@ import { Maybe } from "~/utils/types";
 import { MembershipTierService } from "~/server/membershipTier/types";
 import Role = $Enums.Role;
 import { RoleService } from "~/server/role/types";
+import { PaymentService } from "~/server/payments/types";
 
 const logger = rootLogger.child({ module: "membershipService" });
 
@@ -35,9 +34,8 @@ export function createMembershipService(
   membershipTierService: MembershipTierService,
   followingService: FollowingService,
   roleService: RoleService,
-  stripeClient: StripeClient,
   emailService: EmailService,
-  accountIdResolver: AccountIdResolver
+  paymentService: PaymentService
 ): MembershipService {
   async function getUserMemberships(
     userId: number
@@ -268,70 +266,26 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     try {
-      const membership = await tx.membership.findUniqueOrThrow({
-        where: { id: membershipId },
-        select: {
-          stripeCustomerId: true,
-          membershipTier: {
-            select: {
-              costPerMonthInUSD: true
-            }
-          },
-          user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              settings: {
-                select: { email: true }
-              }
-            }
-          }
-        }
-      });
-
-      if (membership.stripeCustomerId !== null) {
-        // already have a stripeCustomerId, no need to create a new one
-        return;
-      }
-
-      if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
-        // no Stripe customer needed for default free tier
-        return;
-      }
-
-      if (!membership.user.settings?.email) {
-        throw new Error(
-          `user with id ${membership.user.id} has no settings with email to create Stripe customer`
-        );
-      }
-
-      const accountId = await accountIdResolver.fromMembershipInTransaction(
+      const { customerId } = await paymentService.createCustomerForMembership(
         membershipId,
         tx
       );
 
-      const response = await stripeClient.createCustomerForMembership(
-        {
-          email: membership.user.settings.email,
-          name: `${membership.user.firstName} ${membership.user.lastName}`,
-          membershipId: membershipId
-        },
-        accountId
-      );
+      // Only update the database if a customer was created (not null for free tier)
+      if (customerId) {
+        await tx.membership.update({
+          data: { stripeCustomerId: customerId },
+          where: { id: membershipId }
+        });
 
-      await tx.membership.update({
-        data: { stripeCustomerId: response.customerId },
-        where: { id: membershipId }
-      });
-
-      logger.info(
-        `updated membership with id ${membershipId} with stripeCustomerId ${response.customerId}`
-      );
+        logger.info(
+          `updated membership with id ${membershipId} with stripeCustomerId ${customerId}`
+        );
+      }
     } catch (e) {
       logger.error(
         e,
-        `failed to update membership with id ${membershipId} with stripeCustomerId`
+        `failed to create stripe customer for membership with id ${membershipId}`
       );
       throw e;
     }
@@ -549,93 +503,27 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const membership = await tx.membership.findUniqueOrThrow({
-      select: {
-        stripeSetupIntentId: true,
-        stripeCustomerId: true,
-        membershipTier: {
-          select: {
-            id: true,
-            stripePriceId: true,
-            costPerMonthInUSD: true,
-            initiationFeeStripePriceId: true,
-            club: {
-              select: {
-                id: true,
-                stripeConnectAccountId: true
-              }
-            }
-          }
-        }
-      },
-      where: { id: membershipId }
-    });
-
-    // free tier does not need to create subscription
-    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
-      return;
-    }
-
-    const customerId = membership.stripeCustomerId;
-    const stripeAccountId =
-      membership.membershipTier.club.stripeConnectAccountId;
-    const setupIntentId = membership.stripeSetupIntentId;
-    const priceId = membership.membershipTier.stripePriceId;
-    const initiationFeeStripePriceId =
-      membership.membershipTier.initiationFeeStripePriceId;
-
-    if (!customerId) {
-      throw new Error(
-        `membership with id ${membershipId} has no stripeCustomerId to create subscription`
-      );
-    }
-    if (!stripeAccountId) {
-      throw new Error(
-        `club with id ${membership.membershipTier.club.id} has no stripeAccountId create subscription`
-      );
-    }
-    if (!setupIntentId) {
-      throw new Error(
-        `membership with id ${membershipId} has no stripeSetupIntentId to create subscription`
-      );
-    }
-    if (!priceId) {
-      throw new Error(
-        `membership tier with id ${membership.membershipTier.id} has no priceId to create subscription`
-      );
-    }
-
-    const accountId = await accountIdResolver.fromMembershipInTransaction(
-      membershipId,
-      tx
-    );
-
-    const { subscriptionId } =
-      await stripeClient.createSubscriptionForMembership(
-        {
-          setupIntentId: setupIntentId,
-          customerId: customerId,
-          priceId: priceId,
-          membershipId: membershipId,
-          initiationFeePriceId: initiationFeeStripePriceId
-        },
-        accountId
-      );
-
     try {
-      await tx.membership.update({
-        data: {
-          stripeSubscriptionId: subscriptionId
-        },
-        where: { id: membershipId }
+      const { subscriptionId } = await paymentService.createSubscriptionForMembership({
+        membershipId: membershipId
       });
-      logger.info(
-        `updated membership with id ${membershipId} with subscription id ${subscriptionId}`
-      );
+
+      // Only update the database if a subscription was created (not null for free tier)
+      if (subscriptionId) {
+        await tx.membership.update({
+          data: {
+            stripeSubscriptionId: subscriptionId
+          },
+          where: { id: membershipId }
+        });
+        logger.info(
+          `updated membership with id ${membershipId} with subscription id ${subscriptionId}`
+        );
+      }
     } catch (e) {
       logger.error(
         e,
-        `failed to update membership with id ${membershipId} with subscription id ${subscriptionId}`
+        `failed to create stripe subscription for membership with id ${membershipId}`
       );
       throw e;
     }
@@ -873,56 +761,27 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    const membership = await tx.membership.findUniqueOrThrow({
-      select: {
-        membershipTier: {
-          select: {
-            costPerMonthInUSD: true
-          }
-        },
-        stripeSubscriptionId: true
-      },
-      where: { id: membershipId }
-    });
-
-    // free tier does not need to cancel subscription
-    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
-      return;
-    }
-
-    if (!membership.stripeSubscriptionId) {
-      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
-      // we should not block
-      logger.error(
-        `membership with id ${membershipId} has no stripeSubscriptionId to cancel`
-      );
-      return;
-    }
-
-    const accountId = await accountIdResolver.fromMembershipInTransaction(
-      membershipId,
-      tx
-    );
-
-    await stripeClient.cancelSubscription(
-      membership.stripeSubscriptionId,
-      accountId
-    );
-
     try {
-      await tx.membership.update({
-        data: {
-          stripeSubscriptionId: null
-        },
-        where: { id: membershipId }
-      });
-      logger.info(
-        `updated membership with id ${membershipId} to set subscriptionId to null`
+      const { wasCancelled } = await paymentService.cancelSubscription(
+        membershipId,
+        tx
       );
+
+      if (wasCancelled) {
+        await tx.membership.update({
+          data: {
+            stripeSubscriptionId: null
+          },
+          where: { id: membershipId }
+        });
+        logger.info(
+          `updated membership with id ${membershipId} to set subscriptionId to null`
+        );
+      }
     } catch (e) {
       logger.error(
         e,
-        `failed to update membership with id ${membershipId} to set subscriptionId to null`
+        `failed to cancel stripe subscription for membership with id ${membershipId}`
       );
       throw e;
     }

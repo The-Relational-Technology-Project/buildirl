@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { Url } from "~/server/utils/types";
+import { MonetaryValue, Url } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
+import { Prisma } from "@prisma/client";
 
 export type PaymentService = PaymentMutations & PaymentQueries;
 
@@ -24,6 +25,33 @@ type PaymentMutations = {
     input: CreateCustomerPortalSessionInput,
     membershipId: bigint
   ): Promise<CreateCustomerPortalSessionResult>;
+  createCustomerForMembership(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<CreateCustomerForMembershipResult>;
+  createSubscriptionForMembership(
+    input: CreateSubscriptionForMembershipInput
+  ): Promise<CreateSubscriptionForMembershipResult>;
+  cancelSubscription(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<CancelSubscriptionResult>;
+  createProductAndPricesForMembershipTier(
+    input: CreateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<CreateProductAndPricesForMembershipTierResult>;
+  archiveProductAndPricesForMembershipTier(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  publishProductAndPricesForMembershipTier(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  updateProductAndPricesForMembershipTier(
+    input: UpdateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<UpdateProductAndPricesForMembershipTierResult>;
 };
 
 export type AccountStatus = {
@@ -73,4 +101,51 @@ export type CreateCustomerPortalSessionInput = z.infer<
 
 export type CreateCustomerPortalSessionResult = {
   redirectUrl: Url;
+};
+
+export type CreateCustomerForMembershipResult = {
+  customerId: Maybe<string>;
+};
+
+export type CreateSubscriptionForMembershipInput = {
+  membershipId: bigint;
+};
+
+export type CreateSubscriptionForMembershipResult = {
+  subscriptionId: Maybe<string>;
+};
+
+export type CreateProductAndPricesForMembershipTierInput = {
+  name: string;
+  description: Maybe<string>;
+  pricePerMonthInUSD: MonetaryValue;
+  initiationFeeInUSD: Maybe<MonetaryValue>;
+  membershipTierId: number;
+};
+
+export type CreateProductAndPricesForMembershipTierResult = {
+  productId: Maybe<string>;
+  priceId: Maybe<string>;
+  initiationFeePriceId: Maybe<string>;
+};
+
+export type UpdateProductAndPricesForMembershipTierInput = {
+  name: string;
+  description: string;
+  pricePerMonthInUSD: MonetaryValue;
+  initiationFeeInUSD: Maybe<MonetaryValue>;
+  membershipTierId: number;
+};
+
+export type NullablePriceIdResult = {
+  updatedPriceId: Maybe<string>;
+};
+
+export type UpdateProductAndPricesForMembershipTierResult = {
+  updatedPriceId: Maybe<string>;
+  updatedInitiationFeePriceId: Maybe<NullablePriceIdResult>;
+};
+
+export type CancelSubscriptionResult = {
+  wasCancelled: boolean;
 };

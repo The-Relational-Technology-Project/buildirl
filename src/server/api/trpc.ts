@@ -54,10 +54,14 @@ export const createTRPCContext = async (opts: {
   const emailClient = createEmailClient(mailTransport);
   const userService = createUserService(prisma);
   const emailService = createEmailService(prisma, emailClient, userService);
+  const paymentService = createPaymentService(
+    stripeClient,
+    prisma,
+    accountIdResolver
+  );
   const membershipTierService = createMembershipTierService(
     prisma,
-    stripeClient,
-    accountIdResolver
+    paymentService
   );
   const followingService = createFollowingService(prisma, userService);
   const roleService = createRoleService(prisma);
@@ -67,9 +71,8 @@ export const createTRPCContext = async (opts: {
     membershipTierService,
     followingService,
     roleService,
-    stripeClient,
     emailService,
-    accountIdResolver
+    paymentService
   );
   const clubService = createClubService(
     prisma,
@@ -85,7 +88,7 @@ export const createTRPCContext = async (opts: {
       following: followingService,
       role: roleService,
       email: emailService,
-      payment: createPaymentService(stripeClient, prisma, accountIdResolver)
+      payment: paymentService
     },
     user: user,
     headers: opts.headers,
