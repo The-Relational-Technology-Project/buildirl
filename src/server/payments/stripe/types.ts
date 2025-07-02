@@ -1,6 +1,12 @@
 import { MonetaryValue, Url } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 
+export enum StripeBillingInterval {
+  MONTHLY = "MONTHLY",
+  QUARTERLY = "QUARTERLY",
+  SEMI_ANNUAL = "SEMI_ANNUAL"
+}
+
 export type StripeClient = {
   // connected account management
   createAccount(): Promise<CreateAccountResponse>;
@@ -14,8 +20,16 @@ export type StripeClient = {
     input: CreateProductAndPricesForMembershipTierInput,
     byAccountId: string
   ): Promise<CreateProductAndPricesForMembershipTierResponse>;
+  createProductAndPricesForMembershipTierV2(
+    input: CreateProductAndPricesForMembershipTierInputV2,
+    byAccountId: string
+  ): Promise<CreateProductAndPricesForMembershipTierResponse>;
   updateProductAndPricesForMembershipTier(
     input: UpdateProductAndPricesForMembershipTierInput,
+    byAccountId: string
+  ): Promise<UpdateProductAndPricesForMembershipTierResponse>;
+  updateProductAndPricesForMembershipTierV2(
+    input: UpdateProductAndPricesForMembershipTierInputV2,
     byAccountId: string
   ): Promise<UpdateProductAndPricesForMembershipTierResponse>;
   archiveProductAndPricesForMembershipTier(
@@ -87,6 +101,16 @@ export type CreateProductAndPricesForMembershipTierInput = {
   membershipTierId: number;
 };
 
+export type CreateProductAndPricesForMembershipTierInputV2 = {
+  name: string;
+  description?: string;
+  pricePerBillingInterval: MonetaryValue;
+  billingInterval: StripeBillingInterval;
+  // null if no initiation fee price
+  initiationFeeInUSD: Maybe<MonetaryValue>;
+  membershipTierId: number;
+};
+
 export type CreateProductAndPricesForMembershipTierResponse = {
   productId: string;
   priceId: string;
@@ -112,6 +136,16 @@ export type UpdateProductAndPricesForMembershipTierInput = {
   description: string;
   priceId: string;
   pricePerMonthInUSD: MonetaryValue;
+  initiationFee: UpsertNullablePriceInput;
+};
+
+export type UpdateProductAndPricesForMembershipTierInputV2 = {
+  productId: string;
+  name: string;
+  description: string;
+  priceId: string;
+  pricePerBillingInterval: MonetaryValue;
+  billingInterval: StripeBillingInterval;
   initiationFee: UpsertNullablePriceInput;
 };
 

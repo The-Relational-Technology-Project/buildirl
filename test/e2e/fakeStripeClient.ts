@@ -13,13 +13,15 @@ import {
   CreateCustomerForMembershipResponse,
   CreateProductAndPricesForMembershipTierInput,
   CreateProductAndPricesForMembershipTierResponse,
+  CreateProductAndPricesForMembershipTierInputV2,
   CreateSubscriptionForMembershipInput,
   CreateSubscriptionForMembershipResponse,
   PublishProductAndPricesForMembershipTierInput,
   StripeClient,
   SubscriptionStatusResponse,
   UpdateProductAndPricesForMembershipTierInput,
-  UpdateProductAndPricesForMembershipTierResponse
+  UpdateProductAndPricesForMembershipTierResponse,
+  UpdateProductAndPricesForMembershipTierInputV2
 } from "~/server/payments/stripe/types";
 import { Maybe } from "~/utils/types";
 
@@ -70,8 +72,54 @@ export function createFakeStripeClient(): StripeClient {
     return Promise.resolve(response);
   }
 
+  async function createProductAndPricesForMembershipTierV2(
+    input: CreateProductAndPricesForMembershipTierInputV2,
+    __: string
+  ): Promise<CreateProductAndPricesForMembershipTierResponse> {
+    const priceId = nextPriceId;
+    nextPriceId++;
+    let initiationFeePriceId: Maybe<number> = null;
+    if (input.initiationFeeInUSD !== null) {
+      initiationFeePriceId = nextPriceId;
+      nextPriceId++;
+    }
+    const response = {
+      productId: `product:id:${nextProductId}`,
+      priceId: `price:id:${priceId}`,
+      initiationFeePriceId:
+        null === initiationFeePriceId
+          ? null
+          : `price:id:${initiationFeePriceId}`
+    };
+    nextProductId++;
+    return Promise.resolve(response);
+  }
+
   async function updateProductAndPricesForMembershipTier(
     input: UpdateProductAndPricesForMembershipTierInput,
+    __: string
+  ): Promise<UpdateProductAndPricesForMembershipTierResponse> {
+    const priceId = nextPriceId;
+    nextPriceId++;
+    let initiationFeePriceId: Maybe<number> = null;
+    if (input.initiationFee !== null) {
+      initiationFeePriceId = nextPriceId;
+      nextPriceId++;
+    }
+    const response = {
+      updatedPriceId: `price:id:${priceId}`,
+      updatedInitiationFeePriceId:
+        null === initiationFeePriceId
+          ? null
+          : {
+              updatedPriceId: `price:id:${initiationFeePriceId}`
+            }
+    };
+    return Promise.resolve(response);
+  }
+
+  async function updateProductAndPricesForMembershipTierV2(
+    input: UpdateProductAndPricesForMembershipTierInputV2,
     __: string
   ): Promise<UpdateProductAndPricesForMembershipTierResponse> {
     const priceId = nextPriceId;
@@ -167,7 +215,9 @@ export function createFakeStripeClient(): StripeClient {
     createAccountLink,
     getAccountStatus,
     createProductAndPricesForMembershipTier,
+    createProductAndPricesForMembershipTierV2,
     updateProductAndPricesForMembershipTier,
+    updateProductAndPricesForMembershipTierV2,
     archiveProductAndPricesForMembershipTier,
     publishProductAndPricesForMembershipTier,
     createCustomerForMembership,
