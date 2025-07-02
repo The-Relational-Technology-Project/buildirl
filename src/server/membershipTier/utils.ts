@@ -1,4 +1,7 @@
-import { MembershipTier } from "~/server/membershipTier/types";
+import {
+  BillingInterval,
+  MembershipTier
+} from "~/server/membershipTier/types";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import { Prisma } from "@prisma/client";
 
@@ -9,6 +12,8 @@ export const MEMBERSHIP_TIER_SELECT = {
   benefitDescription: true,
   contributionDescription: true,
   costPerMonthInUSD: true,
+  costPerBillingInterval: true,
+  billingInterval: true,
   initiationFeeCostInUSD: true
 };
 
@@ -23,6 +28,11 @@ export function asMembershipTier(
     contributionDescription: r.contributionDescription,
     // possible loss of precision here, but it doesn't matter for us
     costPerMonthInUSD: r.costPerMonthInUSD.toNumber(),
+    costPerBillingInterval:
+      r.costPerBillingInterval === null
+        ? null
+        : r.costPerBillingInterval.toNumber(),
+    billingInterval: r.billingInterval as BillingInterval | null,
     initiationFeeCostInUSD:
       null === r.initiationFeeCostInUSD
         ? null
@@ -35,7 +45,11 @@ export function orderedByCost(
 ): MembershipTier[] {
   return membershipTiers
     .sort((a, b) => a.id - b.id)
-    .sort((a, b) => a.costPerMonthInUSD - b.costPerMonthInUSD);
+    .sort(
+      (a, b) =>
+        (a.costPerBillingInterval ?? a.costPerMonthInUSD) -
+        (b.costPerBillingInterval ?? b.costPerMonthInUSD)
+    );
 }
 
 export function isPrismaResultDefaultFreeTier(membershipTier: {

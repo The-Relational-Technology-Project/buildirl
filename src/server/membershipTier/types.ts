@@ -38,6 +38,12 @@ type MembershipTierMutations = {
 
 export type MembershipTierStatus = "PUBLISHED" | "UNPUBLISHED";
 
+export enum BillingInterval {
+  MONTHLY = "MONTHLY",
+  QUARTERLY = "QUARTERLY",
+  SEMI_ANNUAL = "SEMI_ANNUAL"
+}
+
 export type MembershipTier = {
   id: number;
   name: string;
@@ -45,6 +51,8 @@ export type MembershipTier = {
   benefitDescription: string;
   contributionDescription: string;
   costPerMonthInUSD: number;
+  costPerBillingInterval: Maybe<number>;
+  billingInterval: Maybe<BillingInterval>;
   initiationFeeCostInUSD: Maybe<number>;
 };
 

@@ -193,7 +193,11 @@ export class SystemState {
       membershipTiers
         // if equal cost, sort by id
         .sort((a, b) => a.id - b.id)
-        .sort((a, b) => a.costPerMonthInUSD - b.costPerMonthInUSD)
+        .sort(
+          (a, b) =>
+            (a.costPerBillingInterval ?? a.costPerMonthInUSD) -
+            (b.costPerBillingInterval ?? b.costPerMonthInUSD)
+        )
     );
   }
 
@@ -387,6 +391,8 @@ export class SystemState {
       benefitDescription: input.benefitDescription,
       contributionDescription: input.contributionDescription,
       costPerMonthInUSD: input.costPerMonthInUSD,
+      costPerBillingInterval: null,
+      billingInterval: null,
       initiationFeeCostInUSD: input.initiationFeeCostInUSD
     });
     // link the membership tier to the club
