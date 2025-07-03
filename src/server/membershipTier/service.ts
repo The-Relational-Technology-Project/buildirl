@@ -10,7 +10,10 @@ import {
   UpdateMembershipTierInputV2
 } from "~/server/membershipTier/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
-import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
+import { 
+  isPrismaResultDefaultFreeTier,
+  isPrismaResultDefaultFreeTierV2
+} from "~/server/membershipTier/utils";
 import { PaymentService } from "~/server/payments/types";
 
 const logger = rootLogger.child({ module: "membershipTierService" });
@@ -168,6 +171,26 @@ export function createMembershipTierService(
     }
   }
 
+  async function isDefaultFreeTierByIdV2(
+    membershipTierId: number
+  ): Promise<boolean> {
+    try {
+      const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
+        where: { id: membershipTierId },
+        select: { costPerMonthInUSD: true, costPerBillingInterval: true }
+      });
+      logger.info(
+        `checked if membership tier with id ${membershipTierId} is V2 free tier with result ${isPrismaResultDefaultFreeTierV2(membershipTier)}`
+      );
+      return isPrismaResultDefaultFreeTierV2(membershipTier);
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to check if membership tier with id ${membershipTierId} is V2 free tier`
+      );
+      throw e;
+    }
+  }
   async function checkIsNotDefaultFreeMembershipTier(membershipTierId: number) {
     if (await isDefaultFreeTierById(membershipTierId)) {
       throw new Error("cannot delete default free membership tier");
@@ -638,6 +661,7 @@ export function createMembershipTierService(
   return {
     isMembershipTierPublished,
     isDefaultFreeTierById,
+    isDefaultFreeTierByIdV2,
     getClubIdFromMembershipTierId,
     createMembershipTier,
     createMembershipTierV2,

@@ -14,6 +14,7 @@ type MembershipTierQueries = {
   // internal
   isMembershipTierPublished(membershipTierId: number): Promise<boolean>;
   isDefaultFreeTierById(membershipTierId: number): Promise<boolean>;
+  isDefaultFreeTierByIdV2(membershipTierId: number): Promise<boolean>;
   getClubIdFromMembershipTierId(membershipTierId: number): Promise<number>;
 };
 
