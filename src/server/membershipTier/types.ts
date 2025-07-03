@@ -22,9 +22,17 @@ type MembershipTierMutations = {
     clubId: number,
     input: CreateMembershipTierInput
   ): Promise<MutationResult>;
+  createMembershipTierV2(
+    clubId: number,
+    input: CreateMembershipTierInputV2
+  ): Promise<MutationResult>;
   updateMembershipTier(
     id: number,
     input: UpdateMembershipTierInput
+  ): Promise<MutationResult>;
+  updateMembershipTierV2(
+    id: number,
+    input: UpdateMembershipTierInputV2
   ): Promise<MutationResult>;
   deleteMembershipTier(id: number): Promise<MutationResult>;
   publishMembershipTier(id: number): Promise<MutationResult>;

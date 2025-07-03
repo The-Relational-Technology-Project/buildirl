@@ -4,8 +4,10 @@ import { stringify } from "~/utils";
 import { DEFAULT_FREE_MEMBERSHIP_TIER } from "~/server/utils/defaults";
 import {
   CreateMembershipTierInput,
+  CreateMembershipTierInputV2,
   MembershipTierService,
-  UpdateMembershipTierInput
+  UpdateMembershipTierInput,
+  UpdateMembershipTierInputV2
 } from "~/server/membershipTier/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
@@ -100,6 +102,17 @@ export function createMembershipTierService(
     }
   }
 
+  // TODO: Implement in future commits
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async function createMembershipTierV2(
+    _clubId: number,
+    _input: CreateMembershipTierInputV2
+  ): Promise<MutationResult> {
+    void _clubId;
+    void _input;
+    throw new Error("createMembershipTierV2 not yet implemented");
+  }
+  
   async function createDefaultFreeMembershipTier(
     clubId: number,
     tx: Prisma.TransactionClient
@@ -396,6 +409,16 @@ export function createMembershipTierService(
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async function updateMembershipTierV2(
+    _id: number,
+    _input: UpdateMembershipTierInputV2
+  ): Promise<MutationResult> {
+    void _id;
+    void _input;
+    throw new Error("updateMembershipTierV2 not yet implemented");
+  }
+
   async function checkNoActiveMembersOrPendingApplicationsOnMembershipTier(
     membershipTierId: number
   ): Promise<void> {
@@ -617,7 +640,9 @@ export function createMembershipTierService(
     isDefaultFreeTierById,
     getClubIdFromMembershipTierId,
     createMembershipTier,
+    createMembershipTierV2,
     updateMembershipTier,
+    updateMembershipTierV2,
     deleteMembershipTier,
     publishMembershipTier,
     unpublishMembershipTier,
