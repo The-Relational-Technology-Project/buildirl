@@ -21,13 +21,12 @@ import {
   UpdateProductAndPricesForMembershipTierInput,
   UpdateProductAndPricesForMembershipTierResponse,
   NullablePriceIdResponse,
-  StripeBillingInterval,
   CreateProductAndPricesForMembershipTierInputV2,
   UpdateProductAndPricesForMembershipTierInputV2
 } from "~/server/payments/stripe/types";
 import { rootLogger } from "~/logger";
 import Stripe from "stripe";
-import { Maybe } from "~/utils/types";
+import { Maybe, BillingInterval } from "~/utils/types";
 import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "stripeClient" });
@@ -143,7 +142,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     productId: string,
     priceInUSD: number,
     nickname: string,
-    billingInterval: Maybe<StripeBillingInterval>,
+    billingInterval: Maybe<BillingInterval>,
     byAccountId: string
   ): Promise<string> {
     function getRecurring():
@@ -156,11 +155,11 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         return undefined;
       }
       switch (billingInterval) {
-        case StripeBillingInterval.MONTHLY:
+        case BillingInterval.MONTHLY:
           return { interval: "month", interval_count: 1 };
-        case StripeBillingInterval.QUARTERLY:
+        case BillingInterval.QUARTERLY:
           return { interval: "month", interval_count: 3 };
-        case StripeBillingInterval.SEMI_ANNUAL:
+        case BillingInterval.SEMI_ANNUAL:
           return { interval: "month", interval_count: 6 };
       }
     }
@@ -453,7 +452,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     productId: string,
     currentPriceId: string,
     newPriceInUSD: number,
-    newBillingInterval: Maybe<StripeBillingInterval>,
+    newBillingInterval: Maybe<BillingInterval>,
     nickname: string,
     byAccountId: string
   ): Promise<Maybe<string>> {
@@ -469,13 +468,13 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       let hasIntervalChanged = false;
       if (existingRecurring?.interval === "month" && newBillingInterval) {
         switch (newBillingInterval) {
-          case StripeBillingInterval.MONTHLY:
+          case BillingInterval.MONTHLY:
             hasIntervalChanged = existingRecurring.interval_count !== 1;
             break;
-          case StripeBillingInterval.QUARTERLY:
+          case BillingInterval.QUARTERLY:
             hasIntervalChanged = existingRecurring.interval_count !== 3;
             break;
-          case StripeBillingInterval.SEMI_ANNUAL:
+          case BillingInterval.SEMI_ANNUAL:
             hasIntervalChanged = existingRecurring.interval_count !== 6;
             break;
         }

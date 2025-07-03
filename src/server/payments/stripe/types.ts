@@ -1,11 +1,6 @@
 import { MonetaryValue, Url } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
-
-export enum StripeBillingInterval {
-  MONTHLY = "MONTHLY",
-  QUARTERLY = "QUARTERLY",
-  SEMI_ANNUAL = "SEMI_ANNUAL"
-}
+import { BillingInterval } from "~/utils/types";
 
 export type StripeClient = {
   // connected account management
@@ -105,7 +100,7 @@ export type CreateProductAndPricesForMembershipTierInputV2 = {
   name: string;
   description?: string;
   pricePerBillingInterval: MonetaryValue;
-  billingInterval: StripeBillingInterval;
+  billingInterval: BillingInterval;
   // null if no initiation fee price
   initiationFeeInUSD: Maybe<MonetaryValue>;
   membershipTierId: number;
@@ -145,7 +140,7 @@ export type UpdateProductAndPricesForMembershipTierInputV2 = {
   description: string;
   priceId: string;
   pricePerBillingInterval: MonetaryValue;
-  billingInterval: StripeBillingInterval;
+  billingInterval: BillingInterval;
   initiationFee: UpsertNullablePriceInput;
 };
 

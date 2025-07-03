@@ -1,7 +1,7 @@
 import {
-  BillingInterval,
   MembershipTier
 } from "~/server/membershipTier/types";
+import { BillingInterval } from "~/utils/types";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import { Prisma } from "@prisma/client";
 

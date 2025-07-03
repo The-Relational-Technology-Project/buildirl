@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { Maybe } from "~/utils/types";
 import {
   LongTextSchema,
   MonetaryValueSchema,
   MutationResult
 } from "~/server/utils/types";
+import { BillingInterval, Maybe } from "~/utils/types";
 import { Prisma } from "@prisma/client";
 
 export type MembershipTierService = MembershipTierQueries &
@@ -37,12 +37,6 @@ type MembershipTierMutations = {
 };
 
 export type MembershipTierStatus = "PUBLISHED" | "UNPUBLISHED";
-
-export enum BillingInterval {
-  MONTHLY = "MONTHLY",
-  QUARTERLY = "QUARTERLY",
-  SEMI_ANNUAL = "SEMI_ANNUAL"
-}
 
 export type MembershipTier = {
   id: number;

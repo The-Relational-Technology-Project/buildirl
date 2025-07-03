@@ -2,6 +2,7 @@ import { z } from "zod";
 import { MonetaryValue, Url } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 import { Prisma } from "@prisma/client";
+import { BillingInterval } from "~/utils/types";
 
 export type PaymentService = PaymentMutations & PaymentQueries;
 
@@ -29,6 +30,10 @@ type PaymentMutations = {
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ): Promise<CreateCustomerForMembershipResult>;
+  createCustomerForMembershipV2(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<CreateCustomerForMembershipResult>;
   createSubscriptionForMembership(
     input: CreateSubscriptionForMembershipInput
   ): Promise<CreateSubscriptionForMembershipResult>;
@@ -38,6 +43,10 @@ type PaymentMutations = {
   ): Promise<CancelSubscriptionResult>;
   createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<CreateProductAndPricesForMembershipTierResult>;
+  createProductAndPricesForMembershipTierV2(
+    input: CreateProductAndPricesForMembershipTierInputV2,
     tx: Prisma.TransactionClient
   ): Promise<CreateProductAndPricesForMembershipTierResult>;
   archiveProductAndPricesForMembershipTier(
@@ -50,6 +59,10 @@ type PaymentMutations = {
   ): Promise<void>;
   updateProductAndPricesForMembershipTier(
     input: UpdateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<UpdateProductAndPricesForMembershipTierResult>;
+  updateProductAndPricesForMembershipTierV2(
+    input: UpdateProductAndPricesForMembershipTierInputV2,
     tx: Prisma.TransactionClient
   ): Promise<UpdateProductAndPricesForMembershipTierResult>;
 };
@@ -123,6 +136,15 @@ export type CreateProductAndPricesForMembershipTierInput = {
   membershipTierId: number;
 };
 
+export type CreateProductAndPricesForMembershipTierInputV2 = {
+  name: string;
+  description: Maybe<string>;
+  pricePerBillingInterval: MonetaryValue;
+  billingInterval: BillingInterval;
+  initiationFeeInUSD: Maybe<MonetaryValue>;
+  membershipTierId: number;
+};
+
 export type CreateProductAndPricesForMembershipTierResult = {
   productId: Maybe<string>;
   priceId: Maybe<string>;
@@ -133,6 +155,15 @@ export type UpdateProductAndPricesForMembershipTierInput = {
   name: string;
   description: string;
   pricePerMonthInUSD: MonetaryValue;
+  initiationFeeInUSD: Maybe<MonetaryValue>;
+  membershipTierId: number;
+};
+
+export type UpdateProductAndPricesForMembershipTierInputV2 = {
+  name: string;
+  description: string;
+  pricePerBillingInterval: MonetaryValue;
+  billingInterval: BillingInterval;
   initiationFeeInUSD: Maybe<MonetaryValue>;
   membershipTierId: number;
 };

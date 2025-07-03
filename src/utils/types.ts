@@ -9,6 +9,12 @@ import { Club } from "~/server/club/types";
 
 export type Maybe<T> = T | null;
 
+export enum BillingInterval {
+  MONTHLY = "MONTHLY",
+  QUARTERLY = "QUARTERLY",
+  SEMI_ANNUAL = "SEMI_ANNUAL"
+}
+
 export type Id = number | bigint;
 
 // helper unwrap methods for converting id to proper types
