@@ -105,15 +105,91 @@ export function createMembershipTierService(
     }
   }
 
-  // TODO: Implement in future commits
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // V2 Functions - Using billing intervals
   async function createMembershipTierV2(
-    _clubId: number,
-    _input: CreateMembershipTierInputV2
+    clubId: number,
+    input: CreateMembershipTierInputV2
   ): Promise<MutationResult> {
-    void _clubId;
-    void _input;
-    throw new Error("createMembershipTierV2 not yet implemented");
+    return prisma.$transaction(async (tx) => {
+      return createMembershipTierV2InTransaction(clubId, input, tx);
+    });
+  }
+
+  async function createMembershipTierV2InTransaction(
+    clubId: number,
+    input: CreateMembershipTierInputV2,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
+    try {
+      const { id } = await tx.membershipTier.create({
+        data: {
+          clubId: clubId,
+          // default
+          status: "PUBLISHED",
+          // temporary:"Pass 0" strategy for V1 compatibility
+          costPerMonthInUSD: 0,
+          ...input
+        },
+        select: {
+          id: true
+        }
+      });
+
+      await createStripeProductAndPricesV2(id, input, tx);
+
+      logger.info(
+        `created V2 membership tier from input ${stringify(input)} with id ${id}`
+      );
+      return { createdEntityId: id };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create V2 membership tier from input ${stringify(input)}`
+      );
+      throw e;
+    }
+  }
+
+  async function createStripeProductAndPricesV2(
+    membershipTierId: number,
+    input: CreateMembershipTierInputV2,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    try {
+      const { productId, priceId, initiationFeePriceId } =
+        await paymentService.createProductAndPricesForMembershipTierV2(
+          {
+            name: input.name,
+            description: input.benefitDescription,
+            pricePerBillingInterval: input.costPerBillingInterval,
+            billingInterval: input.billingInterval,
+            initiationFeeInUSD: input.initiationFeeCostInUSD,
+            membershipTierId: membershipTierId
+          },
+          tx
+        );
+
+      // Only update the database if products were created (not null for free tier)
+      if (productId && priceId) {
+        await tx.membershipTier.update({
+          where: { id: membershipTierId },
+          data: {
+            stripeProductId: productId,
+            stripePriceId: priceId,
+            initiationFeeStripePriceId: initiationFeePriceId
+          }
+        });
+        logger.info(
+          `updated V2 membership tier with id ${membershipTierId} with stripeProductId ${productId}, stripePriceId ${priceId}, and initiationFeeStripePriceId ${initiationFeePriceId}`
+        );
+      }
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create stripe product and prices for V2 membership tier with id ${membershipTierId}`
+      );
+      throw e;
+    }
   }
   
   async function createDefaultFreeMembershipTier(
