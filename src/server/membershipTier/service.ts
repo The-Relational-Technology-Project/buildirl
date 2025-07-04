@@ -287,6 +287,21 @@ export function createMembershipTierService(
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async function checkIsNotDefaultFreeMembershipTierAndUpdatingCostV2(
+    membershipTierId: number,
+    input: UpdateMembershipTierInputV2
+  ) {
+    if (
+      (await isDefaultFreeTierByIdV2(membershipTierId)) &&
+      input.costPerBillingInterval !== 0
+    ) {
+      throw new Error(
+        "cannot update cost of default free membership tier to non-zero value"
+      );
+    }
+  }
+
   async function checkIsNotUpdatingMembershipTierToZeroCost(
     membershipTierId: number,
     input: UpdateMembershipTierInput
@@ -294,6 +309,19 @@ export function createMembershipTierService(
     if (
       !(await isDefaultFreeTierById(membershipTierId)) &&
       input.costPerMonthInUSD === 0
+    ) {
+      throw new Error("cannot update cost of membership tier to zero value");
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async function checkIsNotUpdatingMembershipTierToZeroCostV2(
+    membershipTierId: number,
+    input: UpdateMembershipTierInputV2
+  ) {
+    if (
+      !(await isDefaultFreeTierByIdV2(membershipTierId)) &&
+      input.costPerBillingInterval === 0
     ) {
       throw new Error("cannot update cost of membership tier to zero value");
     }
@@ -324,11 +352,64 @@ export function createMembershipTierService(
     }
   }
 
+  async function isUpdateOnCostPerBillingIntervalV2(
+    membershipTierId: number,
+    input: UpdateMembershipTierInputV2
+  ): Promise<boolean> {
+    try {
+      const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
+        where: { id: membershipTierId },
+        select: { costPerBillingInterval: true, costPerMonthInUSD: true, billingInterval: true }
+      });
+
+      const currentCost = membershipTier.costPerBillingInterval !== null 
+        ? membershipTier.costPerBillingInterval.toNumber()
+        : membershipTier.costPerMonthInUSD.toNumber();
+      
+      const currentInterval = membershipTier.billingInterval;
+
+      logger.info(
+        `queried V2 cost and interval for membership tier with id ${membershipTierId} with result cost=${currentCost}, interval=${currentInterval}`
+      );
+      
+      return (
+        currentCost !== input.costPerBillingInterval ||
+        currentInterval !== input.billingInterval
+      );
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query V2 cost and interval for membership tier with id ${membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
   async function checkNotUpdatingCostPerMonthInUSDWithActiveOrPendingApplicationsOnMembershipTier(
     membershipTierId: number,
     input: UpdateMembershipTierInput
   ): Promise<void> {
     const updatingCost = await isUpdateOnCostPerMonthInUSD(
+      membershipTierId,
+      input
+    );
+    const hasActiveMembersOrPendingApplications =
+      await hasActiveMembersOrPendingApplicationsOnMembershipTier(
+        membershipTierId
+      );
+    if (updatingCost && hasActiveMembersOrPendingApplications) {
+      throw new Error(
+        "cannot update cost of membership tier if there are active members or pending applications"
+      );
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async function checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTierV2(
+    membershipTierId: number,
+    input: UpdateMembershipTierInputV2
+  ): Promise<void> {
+    const updatingCost = await isUpdateOnCostPerBillingIntervalV2(
       membershipTierId,
       input
     );
