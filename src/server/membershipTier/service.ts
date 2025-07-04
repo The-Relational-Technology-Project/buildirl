@@ -287,7 +287,6 @@ export function createMembershipTierService(
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function checkIsNotDefaultFreeMembershipTierAndUpdatingCostV2(
     membershipTierId: number,
     input: UpdateMembershipTierInputV2
@@ -314,7 +313,6 @@ export function createMembershipTierService(
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function checkIsNotUpdatingMembershipTierToZeroCostV2(
     membershipTierId: number,
     input: UpdateMembershipTierInputV2
@@ -404,7 +402,6 @@ export function createMembershipTierService(
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTierV2(
     membershipTierId: number,
     input: UpdateMembershipTierInputV2
@@ -589,14 +586,107 @@ export function createMembershipTierService(
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function updateMembershipTierV2(
-    _id: number,
-    _input: UpdateMembershipTierInputV2
+    id: number,
+    input: UpdateMembershipTierInputV2
   ): Promise<MutationResult> {
-    void _id;
-    void _input;
-    throw new Error("updateMembershipTierV2 not yet implemented");
+    await checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTierV2(
+      id,
+      input
+    );
+    // Initiation fee validation is the same for V1 and V2, so we create a compatible input
+    await checkNotUpdatingInitiationFeeCostInUSDWithPendingApplicationsOnMembershipTier(
+      id,
+      { ...input, costPerMonthInUSD: 0 } // Add required V1 field for validation
+    );
+    await checkIsNotDefaultFreeMembershipTierAndUpdatingCostV2(id, input);
+    await checkIsNotUpdatingMembershipTierToZeroCostV2(id, input);
+
+    return prisma.$transaction(async (tx) => {
+      return updateMembershipTierV2InTransaction(id, input, tx);
+    });
+  }
+
+  async function updateMembershipTierV2InTransaction(
+    id: number,
+    input: UpdateMembershipTierInputV2,
+    tx: Prisma.TransactionClient
+  ): Promise<MutationResult> {
+    try {
+      await tx.membershipTier.update({
+        data: {
+          // "Pass 0" strategy for V1 compatibility
+          costPerMonthInUSD: 0,
+          ...input
+        },
+        where: {
+          id: id
+        }
+      });
+
+      await updateStripeProductAndPricesV2(id, input, tx);
+
+      logger.info(
+        `updated V2 membership tier with id ${id} from input ${stringify(input)}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update V2 membership tier with id ${id} from input ${stringify(input)}`
+      );
+      throw e;
+    }
+  }
+
+  async function updateStripeProductAndPricesV2(
+    membershipTierId: number,
+    input: UpdateMembershipTierInputV2,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    try {
+      const { updatedPriceId, updatedInitiationFeePriceId } =
+        await paymentService.updateProductAndPricesForMembershipTierV2(
+          {
+            name: input.name,
+            description: input.benefitDescription,
+            pricePerBillingInterval: input.costPerBillingInterval,
+            billingInterval: input.billingInterval,
+            initiationFeeInUSD: input.initiationFeeCostInUSD,
+            membershipTierId: membershipTierId
+          },
+          tx
+        );
+
+      // only update price ids if they have changed
+      if (!!updatedPriceId) {
+        await tx.membershipTier.update({
+          where: { id: membershipTierId },
+          data: { stripePriceId: updatedPriceId }
+        });
+        logger.info(
+          `updated V2 membership tier with id ${membershipTierId} with stripePriceId ${updatedPriceId}`
+        );
+      }
+      if (!!updatedInitiationFeePriceId) {
+        await tx.membershipTier.update({
+          where: { id: membershipTierId },
+          data: {
+            initiationFeeStripePriceId:
+              updatedInitiationFeePriceId.updatedPriceId
+          }
+        });
+        logger.info(
+          `updated V2 membership tier with id ${membershipTierId} with initiationFeeStripePriceId ${updatedInitiationFeePriceId.updatedPriceId}`
+        );
+      }
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update stripe product and prices for V2 membership tier with id ${membershipTierId}`
+      );
+      throw e;
+    }
   }
 
   async function checkNoActiveMembersOrPendingApplicationsOnMembershipTier(
