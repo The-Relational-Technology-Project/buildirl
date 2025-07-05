@@ -34,8 +34,10 @@ import {
 } from "~/server/membership/types";
 import {
   CreateMembershipTierInput,
+  CreateMembershipTierInputV2,
   MembershipTier,
-  UpdateMembershipTierInput
+  UpdateMembershipTierInput,
+  UpdateMembershipTierInputV2
 } from "~/server/membershipTier/types";
 import { CreateUserInput, UpdateUserInput, User } from "~/server/user/types";
 import { stringify } from "~/utils";
@@ -404,6 +406,43 @@ export class SystemState {
     const membershipTier = this.getMembershipTier(id);
     this.membershipTiers.set(id, {
       ...membershipTier,
+      ...input
+    });
+  }
+
+  public createMembershipTierV2(
+    membershipTierId: number,
+    clubId: number,
+    input: CreateMembershipTierInputV2
+  ) {
+    if (!!this.membershipTiers.get(membershipTierId)) {
+      throw new Error(
+        `membership tier with id ${membershipTierId} already exists`
+      );
+    }
+    this.membershipTiers.set(membershipTierId, {
+      id: membershipTierId,
+      name: input.name,
+      status: "PUBLISHED",
+      benefitDescription: input.benefitDescription,
+      contributionDescription: input.contributionDescription,
+      // "Pass 0" strategy for V1 compatibility
+      costPerMonthInUSD: 0,
+      costPerBillingInterval: input.costPerBillingInterval,
+      billingInterval: input.billingInterval,
+      initiationFeeCostInUSD: input.initiationFeeCostInUSD
+    });
+    // link the membership tier to the club
+    const clubState = this.getClubState(clubId);
+    clubState.membershipTierIds.push(membershipTierId);
+  }
+
+  public updateMembershipTierV2(id: number, input: UpdateMembershipTierInputV2) {
+    const membershipTier = this.getMembershipTier(id);
+    this.membershipTiers.set(id, {
+      ...membershipTier,
+      // "Pass 0" strategy for V1 compatibility
+      costPerMonthInUSD: 0,
       ...input
     });
   }

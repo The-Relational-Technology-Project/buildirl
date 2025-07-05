@@ -23,14 +23,15 @@ import {
   InstagramHandleSchema,
   RequiredStringSchema
 } from "~/server/utils/types";
+import { BillingInterval } from "~/utils/types";
 import UpdateUserCommand from "./updateUserCommand";
 import itemSelector from "../utils/itemSelector";
 import CreateClubCommand from "./createClubCommand";
 import { isZodType } from "~/utils/zod";
 import UpdateClubCommand from "./updateClubCommand";
 import UpdateClubApplicationQuestionsCommand from "./updateClubApplicationQuestionsCommand";
-import CreateMembershipTierCommand from "./createMembershipTierCommand";
-import UpdateMembershipTierCommand from "./updateMembershipTierCommand";
+import CreateMembershipTierV2Command from "./createMembershipTierV2Command";
+import UpdateMembershipTierV2Command from "./updateMembershipTierV2Command";
 import SubmitMembershipApplicationCommand from "./submitMembershipApplicationCommand";
 import ApproveMembershipApplicationCommand from "./approveMembershipApplicationCommand";
 import DeclineMembershipApplicationCommand from "./declineMembershipApplicationCommand";
@@ -70,8 +71,8 @@ export const allCommands = () => {
     deleteClubCommands(),
     updateClubApplicationQuestionsCommands(),
     updateClubDisplayImageUrlsCommands(),
-    createMembershipTierCommands(),
-    updateMembershipTierCommands(),
+    createMembershipTierV2Commands(),
+    updateMembershipTierV2Commands(),
     deleteMembershipTierCommands(),
     publishMembershipTierCommands(),
     unpublishMembershipTierCommands(),
@@ -258,46 +259,57 @@ function monetaryValue(): Arbitrary<number> {
       .map((n) => n / 100)
   );
 }
+function billingIntervalArbitrary() {
+  return oneof(
+    constant(BillingInterval.MONTHLY),
+    constant(BillingInterval.QUARTERLY),
+    constant(BillingInterval.SEMI_ANNUAL)
+  );
+}
 
-function createMembershipTierCommands() {
+function createMembershipTierV2Commands() {
   return record({
     clubIdSelector: itemSelector<number>(),
     name: string(),
     benefitDescription: string(),
     contributionDescription: string(),
-    costPerMonthInUSD: monetaryValue(),
-    initiationFeeCostPerMonthInUSD: option(monetaryValue(), { freq: 2 })
+    costPerBillingInterval: monetaryValue(),
+    billingInterval: billingIntervalArbitrary(),
+    initiationFeeCostInUSD: option(monetaryValue(), { freq: 2 })
   }).map(
     (i) =>
-      new CreateMembershipTierCommand(
+      new CreateMembershipTierV2Command(
         {
           name: i.name,
           benefitDescription: i.benefitDescription,
           contributionDescription: i.contributionDescription,
-          costPerMonthInUSD: i.costPerMonthInUSD,
-          initiationFeeCostInUSD: i.initiationFeeCostPerMonthInUSD
+          costPerBillingInterval: i.costPerBillingInterval,
+          billingInterval: i.billingInterval,
+          initiationFeeCostInUSD: i.initiationFeeCostInUSD
         },
         i.clubIdSelector
       )
   );
 }
 
-function updateMembershipTierCommands() {
+function updateMembershipTierV2Commands() {
   return record({
     membershipTierIdSelector: itemSelector<number>(),
     name: string(),
     benefitDescription: string(),
     contributionDescription: string(),
-    costPerMonthInUSD: monetaryValue(),
+    costPerBillingInterval: monetaryValue(),
+    billingInterval: billingIntervalArbitrary(),
     initiationFeeCostInUSD: option(monetaryValue(), { freq: 4 })
   }).map(
     (i) =>
-      new UpdateMembershipTierCommand(
+      new UpdateMembershipTierV2Command(
         {
           name: i.name,
           benefitDescription: i.benefitDescription,
           contributionDescription: i.contributionDescription,
-          costPerMonthInUSD: i.costPerMonthInUSD,
+          costPerBillingInterval: i.costPerBillingInterval,
+          billingInterval: i.billingInterval,
           initiationFeeCostInUSD: i.initiationFeeCostInUSD
         },
         i.membershipTierIdSelector

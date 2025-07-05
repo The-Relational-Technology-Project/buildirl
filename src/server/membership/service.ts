@@ -17,7 +17,7 @@ import {
   MEMBERSHIP_SELECT,
   MEMBERSHIP_WITH_CLUB_SELECT
 } from "~/server/membership/utils";
-import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
+import { isPrismaResultDefaultFreeTierV2 } from "~/server/membershipTier/utils";
 import { UserService } from "~/server/user/types";
 import { FollowingService } from "~/server/following/types";
 import { Maybe } from "~/utils/types";
@@ -188,7 +188,7 @@ export function createMembershipService(
     await checkUserDoesNotHaveActiveMembershipForClub(userId, clubId);
     const existingMembership = await userMembershipForClub(userId, clubId);
     const isDefaultFreeTier =
-      await membershipTierService.isDefaultFreeTierById(membershipTierId);
+      await membershipTierService.isDefaultFreeTierByIdV2(membershipTierId);
     if (null === existingMembership) {
       return await createMembershipApplication(
         membershipTierId,
@@ -266,7 +266,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     try {
-      const { customerId } = await paymentService.createCustomerForMembership(
+      const { customerId } = await paymentService.createCustomerForMembershipV2(
         membershipId,
         tx
       );
@@ -594,7 +594,8 @@ export function createMembershipService(
         stripeSetupIntentId: true,
         membershipTier: {
           select: {
-            costPerMonthInUSD: true
+            costPerMonthInUSD: true,
+            costPerBillingInterval: true
           }
         }
       },
@@ -602,7 +603,7 @@ export function createMembershipService(
     });
 
     // free tier does not have setup intent
-    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
+    if (isPrismaResultDefaultFreeTierV2(membership.membershipTier)) {
       return;
     }
 
