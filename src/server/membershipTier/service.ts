@@ -1,7 +1,7 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
-import { DEFAULT_FREE_MEMBERSHIP_TIER } from "~/server/utils/defaults";
+import { DEFAULT_FREE_MEMBERSHIP_TIER_V2 } from "~/server/utils/defaults";
 import {
   CreateMembershipTierInput,
   CreateMembershipTierInputV2,
@@ -196,9 +196,9 @@ export function createMembershipTierService(
     clubId: number,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
-    return createMembershipTierInTransaction(
+    return createMembershipTierV2InTransaction(
       clubId,
-      DEFAULT_FREE_MEMBERSHIP_TIER,
+      DEFAULT_FREE_MEMBERSHIP_TIER_V2,
       tx
     );
   }
@@ -268,7 +268,7 @@ export function createMembershipTierService(
     }
   }
   async function checkIsNotDefaultFreeMembershipTier(membershipTierId: number) {
-    if (await isDefaultFreeTierById(membershipTierId)) {
+    if (await isDefaultFreeTierByIdV2(membershipTierId)) {
       throw new Error("cannot delete default free membership tier");
     }
   }

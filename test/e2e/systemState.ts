@@ -4,7 +4,7 @@ import { FormQuestions, FormResponses } from "~/server/club/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
 import {
   DEFAULT_APPLICATION_QUESTIONS,
-  DEFAULT_FREE_MEMBERSHIP_TIER
+  DEFAULT_FREE_MEMBERSHIP_TIER_V2
 } from "~/server/utils/defaults";
 import {
   EmailTemplateType,
@@ -305,10 +305,10 @@ export class SystemState {
     freeMembershipTierId: number,
     clubId: number
   ) {
-    this.createMembershipTier(
+    this.createMembershipTierV2(
       freeMembershipTierId,
       clubId,
-      DEFAULT_FREE_MEMBERSHIP_TIER
+      DEFAULT_FREE_MEMBERSHIP_TIER_V2
     );
   }
 
