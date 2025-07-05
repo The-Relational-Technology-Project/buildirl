@@ -7,16 +7,6 @@ export const DEFAULT_FREE_MEMBERSHIP_TIER = {
     "Weekly meetups (rain or shine), member-only whatsapp, IRL hangs, and sweet local perks.",
   contributionDescription:
     "We're member-led — so co-host, pitch in, or just show up. Your dues cover venues, snacks, and all the magic-making essentials. 💛",
-  costPerMonthInUSD: 0,
-  initiationFeeCostInUSD: null
-};
-
-export const DEFAULT_FREE_MEMBERSHIP_TIER_V2 = {
-  name: "The Club Crew",
-  benefitDescription:
-    "Weekly meetups (rain or shine), member-only whatsapp, IRL hangs, and sweet local perks.",
-  contributionDescription:
-    "We're member-led — so co-host, pitch in, or just show up. Your dues cover venues, snacks, and all the magic-making essentials. 💛",
   costPerBillingInterval: 0,
   billingInterval: BillingInterval.MONTHLY,
   initiationFeeCostInUSD: null

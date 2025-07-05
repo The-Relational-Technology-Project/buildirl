@@ -54,16 +54,8 @@ export function orderedByCost(
 
 export function isPrismaResultDefaultFreeTier(membershipTier: {
   costPerMonthInUSD: Prisma.Decimal;
-}): boolean {
-  // this is the definition of default free tier
-  return membershipTier.costPerMonthInUSD.toNumber() === 0;
-}
-
-export function isPrismaResultDefaultFreeTierV2(membershipTier: {
-  costPerMonthInUSD: Prisma.Decimal;
   costPerBillingInterval: Prisma.Decimal | null;
 }): boolean {
-  // V2 definition: use costPerBillingInterval if available, fallback to costPerMonthInUSD
   const effectiveCost = membershipTier.costPerBillingInterval !== null 
     ? membershipTier.costPerBillingInterval.toNumber()
     : membershipTier.costPerMonthInUSD.toNumber();
@@ -74,7 +66,6 @@ export function getEffectiveCost(membershipTier: {
   costPerMonthInUSD: Prisma.Decimal;
   costPerBillingInterval: Prisma.Decimal | null;
 }): number {
-  // Helper function to get the effective cost for V2 tiers
   return membershipTier.costPerBillingInterval !== null 
     ? membershipTier.costPerBillingInterval.toNumber()
     : membershipTier.costPerMonthInUSD.toNumber();

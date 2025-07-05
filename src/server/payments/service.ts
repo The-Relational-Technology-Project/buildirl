@@ -15,9 +15,9 @@ import {
   CreateCustomerForMembershipResult,
   CreateSubscriptionForMembershipInput,
   CreateSubscriptionForMembershipResult,
-  CreateProductAndPricesForMembershipTierInputV2,
+  CreateProductAndPricesForMembershipTierInput,
   CreateProductAndPricesForMembershipTierResult,
-  UpdateProductAndPricesForMembershipTierInputV2,
+  UpdateProductAndPricesForMembershipTierInput,
   UpdateProductAndPricesForMembershipTierResult,
   CancelSubscriptionResult
 } from "~/server/payments/types";
@@ -298,7 +298,7 @@ export function createPaymentService(
     }
   }
 
-  async function createCustomerForMembershipV2(
+  async function createCustomerForMembership(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ): Promise<CreateCustomerForMembershipResult> {
@@ -534,8 +534,8 @@ export function createPaymentService(
     }
   }
 
-  async function createProductAndPricesForMembershipTierV2(
-    input: CreateProductAndPricesForMembershipTierInputV2,
+  async function createProductAndPricesForMembershipTier(
+    input: CreateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<CreateProductAndPricesForMembershipTierResult> {
     try {
@@ -564,7 +564,7 @@ export function createPaymentService(
       );
 
       const { productId, priceId, initiationFeePriceId } =
-        await stripeClient.createProductAndPricesForMembershipTierV2(
+        await stripeClient.createProductAndPricesForMembershipTier(
           {
             name: input.name,
             description: input.description ?? undefined,
@@ -714,8 +714,8 @@ export function createPaymentService(
     }
   }
 
-  async function updateProductAndPricesForMembershipTierV2(
-    input: UpdateProductAndPricesForMembershipTierInputV2,
+  async function updateProductAndPricesForMembershipTier(
+    input: UpdateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<UpdateProductAndPricesForMembershipTierResult> {
     try {
@@ -758,7 +758,7 @@ export function createPaymentService(
       );
 
       const { updatedPriceId, updatedInitiationFeePriceId } =
-        await stripeClient.updateProductAndPricesForMembershipTierV2(
+        await stripeClient.updateProductAndPricesForMembershipTier(
           {
             productId: membershipTier.stripeProductId,
             name: input.name,
@@ -787,7 +787,6 @@ export function createPaymentService(
     }
   }
 
-  // @ts-expect-error - Temporary during V1 removal, fixed in Step 2
   return {
     getAccountStatus,
     getSubscriptionStatus,
@@ -795,12 +794,12 @@ export function createPaymentService(
     createAccountLink,
     createCheckoutSession,
     createCustomerPortalSession,
-    createCustomerForMembershipV2,
+    createCustomerForMembership,
     createSubscriptionForMembership,
     cancelSubscription,
-    createProductAndPricesForMembershipTierV2,
+    createProductAndPricesForMembershipTier,
     archiveProductAndPricesForMembershipTier,
     publishProductAndPricesForMembershipTier,
-    updateProductAndPricesForMembershipTierV2
+    updateProductAndPricesForMembershipTier
   };
 }

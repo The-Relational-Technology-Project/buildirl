@@ -1,16 +1,15 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
-import { DEFAULT_FREE_MEMBERSHIP_TIER_V2 } from "~/server/utils/defaults";
+import { DEFAULT_FREE_MEMBERSHIP_TIER } from "~/server/utils/defaults";
 import {
-  CreateMembershipTierInputV2,
+  CreateMembershipTierInput,
   MembershipTierService,
-  UpdateMembershipTierInput,
-  UpdateMembershipTierInputV2
+  UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import { 
-  isPrismaResultDefaultFreeTierV2
+  isPrismaResultDefaultFreeTier
 } from "~/server/membershipTier/utils";
 import { PaymentService } from "~/server/payments/types";
 
@@ -20,18 +19,18 @@ export function createMembershipTierService(
   prisma: PrismaClient,
   paymentService: PaymentService
 ): MembershipTierService {
-  async function createMembershipTierV2(
+  async function createMembershipTier(
     clubId: number,
-    input: CreateMembershipTierInputV2
+    input: CreateMembershipTierInput
   ): Promise<MutationResult> {
     return prisma.$transaction(async (tx) => {
-      return createMembershipTierV2InTransaction(clubId, input, tx);
+      return createMembershipTierInTransaction(clubId, input, tx);
     });
   }
 
-  async function createMembershipTierV2InTransaction(
+  async function createMembershipTierInTransaction(
     clubId: number,
-    input: CreateMembershipTierInputV2,
+    input: CreateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
@@ -49,29 +48,29 @@ export function createMembershipTierService(
         }
       });
 
-      await createStripeProductAndPricesV2(id, input, tx);
+      await createStripeProductAndPrices(id, input, tx);
 
       logger.info(
-        `created V2 membership tier from input ${stringify(input)} with id ${id}`
+        `created membership tier from input ${stringify(input)} with id ${id}`
       );
       return { createdEntityId: id };
     } catch (e) {
       logger.error(
         e,
-        `failed to create V2 membership tier from input ${stringify(input)}`
+        `failed to create membership tier from input ${stringify(input)}`
       );
       throw e;
     }
   }
 
-  async function createStripeProductAndPricesV2(
+  async function createStripeProductAndPrices(
     membershipTierId: number,
-    input: CreateMembershipTierInputV2,
+    input: CreateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {
       const { productId, priceId, initiationFeePriceId } =
-        await paymentService.createProductAndPricesForMembershipTierV2(
+        await paymentService.createProductAndPricesForMembershipTier(
           {
             name: input.name,
             description: input.benefitDescription,
@@ -94,13 +93,13 @@ export function createMembershipTierService(
           }
         });
         logger.info(
-          `updated V2 membership tier with id ${membershipTierId} with stripeProductId ${productId}, stripePriceId ${priceId}, and initiationFeeStripePriceId ${initiationFeePriceId}`
+          `updated membership tier with id ${membershipTierId} with stripeProductId ${productId}, stripePriceId ${priceId}, and initiationFeeStripePriceId ${initiationFeePriceId}`
         );
       }
     } catch (e) {
       logger.error(
         e,
-        `failed to create stripe product and prices for V2 membership tier with id ${membershipTierId}`
+        `failed to create stripe product and prices for membership tier with id ${membershipTierId}`
       );
       throw e;
     }
@@ -110,9 +109,9 @@ export function createMembershipTierService(
     clubId: number,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
-    return createMembershipTierV2InTransaction(
+    return createMembershipTierInTransaction(
       clubId,
-      DEFAULT_FREE_MEMBERSHIP_TIER_V2,
+      DEFAULT_FREE_MEMBERSHIP_TIER,
       tx
     );
   }
@@ -140,7 +139,7 @@ export function createMembershipTierService(
     }
   }
 
-  async function isDefaultFreeTierByIdV2(
+  async function isDefaultFreeTierById(
     membershipTierId: number
   ): Promise<boolean> {
     try {
@@ -149,30 +148,30 @@ export function createMembershipTierService(
         select: { costPerMonthInUSD: true, costPerBillingInterval: true }
       });
       logger.info(
-        `checked if membership tier with id ${membershipTierId} is V2 free tier with result ${isPrismaResultDefaultFreeTierV2(membershipTier)}`
+        `checked if membership tier with id ${membershipTierId} is free tier with result ${isPrismaResultDefaultFreeTier(membershipTier)}`
       );
-      return isPrismaResultDefaultFreeTierV2(membershipTier);
+      return isPrismaResultDefaultFreeTier(membershipTier);
     } catch (e) {
       logger.error(
         e,
-        `failed to check if membership tier with id ${membershipTierId} is V2 free tier`
+        `failed to check if membership tier with id ${membershipTierId} is free tier`
       );
       throw e;
     }
   }
 
   async function checkIsNotDefaultFreeMembershipTier(membershipTierId: number) {
-    if (await isDefaultFreeTierByIdV2(membershipTierId)) {
+    if (await isDefaultFreeTierById(membershipTierId)) {
       throw new Error("cannot delete default free membership tier");
     }
   }
 
-  async function checkIsNotDefaultFreeMembershipTierAndUpdatingCostV2(
+  async function checkIsNotDefaultFreeMembershipTierAndUpdatingCost(
     membershipTierId: number,
-    input: UpdateMembershipTierInputV2
+    input: UpdateMembershipTierInput
   ) {
     if (
-      (await isDefaultFreeTierByIdV2(membershipTierId)) &&
+      (await isDefaultFreeTierById(membershipTierId)) &&
       input.costPerBillingInterval !== 0
     ) {
       throw new Error(
@@ -181,21 +180,21 @@ export function createMembershipTierService(
     }
   }
 
-  async function checkIsNotUpdatingMembershipTierToZeroCostV2(
+  async function checkIsNotUpdatingMembershipTierToZeroCost(
     membershipTierId: number,
-    input: UpdateMembershipTierInputV2
+    input: UpdateMembershipTierInput
   ) {
     if (
-      !(await isDefaultFreeTierByIdV2(membershipTierId)) &&
+      !(await isDefaultFreeTierById(membershipTierId)) &&
       input.costPerBillingInterval === 0
     ) {
       throw new Error("cannot update cost of membership tier to zero value");
     }
   }
 
-  async function isUpdateOnCostPerBillingIntervalV2(
+  async function isUpdateOnCostPerBillingInterval(
     membershipTierId: number,
-    input: UpdateMembershipTierInputV2
+    input: UpdateMembershipTierInput
   ): Promise<boolean> {
     try {
       const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
@@ -210,7 +209,7 @@ export function createMembershipTierService(
       const currentInterval = membershipTier.billingInterval;
 
       logger.info(
-        `queried V2 cost and interval for membership tier with id ${membershipTierId} with result cost=${currentCost}, interval=${currentInterval}`
+        `queried cost and interval for membership tier with id ${membershipTierId} with result cost=${currentCost}, interval=${currentInterval}`
       );
       
       return (
@@ -220,17 +219,17 @@ export function createMembershipTierService(
     } catch (e) {
       logger.error(
         e,
-        `failed to query V2 cost and interval for membership tier with id ${membershipTierId}`
+        `failed to query cost and interval for membership tier with id ${membershipTierId}`
       );
       throw e;
     }
   }
 
-  async function checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTierV2(
+  async function checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTier(
     membershipTierId: number,
-    input: UpdateMembershipTierInputV2
+    input: UpdateMembershipTierInput
   ): Promise<void> {
-    const updatingCost = await isUpdateOnCostPerBillingIntervalV2(
+    const updatingCost = await isUpdateOnCostPerBillingInterval(
       membershipTierId,
       input
     );
@@ -313,30 +312,29 @@ export function createMembershipTierService(
     }
   }
 
-  async function updateMembershipTierV2(
+  async function updateMembershipTier(
     id: number,
-    input: UpdateMembershipTierInputV2
+    input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
-    await checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTierV2(
+    await checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTier(
       id,
       input
     );
-    // Initiation fee validation is the same for V1 and V2, so we create a compatible input
     await checkNotUpdatingInitiationFeeCostInUSDWithPendingApplicationsOnMembershipTier(
       id,
-      { ...input, costPerMonthInUSD: 0 } // Add required V1 field for validation
+      input
     );
-    await checkIsNotDefaultFreeMembershipTierAndUpdatingCostV2(id, input);
-    await checkIsNotUpdatingMembershipTierToZeroCostV2(id, input);
+    await checkIsNotDefaultFreeMembershipTierAndUpdatingCost(id, input);
+    await checkIsNotUpdatingMembershipTierToZeroCost(id, input);
 
     return prisma.$transaction(async (tx) => {
-      return updateMembershipTierV2InTransaction(id, input, tx);
+      return updateMembershipTierInTransaction(id, input, tx);
     });
   }
 
-  async function updateMembershipTierV2InTransaction(
+  async function updateMembershipTierInTransaction(
     id: number,
-    input: UpdateMembershipTierInputV2,
+    input: UpdateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
@@ -351,29 +349,29 @@ export function createMembershipTierService(
         }
       });
 
-      await updateStripeProductAndPricesV2(id, input, tx);
+      await updateStripeProductAndPrices(id, input, tx);
 
       logger.info(
-        `updated V2 membership tier with id ${id} from input ${stringify(input)}`
+        `updated membership tier with id ${id} from input ${stringify(input)}`
       );
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(
         e,
-        `failed to update V2 membership tier with id ${id} from input ${stringify(input)}`
+        `failed to update membership tier with id ${id} from input ${stringify(input)}`
       );
       throw e;
     }
   }
 
-  async function updateStripeProductAndPricesV2(
+  async function updateStripeProductAndPrices(
     membershipTierId: number,
-    input: UpdateMembershipTierInputV2,
+    input: UpdateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {
       const { updatedPriceId, updatedInitiationFeePriceId } =
-        await paymentService.updateProductAndPricesForMembershipTierV2(
+        await paymentService.updateProductAndPricesForMembershipTier(
           {
             name: input.name,
             description: input.benefitDescription,
@@ -392,7 +390,7 @@ export function createMembershipTierService(
           data: { stripePriceId: updatedPriceId }
         });
         logger.info(
-          `updated V2 membership tier with id ${membershipTierId} with stripePriceId ${updatedPriceId}`
+          `updated membership tier with id ${membershipTierId} with stripePriceId ${updatedPriceId}`
         );
       }
       if (!!updatedInitiationFeePriceId) {
@@ -404,13 +402,13 @@ export function createMembershipTierService(
           }
         });
         logger.info(
-          `updated V2 membership tier with id ${membershipTierId} with initiationFeeStripePriceId ${updatedInitiationFeePriceId.updatedPriceId}`
+          `updated membership tier with id ${membershipTierId} with initiationFeeStripePriceId ${updatedInitiationFeePriceId.updatedPriceId}`
         );
       }
     } catch (e) {
       logger.error(
         e,
-        `failed to update stripe product and prices for V2 membership tier with id ${membershipTierId}`
+        `failed to update stripe product and prices for membership tier with id ${membershipTierId}`
       );
       throw e;
     }
@@ -632,14 +630,12 @@ export function createMembershipTierService(
     }
   }
 
-  // @ts-expect-error - Temporary during V1 removal, fixed in Step 2
   return {
     isMembershipTierPublished,
-    isDefaultFreeTierById: isDefaultFreeTierByIdV2, // Temporary alias until Step 2
-    isDefaultFreeTierByIdV2,
+    isDefaultFreeTierById,
     getClubIdFromMembershipTierId,
-    createMembershipTierV2,
-    updateMembershipTierV2,
+    createMembershipTier,
+    updateMembershipTier,
     deleteMembershipTier,
     publishMembershipTier,
     unpublishMembershipTier,

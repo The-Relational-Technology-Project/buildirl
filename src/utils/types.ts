@@ -1,8 +1,8 @@
 import { z } from "zod";
 import {
-  CreateMembershipTierInputV2,
+  CreateMembershipTierInput,
   MembershipTier,
-  UpdateMembershipTierInputV2
+  UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
 import { MembershipWithClub } from "~/server/membership/types";
 import { Club } from "~/server/club/types";
@@ -45,11 +45,11 @@ export function idAsBigInt(maybeId: Maybe<Id>): bigint {
 export function isDefaultFreeTier(
   membershipTier:
     | MembershipTier
-    | CreateMembershipTierInputV2
-    | UpdateMembershipTierInputV2
+    | CreateMembershipTierInput
+    | UpdateMembershipTierInput
 ): boolean {
   // Temporary: once costPerMonthInUSD is removed from db, this won't be needed.
-  // For V2 input types, only check costPerBillingInterval
+  // For input types, only check costPerBillingInterval
   if ('costPerBillingInterval' in membershipTier && !('costPerMonthInUSD' in membershipTier)) {
     return membershipTier.costPerBillingInterval === 0;
   }

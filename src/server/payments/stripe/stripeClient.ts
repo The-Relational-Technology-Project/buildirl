@@ -20,9 +20,7 @@ import {
   SubscriptionStatusResponse,
   UpdateProductAndPricesForMembershipTierInput,
   UpdateProductAndPricesForMembershipTierResponse,
-  NullablePriceIdResponse,
-  CreateProductAndPricesForMembershipTierInputV2,
-  UpdateProductAndPricesForMembershipTierInputV2
+  NullablePriceIdResponse
 } from "~/server/payments/stripe/types";
 import { rootLogger } from "~/logger";
 import Stripe from "stripe";
@@ -111,37 +109,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     productId: string,
     priceInUSD: number,
     nickname: string,
-    isRecurring: boolean,
-    byAccountId: string
-  ): Promise<string> {
-    const price = await stripe.prices.create(
-      {
-        product: productId,
-        unit_amount: unitAmount(priceInUSD),
-        currency: "usd",
-        nickname: nickname,
-        recurring: isRecurring
-          ? {
-              interval: "month"
-            }
-          : undefined
-      },
-      {
-        stripeAccount: byAccountId
-      }
-    );
-
-    logger.info(
-      `created price ${price.id} for product ${productId} for amount $${priceInUSD} with account ${byAccountId}`
-    );
-
-    return price.id;
-  }
-
-  async function createPriceV2(
-    productId: string,
-    priceInUSD: number,
-    nickname: string,
     billingInterval: Maybe<BillingInterval>,
     byAccountId: string
   ): Promise<string> {
@@ -184,6 +151,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     return price.id;
   }
 
+
+
   async function createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
     byAccountId: string
@@ -205,62 +174,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
       const priceId = await createPrice(
         product.id,
-        input.pricePerMonthInUSD,
-        "monthly recurring",
-        true,
-        byAccountId
-      );
-
-      const maybeInitiationFeePriceId =
-        null === input.initiationFeeInUSD
-          ? null
-          : await createPrice(
-              product.id,
-              input.initiationFeeInUSD,
-              "initiation fee",
-              false,
-              byAccountId
-            );
-
-      logger.info(
-        `created product ${product.id} and price ${priceId}${null === maybeInitiationFeePriceId ? "" : ` and initiation fee price ${maybeInitiationFeePriceId}`} from input ${stringify(input)}`
-      );
-
-      return {
-        productId: product.id,
-        priceId: priceId,
-        initiationFeePriceId: maybeInitiationFeePriceId
-      };
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create product and price from input ${stringify(input)}`
-      );
-      throw e;
-    }
-  }
-
-  async function createProductAndPricesForMembershipTierV2(
-    input: CreateProductAndPricesForMembershipTierInputV2,
-    byAccountId: string
-  ): Promise<CreateProductAndPricesForMembershipTierResponse> {
-    try {
-      const product = await stripe.products.create(
-        {
-          name: input.name,
-          description: input.description,
-          active: true,
-          metadata: {
-            externalMembershipTierId: input.membershipTierId
-          }
-        },
-        {
-          stripeAccount: byAccountId
-        }
-      );
-
-      const priceId = await createPriceV2(
-        product.id,
         input.pricePerBillingInterval,
         "monthly recurring",
         input.billingInterval,
@@ -270,7 +183,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       const maybeInitiationFeePriceId =
         null === input.initiationFeeInUSD
           ? null
-          : await createPriceV2(
+          : await createPrice(
               product.id,
               input.initiationFeeInUSD,
               "initiation fee",
@@ -296,6 +209,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
+
+
   async function updateProductAndPricesForMembershipTier(
     input: UpdateProductAndPricesForMembershipTierInput,
     byAccountId: string
@@ -313,54 +228,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       );
 
       const updatedPriceId = await updatePriceIfAmountChanged(
-        input.productId,
-        input.priceId,
-        input.pricePerMonthInUSD,
-        true,
-        "monthly recurring",
-        byAccountId
-      );
-
-      const updatedInitiationFeePriceId =
-        await upsertNullablePriceIfAmountChanged(
-          input.productId,
-          input.initiationFee.priceId,
-          input.initiationFee.priceInUSD,
-          false,
-          "initiation fee",
-          byAccountId
-        );
-
-      logger.info(
-        `updated product ${input.productId} from input ${stringify(input)}`
-      );
-      return {
-        updatedPriceId,
-        updatedInitiationFeePriceId
-      };
-    } catch (e) {
-      logger.error(e, `failed to update product from ${stringify(input)}`);
-      throw e;
-    }
-  }
-
-  async function updateProductAndPricesForMembershipTierV2(
-    input: UpdateProductAndPricesForMembershipTierInputV2,
-    byAccountId: string
-  ): Promise<UpdateProductAndPricesForMembershipTierResponse> {
-    try {
-      await stripe.products.update(
-        input.productId,
-        {
-          name: input.name,
-          description: input.description
-        },
-        {
-          stripeAccount: byAccountId
-        }
-      );
-
-      const updatedPriceId = await updatePriceIfAmountChangedV2(
         input.productId,
         input.priceId,
         input.pricePerBillingInterval,
@@ -393,62 +260,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
   }
 
   async function updatePriceIfAmountChanged(
-    productId: string,
-    currentPriceId: string,
-    newPriceInUSD: number,
-    isRecurring: boolean,
-    nickname: string,
-    byAccountId: string
-  ): Promise<Maybe<string>> {
-    try {
-      const existingPrice = await stripe.prices.retrieve(currentPriceId, {
-        stripeAccount: byAccountId
-      });
-      if (existingPrice.unit_amount !== unitAmount(newPriceInUSD)) {
-        const newPrice = await stripe.prices.create(
-          {
-            product: productId,
-            unit_amount: unitAmount(newPriceInUSD),
-            currency: "usd",
-            nickname: nickname,
-            recurring: isRecurring
-              ? {
-                  interval: "month"
-                }
-              : undefined
-          },
-          {
-            stripeAccount: byAccountId
-          }
-        );
-        // deactivate old price
-        await stripe.prices.update(
-          currentPriceId,
-          { active: false },
-          {
-            stripeAccount: byAccountId
-          }
-        );
-        logger.info(
-          `updated price for product ${productId} from price ${currentPriceId} to new price ${newPrice.id} with amount ${newPrice} `
-        );
-        return newPrice.id;
-      }
-      logger.info(
-        `did not update price for product ${productId} and price ${currentPriceId} because there was no price change`
-      );
-      // else no updated price id
-      return null;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to update price for product ${productId} and price ${currentPriceId} to ${newPriceInUSD}`
-      );
-      throw e;
-    }
-  }
-
-  async function updatePriceIfAmountChangedV2(
     productId: string,
     currentPriceId: string,
     newPriceInUSD: number,
@@ -485,7 +296,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       }
 
       if (hasPriceChanged || hasIntervalChanged) {
-        const newPriceId = await createPriceV2(
+        const newPriceId = await createPrice(
           productId,
           newPriceInUSD,
           nickname,
@@ -540,7 +351,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         productId,
         newPriceInUSD,
         nickname,
-        isRecurring,
+        null,
         byAccountId
       );
       return { updatedPriceId: priceId };
@@ -565,7 +376,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       productId,
       currentPriceId,
       newPriceInUSD,
-      isRecurring,
+      null,
       nickname,
       byAccountId
     );
@@ -916,9 +727,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     createAccountLink,
     getAccountStatus,
     createProductAndPricesForMembershipTier,
-    createProductAndPricesForMembershipTierV2,
     updateProductAndPricesForMembershipTier,
-    updateProductAndPricesForMembershipTierV2,
     archiveProductAndPricesForMembershipTier,
     publishProductAndPricesForMembershipTier,
     createCustomerForMembership,

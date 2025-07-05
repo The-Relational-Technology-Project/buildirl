@@ -30,8 +30,8 @@ import CreateClubCommand from "./createClubCommand";
 import { isZodType } from "~/utils/zod";
 import UpdateClubCommand from "./updateClubCommand";
 import UpdateClubApplicationQuestionsCommand from "./updateClubApplicationQuestionsCommand";
-import CreateMembershipTierV2Command from "./createMembershipTierV2Command";
-import UpdateMembershipTierV2Command from "./updateMembershipTierV2Command";
+import CreateMembershipTierCommand from "./createMembershipTierCommand";
+import UpdateMembershipTierCommand from "./updateMembershipTierCommand";
 import SubmitMembershipApplicationCommand from "./submitMembershipApplicationCommand";
 import ApproveMembershipApplicationCommand from "./approveMembershipApplicationCommand";
 import DeclineMembershipApplicationCommand from "./declineMembershipApplicationCommand";
@@ -71,8 +71,8 @@ export const allCommands = () => {
     deleteClubCommands(),
     updateClubApplicationQuestionsCommands(),
     updateClubDisplayImageUrlsCommands(),
-    createMembershipTierV2Commands(),
-    updateMembershipTierV2Commands(),
+    createMembershipTierCommands(),
+    updateMembershipTierCommands(),
     deleteMembershipTierCommands(),
     publishMembershipTierCommands(),
     unpublishMembershipTierCommands(),
@@ -267,7 +267,7 @@ function billingIntervalArbitrary() {
   );
 }
 
-function createMembershipTierV2Commands() {
+function createMembershipTierCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
     name: string(),
@@ -278,7 +278,7 @@ function createMembershipTierV2Commands() {
     initiationFeeCostInUSD: option(monetaryValue(), { freq: 2 })
   }).map(
     (i) =>
-      new CreateMembershipTierV2Command(
+      new CreateMembershipTierCommand(
         {
           name: i.name,
           benefitDescription: i.benefitDescription,
@@ -292,7 +292,7 @@ function createMembershipTierV2Commands() {
   );
 }
 
-function updateMembershipTierV2Commands() {
+function updateMembershipTierCommands() {
   return record({
     membershipTierIdSelector: itemSelector<number>(),
     name: string(),
@@ -303,7 +303,7 @@ function updateMembershipTierV2Commands() {
     initiationFeeCostInUSD: option(monetaryValue(), { freq: 4 })
   }).map(
     (i) =>
-      new UpdateMembershipTierV2Command(
+      new UpdateMembershipTierCommand(
         {
           name: i.name,
           benefitDescription: i.benefitDescription,

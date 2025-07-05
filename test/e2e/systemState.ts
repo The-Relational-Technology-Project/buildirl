@@ -4,7 +4,7 @@ import { FormQuestions, FormResponses } from "~/server/club/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
 import {
   DEFAULT_APPLICATION_QUESTIONS,
-  DEFAULT_FREE_MEMBERSHIP_TIER_V2
+  DEFAULT_FREE_MEMBERSHIP_TIER
 } from "~/server/utils/defaults";
 import {
   EmailTemplateType,
@@ -34,10 +34,8 @@ import {
 } from "~/server/membership/types";
 import {
   CreateMembershipTierInput,
-  CreateMembershipTierInputV2,
   MembershipTier,
-  UpdateMembershipTierInput,
-  UpdateMembershipTierInputV2
+  UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
 import { CreateUserInput, UpdateUserInput, User } from "~/server/user/types";
 import { stringify } from "~/utils";
@@ -305,10 +303,10 @@ export class SystemState {
     freeMembershipTierId: number,
     clubId: number
   ) {
-    this.createMembershipTierV2(
+    this.createMembershipTier(
       freeMembershipTierId,
       clubId,
-      DEFAULT_FREE_MEMBERSHIP_TIER_V2
+      DEFAULT_FREE_MEMBERSHIP_TIER
     );
   }
 
@@ -392,40 +390,6 @@ export class SystemState {
       status: "PUBLISHED",
       benefitDescription: input.benefitDescription,
       contributionDescription: input.contributionDescription,
-      costPerMonthInUSD: input.costPerMonthInUSD,
-      costPerBillingInterval: null,
-      billingInterval: null,
-      initiationFeeCostInUSD: input.initiationFeeCostInUSD
-    });
-    // link the membership tier to the club
-    const clubState = this.getClubState(clubId);
-    clubState.membershipTierIds.push(membershipTierId);
-  }
-
-  public updateMembershipTier(id: number, input: UpdateMembershipTierInput) {
-    const membershipTier = this.getMembershipTier(id);
-    this.membershipTiers.set(id, {
-      ...membershipTier,
-      ...input
-    });
-  }
-
-  public createMembershipTierV2(
-    membershipTierId: number,
-    clubId: number,
-    input: CreateMembershipTierInputV2
-  ) {
-    if (!!this.membershipTiers.get(membershipTierId)) {
-      throw new Error(
-        `membership tier with id ${membershipTierId} already exists`
-      );
-    }
-    this.membershipTiers.set(membershipTierId, {
-      id: membershipTierId,
-      name: input.name,
-      status: "PUBLISHED",
-      benefitDescription: input.benefitDescription,
-      contributionDescription: input.contributionDescription,
       // "Pass 0" strategy for V1 compatibility
       costPerMonthInUSD: 0,
       costPerBillingInterval: input.costPerBillingInterval,
@@ -437,7 +401,7 @@ export class SystemState {
     clubState.membershipTierIds.push(membershipTierId);
   }
 
-  public updateMembershipTierV2(id: number, input: UpdateMembershipTierInputV2) {
+  public updateMembershipTier(id: number, input: UpdateMembershipTierInput) {
     const membershipTier = this.getMembershipTier(id);
     this.membershipTiers.set(id, {
       ...membershipTier,
