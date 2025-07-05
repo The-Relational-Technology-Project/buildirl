@@ -15,10 +15,8 @@ import {
   CreateCustomerForMembershipResult,
   CreateSubscriptionForMembershipInput,
   CreateSubscriptionForMembershipResult,
-  CreateProductAndPricesForMembershipTierInput,
   CreateProductAndPricesForMembershipTierInputV2,
   CreateProductAndPricesForMembershipTierResult,
-  UpdateProductAndPricesForMembershipTierInput,
   UpdateProductAndPricesForMembershipTierInputV2,
   UpdateProductAndPricesForMembershipTierResult,
   CancelSubscriptionResult
@@ -300,83 +298,6 @@ export function createPaymentService(
     }
   }
 
-  async function createCustomerForMembership(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ): Promise<CreateCustomerForMembershipResult> {
-    try {
-      const membership = await tx.membership.findUniqueOrThrow({
-        where: { id: membershipId },
-        select: {
-          stripeCustomerId: true,
-          membershipTier: {
-            select: {
-              costPerMonthInUSD: true
-            }
-          },
-          user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              settings: {
-                select: { email: true }
-              }
-            }
-          }
-        }
-      });
-
-      if (membership.stripeCustomerId !== null) {
-        // already have a stripeCustomerId, no need to create a new one
-        logger.info(
-          `membership with id ${membershipId} already has stripeCustomerId ${membership.stripeCustomerId}`
-        );
-        return { customerId: membership.stripeCustomerId };
-      }
-
-      // no Stripe customer needed for default free tier
-      if (membership.membershipTier.costPerMonthInUSD.toNumber() === 0) {
-        logger.info(
-          `membership with id ${membershipId} is free tier, no Stripe customer needed`
-        );
-        return { customerId: null };
-      }
-
-      if (!membership.user.settings?.email) {
-        throw new Error(
-          `user with id ${membership.user.id} has no settings with email to create Stripe customer`
-        );
-      }
-
-      const accountId = await accountIdResolver.fromMembershipInTransaction(
-        membershipId,
-        tx
-      );
-
-      const response = await stripeClient.createCustomerForMembership(
-        {
-          email: membership.user.settings.email,
-          name: `${membership.user.firstName} ${membership.user.lastName}`,
-          membershipId: membershipId
-        },
-        accountId
-      );
-
-      logger.info(
-        `created stripe customer ${response.customerId} for membership with id ${membershipId}`
-      );
-
-      return { customerId: response.customerId };
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe customer for membership with id ${membershipId}`
-      );
-      throw e;
-    }
-  }
-
   async function createCustomerForMembershipV2(
     membershipId: bigint,
     tx: Prisma.TransactionClient
@@ -471,6 +392,7 @@ export function createPaymentService(
               id: true,
               stripePriceId: true,
               costPerMonthInUSD: true,
+              costPerBillingInterval: true,
               initiationFeeStripePriceId: true,
               club: {
                 select: {
@@ -484,8 +406,11 @@ export function createPaymentService(
         where: { id: input.membershipId }
       });
 
+      const cost =
+        membership.membershipTier.costPerBillingInterval ??
+        membership.membershipTier.costPerMonthInUSD;
       // free tier does not need to create subscription
-      if (membership.membershipTier.costPerMonthInUSD.toNumber() === 0) {
+      if (cost.toNumber() === 0) {
         logger.info(
           `membership with id ${input.membershipId} is free tier, no subscription needed`
         );
@@ -557,7 +482,8 @@ export function createPaymentService(
         select: {
           membershipTier: {
             select: {
-              costPerMonthInUSD: true
+              costPerMonthInUSD: true,
+              costPerBillingInterval: true
             }
           },
           stripeSubscriptionId: true
@@ -565,8 +491,11 @@ export function createPaymentService(
         where: { id: membershipId }
       });
 
+      const cost =
+        membership.membershipTier.costPerBillingInterval ??
+        membership.membershipTier.costPerMonthInUSD;
       // free tier does not need to cancel subscription
-      if (membership.membershipTier.costPerMonthInUSD.toNumber() === 0) {
+      if (cost.toNumber() === 0) {
         logger.info(
           `membership with id ${membershipId} is free tier, no subscription to cancel`
         );
@@ -600,56 +529,6 @@ export function createPaymentService(
       logger.error(
         e,
         `failed to cancel stripe subscription for membership with id ${membershipId}`
-      );
-      throw e;
-    }
-  }
-
-  async function createProductAndPricesForMembershipTier(
-    input: CreateProductAndPricesForMembershipTierInput,
-    tx: Prisma.TransactionClient
-  ): Promise<CreateProductAndPricesForMembershipTierResult> {
-    try {
-      const membershipTier = await tx.membershipTier.findUniqueOrThrow({
-        where: { id: input.membershipTierId },
-        select: {
-          costPerMonthInUSD: true
-        }
-      });
-
-      // free tier does not require Stripe product and prices
-      if (membershipTier.costPerMonthInUSD.toNumber() === 0) {
-        logger.info(
-          `membership tier with id ${input.membershipTierId} is free tier, no Stripe products needed`
-        );
-        return { productId: null, priceId: null, initiationFeePriceId: null };
-      }
-
-      const accountId = await accountIdResolver.fromMembershipTierInTransaction(
-        input.membershipTierId,
-        tx
-      );
-
-      const { productId, priceId, initiationFeePriceId } =
-        await stripeClient.createProductAndPricesForMembershipTier(
-          {
-            name: input.name,
-            description: input.description ?? undefined,
-            pricePerMonthInUSD: input.pricePerMonthInUSD,
-            initiationFeeInUSD: input.initiationFeeInUSD,
-            membershipTierId: input.membershipTierId
-          },
-          accountId
-        );
-
-      logger.info(
-        `created stripe product ${productId} with price ${priceId} for membership tier with id ${input.membershipTierId}`
-      );
-      return { productId, priceId, initiationFeePriceId };
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe product and prices for membership tier with id ${input.membershipTierId}`
       );
       throw e;
     }
@@ -718,6 +597,7 @@ export function createPaymentService(
       const membershipTier = await tx.membershipTier.findUniqueOrThrow({
         select: {
           costPerMonthInUSD: true,
+          costPerBillingInterval: true,
           stripeProductId: true,
           stripePriceId: true,
           initiationFeeStripePriceId: true
@@ -725,8 +605,11 @@ export function createPaymentService(
         where: { id: membershipTierId }
       });
 
+      const cost =
+        membershipTier.costPerBillingInterval ??
+        membershipTier.costPerMonthInUSD;
       // free tier does not need to archive product
-      if (membershipTier.costPerMonthInUSD.toNumber() === 0) {
+      if (cost.toNumber() === 0) {
         logger.info(
           `membership tier with id ${membershipTierId} is free tier, no Stripe products to archive`
         );
@@ -778,6 +661,7 @@ export function createPaymentService(
       const membershipTier = await tx.membershipTier.findUniqueOrThrow({
         select: {
           costPerMonthInUSD: true,
+          costPerBillingInterval: true,
           stripeProductId: true,
           stripePriceId: true,
           initiationFeeStripePriceId: true
@@ -785,8 +669,11 @@ export function createPaymentService(
         where: { id: membershipTierId }
       });
 
+      const cost =
+        membershipTier.costPerBillingInterval ??
+        membershipTier.costPerMonthInUSD;
       // free tier does not need to publish product
-      if (membershipTier.costPerMonthInUSD.toNumber() === 0) {
+      if (cost.toNumber() === 0) {
         logger.info(
           `membership tier with id ${membershipTierId} is free tier, no Stripe products to publish`
         );
@@ -822,74 +709,6 @@ export function createPaymentService(
       logger.error(
         e,
         `failed to publish stripe product and prices for membership tier with id ${membershipTierId}`
-      );
-      throw e;
-    }
-  }
-
-  async function updateProductAndPricesForMembershipTier(
-    input: UpdateProductAndPricesForMembershipTierInput,
-    tx: Prisma.TransactionClient
-  ): Promise<UpdateProductAndPricesForMembershipTierResult> {
-    try {
-      const membershipTier = await tx.membershipTier.findUniqueOrThrow({
-        where: { id: input.membershipTierId },
-        select: {
-          costPerMonthInUSD: true,
-          stripeProductId: true,
-          stripePriceId: true,
-          initiationFeeStripePriceId: true
-        }
-      });
-
-      // free tier does not require Stripe product and prices
-      if (membershipTier.costPerMonthInUSD.toNumber() === 0) {
-        logger.info(
-          `membership tier with id ${input.membershipTierId} is free tier, no Stripe products to update`
-        );
-        return { updatedPriceId: null, updatedInitiationFeePriceId: null };
-      }
-
-      if (!membershipTier.stripeProductId) {
-        throw new Error(
-          `membership tier with id ${input.membershipTierId} requires stripeProductId to be updated`
-        );
-      }
-      if (!membershipTier.stripePriceId) {
-        throw new Error(
-          `membership tier with id ${input.membershipTierId} requires stripePriceId to be updated`
-        );
-      }
-
-      const accountId = await accountIdResolver.fromMembershipTierInTransaction(
-        input.membershipTierId,
-        tx
-      );
-
-      const { updatedPriceId, updatedInitiationFeePriceId } =
-        await stripeClient.updateProductAndPricesForMembershipTier(
-          {
-            productId: membershipTier.stripeProductId,
-            name: input.name,
-            description: input.description,
-            priceId: membershipTier.stripePriceId,
-            pricePerMonthInUSD: input.pricePerMonthInUSD,
-            initiationFee: {
-              priceId: membershipTier.initiationFeeStripePriceId,
-              priceInUSD: input.initiationFeeInUSD
-            }
-          },
-          accountId
-        );
-
-      logger.info(
-        `updated stripe product ${membershipTier.stripeProductId} for membership tier with id ${input.membershipTierId}`
-      );
-      return { updatedPriceId, updatedInitiationFeePriceId };
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to update stripe product and prices for membership tier with id ${input.membershipTierId}`
       );
       throw e;
     }
@@ -968,6 +787,7 @@ export function createPaymentService(
     }
   }
 
+  // @ts-expect-error - Temporary during V1 removal, fixed in Step 2
   return {
     getAccountStatus,
     getSubscriptionStatus,
@@ -975,15 +795,12 @@ export function createPaymentService(
     createAccountLink,
     createCheckoutSession,
     createCustomerPortalSession,
-    createCustomerForMembership,
     createCustomerForMembershipV2,
     createSubscriptionForMembership,
     cancelSubscription,
-    createProductAndPricesForMembershipTier,
     createProductAndPricesForMembershipTierV2,
     archiveProductAndPricesForMembershipTier,
     publishProductAndPricesForMembershipTier,
-    updateProductAndPricesForMembershipTier,
     updateProductAndPricesForMembershipTierV2
   };
 }
