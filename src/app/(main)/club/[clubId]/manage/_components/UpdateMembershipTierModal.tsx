@@ -13,7 +13,7 @@ import {
   Tooltip
 } from "@mantine/core";
 import React from "react";
-import { isDefaultFreeTier, BillingInterval } from "~/utils/types";
+import { isDefaultFreeTier } from "~/utils/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { z } from "zod";
@@ -63,8 +63,8 @@ export default function UpdateMembershipTierModal({
       name: membershipTier.name,
       benefitDescription: membershipTier.benefitDescription,
       contributionDescription: membershipTier.contributionDescription,
-      costPerBillingInterval: membershipTier.costPerBillingInterval ?? membershipTier.costPerMonthInUSD,
-      billingInterval: membershipTier.billingInterval ?? BillingInterval.MONTHLY,
+      costPerBillingInterval: membershipTier.costPerBillingInterval,
+      billingInterval: membershipTier.billingInterval,
       initiationFeeCostInUSD: membershipTier.initiationFeeCostInUSD
     },
 

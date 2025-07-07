@@ -24,7 +24,7 @@ import SetupStripeConnectModal from "~/app/(main)/club/[clubId]/manage/_componen
 import { Carousel } from "@mantine/carousel";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { QueryError } from "~/client/utils/QueryError";
-import { isLoaded } from "~/client/utils";
+import { formatBillingInterval, isLoaded } from "~/client/utils";
 import { handleDefaultMutationError } from "~/client/logger";
 
 type ManageMembershipsPanelProps = {
@@ -159,14 +159,15 @@ export default function ManageMembershipTiersPanel({
 }
 
 function costDisplayText(membershipTier: MembershipTier) {
-  return (
-    "$" +
-    membershipTier.costPerMonthInUSD +
-    " / month" +
-    (null === membershipTier.initiationFeeCostInUSD
-      ? ""
-      : " + $" + membershipTier.initiationFeeCostInUSD + " initiation")
-  );
+  const cost = membershipTier.costPerBillingInterval;
+  const interval = formatBillingInterval(membershipTier.billingInterval);
+  const initiationFee = membershipTier.initiationFeeCostInUSD;
+
+  let text = `$${cost} / ${interval}`;
+  if (initiationFee !== null && initiationFee > 0) {
+    text += ` + $${initiationFee} initiation`;
+  }
+  return text;
 }
 
 type ManageMembershipTierCardProps = {
