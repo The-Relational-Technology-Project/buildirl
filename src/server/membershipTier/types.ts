@@ -44,9 +44,8 @@ export type MembershipTier = {
   status: MembershipTierStatus;
   benefitDescription: string;
   contributionDescription: string;
-  costPerMonthInUSD: number;
-  costPerBillingInterval: Maybe<number>;
-  billingInterval: Maybe<BillingInterval>;
+  costPerBillingInterval: number;
+  billingInterval: BillingInterval;
   initiationFeeCostInUSD: Maybe<number>;
 };
 

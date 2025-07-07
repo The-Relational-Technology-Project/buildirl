@@ -48,17 +48,7 @@ export function isDefaultFreeTier(
     | CreateMembershipTierInput
     | UpdateMembershipTierInput
 ): boolean {
-  // Temporary: once costPerMonthInUSD is removed from db, this won't be needed.
-  // For input types, only check costPerBillingInterval
-  if ('costPerBillingInterval' in membershipTier && !('costPerMonthInUSD' in membershipTier)) {
-    return membershipTier.costPerBillingInterval === 0;
-  }
-  
-  // Temporary: once costPerMonthInUSD is removed from db, this won't be needed.
-  // For MembershipTier (database entity)
-  const tier = membershipTier as MembershipTier;
-  const cost = tier.costPerBillingInterval ?? tier.costPerMonthInUSD;
-  return cost === 0;
+  return membershipTier.costPerBillingInterval === 0;
 }
 
 export function membershipForClub(

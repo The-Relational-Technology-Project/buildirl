@@ -193,11 +193,7 @@ export class SystemState {
       membershipTiers
         // if equal cost, sort by id
         .sort((a, b) => a.id - b.id)
-        .sort(
-          (a, b) =>
-            (a.costPerBillingInterval ?? a.costPerMonthInUSD) -
-            (b.costPerBillingInterval ?? b.costPerMonthInUSD)
-        )
+        .sort((a, b) => a.costPerBillingInterval - b.costPerBillingInterval)
     );
   }
 
@@ -390,8 +386,6 @@ export class SystemState {
       status: "PUBLISHED",
       benefitDescription: input.benefitDescription,
       contributionDescription: input.contributionDescription,
-      // "Pass 0" strategy for V1 compatibility
-      costPerMonthInUSD: 0,
       costPerBillingInterval: input.costPerBillingInterval,
       billingInterval: input.billingInterval,
       initiationFeeCostInUSD: input.initiationFeeCostInUSD
@@ -405,8 +399,6 @@ export class SystemState {
     const membershipTier = this.getMembershipTier(id);
     this.membershipTiers.set(id, {
       ...membershipTier,
-      // "Pass 0" strategy for V1 compatibility
-      costPerMonthInUSD: 0,
       ...input
     });
   }
@@ -483,7 +475,7 @@ export class SystemState {
         // definition of default free tier is 0 cost
         (m) =>
           !activeMembersMembershipTierIds.has(m.id) &&
-          m.costPerMonthInUSD !== 0 &&
+          m.costPerBillingInterval !== 0 &&
           !this.isMembershipTierLastPublished(m.id)
       )
       .map((m) => m.id);

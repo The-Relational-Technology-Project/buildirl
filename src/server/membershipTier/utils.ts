@@ -11,7 +11,6 @@ export const MEMBERSHIP_TIER_SELECT = {
   status: true,
   benefitDescription: true,
   contributionDescription: true,
-  costPerMonthInUSD: true,
   costPerBillingInterval: true,
   billingInterval: true,
   initiationFeeCostInUSD: true
@@ -27,12 +26,8 @@ export function asMembershipTier(
     benefitDescription: r.benefitDescription,
     contributionDescription: r.contributionDescription,
     // possible loss of precision here, but it doesn't matter for us
-    costPerMonthInUSD: r.costPerMonthInUSD.toNumber(),
-    costPerBillingInterval:
-      r.costPerBillingInterval === null
-        ? null
-        : r.costPerBillingInterval.toNumber(),
-    billingInterval: r.billingInterval as BillingInterval | null,
+    costPerBillingInterval: r.costPerBillingInterval.toNumber(),
+    billingInterval: r.billingInterval as BillingInterval,
     initiationFeeCostInUSD:
       null === r.initiationFeeCostInUSD
         ? null
@@ -45,28 +40,17 @@ export function orderedByCost(
 ): MembershipTier[] {
   return membershipTiers
     .sort((a, b) => a.id - b.id)
-    .sort(
-      (a, b) =>
-        (a.costPerBillingInterval ?? a.costPerMonthInUSD) -
-        (b.costPerBillingInterval ?? b.costPerMonthInUSD)
-    );
+    .sort((a, b) => a.costPerBillingInterval - b.costPerBillingInterval);
 }
 
 export function isPrismaResultDefaultFreeTier(membershipTier: {
-  costPerMonthInUSD: Prisma.Decimal;
-  costPerBillingInterval: Prisma.Decimal | null;
+  costPerBillingInterval: Prisma.Decimal;
 }): boolean {
-  const effectiveCost = membershipTier.costPerBillingInterval !== null 
-    ? membershipTier.costPerBillingInterval.toNumber()
-    : membershipTier.costPerMonthInUSD.toNumber();
-  return effectiveCost === 0;
+  return membershipTier.costPerBillingInterval.toNumber() === 0;
 }
 
 export function getEffectiveCost(membershipTier: {
-  costPerMonthInUSD: Prisma.Decimal;
-  costPerBillingInterval: Prisma.Decimal | null;
+  costPerBillingInterval: Prisma.Decimal;
 }): number {
-  return membershipTier.costPerBillingInterval !== null 
-    ? membershipTier.costPerBillingInterval.toNumber()
-    : membershipTier.costPerMonthInUSD.toNumber();
+  return membershipTier.costPerBillingInterval.toNumber();
 }

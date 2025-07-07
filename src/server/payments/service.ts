@@ -309,7 +309,6 @@ export function createPaymentService(
           stripeCustomerId: true,
           membershipTier: {
             select: {
-              costPerMonthInUSD: true,
               costPerBillingInterval: true
             }
           },
@@ -333,10 +332,7 @@ export function createPaymentService(
         );
         return { customerId: membership.stripeCustomerId };
       }
-
-      const cost =
-        membership.membershipTier.costPerBillingInterval ??
-        membership.membershipTier.costPerMonthInUSD;
+      const cost = membership.membershipTier.costPerBillingInterval;
       // no Stripe customer needed for default free tier
       if (cost.toNumber() === 0) {
         logger.info(
@@ -391,7 +387,6 @@ export function createPaymentService(
             select: {
               id: true,
               stripePriceId: true,
-              costPerMonthInUSD: true,
               costPerBillingInterval: true,
               initiationFeeStripePriceId: true,
               club: {
@@ -406,9 +401,7 @@ export function createPaymentService(
         where: { id: input.membershipId }
       });
 
-      const cost =
-        membership.membershipTier.costPerBillingInterval ??
-        membership.membershipTier.costPerMonthInUSD;
+      const cost = membership.membershipTier.costPerBillingInterval;
       // free tier does not need to create subscription
       if (cost.toNumber() === 0) {
         logger.info(
@@ -482,7 +475,6 @@ export function createPaymentService(
         select: {
           membershipTier: {
             select: {
-              costPerMonthInUSD: true,
               costPerBillingInterval: true
             }
           },
@@ -491,9 +483,7 @@ export function createPaymentService(
         where: { id: membershipId }
       });
 
-      const cost =
-        membership.membershipTier.costPerBillingInterval ??
-        membership.membershipTier.costPerMonthInUSD;
+      const cost = membership.membershipTier.costPerBillingInterval;
       // free tier does not need to cancel subscription
       if (cost.toNumber() === 0) {
         logger.info(
@@ -542,14 +532,11 @@ export function createPaymentService(
       const membershipTier = await tx.membershipTier.findUniqueOrThrow({
         where: { id: input.membershipTierId },
         select: {
-          costPerBillingInterval: true,
-          costPerMonthInUSD: true
+          costPerBillingInterval: true
         }
       });
 
-      const cost =
-        membershipTier.costPerBillingInterval ??
-        membershipTier.costPerMonthInUSD;
+      const cost = membershipTier.costPerBillingInterval;
       // free tier does not require Stripe product and prices
       if (cost.toNumber() === 0) {
         logger.info(
@@ -596,7 +583,6 @@ export function createPaymentService(
     try {
       const membershipTier = await tx.membershipTier.findUniqueOrThrow({
         select: {
-          costPerMonthInUSD: true,
           costPerBillingInterval: true,
           stripeProductId: true,
           stripePriceId: true,
@@ -605,9 +591,7 @@ export function createPaymentService(
         where: { id: membershipTierId }
       });
 
-      const cost =
-        membershipTier.costPerBillingInterval ??
-        membershipTier.costPerMonthInUSD;
+      const cost = membershipTier.costPerBillingInterval;
       // free tier does not need to archive product
       if (cost.toNumber() === 0) {
         logger.info(
@@ -660,7 +644,6 @@ export function createPaymentService(
     try {
       const membershipTier = await tx.membershipTier.findUniqueOrThrow({
         select: {
-          costPerMonthInUSD: true,
           costPerBillingInterval: true,
           stripeProductId: true,
           stripePriceId: true,
@@ -669,9 +652,7 @@ export function createPaymentService(
         where: { id: membershipTierId }
       });
 
-      const cost =
-        membershipTier.costPerBillingInterval ??
-        membershipTier.costPerMonthInUSD;
+      const cost = membershipTier.costPerBillingInterval;
       // free tier does not need to publish product
       if (cost.toNumber() === 0) {
         logger.info(
@@ -725,14 +706,11 @@ export function createPaymentService(
           stripeProductId: true,
           stripePriceId: true,
           initiationFeeStripePriceId: true,
-          costPerBillingInterval: true,
-          costPerMonthInUSD: true
+          costPerBillingInterval: true
         }
       });
 
-      const cost =
-        membershipTier.costPerBillingInterval ??
-        membershipTier.costPerMonthInUSD;
+      const cost = membershipTier.costPerBillingInterval;
       // free tier does not require Stripe product and prices
       if (cost.toNumber() === 0) {
         logger.info(

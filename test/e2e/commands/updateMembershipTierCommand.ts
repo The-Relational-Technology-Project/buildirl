@@ -47,7 +47,7 @@ export default class UpdateMembershipTierCommand
     membershipTierId: number
   ) {
     const currentTier = m.getMembershipTier(membershipTierId);
-    const currentCost = currentTier.costPerBillingInterval ?? currentTier.costPerMonthInUSD;
+    const currentCost = currentTier.costPerBillingInterval;
     const isUpdatingCost = currentCost !== this.input.costPerBillingInterval;
     const hasActiveMembersOrPendingApplications =
       m.hasActiveMembersOrPendingApplications(membershipTierId);

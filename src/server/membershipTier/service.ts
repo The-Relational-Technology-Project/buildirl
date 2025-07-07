@@ -39,8 +39,6 @@ export function createMembershipTierService(
           clubId: clubId,
           // default
           status: "PUBLISHED",
-          // temporary:"Pass 0" strategy for V1 compatibility
-          costPerMonthInUSD: 0,
           ...input
         },
         select: {
@@ -104,7 +102,7 @@ export function createMembershipTierService(
       throw e;
     }
   }
-  
+
   async function createDefaultFreeMembershipTier(
     clubId: number,
     tx: Prisma.TransactionClient
@@ -145,7 +143,7 @@ export function createMembershipTierService(
     try {
       const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
         where: { id: membershipTierId },
-        select: { costPerMonthInUSD: true, costPerBillingInterval: true }
+        select: { costPerBillingInterval: true }
       });
       logger.info(
         `checked if membership tier with id ${membershipTierId} is free tier with result ${isPrismaResultDefaultFreeTier(membershipTier)}`
@@ -199,12 +197,10 @@ export function createMembershipTierService(
     try {
       const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
         where: { id: membershipTierId },
-        select: { costPerBillingInterval: true, costPerMonthInUSD: true, billingInterval: true }
+        select: { costPerBillingInterval: true, billingInterval: true }
       });
 
-      const currentCost = membershipTier.costPerBillingInterval !== null 
-        ? membershipTier.costPerBillingInterval.toNumber()
-        : membershipTier.costPerMonthInUSD.toNumber();
+      const currentCost = membershipTier.costPerBillingInterval!.toNumber();
       
       const currentInterval = membershipTier.billingInterval;
 
@@ -340,8 +336,7 @@ export function createMembershipTierService(
     try {
       await tx.membershipTier.update({
         data: {
-          // "Pass 0" strategy for V1 compatibility
-          costPerMonthInUSD: 0,
+     
           ...input
         },
         where: {
