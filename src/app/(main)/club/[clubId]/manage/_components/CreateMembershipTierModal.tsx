@@ -16,7 +16,12 @@ import {
 } from "@mantine/core";
 import React from "react";
 import { handleDefaultMutationError } from "~/client/logger";
-import { Maybe, BillingInterval, BILLING_INTERVAL_OPTIONS } from "~/utils/types";
+import {
+  Maybe,
+  BillingInterval,
+  BILLING_INTERVAL_OPTIONS,
+  getBillingIntervalCostLabel
+} from "~/utils/types";
 import {
   CostInput,
   DEFAULT_COST_PER_MONTH_USD,
@@ -120,7 +125,9 @@ export default function CreateMembershipTierModal({
           />
 
           <Stack gap={12}>
-            <Title order={6}>Cost per Interval</Title>
+            <Title order={6}>
+              {getBillingIntervalCostLabel(form.values.billingInterval)}
+            </Title>
             <CostInput
               value={form.values.costPerBillingInterval}
               onChange={(value) =>

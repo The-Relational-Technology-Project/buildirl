@@ -10,10 +10,15 @@ import {
   Text,
   Title,
   Group,
-  Tooltip
+  Tooltip,
+  SegmentedControl
 } from "@mantine/core";
 import React from "react";
-import { isDefaultFreeTier } from "~/utils/types";
+import {
+  isDefaultFreeTier,
+  BILLING_INTERVAL_OPTIONS,
+  getBillingIntervalCostLabel
+} from "~/utils/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { z } from "zod";
@@ -133,12 +138,23 @@ export default function UpdateMembershipTierModal({
           {!isDefaultFreeTier(membershipTier) && (
             <Stack>
               <Stack gap={12}>
-                <Title order={6}>Monthly Cost</Title>
+                <Title order={6}>
+                  {getBillingIntervalCostLabel(form.values.billingInterval)}
+                </Title>
                 <CostInput
                   value={form.values.costPerBillingInterval}
                   onChange={(value) =>
                     form.setFieldValue("costPerBillingInterval", value)
                   }
+                />
+              </Stack>
+
+              <Stack gap={12}>
+                <Title order={6}>Billing Frequency</Title>
+                <SegmentedControl
+                  data={BILLING_INTERVAL_OPTIONS}
+                  key={form.key("billingInterval")}
+                  {...form.getInputProps("billingInterval")}
                 />
               </Stack>
 
