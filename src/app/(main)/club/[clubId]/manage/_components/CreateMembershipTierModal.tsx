@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import React from "react";
 import { handleDefaultMutationError } from "~/client/logger";
-import { Maybe } from "~/utils/types";
+import { Maybe, BillingInterval } from "~/utils/types";
 import {
   CostInput,
   DEFAULT_COST_PER_MONTH_USD,
@@ -51,7 +51,8 @@ export default function CreateMembershipTierModal({
       name: "",
       benefitDescription: "",
       contributionDescription: "",
-      costPerMonthInUSD: DEFAULT_COST_PER_MONTH_USD,
+      costPerBillingInterval: DEFAULT_COST_PER_MONTH_USD,
+      billingInterval: BillingInterval.MONTHLY,
       initiationFeeCostInUSD: null as Maybe<number>
     },
 
@@ -61,7 +62,7 @@ export default function CreateMembershipTierModal({
       name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
       benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
       contributionDescription: (v) => safeValidateSchema(LongTextSchema, v),
-      costPerMonthInUSD: (v) => safeValidateSchema(MonetaryValueSchema, v),
+      costPerBillingInterval: (v) => safeValidateSchema(MonetaryValueSchema, v),
       initiationFeeCostInUSD: (v) =>
         safeValidateSchema(MonetaryValueSchema.nullable(), v)
     }
@@ -87,7 +88,8 @@ export default function CreateMembershipTierModal({
               name: v.name,
               benefitDescription: v.benefitDescription,
               contributionDescription: v.contributionDescription,
-              costPerMonthInUSD: v.costPerMonthInUSD,
+              costPerBillingInterval: v.costPerBillingInterval,
+              billingInterval: v.billingInterval,
               initiationFeeCostInUSD: v.initiationFeeCostInUSD
             }
           });
@@ -119,9 +121,9 @@ export default function CreateMembershipTierModal({
           <Stack gap={12}>
             <Title order={6}>Monthly Cost</Title>
             <CostInput
-              value={form.values.costPerMonthInUSD}
+              value={form.values.costPerBillingInterval}
               onChange={(value) =>
-                form.setFieldValue("costPerMonthInUSD", value)
+                form.setFieldValue("costPerBillingInterval", value)
               }
               defaultValue={DEFAULT_COST_PER_MONTH_USD}
             />

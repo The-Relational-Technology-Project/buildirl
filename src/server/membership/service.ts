@@ -594,7 +594,7 @@ export function createMembershipService(
         stripeSetupIntentId: true,
         membershipTier: {
           select: {
-            costPerMonthInUSD: true
+            costPerBillingInterval: true
           }
         }
       },

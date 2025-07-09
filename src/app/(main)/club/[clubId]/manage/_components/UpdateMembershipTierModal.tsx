@@ -63,7 +63,8 @@ export default function UpdateMembershipTierModal({
       name: membershipTier.name,
       benefitDescription: membershipTier.benefitDescription,
       contributionDescription: membershipTier.contributionDescription,
-      costPerMonthInUSD: membershipTier.costPerMonthInUSD,
+      costPerBillingInterval: membershipTier.costPerBillingInterval,
+      billingInterval: membershipTier.billingInterval,
       initiationFeeCostInUSD: membershipTier.initiationFeeCostInUSD
     },
 
@@ -73,7 +74,7 @@ export default function UpdateMembershipTierModal({
       name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
       benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
       contributionDescription: (v) => safeValidateSchema(LongTextSchema, v),
-      costPerMonthInUSD: (v) =>
+      costPerBillingInterval: (v) =>
         safeValidateSchema(MonetaryValueSchema.or(z.literal(0)), v),
       initiationFeeCostInUSD: (v) =>
         safeValidateSchema(MonetaryValueSchema.nullable(), v)
@@ -100,7 +101,8 @@ export default function UpdateMembershipTierModal({
               name: v.name,
               benefitDescription: v.benefitDescription,
               contributionDescription: v.contributionDescription,
-              costPerMonthInUSD: v.costPerMonthInUSD,
+              costPerBillingInterval: v.costPerBillingInterval,
+              billingInterval: v.billingInterval,
               initiationFeeCostInUSD: v.initiationFeeCostInUSD
             }
           });
@@ -133,9 +135,9 @@ export default function UpdateMembershipTierModal({
               <Stack gap={12}>
                 <Title order={6}>Monthly Cost</Title>
                 <CostInput
-                  value={form.values.costPerMonthInUSD}
+                  value={form.values.costPerBillingInterval}
                   onChange={(value) =>
-                    form.setFieldValue("costPerMonthInUSD", value)
+                    form.setFieldValue("costPerBillingInterval", value)
                   }
                 />
               </Stack>

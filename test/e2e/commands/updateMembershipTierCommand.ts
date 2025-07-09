@@ -46,9 +46,9 @@ export default class UpdateMembershipTierCommand
     m: Readonly<SystemState>,
     membershipTierId: number
   ) {
-    const isUpdatingCost =
-      m.getMembershipTier(membershipTierId).costPerMonthInUSD !==
-      this.input.costPerMonthInUSD;
+    const currentTier = m.getMembershipTier(membershipTierId);
+    const currentCost = currentTier.costPerBillingInterval;
+    const isUpdatingCost = currentCost !== this.input.costPerBillingInterval;
     const hasActiveMembersOrPendingApplications =
       m.hasActiveMembersOrPendingApplications(membershipTierId);
     // cannot update cost on tier with active members or pending applications
@@ -73,16 +73,18 @@ export default class UpdateMembershipTierCommand
     );
 
     if (m.isDefaultFreeTier(this.membershipTierId)) {
-      // a bit hacky but this keeps with constraint that
-      // we cannot update the cost of the free membership tier
-      this.input = { ...this.input, costPerMonthInUSD: 0 };
+        // a bit hacky but this keeps with constraint that
+       // we cannot update the cost of the free membership tier
+      this.input = { ...this.input, costPerBillingInterval: 0 };
     }
 
     await r.membershipTier.updateMembershipTier(
       this.membershipTierId,
       this.input
     );
+    
     m.updateMembershipTier(this.membershipTierId, this.input);
+    
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
     // membership tier is attached to club
     await verifiers.verifyClub(clubId, r, m);
@@ -96,4 +98,4 @@ export default class UpdateMembershipTierCommand
       }
     });
   }
-}
+} 

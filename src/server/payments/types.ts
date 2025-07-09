@@ -2,6 +2,7 @@ import { z } from "zod";
 import { MonetaryValue, Url } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 import { Prisma } from "@prisma/client";
+import { BillingInterval } from "~/utils/types";
 
 export type PaymentService = PaymentMutations & PaymentQueries;
 
@@ -118,7 +119,8 @@ export type CreateSubscriptionForMembershipResult = {
 export type CreateProductAndPricesForMembershipTierInput = {
   name: string;
   description: Maybe<string>;
-  pricePerMonthInUSD: MonetaryValue;
+  pricePerBillingInterval: MonetaryValue;
+  billingInterval: BillingInterval;
   initiationFeeInUSD: Maybe<MonetaryValue>;
   membershipTierId: number;
 };
@@ -132,7 +134,8 @@ export type CreateProductAndPricesForMembershipTierResult = {
 export type UpdateProductAndPricesForMembershipTierInput = {
   name: string;
   description: string;
-  pricePerMonthInUSD: MonetaryValue;
+  pricePerBillingInterval: MonetaryValue;
+  billingInterval: BillingInterval;
   initiationFeeInUSD: Maybe<MonetaryValue>;
   membershipTierId: number;
 };

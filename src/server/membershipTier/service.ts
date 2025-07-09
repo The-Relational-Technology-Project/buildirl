@@ -8,7 +8,9 @@ import {
   UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
-import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
+import { 
+  isPrismaResultDefaultFreeTier
+} from "~/server/membershipTier/utils";
 import { PaymentService } from "~/server/payments/types";
 
 const logger = rootLogger.child({ module: "membershipTierService" });
@@ -70,7 +72,8 @@ export function createMembershipTierService(
           {
             name: input.name,
             description: input.benefitDescription,
-            pricePerMonthInUSD: input.costPerMonthInUSD,
+            pricePerBillingInterval: input.costPerBillingInterval,
+            billingInterval: input.billingInterval,
             initiationFeeInUSD: input.initiationFeeCostInUSD,
             membershipTierId: membershipTierId
           },
@@ -140,7 +143,7 @@ export function createMembershipTierService(
     try {
       const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
         where: { id: membershipTierId },
-        select: { costPerMonthInUSD: true }
+        select: { costPerBillingInterval: true }
       });
       logger.info(
         `checked if membership tier with id ${membershipTierId} is free tier with result ${isPrismaResultDefaultFreeTier(membershipTier)}`
@@ -167,7 +170,7 @@ export function createMembershipTierService(
   ) {
     if (
       (await isDefaultFreeTierById(membershipTierId)) &&
-      input.costPerMonthInUSD !== 0
+      input.costPerBillingInterval !== 0
     ) {
       throw new Error(
         "cannot update cost of default free membership tier to non-zero value"
@@ -181,42 +184,48 @@ export function createMembershipTierService(
   ) {
     if (
       !(await isDefaultFreeTierById(membershipTierId)) &&
-      input.costPerMonthInUSD === 0
+      input.costPerBillingInterval === 0
     ) {
       throw new Error("cannot update cost of membership tier to zero value");
     }
   }
 
-  async function isUpdateOnCostPerMonthInUSD(
+  async function isUpdateOnCostPerBillingInterval(
     membershipTierId: number,
     input: UpdateMembershipTierInput
   ): Promise<boolean> {
     try {
       const membershipTier = await prisma.membershipTier.findUniqueOrThrow({
         where: { id: membershipTierId },
-        select: { costPerMonthInUSD: true }
+        select: { costPerBillingInterval: true, billingInterval: true }
       });
 
+      const currentCost = membershipTier.costPerBillingInterval!.toNumber();
+      
+      const currentInterval = membershipTier.billingInterval;
+
       logger.info(
-        `queried costPerMonthInUSD for membership tier with id ${membershipTierId} with result ${membershipTier.costPerMonthInUSD.toNumber()}`
+        `queried cost and interval for membership tier with id ${membershipTierId} with result cost=${currentCost}, interval=${currentInterval}`
       );
+      
       return (
-        membershipTier.costPerMonthInUSD.toNumber() !== input.costPerMonthInUSD
+        currentCost !== input.costPerBillingInterval ||
+        currentInterval !== input.billingInterval
       );
     } catch (e) {
       logger.error(
         e,
-        `failed to query costPerMonthInUSD for membership tier with id ${membershipTierId}`
+        `failed to query cost and interval for membership tier with id ${membershipTierId}`
       );
       throw e;
     }
   }
 
-  async function checkNotUpdatingCostPerMonthInUSDWithActiveOrPendingApplicationsOnMembershipTier(
+  async function checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTier(
     membershipTierId: number,
     input: UpdateMembershipTierInput
   ): Promise<void> {
-    const updatingCost = await isUpdateOnCostPerMonthInUSD(
+    const updatingCost = await isUpdateOnCostPerBillingInterval(
       membershipTierId,
       input
     );
@@ -303,7 +312,7 @@ export function createMembershipTierService(
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
-    await checkNotUpdatingCostPerMonthInUSDWithActiveOrPendingApplicationsOnMembershipTier(
+    await checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTier(
       id,
       input
     );
@@ -326,7 +335,10 @@ export function createMembershipTierService(
   ): Promise<MutationResult> {
     try {
       await tx.membershipTier.update({
-        data: input,
+        data: {
+     
+          ...input
+        },
         where: {
           id: id
         }
@@ -358,7 +370,8 @@ export function createMembershipTierService(
           {
             name: input.name,
             description: input.benefitDescription,
-            pricePerMonthInUSD: input.costPerMonthInUSD,
+            pricePerBillingInterval: input.costPerBillingInterval,
+            billingInterval: input.billingInterval,
             initiationFeeInUSD: input.initiationFeeCostInUSD,
             membershipTierId: membershipTierId
           },

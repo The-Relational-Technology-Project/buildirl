@@ -24,7 +24,7 @@ import {
 } from "~/server/payments/stripe/types";
 import { rootLogger } from "~/logger";
 import Stripe from "stripe";
-import { Maybe } from "~/utils/types";
+import { Maybe, BillingInterval } from "~/utils/types";
 import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "stripeClient" });
@@ -109,20 +109,35 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     productId: string,
     priceInUSD: number,
     nickname: string,
-    isRecurring: boolean,
+    billingInterval: Maybe<BillingInterval>,
     byAccountId: string
   ): Promise<string> {
+    function getRecurring():
+      | {
+          interval: "month";
+          interval_count: number;
+        }
+      | undefined {
+      if (!billingInterval) {
+        return undefined;
+      }
+      switch (billingInterval) {
+        case BillingInterval.MONTHLY:
+          return { interval: "month", interval_count: 1 };
+        case BillingInterval.QUARTERLY:
+          return { interval: "month", interval_count: 3 };
+        case BillingInterval.SEMI_ANNUAL:
+          return { interval: "month", interval_count: 6 };
+      }
+    }
+
     const price = await stripe.prices.create(
       {
         product: productId,
         unit_amount: unitAmount(priceInUSD),
         currency: "usd",
         nickname: nickname,
-        recurring: isRecurring
-          ? {
-              interval: "month"
-            }
-          : undefined
+        recurring: getRecurring()
       },
       {
         stripeAccount: byAccountId
@@ -135,6 +150,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
     return price.id;
   }
+
+
 
   async function createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
@@ -157,9 +174,9 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
       const priceId = await createPrice(
         product.id,
-        input.pricePerMonthInUSD,
+        input.pricePerBillingInterval,
         "monthly recurring",
-        true,
+        input.billingInterval,
         byAccountId
       );
 
@@ -170,7 +187,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
               product.id,
               input.initiationFeeInUSD,
               "initiation fee",
-              false,
+              null,
               byAccountId
             );
 
@@ -192,6 +209,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
+
+
   async function updateProductAndPricesForMembershipTier(
     input: UpdateProductAndPricesForMembershipTierInput,
     byAccountId: string
@@ -211,8 +230,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       const updatedPriceId = await updatePriceIfAmountChanged(
         input.productId,
         input.priceId,
-        input.pricePerMonthInUSD,
-        true,
+        input.pricePerBillingInterval,
+        input.billingInterval,
         "monthly recurring",
         byAccountId
       );
@@ -239,11 +258,12 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       throw e;
     }
   }
+
   async function updatePriceIfAmountChanged(
     productId: string,
     currentPriceId: string,
     newPriceInUSD: number,
-    isRecurring: boolean,
+    newBillingInterval: Maybe<BillingInterval>,
     nickname: string,
     byAccountId: string
   ): Promise<Maybe<string>> {
@@ -251,23 +271,39 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       const existingPrice = await stripe.prices.retrieve(currentPriceId, {
         stripeAccount: byAccountId
       });
-      if (existingPrice.unit_amount !== unitAmount(newPriceInUSD)) {
-        const newPrice = await stripe.prices.create(
-          {
-            product: productId,
-            unit_amount: unitAmount(newPriceInUSD),
-            currency: "usd",
-            nickname: nickname,
-            recurring: isRecurring
-              ? {
-                  interval: "month"
-                }
-              : undefined
-          },
-          {
-            stripeAccount: byAccountId
-          }
+
+      const hasPriceChanged =
+        existingPrice.unit_amount !== unitAmount(newPriceInUSD);
+
+      const existingRecurring = existingPrice.recurring;
+      let hasIntervalChanged = false;
+      if (existingRecurring?.interval === "month" && newBillingInterval) {
+        switch (newBillingInterval) {
+          case BillingInterval.MONTHLY:
+            hasIntervalChanged = existingRecurring.interval_count !== 1;
+            break;
+          case BillingInterval.QUARTERLY:
+            hasIntervalChanged = existingRecurring.interval_count !== 3;
+            break;
+          case BillingInterval.SEMI_ANNUAL:
+            hasIntervalChanged = existingRecurring.interval_count !== 6;
+            break;
+        }
+      } else if (existingRecurring && !newBillingInterval) {
+        hasIntervalChanged = true;
+      } else if (!existingRecurring && newBillingInterval) {
+        hasIntervalChanged = true;
+      }
+
+      if (hasPriceChanged || hasIntervalChanged) {
+        const newPriceId = await createPrice(
+          productId,
+          newPriceInUSD,
+          nickname,
+          newBillingInterval,
+          byAccountId
         );
+
         // deactivate old price
         await stripe.prices.update(
           currentPriceId,
@@ -277,10 +313,11 @@ export function createStripeClient(stripe: Stripe): StripeClient {
           }
         );
         logger.info(
-          `updated price for product ${productId} from price ${currentPriceId} to new price ${newPrice.id} with amount ${newPrice} `
+          `updated price for product ${productId} from price ${currentPriceId} to new price ${newPriceId} with amount ${newPriceInUSD}`
         );
-        return newPrice.id;
+        return newPriceId;
       }
+
       logger.info(
         `did not update price for product ${productId} and price ${currentPriceId} because there was no price change`
       );
@@ -314,7 +351,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         productId,
         newPriceInUSD,
         nickname,
-        isRecurring,
+        null,
         byAccountId
       );
       return { updatedPriceId: priceId };
@@ -339,7 +376,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       productId,
       currentPriceId,
       newPriceInUSD,
-      isRecurring,
+      null,
       nickname,
       byAccountId
     );
