@@ -15,6 +15,12 @@ export enum BillingInterval {
   SEMI_ANNUAL = "SEMI_ANNUAL"
 }
 
+export const BILLING_INTERVAL_OPTIONS = [
+  { value: BillingInterval.MONTHLY, label: "Monthly" },
+  { value: BillingInterval.QUARTERLY, label: "Quarterly" },
+  { value: BillingInterval.SEMI_ANNUAL, label: "Semi-Annually" }
+];
+
 export type Id = number | bigint;
 
 // helper unwrap methods for converting id to proper types

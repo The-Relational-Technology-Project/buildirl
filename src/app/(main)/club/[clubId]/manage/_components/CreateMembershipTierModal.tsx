@@ -7,6 +7,7 @@ import { MembershipTierNameSchema } from "~/server/membershipTier/types";
 import {
   Button,
   Modal,
+  SegmentedControl,
   Stack,
   Text,
   Textarea,
@@ -15,7 +16,7 @@ import {
 } from "@mantine/core";
 import React from "react";
 import { handleDefaultMutationError } from "~/client/logger";
-import { Maybe, BillingInterval } from "~/utils/types";
+import { Maybe, BillingInterval, BILLING_INTERVAL_OPTIONS } from "~/utils/types";
 import {
   CostInput,
   DEFAULT_COST_PER_MONTH_USD,
@@ -119,13 +120,22 @@ export default function CreateMembershipTierModal({
           />
 
           <Stack gap={12}>
-            <Title order={6}>Monthly Cost</Title>
+            <Title order={6}>Cost per Interval</Title>
             <CostInput
               value={form.values.costPerBillingInterval}
               onChange={(value) =>
                 form.setFieldValue("costPerBillingInterval", value)
               }
               defaultValue={DEFAULT_COST_PER_MONTH_USD}
+            />
+          </Stack>
+
+          <Stack gap={12}>
+            <Title order={6}>Billing Frequency</Title>
+            <SegmentedControl
+              data={BILLING_INTERVAL_OPTIONS}
+              key={form.key("billingInterval")}
+              {...form.getInputProps("billingInterval")}
             />
           </Stack>
 
