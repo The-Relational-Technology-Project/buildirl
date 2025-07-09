@@ -69,7 +69,7 @@ export const UpdateMembershipTierInputSchema = z.object({
   name: MembershipTierNameSchema,
   benefitDescription: LongTextSchema,
   contributionDescription: LongTextSchema,
-  costPerBillingInterval: MonetaryValueSchema,
+  costPerBillingInterval: MonetaryValueSchema.or(z.literal(0)),
   billingInterval: z.nativeEnum(BillingInterval),
   initiationFeeCostInUSD: MonetaryValueSchema.nullable()
 });
