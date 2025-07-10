@@ -308,7 +308,7 @@ export function createEmailService(
   async function createEmailBlast(
     clubId: number,
     input: EmailBlastInput
-  ): Promise<{ id: bigint }> {
+  ): Promise<MutationResult> {
     try {
       const newBlast = await prisma.emailBlast.create({
         data: {
@@ -323,7 +323,7 @@ export function createEmailService(
       logger.info(
         `created new email blast with id ${newBlast.id} with input ${stringify(input)}`
       );
-      return { id: newBlast.id };
+      return { createdEntityId: newBlast.id };
     } catch (e) {
       logger.error(
         e,
@@ -336,7 +336,7 @@ export function createEmailService(
   async function updateEmailBlast(
     id: bigint,
     input: EmailBlastInput
-  ): Promise<{ id: bigint }> {
+  ): Promise<MutationResult> {
     try {
       await prisma.emailBlast.update({
         where: { id },
@@ -348,7 +348,7 @@ export function createEmailService(
       logger.info(
         `updated email blast with id ${id} with input ${stringify(input)}`
       );
-      return { id };
+      return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(
         e,

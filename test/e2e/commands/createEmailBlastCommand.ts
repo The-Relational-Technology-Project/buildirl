@@ -5,7 +5,7 @@ import { Services } from "../system.test";
 import { EmailBlastInput } from "~/server/email/types";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
-import { Maybe } from "~/utils/types";
+import { idAsBigInt, Maybe } from "~/utils/types";
 
 export default class CreateEmailBlastCommand
   implements Command<SystemState, Services>
@@ -15,10 +15,7 @@ export default class CreateEmailBlastCommand
   private emailBlastId: Maybe<bigint> = null;
   private clubId: Maybe<number> = null;
 
-  constructor(
-    input: EmailBlastInput,
-    clubIdSelector: ItemSelector<number>
-  ) {
+  constructor(input: EmailBlastInput, clubIdSelector: ItemSelector<number>) {
     this.input = input;
     this.clubIdSelector = clubIdSelector;
   }
@@ -30,7 +27,7 @@ export default class CreateEmailBlastCommand
   async run(m: SystemState, r: Services): Promise<void> {
     this.clubId = this.clubIdSelector.select(m.getClubIds());
     const result = await r.email.createEmailBlast(this.clubId, this.input);
-    this.emailBlastId = result.id;
+    this.emailBlastId = idAsBigInt(result.createdEntityId);
     m.createEmailBlast(this.emailBlastId, this.clubId, this.input);
     await verifiers.verifyEmailBlasts(this.clubId, r.email, m);
   }
@@ -44,4 +41,4 @@ export default class CreateEmailBlastCommand
       }
     });
   }
-} 
+}

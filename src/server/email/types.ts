@@ -26,8 +26,8 @@ type EmailMutations = {
   createEmailBlast(
     clubId: number,
     input: EmailBlastInput
-  ): Promise<{ id: bigint }>;
-  updateEmailBlast(id: bigint, input: EmailBlastInput): Promise<{ id: bigint }>;
+  ): Promise<MutationResult>;
+  updateEmailBlast(id: bigint, input: EmailBlastInput): Promise<MutationResult>;
   deleteEmailBlast(id: bigint): Promise<MutationResult>;
 };
 
