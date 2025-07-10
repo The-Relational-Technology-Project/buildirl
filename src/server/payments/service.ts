@@ -24,6 +24,7 @@ import {
 import { stringify, asNullFilteredList } from "~/utils";
 import { Maybe } from "~/utils/types";
 import { AccountIdResolver } from "./accountIdResolver";
+import { isPrismaResultDefaultFreeTier } from "~/server/membershipTier/utils";
 
 const logger = rootLogger.child({ module: "paymentService" });
 
@@ -332,9 +333,8 @@ export function createPaymentService(
         );
         return { customerId: membership.stripeCustomerId };
       }
-      const cost = membership.membershipTier.costPerBillingInterval;
       // no Stripe customer needed for default free tier
-      if (cost.toNumber() === 0) {
+      if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
         logger.info(
           `membership with id ${membershipId} is free tier, no Stripe customer needed`
         );
@@ -401,9 +401,8 @@ export function createPaymentService(
         where: { id: input.membershipId }
       });
 
-      const cost = membership.membershipTier.costPerBillingInterval;
       // free tier does not need to create subscription
-      if (cost.toNumber() === 0) {
+      if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
         logger.info(
           `membership with id ${input.membershipId} is free tier, no subscription needed`
         );
@@ -411,10 +410,12 @@ export function createPaymentService(
       }
 
       const customerId = membership.stripeCustomerId;
-      const stripeAccountId = membership.membershipTier.club.stripeConnectAccountId;
+      const stripeAccountId =
+        membership.membershipTier.club.stripeConnectAccountId;
       const setupIntentId = membership.stripeSetupIntentId;
       const priceId = membership.membershipTier.stripePriceId;
-      const initiationFeeStripePriceId = membership.membershipTier.initiationFeeStripePriceId;
+      const initiationFeeStripePriceId =
+        membership.membershipTier.initiationFeeStripePriceId;
 
       if (!customerId) {
         throw new Error(
@@ -483,9 +484,8 @@ export function createPaymentService(
         where: { id: membershipId }
       });
 
-      const cost = membership.membershipTier.costPerBillingInterval;
       // free tier does not need to cancel subscription
-      if (cost.toNumber() === 0) {
+      if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
         logger.info(
           `membership with id ${membershipId} is free tier, no subscription to cancel`
         );
@@ -536,9 +536,8 @@ export function createPaymentService(
         }
       });
 
-      const cost = membershipTier.costPerBillingInterval;
       // free tier does not require Stripe product and prices
-      if (cost.toNumber() === 0) {
+      if (isPrismaResultDefaultFreeTier(membershipTier)) {
         logger.info(
           `membership tier with id ${input.membershipTierId} is free tier, no Stripe products needed`
         );
@@ -591,9 +590,8 @@ export function createPaymentService(
         where: { id: membershipTierId }
       });
 
-      const cost = membershipTier.costPerBillingInterval;
       // free tier does not need to archive product
-      if (cost.toNumber() === 0) {
+      if (isPrismaResultDefaultFreeTier(membershipTier)) {
         logger.info(
           `membership tier with id ${membershipTierId} is free tier, no Stripe products to archive`
         );
@@ -652,9 +650,8 @@ export function createPaymentService(
         where: { id: membershipTierId }
       });
 
-      const cost = membershipTier.costPerBillingInterval;
       // free tier does not need to publish product
-      if (cost.toNumber() === 0) {
+      if (isPrismaResultDefaultFreeTier(membershipTier)) {
         logger.info(
           `membership tier with id ${membershipTierId} is free tier, no Stripe products to publish`
         );
@@ -710,9 +707,8 @@ export function createPaymentService(
         }
       });
 
-      const cost = membershipTier.costPerBillingInterval;
       // free tier does not require Stripe product and prices
-      if (cost.toNumber() === 0) {
+      if (isPrismaResultDefaultFreeTier(membershipTier)) {
         logger.info(
           `membership tier with id ${input.membershipTierId} is free tier, no Stripe products to update`
         );
