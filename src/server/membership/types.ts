@@ -68,6 +68,7 @@ type MembershipMutations = {
     userId: number,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult>;
+  notifyMembershipApplicationSubmitted(membershipId: bigint): Promise<void>;
 };
 
 export const SubmitMembershipApplicationInputSchema = z.object({

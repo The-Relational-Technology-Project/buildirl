@@ -230,14 +230,17 @@ export function createMembershipService(
     isDefaultFreeTier: boolean,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
+    // if not free tier, still awaiting setup intent
+    const status: MembershipStatus = isDefaultFreeTier
+      ? "PENDING"
+      : "PENDING_INCOMPLETE";
     try {
       const { id } = await tx.membership.create({
         data: {
           userId: userId,
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          // if not free tier, still awaiting setup intent
-          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
+          status: status,
           role: "MEMBER"
         },
         select: {
@@ -246,7 +249,10 @@ export function createMembershipService(
       });
 
       await createStripeCustomer(id, tx);
-      await notifyMembershipApplicationSubmittedInTransaction(id, tx);
+      // only notify once application is fully pending
+      if (status === "PENDING") {
+        await notifyMembershipApplicationSubmittedInTransaction(id, tx);
+      }
 
       logger.info(
         `created pending membership from input ${stringify(input)} with membershipId ${id}`
@@ -316,12 +322,15 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
+      // if not free tier, still awaiting setup intent
+      const status: MembershipStatus = isDefaultFreeTier
+        ? "PENDING"
+        : "PENDING_INCOMPLETE";
       const { id } = await tx.membership.update({
         data: {
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          // if not free tier, awaiting setup intent
-          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
+          status: status,
           // reset role even if they left as different role
           role: "MEMBER",
           // reset welcome status
@@ -337,7 +346,10 @@ export function createMembershipService(
       );
 
       await createStripeCustomer(id, tx);
-      await notifyMembershipApplicationSubmitted(id);
+      // only notify once in fully pending
+      if (status === "PENDING") {
+        await notifyMembershipApplicationSubmitted(id);
+      }
 
       // need to return id as this is considered creation
       return { createdEntityId: id };
@@ -383,6 +395,9 @@ export function createMembershipService(
   ): Promise<MembershipStatus> {
     try {
       const membership = await prisma.membership.findUniqueOrThrow({
+        select: {
+          status: true
+        },
         where: { id: membershipId }
       });
       logger.info(
@@ -504,9 +519,10 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {
-      const { subscriptionId } = await paymentService.createSubscriptionForMembership({
-        membershipId: membershipId
-      });
+      const { subscriptionId } =
+        await paymentService.createSubscriptionForMembership({
+          membershipId: membershipId
+        });
 
       // Only update the database if a subscription was created (not null for free tier)
       if (subscriptionId) {
@@ -939,6 +955,7 @@ export function createMembershipService(
     withdrawMembershipApplication,
     deactivateMembership,
     setMembershipAsWelcomed,
-    createLeadMembership
+    createLeadMembership,
+    notifyMembershipApplicationSubmitted
   };
 }
