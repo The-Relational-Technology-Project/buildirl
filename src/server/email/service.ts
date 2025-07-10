@@ -5,13 +5,13 @@ import {
   SetEmailTemplateInput,
   EmailBlast,
   EmailBlastInput,
-  SendDefaultEmailForMembershipApplicationSubmittedInput,
-  SendDefaultEmailForMembershipApprovedInput,
-  SendDefaultEmailForMembershipDeclinedInput,
-  SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
-  SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
-  SendDefaultEmailForMembershipDeactivatedByLeadInput,
-  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  SendEmailForMembershipApplicationSubmittedInput,
+  SendEmailForMembershipApprovedInput,
+  SendEmailForMembershipDeclinedInput,
+  SendEmailForMembershipDeactivatedByMemberToLeadInput,
+  SendEmailForMembershipDeactivatedByMemberToMemberInput,
+  SendEmailForMembershipDeactivatedByLeadInput,
+  SendEmailForApplicationWithdrawnByMemberToLeadInput,
   EmailBlastStatus
 } from "~/server/email/types";
 import { PrismaClient, Prisma } from "@prisma/client";
@@ -123,22 +123,22 @@ export function createEmailService(
     }
   }
 
-  async function sendDefaultEmailForMembershipApplicationSubmitted(
-    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
+  async function sendEmailForMembershipApplicationSubmitted(
+    input: SendEmailForMembershipApplicationSubmittedInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const leadEmails = await userService.getUserEmailsInTransaction(
       input.clubLeadUserIds,
       tx
     );
-    await emailClient.sendDefaultEmailForMembershipApplicationSubmitted(
+    await emailClient.sendEmailForMembershipApplicationSubmitted(
       input,
       leadEmails
     );
   }
 
-  async function sendDefaultEmailForMembershipApproved(
-    input: SendDefaultEmailForMembershipApprovedInput,
+  async function sendEmailForMembershipApproved(
+    input: SendEmailForMembershipApprovedInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const template = await getEmailTemplate({
@@ -165,7 +165,7 @@ export function createEmailService(
         template.textContent
       );
     } else {
-      await emailClient.sendDefaultEmailForMembershipApproved(
+      await emailClient.sendEmailForMembershipApproved(
         input,
         memberEmail,
         leadEmails
@@ -173,8 +173,8 @@ export function createEmailService(
     }
   }
 
-  async function sendDefaultEmailForMembershipDeclined(
-    input: SendDefaultEmailForMembershipDeclinedInput,
+  async function sendEmailForMembershipDeclined(
+    input: SendEmailForMembershipDeclinedInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const template = await getEmailTemplate({
@@ -200,7 +200,7 @@ export function createEmailService(
         template.textContent
       );
     } else {
-      await emailClient.sendDefaultEmailForMembershipDeclined(
+      await emailClient.sendEmailForMembershipDeclined(
         input,
         memberEmail,
         leadEmails
@@ -208,22 +208,22 @@ export function createEmailService(
     }
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByMemberToLead(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
+  async function sendEmailForMembershipDeactivatedByMemberToLead(
+    input: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const leadEmails = await userService.getUserEmailsInTransaction(
       input.clubLeadUserIds,
       tx
     );
-    await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToLead(
+    await emailClient.sendEmailForMembershipDeactivatedByMemberToLead(
       input,
       leadEmails
     );
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+  async function sendEmailForMembershipDeactivatedByMemberToMember(
+    input: SendEmailForMembershipDeactivatedByMemberToMemberInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const template = await getEmailTemplate({
@@ -249,7 +249,7 @@ export function createEmailService(
         template.textContent
       );
     } else {
-      await emailClient.sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+      await emailClient.sendEmailForMembershipDeactivatedByMemberToMember(
         input,
         memberEmail,
         leadEmails
@@ -257,29 +257,29 @@ export function createEmailService(
     }
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByLead(
-    input: SendDefaultEmailForMembershipDeactivatedByLeadInput,
+  async function sendEmailForMembershipDeactivatedByLead(
+    input: SendEmailForMembershipDeactivatedByLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const memberEmail = await userService.getUserEmailInTransaction(
       input.memberUserId,
       tx
     );
-    await emailClient.sendDefaultEmailForMembershipDeactivatedByLead(
+    await emailClient.sendEmailForMembershipDeactivatedByLead(
       input,
       memberEmail
     );
   }
 
-  async function sendDefaultEmailForApplicationWithdrawnByMemberToLead(
-    input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  async function sendEmailForApplicationWithdrawnByMemberToLead(
+    input: SendEmailForApplicationWithdrawnByMemberToLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
     const leadEmails = await userService.getUserEmailsInTransaction(
       input.clubLeadUserIds,
       tx
     );
-    await emailClient.sendDefaultEmailForApplicationWithdrawnByMemberToLead(
+    await emailClient.sendEmailForApplicationWithdrawnByMemberToLead(
       input,
       leadEmails
     );
@@ -466,13 +466,13 @@ export function createEmailService(
     createEmailBlast,
     updateEmailBlast,
     deleteEmailBlast,
-    sendDefaultEmailForMembershipApplicationSubmitted,
-    sendDefaultEmailForMembershipApproved,
-    sendDefaultEmailForMembershipDeclined,
-    sendDefaultEmailForMembershipDeactivatedByMemberToLead,
-    sendDefaultEmailForMembershipDeactivatedByMemberToMember,
-    sendDefaultEmailForMembershipDeactivatedByLead,
-    sendDefaultEmailForApplicationWithdrawnByMemberToLead,
+    sendEmailForMembershipApplicationSubmitted,
+    sendEmailForMembershipApproved,
+    sendEmailForMembershipDeclined,
+    sendEmailForMembershipDeactivatedByMemberToLead,
+    sendEmailForMembershipDeactivatedByMemberToMember,
+    sendEmailForMembershipDeactivatedByLead,
+    sendEmailForApplicationWithdrawnByMemberToLead,
     sendEmailBlast
   };
 }

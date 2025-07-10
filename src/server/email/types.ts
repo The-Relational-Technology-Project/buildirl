@@ -32,38 +32,38 @@ type EmailMutations = {
 };
 
 type EmailNotifications = {
-  sendDefaultEmailForMembershipApplicationSubmitted(
-    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
+  sendEmailForMembershipApplicationSubmitted(
+    input: SendEmailForMembershipApplicationSubmittedInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;
-  sendDefaultEmailForMembershipApproved(
-    input: SendDefaultEmailForMembershipApprovedInput,
+  sendEmailForMembershipApproved(
+    input: SendEmailForMembershipApprovedInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;
-  sendDefaultEmailForMembershipDeclined(
-    input: SendDefaultEmailForMembershipDeclinedInput,
+  sendEmailForMembershipDeclined(
+    input: SendEmailForMembershipDeclinedInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;
-  sendDefaultEmailForMembershipDeactivatedByMemberToLead(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
+  sendEmailForMembershipDeactivatedByMemberToLead(
+    input: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;
-  sendDefaultEmailForMembershipDeactivatedByMemberToMember(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+  sendEmailForMembershipDeactivatedByMemberToMember(
+    input: SendEmailForMembershipDeactivatedByMemberToMemberInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;
-  sendDefaultEmailForMembershipDeactivatedByLead(
-    input: SendDefaultEmailForMembershipDeactivatedByLeadInput,
+  sendEmailForMembershipDeactivatedByLead(
+    input: SendEmailForMembershipDeactivatedByLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;
-  sendDefaultEmailForApplicationWithdrawnByMemberToLead(
-    input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  sendEmailForApplicationWithdrawnByMemberToLead(
+    input: SendEmailForApplicationWithdrawnByMemberToLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;
   sendEmailBlast(id: bigint): Promise<void>;
 };
 
-export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
+export type SendEmailForMembershipApplicationSubmittedInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
@@ -72,7 +72,7 @@ export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
   clubLeadUserIds: number[];
 };
 
-export type SendDefaultEmailForMembershipApprovedInput = {
+export type SendEmailForMembershipApprovedInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
@@ -83,7 +83,7 @@ export type SendDefaultEmailForMembershipApprovedInput = {
   memberUserId: number;
 };
 
-export type SendDefaultEmailForMembershipDeclinedInput = {
+export type SendEmailForMembershipDeclinedInput = {
   membershipId: bigint;
   memberFirstName: string;
   clubId: number;
@@ -92,32 +92,32 @@ export type SendDefaultEmailForMembershipDeclinedInput = {
   memberUserId: number;
 };
 
-export type SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput = {
-  membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
-  clubName: string;
-  clubId: number;
-  clubLeadUserIds: number[];
-};
-
-export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
+export type SendEmailForMembershipDeactivatedByMemberToLeadInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
   clubName: string;
   clubId: number;
   clubLeadUserIds: number[];
+};
+
+export type SendEmailForMembershipDeactivatedByMemberToMemberInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
+  clubLeadUserIds: number[];
   memberUserId: number;
 };
 
-export type SendDefaultEmailForMembershipDeactivatedByLeadInput = {
+export type SendEmailForMembershipDeactivatedByLeadInput = {
   membershipId: bigint;
   clubName: string;
   memberUserId: number;
 };
 
-export type SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput = {
+export type SendEmailForApplicationWithdrawnByMemberToLeadInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;

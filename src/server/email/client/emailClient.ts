@@ -2,13 +2,13 @@ import { Transporter } from "nodemailer";
 import {
   EmailClient,
   SendEmailBlastInput,
-  SendDefaultEmailForMembershipApplicationSubmittedInput,
-  SendDefaultEmailForMembershipApprovedInput,
-  SendDefaultEmailForMembershipDeclinedInput,
-  SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
-  SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
-  SendDefaultEmailForMembershipDeactivatedByLeadInput,
-  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  SendEmailForMembershipApplicationSubmittedInput,
+  SendEmailForMembershipApprovedInput,
+  SendEmailForMembershipDeclinedInput,
+  SendEmailForMembershipDeactivatedByMemberToLeadInput,
+  SendEmailForMembershipDeactivatedByMemberToMemberInput,
+  SendEmailForMembershipDeactivatedByLeadInput,
+  SendEmailForApplicationWithdrawnByMemberToLeadInput,
   Emails
 } from "./types";
 import { rootLogger } from "~/logger";
@@ -67,8 +67,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipApplicationSubmitted(
-    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
+  async function sendEmailForMembershipApplicationSubmitted(
+    input: SendEmailForMembershipApplicationSubmittedInput,
     sendTo: Emails
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -98,8 +98,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipApproved(
-    input: SendDefaultEmailForMembershipApprovedInput,
+  async function sendEmailForMembershipApproved(
+    input: SendEmailForMembershipApprovedInput,
     sendTo: Emails,
     replyTo: Emails
   ): Promise<void> {
@@ -134,8 +134,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipDeclined(
-    input: SendDefaultEmailForMembershipDeclinedInput,
+  async function sendEmailForMembershipDeclined(
+    input: SendEmailForMembershipDeclinedInput,
     sendTo: Emails,
     replyTo: Emails
   ): Promise<void> {
@@ -168,8 +168,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByMemberToLead(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
+  async function sendEmailForMembershipDeactivatedByMemberToLead(
+    input: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     sendTo: Emails
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -201,8 +201,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+  async function sendEmailForMembershipDeactivatedByMemberToMember(
+    input: SendEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Emails,
     replyTo: Emails
   ): Promise<void> {
@@ -233,8 +233,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByLead(
-    input: SendDefaultEmailForMembershipDeactivatedByLeadInput,
+  async function sendEmailForMembershipDeactivatedByLead(
+    input: SendEmailForMembershipDeactivatedByLeadInput,
     sendTo: Emails
   ): Promise<void> {
     try {
@@ -264,8 +264,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForApplicationWithdrawnByMemberToLead(
-    input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  async function sendEmailForApplicationWithdrawnByMemberToLead(
+    input: SendEmailForApplicationWithdrawnByMemberToLeadInput,
     sendTo: Emails
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -298,12 +298,12 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   return {
     sendCustomEmail,
     sendEmailBlast,
-    sendDefaultEmailForMembershipApplicationSubmitted,
-    sendDefaultEmailForMembershipApproved,
-    sendDefaultEmailForMembershipDeclined,
-    sendDefaultEmailForMembershipDeactivatedByMemberToLead,
-    sendDefaultEmailForMembershipDeactivatedByMemberToMember,
-    sendDefaultEmailForMembershipDeactivatedByLead,
-    sendDefaultEmailForApplicationWithdrawnByMemberToLead
+    sendEmailForMembershipApplicationSubmitted,
+    sendEmailForMembershipApproved,
+    sendEmailForMembershipDeclined,
+    sendEmailForMembershipDeactivatedByMemberToLead,
+    sendEmailForMembershipDeactivatedByMemberToMember,
+    sendEmailForMembershipDeactivatedByLead,
+    sendEmailForApplicationWithdrawnByMemberToLead
   };
 }

@@ -377,7 +377,7 @@ export function createMembershipService(
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipApplicationSubmitted(
+    await emailService.sendEmailForMembershipApplicationSubmitted(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -552,7 +552,7 @@ export function createMembershipService(
     // noinspection DuplicatedCode
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserId = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipApproved(
+    await emailService.sendEmailForMembershipApproved(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -664,7 +664,7 @@ export function createMembershipService(
     // noinspection DuplicatedCode
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipDeclined(
+    await emailService.sendEmailForMembershipDeclined(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -822,7 +822,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
-    await emailService.sendDefaultEmailForMembershipDeactivatedByLead(
+    await emailService.sendEmailForMembershipDeactivatedByLead(
       {
         membershipId: membershipId,
         clubName: membership.club.name,
@@ -839,7 +839,7 @@ export function createMembershipService(
     // noinspection DuplicatedCode
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+    await emailService.sendEmailForMembershipDeactivatedByMemberToMember(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -859,7 +859,7 @@ export function createMembershipService(
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToLead(
+    await emailService.sendEmailForMembershipDeactivatedByMemberToLead(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -878,7 +878,7 @@ export function createMembershipService(
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForApplicationWithdrawnByMemberToLead(
+    await emailService.sendEmailForApplicationWithdrawnByMemberToLead(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
