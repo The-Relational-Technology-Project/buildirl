@@ -575,6 +575,38 @@ export function createPaymentService(
     }
   }
 
+  async function createProductAndPricesForMembershipTierWithDbUpdate(
+    input: CreateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    try {
+      // Call the existing method to get the Stripe IDs
+      const { productId, priceId, initiationFeePriceId } =
+        await createProductAndPricesForMembershipTier(input, tx);
+
+      // Only update the database if products were created (not null for free tier)
+      if (productId && priceId) {
+        await tx.membershipTier.update({
+          where: { id: input.membershipTierId },
+          data: {
+            stripeProductId: productId,
+            stripePriceId: priceId,
+            initiationFeeStripePriceId: initiationFeePriceId
+          }
+        });
+        logger.info(
+          `updated membership tier with id ${input.membershipTierId} with stripeProductId ${productId}, stripePriceId ${priceId}, and initiationFeeStripePriceId ${initiationFeePriceId}`
+        );
+      }
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create stripe product and prices with db update for membership tier with id ${input.membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
   async function archiveProductAndPricesForMembershipTier(
     membershipTierId: number,
     tx: Prisma.TransactionClient
@@ -761,6 +793,46 @@ export function createPaymentService(
     }
   }
 
+  async function updateProductAndPricesForMembershipTierWithDbUpdate(
+    input: UpdateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    try {
+      // Call the existing method to get the updated Stripe IDs
+      const { updatedPriceId, updatedInitiationFeePriceId } =
+        await updateProductAndPricesForMembershipTier(input, tx);
+
+      // only update price ids if they have changed
+      if (!!updatedPriceId) {
+        await tx.membershipTier.update({
+          where: { id: input.membershipTierId },
+          data: { stripePriceId: updatedPriceId }
+        });
+        logger.info(
+          `updated membership tier with id ${input.membershipTierId} with stripePriceId ${updatedPriceId}`
+        );
+      }
+      if (!!updatedInitiationFeePriceId) {
+        await tx.membershipTier.update({
+          where: { id: input.membershipTierId },
+          data: {
+            initiationFeeStripePriceId:
+              updatedInitiationFeePriceId.updatedPriceId
+          }
+        });
+        logger.info(
+          `updated membership tier with id ${input.membershipTierId} with initiationFeeStripePriceId ${updatedInitiationFeePriceId.updatedPriceId}`
+        );
+      }
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update stripe product and prices with db update for membership tier with id ${input.membershipTierId}`
+      );
+      throw e;
+    }
+  }
+
   return {
     getAccountStatus,
     getSubscriptionStatus,
@@ -772,8 +844,10 @@ export function createPaymentService(
     createSubscriptionForMembership,
     cancelSubscription,
     createProductAndPricesForMembershipTier,
+    createProductAndPricesForMembershipTierWithDbUpdate,
     archiveProductAndPricesForMembershipTier,
     publishProductAndPricesForMembershipTier,
-    updateProductAndPricesForMembershipTier
+    updateProductAndPricesForMembershipTier,
+    updateProductAndPricesForMembershipTierWithDbUpdate
   };
 }

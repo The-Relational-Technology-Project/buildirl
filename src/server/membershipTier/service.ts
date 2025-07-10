@@ -67,33 +67,21 @@ export function createMembershipTierService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {
-      const { productId, priceId, initiationFeePriceId } =
-        await paymentService.createProductAndPricesForMembershipTier(
-          {
-            name: input.name,
-            description: input.benefitDescription,
-            pricePerBillingInterval: input.costPerBillingInterval,
-            billingInterval: input.billingInterval,
-            initiationFeeInUSD: input.initiationFeeCostInUSD,
-            membershipTierId: membershipTierId
-          },
-          tx
-        );
+      await paymentService.createProductAndPricesForMembershipTierWithDbUpdate(
+        {
+          name: input.name,
+          description: input.benefitDescription,
+          pricePerBillingInterval: input.costPerBillingInterval,
+          billingInterval: input.billingInterval,
+          initiationFeeInUSD: input.initiationFeeCostInUSD,
+          membershipTierId: membershipTierId
+        },
+        tx
+      );
 
-      // Only update the database if products were created (not null for free tier)
-      if (productId && priceId) {
-        await tx.membershipTier.update({
-          where: { id: membershipTierId },
-          data: {
-            stripeProductId: productId,
-            stripePriceId: priceId,
-            initiationFeeStripePriceId: initiationFeePriceId
-          }
-        });
-        logger.info(
-          `updated membership tier with id ${membershipTierId} with stripeProductId ${productId}, stripePriceId ${priceId}, and initiationFeeStripePriceId ${initiationFeePriceId}`
-        );
-      }
+      logger.info(
+        `created stripe product and prices for membership tier with id ${membershipTierId}`
+      );
     } catch (e) {
       logger.error(
         e,
@@ -365,41 +353,21 @@ export function createMembershipTierService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {
-      const { updatedPriceId, updatedInitiationFeePriceId } =
-        await paymentService.updateProductAndPricesForMembershipTier(
-          {
-            name: input.name,
-            description: input.benefitDescription,
-            pricePerBillingInterval: input.costPerBillingInterval,
-            billingInterval: input.billingInterval,
-            initiationFeeInUSD: input.initiationFeeCostInUSD,
-            membershipTierId: membershipTierId
-          },
-          tx
-        );
+      await paymentService.updateProductAndPricesForMembershipTierWithDbUpdate(
+        {
+          name: input.name,
+          description: input.benefitDescription,
+          pricePerBillingInterval: input.costPerBillingInterval,
+          billingInterval: input.billingInterval,
+          initiationFeeInUSD: input.initiationFeeCostInUSD,
+          membershipTierId: membershipTierId
+        },
+        tx
+      );
 
-      // only update price ids if they have changed
-      if (!!updatedPriceId) {
-        await tx.membershipTier.update({
-          where: { id: membershipTierId },
-          data: { stripePriceId: updatedPriceId }
-        });
-        logger.info(
-          `updated membership tier with id ${membershipTierId} with stripePriceId ${updatedPriceId}`
-        );
-      }
-      if (!!updatedInitiationFeePriceId) {
-        await tx.membershipTier.update({
-          where: { id: membershipTierId },
-          data: {
-            initiationFeeStripePriceId:
-              updatedInitiationFeePriceId.updatedPriceId
-          }
-        });
-        logger.info(
-          `updated membership tier with id ${membershipTierId} with initiationFeeStripePriceId ${updatedInitiationFeePriceId.updatedPriceId}`
-        );
-      }
+      logger.info(
+        `updated stripe product and prices for membership tier with id ${membershipTierId}`
+      );
     } catch (e) {
       logger.error(
         e,
