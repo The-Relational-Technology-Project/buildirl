@@ -29,10 +29,6 @@ type PaymentMutations = {
   createCustomerForMembership(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<CreateCustomerForMembershipResult>;
-  createCustomerForMembershipWithDbUpdate(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
   ): Promise<void>;
   createSubscriptionForMembership(
     input: CreateSubscriptionForMembershipInput
@@ -122,10 +118,6 @@ export type CreateCustomerPortalSessionInput = z.infer<
 
 export type CreateCustomerPortalSessionResult = {
   redirectUrl: Url;
-};
-
-export type CreateCustomerForMembershipResult = {
-  customerId: Maybe<string>;
 };
 
 export type CreateSubscriptionForMembershipInput = {

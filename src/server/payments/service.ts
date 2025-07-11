@@ -12,7 +12,6 @@ import {
   CreateCheckoutSessionResult,
   CreateCustomerPortalSessionResult,
   CreateCustomerPortalSessionInput,
-  CreateCustomerForMembershipResult,
   CreateSubscriptionForMembershipInput,
   CreateSubscriptionForMembershipResult,
   CreateProductAndPricesForMembershipTierInput,
@@ -302,7 +301,7 @@ export function createPaymentService(
   async function createCustomerForMembership(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<CreateCustomerForMembershipResult> {
+  ): Promise<void> {
     try {
       const membership = await tx.membership.findUniqueOrThrow({
         where: { id: membershipId },
@@ -331,14 +330,14 @@ export function createPaymentService(
         logger.info(
           `membership with id ${membershipId} already has stripeCustomerId ${membership.stripeCustomerId}`
         );
-        return { customerId: membership.stripeCustomerId };
+        return;
       }
       // no Stripe customer needed for default free tier
       if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
         logger.info(
           `membership with id ${membershipId} is free tier, no Stripe customer needed`
         );
-        return { customerId: null };
+        return;
       }
 
       if (!membership.user.settings?.email) {
@@ -361,43 +360,25 @@ export function createPaymentService(
         accountId
       );
 
-      logger.info(
-        `created stripe customer ${response.customerId} for membership with id ${membershipId}`
-      );
-
-      return { customerId: response.customerId };
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe customer for membership with id ${membershipId}`
-      );
-      throw e;
-    }
-  }
-
-  async function createCustomerForMembershipWithDbUpdate(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ): Promise<void> {
-    try {
-      // Call the existing method to get the customer ID
-      const { customerId } = await createCustomerForMembership(membershipId, tx);
-
-      // Only update the database if a customer was created (not null for free tier)
-      if (customerId) {
+      // Update the database with the customer ID
+      if (response.customerId) {
         await tx.membership.update({
-          data: { stripeCustomerId: customerId },
+          data: { stripeCustomerId: response.customerId },
           where: { id: membershipId }
         });
 
         logger.info(
-          `updated membership with id ${membershipId} with stripeCustomerId ${customerId}`
+          `updated membership with id ${membershipId} with stripeCustomerId ${response.customerId}`
         );
       }
+
+      logger.info(
+        `created stripe customer ${response.customerId} for membership with id ${membershipId}`
+      );
     } catch (e) {
       logger.error(
         e,
-        `failed to create stripe customer with db update for membership with id ${membershipId}`
+        `failed to create stripe customer for membership with id ${membershipId}`
       );
       throw e;
     }
@@ -926,7 +907,6 @@ export function createPaymentService(
     createCheckoutSession,
     createCustomerPortalSession,
     createCustomerForMembership,
-    createCustomerForMembershipWithDbUpdate,
     createSubscriptionForMembership,
     createSubscriptionForMembershipWithDbUpdate,
     cancelSubscription,

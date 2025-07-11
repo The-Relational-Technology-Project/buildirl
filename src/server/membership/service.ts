@@ -272,7 +272,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     try {
-      await paymentService.createCustomerForMembershipWithDbUpdate(
+      await paymentService.createCustomerForMembership(
         membershipId,
         tx
       );
