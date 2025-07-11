@@ -67,7 +67,7 @@ export function createMembershipTierService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {
-      await paymentService.createProductAndPricesForMembershipTierWithDbUpdate(
+      await paymentService.createProductAndPricesForMembershipTier(
         {
           name: input.name,
           description: input.benefitDescription,
@@ -353,7 +353,7 @@ export function createMembershipTierService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {
-      await paymentService.updateProductAndPricesForMembershipTierWithDbUpdate(
+      await paymentService.updateProductAndPricesForMembershipTier(
         {
           name: input.name,
           description: input.benefitDescription,

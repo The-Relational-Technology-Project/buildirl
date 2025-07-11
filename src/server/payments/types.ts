@@ -41,10 +41,6 @@ type PaymentMutations = {
   createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
-  ): Promise<CreateProductAndPricesForMembershipTierResult>;
-  createProductAndPricesForMembershipTierWithDbUpdate(
-    input: CreateProductAndPricesForMembershipTierInput,
-    tx: Prisma.TransactionClient
   ): Promise<void>;
   archiveProductAndPricesForMembershipTier(
     membershipTierId: number,
@@ -55,10 +51,6 @@ type PaymentMutations = {
     tx: Prisma.TransactionClient
   ): Promise<void>;
   updateProductAndPricesForMembershipTier(
-    input: UpdateProductAndPricesForMembershipTierInput,
-    tx: Prisma.TransactionClient
-  ): Promise<UpdateProductAndPricesForMembershipTierResult>;
-  updateProductAndPricesForMembershipTierWithDbUpdate(
     input: UpdateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;
@@ -126,12 +118,6 @@ export type CreateProductAndPricesForMembershipTierInput = {
   membershipTierId: number;
 };
 
-export type CreateProductAndPricesForMembershipTierResult = {
-  productId: Maybe<string>;
-  priceId: Maybe<string>;
-  initiationFeePriceId: Maybe<string>;
-};
-
 export type UpdateProductAndPricesForMembershipTierInput = {
   name: string;
   description: string;
@@ -143,9 +129,4 @@ export type UpdateProductAndPricesForMembershipTierInput = {
 
 export type NullablePriceIdResult = {
   updatedPriceId: Maybe<string>;
-};
-
-export type UpdateProductAndPricesForMembershipTierResult = {
-  updatedPriceId: Maybe<string>;
-  updatedInitiationFeePriceId: Maybe<NullablePriceIdResult>;
 };

@@ -14,9 +14,7 @@ import {
   CreateCustomerPortalSessionInput,
   CreateSubscriptionForMembershipInput,
   CreateProductAndPricesForMembershipTierInput,
-  CreateProductAndPricesForMembershipTierResult,
   UpdateProductAndPricesForMembershipTierInput,
-  UpdateProductAndPricesForMembershipTierResult
 } from "~/server/payments/types";
 import { stringify, asNullFilteredList } from "~/utils";
 import { Maybe } from "~/utils/types";
@@ -358,7 +356,6 @@ export function createPaymentService(
         accountId
       );
 
-      // Update the database with the customer ID
       if (response.customerId) {
         await tx.membership.update({
           data: { stripeCustomerId: response.customerId },
@@ -553,7 +550,7 @@ export function createPaymentService(
   async function createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
-  ): Promise<CreateProductAndPricesForMembershipTierResult> {
+  ): Promise<void> {
     try {
       const membershipTier = await tx.membershipTier.findUniqueOrThrow({
         where: { id: input.membershipTierId },
@@ -567,7 +564,7 @@ export function createPaymentService(
         logger.info(
           `membership tier with id ${input.membershipTierId} is free tier, no Stripe products needed`
         );
-        return { productId: null, priceId: null, initiationFeePriceId: null };
+        return;
       }
 
       const accountId = await accountIdResolver.fromMembershipTierInTransaction(
@@ -588,28 +585,6 @@ export function createPaymentService(
           accountId
         );
 
-      logger.info(
-        `created stripe product ${productId} with price ${priceId} for membership tier with id ${input.membershipTierId}`
-      );
-      return { productId, priceId, initiationFeePriceId };
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe product and prices for membership tier with id ${input.membershipTierId}`
-      );
-      throw e;
-    }
-  }
-
-  async function createProductAndPricesForMembershipTierWithDbUpdate(
-    input: CreateProductAndPricesForMembershipTierInput,
-    tx: Prisma.TransactionClient
-  ): Promise<void> {
-    try {
-      // Call the existing method to get the Stripe IDs
-      const { productId, priceId, initiationFeePriceId } =
-        await createProductAndPricesForMembershipTier(input, tx);
-
       // Only update the database if products were created (not null for free tier)
       if (productId && priceId) {
         await tx.membershipTier.update({
@@ -627,7 +602,7 @@ export function createPaymentService(
     } catch (e) {
       logger.error(
         e,
-        `failed to create stripe product and prices with db update for membership tier with id ${input.membershipTierId}`
+        `failed to create stripe product and prices for membership tier with id ${input.membershipTierId}`
       );
       throw e;
     }
@@ -753,7 +728,7 @@ export function createPaymentService(
   async function updateProductAndPricesForMembershipTier(
     input: UpdateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
-  ): Promise<UpdateProductAndPricesForMembershipTierResult> {
+  ): Promise<void> {
     try {
       const membershipTier = await tx.membershipTier.findUniqueOrThrow({
         where: { id: input.membershipTierId },
@@ -770,7 +745,7 @@ export function createPaymentService(
         logger.info(
           `membership tier with id ${input.membershipTierId} is free tier, no Stripe products to update`
         );
-        return { updatedPriceId: null, updatedInitiationFeePriceId: null };
+        return;
       }
 
       if (!membershipTier.stripeProductId) {
@@ -806,28 +781,6 @@ export function createPaymentService(
           accountId
         );
 
-      logger.info(
-        `updated stripe product ${membershipTier.stripeProductId} for membership tier with id ${input.membershipTierId}`
-      );
-      return { updatedPriceId, updatedInitiationFeePriceId };
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to update stripe product and prices for membership tier with id ${input.membershipTierId}`
-      );
-      throw e;
-    }
-  }
-
-  async function updateProductAndPricesForMembershipTierWithDbUpdate(
-    input: UpdateProductAndPricesForMembershipTierInput,
-    tx: Prisma.TransactionClient
-  ): Promise<void> {
-    try {
-      // Call the existing method to get the updated Stripe IDs
-      const { updatedPriceId, updatedInitiationFeePriceId } =
-        await updateProductAndPricesForMembershipTier(input, tx);
-
       // only update price ids if they have changed
       if (!!updatedPriceId) {
         await tx.membershipTier.update({
@@ -853,7 +806,7 @@ export function createPaymentService(
     } catch (e) {
       logger.error(
         e,
-        `failed to update stripe product and prices with db update for membership tier with id ${input.membershipTierId}`
+        `failed to update stripe product and prices for membership tier with id ${input.membershipTierId}`
       );
       throw e;
     }
@@ -870,10 +823,8 @@ export function createPaymentService(
     createSubscriptionForMembership,
     cancelSubscription,
     createProductAndPricesForMembershipTier,
-    createProductAndPricesForMembershipTierWithDbUpdate,
     archiveProductAndPricesForMembershipTier,
     publishProductAndPricesForMembershipTier,
-    updateProductAndPricesForMembershipTier,
-    updateProductAndPricesForMembershipTierWithDbUpdate
+    updateProductAndPricesForMembershipTier
   };
 }
