@@ -763,7 +763,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     try {
-      await paymentService.cancelSubscriptionWithDbUpdate(membershipId, tx);
+      await paymentService.cancelSubscription(membershipId, tx);
 
       logger.info(
         `cancelled stripe subscription for membership with id ${membershipId}`

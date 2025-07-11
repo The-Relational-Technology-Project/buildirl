@@ -16,8 +16,7 @@ import {
   CreateProductAndPricesForMembershipTierInput,
   CreateProductAndPricesForMembershipTierResult,
   UpdateProductAndPricesForMembershipTierInput,
-  UpdateProductAndPricesForMembershipTierResult,
-  CancelSubscriptionResult
+  UpdateProductAndPricesForMembershipTierResult
 } from "~/server/payments/types";
 import { stringify, asNullFilteredList } from "~/utils";
 import { Maybe } from "~/utils/types";
@@ -491,7 +490,7 @@ export function createPaymentService(
   async function cancelSubscription(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<CancelSubscriptionResult> {
+  ): Promise<void> {
     try {
       const membership = await tx.membership.findUniqueOrThrow({
         select: {
@@ -510,7 +509,7 @@ export function createPaymentService(
         logger.info(
           `membership with id ${membershipId} is free tier, no subscription to cancel`
         );
-        return { wasCancelled: false };
+        return;
       }
 
       if (!membership.stripeSubscriptionId) {
@@ -519,7 +518,7 @@ export function createPaymentService(
         logger.error(
           `membership with id ${membershipId} has no stripeSubscriptionId to cancel`
         );
-        return { wasCancelled: false };
+        return;
       }
 
       const accountId = await accountIdResolver.fromMembershipInTransaction(
@@ -532,42 +531,20 @@ export function createPaymentService(
         accountId
       );
 
+
+      await tx.membership.update({
+        data: {
+          stripeSubscriptionId: null
+        },
+        where: { id: membershipId }
+      });
       logger.info(
-        `cancelled stripe subscription ${membership.stripeSubscriptionId} for membership with id ${membershipId}`
+        `updated membership with id ${membershipId} to set subscriptionId to null and cancelled stripe subscription ${membership.stripeSubscriptionId}`
       );
-      return { wasCancelled: true };
     } catch (e) {
       logger.error(
         e,
         `failed to cancel stripe subscription for membership with id ${membershipId}`
-      );
-      throw e;
-    }
-  }
-
-  async function cancelSubscriptionWithDbUpdate(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ): Promise<void> {
-    try {
-      // Call the existing method to cancel the subscription
-      const { wasCancelled } = await cancelSubscription(membershipId, tx);
-
-      if (wasCancelled) {
-        await tx.membership.update({
-          data: {
-            stripeSubscriptionId: null
-          },
-          where: { id: membershipId }
-        });
-        logger.info(
-          `updated membership with id ${membershipId} to set subscriptionId to null`
-        );
-      }
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to cancel stripe subscription with db update for membership with id ${membershipId}`
       );
       throw e;
     }
@@ -892,7 +869,6 @@ export function createPaymentService(
     createCustomerForMembership,
     createSubscriptionForMembership,
     cancelSubscription,
-    cancelSubscriptionWithDbUpdate,
     createProductAndPricesForMembershipTier,
     createProductAndPricesForMembershipTierWithDbUpdate,
     archiveProductAndPricesForMembershipTier,
