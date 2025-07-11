@@ -66,29 +66,17 @@ export function createMembershipTierService(
     input: CreateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    try {
-      await paymentService.createProductAndPricesForMembershipTier(
-        {
-          name: input.name,
-          description: input.benefitDescription,
-          pricePerBillingInterval: input.costPerBillingInterval,
-          billingInterval: input.billingInterval,
-          initiationFeeInUSD: input.initiationFeeCostInUSD,
-          membershipTierId: membershipTierId
-        },
-        tx
-      );
-
-      logger.info(
-        `created stripe product and prices for membership tier with id ${membershipTierId}`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe product and prices for membership tier with id ${membershipTierId}`
-      );
-      throw e;
-    }
+    await paymentService.createProductAndPricesForMembershipTier(
+      {
+        name: input.name,
+        description: input.benefitDescription,
+        pricePerBillingInterval: input.costPerBillingInterval,
+        billingInterval: input.billingInterval,
+        initiationFeeInUSD: input.initiationFeeCostInUSD,
+        membershipTierId: membershipTierId
+      },
+      tx
+    );
   }
 
   async function createDefaultFreeMembershipTier(
@@ -352,29 +340,17 @@ export function createMembershipTierService(
     input: UpdateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    try {
-      await paymentService.updateProductAndPricesForMembershipTier(
-        {
-          name: input.name,
-          description: input.benefitDescription,
-          pricePerBillingInterval: input.costPerBillingInterval,
-          billingInterval: input.billingInterval,
-          initiationFeeInUSD: input.initiationFeeCostInUSD,
-          membershipTierId: membershipTierId
-        },
-        tx
-      );
-
-      logger.info(
-        `updated stripe product and prices for membership tier with id ${membershipTierId}`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to update stripe product and prices for membership tier with id ${membershipTierId}`
-      );
-      throw e;
-    }
+    await paymentService.updateProductAndPricesForMembershipTier(
+      {
+        name: input.name,
+        description: input.benefitDescription,
+        pricePerBillingInterval: input.costPerBillingInterval,
+        billingInterval: input.billingInterval,
+        initiationFeeInUSD: input.initiationFeeCostInUSD,
+        membershipTierId: membershipTierId
+      },
+      tx
+    );
   }
 
   async function checkNoActiveMembersOrPendingApplicationsOnMembershipTier(

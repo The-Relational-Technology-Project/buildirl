@@ -271,22 +271,10 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    try {
-      await paymentService.createCustomerForMembership(
-        membershipId,
-        tx
-      );
-
-      logger.info(
-        `created stripe customer for membership with id ${membershipId}`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe customer for membership with id ${membershipId}`
-      );
-      throw e;
-    }
+    await paymentService.createCustomerForMembership(
+      membershipId,
+      tx
+    );
   }
 
   async function updateMembershipWithNewApplication(
@@ -510,24 +498,12 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    try {
-      await paymentService.createSubscriptionForMembership(
-        {
-          membershipId: membershipId
-        },
-        tx
-      );
-
-      logger.info(
-        `created stripe subscription for membership with id ${membershipId}`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe subscription for membership with id ${membershipId}`
-      );
-      throw e;
-    }
+    await paymentService.createSubscriptionForMembership(
+      {
+        membershipId: membershipId
+      },
+      tx
+    );
   }
 
   async function notifyMembershipApproved(
@@ -762,19 +738,7 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    try {
-      await paymentService.cancelSubscription(membershipId, tx);
-
-      logger.info(
-        `cancelled stripe subscription for membership with id ${membershipId}`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to cancel stripe subscription for membership with id ${membershipId}`
-      );
-      throw e;
-    }
+    await paymentService.cancelSubscription(membershipId, tx);
   }
 
   async function notifyMembershipDeactivated(
