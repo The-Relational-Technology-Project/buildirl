@@ -272,22 +272,14 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     try {
-      const { customerId } = await paymentService.createCustomerForMembership(
+      await paymentService.createCustomerForMembershipWithDbUpdate(
         membershipId,
         tx
       );
 
-      // Only update the database if a customer was created (not null for free tier)
-      if (customerId) {
-        await tx.membership.update({
-          data: { stripeCustomerId: customerId },
-          where: { id: membershipId }
-        });
-
-        logger.info(
-          `updated membership with id ${membershipId} with stripeCustomerId ${customerId}`
-        );
-      }
+      logger.info(
+        `created stripe customer for membership with id ${membershipId}`
+      );
     } catch (e) {
       logger.error(
         e,
@@ -519,23 +511,16 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {
-      const { subscriptionId } =
-        await paymentService.createSubscriptionForMembership({
+      await paymentService.createSubscriptionForMembershipWithDbUpdate(
+        {
           membershipId: membershipId
-        });
+        },
+        tx
+      );
 
-      // Only update the database if a subscription was created (not null for free tier)
-      if (subscriptionId) {
-        await tx.membership.update({
-          data: {
-            stripeSubscriptionId: subscriptionId
-          },
-          where: { id: membershipId }
-        });
-        logger.info(
-          `updated membership with id ${membershipId} with subscription id ${subscriptionId}`
-        );
-      }
+      logger.info(
+        `created stripe subscription for membership with id ${membershipId}`
+      );
     } catch (e) {
       logger.error(
         e,
@@ -778,22 +763,11 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     try {
-      const { wasCancelled } = await paymentService.cancelSubscription(
-        membershipId,
-        tx
-      );
+      await paymentService.cancelSubscriptionWithDbUpdate(membershipId, tx);
 
-      if (wasCancelled) {
-        await tx.membership.update({
-          data: {
-            stripeSubscriptionId: null
-          },
-          where: { id: membershipId }
-        });
-        logger.info(
-          `updated membership with id ${membershipId} to set subscriptionId to null`
-        );
-      }
+      logger.info(
+        `cancelled stripe subscription for membership with id ${membershipId}`
+      );
     } catch (e) {
       logger.error(
         e,

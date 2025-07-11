@@ -375,6 +375,34 @@ export function createPaymentService(
     }
   }
 
+  async function createCustomerForMembershipWithDbUpdate(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    try {
+      // Call the existing method to get the customer ID
+      const { customerId } = await createCustomerForMembership(membershipId, tx);
+
+      // Only update the database if a customer was created (not null for free tier)
+      if (customerId) {
+        await tx.membership.update({
+          data: { stripeCustomerId: customerId },
+          where: { id: membershipId }
+        });
+
+        logger.info(
+          `updated membership with id ${membershipId} with stripeCustomerId ${customerId}`
+        );
+      }
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create stripe customer with db update for membership with id ${membershipId}`
+      );
+      throw e;
+    }
+  }
+
   async function createSubscriptionForMembership(
     input: CreateSubscriptionForMembershipInput
   ): Promise<CreateSubscriptionForMembershipResult> {
@@ -467,6 +495,35 @@ export function createPaymentService(
     }
   }
 
+  async function createSubscriptionForMembershipWithDbUpdate(
+    input: CreateSubscriptionForMembershipInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    try {
+      // Call the existing method to get the subscription ID
+      const { subscriptionId } = await createSubscriptionForMembership(input);
+
+      // Only update the database if a subscription was created (not null for free tier)
+      if (subscriptionId) {
+        await tx.membership.update({
+          data: {
+            stripeSubscriptionId: subscriptionId
+          },
+          where: { id: input.membershipId }
+        });
+        logger.info(
+          `updated membership with id ${input.membershipId} with subscription id ${subscriptionId}`
+        );
+      }
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to create stripe subscription with db update for membership with id ${input.membershipId}`
+      );
+      throw e;
+    }
+  }
+
   async function cancelSubscription(
     membershipId: bigint,
     tx: Prisma.TransactionClient
@@ -519,6 +576,34 @@ export function createPaymentService(
       logger.error(
         e,
         `failed to cancel stripe subscription for membership with id ${membershipId}`
+      );
+      throw e;
+    }
+  }
+
+  async function cancelSubscriptionWithDbUpdate(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    try {
+      // Call the existing method to cancel the subscription
+      const { wasCancelled } = await cancelSubscription(membershipId, tx);
+
+      if (wasCancelled) {
+        await tx.membership.update({
+          data: {
+            stripeSubscriptionId: null
+          },
+          where: { id: membershipId }
+        });
+        logger.info(
+          `updated membership with id ${membershipId} to set subscriptionId to null`
+        );
+      }
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to cancel stripe subscription with db update for membership with id ${membershipId}`
       );
       throw e;
     }
@@ -841,8 +926,11 @@ export function createPaymentService(
     createCheckoutSession,
     createCustomerPortalSession,
     createCustomerForMembership,
+    createCustomerForMembershipWithDbUpdate,
     createSubscriptionForMembership,
+    createSubscriptionForMembershipWithDbUpdate,
     cancelSubscription,
+    cancelSubscriptionWithDbUpdate,
     createProductAndPricesForMembershipTier,
     createProductAndPricesForMembershipTierWithDbUpdate,
     archiveProductAndPricesForMembershipTier,
