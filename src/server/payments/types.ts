@@ -31,9 +31,6 @@ type PaymentMutations = {
     tx: Prisma.TransactionClient
   ): Promise<void>;
   createSubscriptionForMembership(
-    input: CreateSubscriptionForMembershipInput
-  ): Promise<CreateSubscriptionForMembershipResult>;
-  createSubscriptionForMembershipWithDbUpdate(
     input: CreateSubscriptionForMembershipInput,
     tx: Prisma.TransactionClient
   ): Promise<void>;

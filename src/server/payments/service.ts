@@ -13,7 +13,6 @@ import {
   CreateCustomerPortalSessionResult,
   CreateCustomerPortalSessionInput,
   CreateSubscriptionForMembershipInput,
-  CreateSubscriptionForMembershipResult,
   CreateProductAndPricesForMembershipTierInput,
   CreateProductAndPricesForMembershipTierResult,
   UpdateProductAndPricesForMembershipTierInput,
@@ -385,10 +384,11 @@ export function createPaymentService(
   }
 
   async function createSubscriptionForMembership(
-    input: CreateSubscriptionForMembershipInput
-  ): Promise<CreateSubscriptionForMembershipResult> {
+    input: CreateSubscriptionForMembershipInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
     try {
-      const membership = await prisma.membership.findUniqueOrThrow({
+      const membership = await tx.membership.findUniqueOrThrow({
         select: {
           stripeSetupIntentId: true,
           stripeCustomerId: true,
@@ -415,7 +415,7 @@ export function createPaymentService(
         logger.info(
           `membership with id ${input.membershipId} is free tier, no subscription needed`
         );
-        return { subscriptionId: null };
+        return;
       }
 
       const customerId = membership.stripeCustomerId;
@@ -447,8 +447,9 @@ export function createPaymentService(
         );
       }
 
-      const accountId = await accountIdResolver.fromMembership(
-        input.membershipId
+      const accountId = await accountIdResolver.fromMembershipInTransaction(
+        input.membershipId,
+        tx
       );
 
       const { subscriptionId } =
@@ -463,28 +464,6 @@ export function createPaymentService(
           accountId
         );
 
-      logger.info(
-        `created stripe subscription ${subscriptionId} for membership with id ${input.membershipId}`
-      );
-      return { subscriptionId };
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe subscription for membership with id ${input.membershipId}`
-      );
-      throw e;
-    }
-  }
-
-  async function createSubscriptionForMembershipWithDbUpdate(
-    input: CreateSubscriptionForMembershipInput,
-    tx: Prisma.TransactionClient
-  ): Promise<void> {
-    try {
-      // Call the existing method to get the subscription ID
-      const { subscriptionId } = await createSubscriptionForMembership(input);
-
-      // Only update the database if a subscription was created (not null for free tier)
       if (subscriptionId) {
         await tx.membership.update({
           data: {
@@ -496,10 +475,14 @@ export function createPaymentService(
           `updated membership with id ${input.membershipId} with subscription id ${subscriptionId}`
         );
       }
+
+      logger.info(
+        `created stripe subscription ${subscriptionId} for membership with id ${input.membershipId}`
+      );
     } catch (e) {
       logger.error(
         e,
-        `failed to create stripe subscription with db update for membership with id ${input.membershipId}`
+        `failed to create stripe subscription for membership with id ${input.membershipId}`
       );
       throw e;
     }
@@ -908,7 +891,6 @@ export function createPaymentService(
     createCustomerPortalSession,
     createCustomerForMembership,
     createSubscriptionForMembership,
-    createSubscriptionForMembershipWithDbUpdate,
     cancelSubscription,
     cancelSubscriptionWithDbUpdate,
     createProductAndPricesForMembershipTier,

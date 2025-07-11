@@ -511,7 +511,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ): Promise<void> {
     try {
-      await paymentService.createSubscriptionForMembershipWithDbUpdate(
+      await paymentService.createSubscriptionForMembership(
         {
           membershipId: membershipId
         },
