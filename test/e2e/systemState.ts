@@ -767,6 +767,10 @@ export class SystemState {
     return membershipState;
   }
 
+  public getMembership(membershipId: bigint): MembershipState {
+    return this.getMembershipState(membershipId);
+  }
+
   public isNotLastLeadMembershipForClub(membershipId: bigint): boolean {
     const membershipState = this.getMembershipState(membershipId);
 
@@ -853,6 +857,30 @@ export class SystemState {
     return Array.from(this.clubs.values())
       .filter((c) => c.hasStripeAccount)
       .map((c) => c.id);
+  }
+
+  public clubHasStripeAccount(clubId: number): boolean {
+    const club = this.getClubState(clubId);
+    return club.hasStripeAccount;
+  }
+
+  public getPublishedMembershipTierIdsForClub(clubId: number): number[] {
+    const club = this.getClubState(clubId);
+    return club.membershipTierIds
+      .map((id) => this.membershipTiers.get(id))
+      .filter((tier) => tier && tier.status === "PUBLISHED")
+      .map((tier) => tier!.id);
+  }
+
+  public updateMembershipTierForMembership(
+    membershipId: bigint,
+    newMembershipTierId: number
+  ) {
+    const membership = this.getMembershipState(membershipId);
+    this.memberships.set(membershipId, {
+      ...membership,
+      membershipTierId: newMembershipTierId
+    });
   }
 
   public followClub(userId: number, clubId: number) {

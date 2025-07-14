@@ -829,6 +829,138 @@ export function createMembershipService(
     }
   }
 
+  async function updateMembershipTierForMembership(
+    membershipId: bigint,
+    newMembershipTierId: number
+  ): Promise<MutationResult> {
+    await checkMembershipStatus(membershipId, "ACTIVE");
+
+    return prisma.$transaction(async (tx) => {
+      const membership = await tx.membership.findUniqueOrThrow({
+        select: {
+          membershipTier: {
+            select: {
+              id: true,
+              clubId: true,
+              costPerBillingInterval: true
+            }
+          },
+          stripeSubscriptionId: true,
+          stripeCustomerId: true
+        },
+        where: { id: membershipId }
+      });
+
+      // Verify new tier belongs to same club and is published
+      const newTier = await tx.membershipTier.findUniqueOrThrow({
+        select: {
+          id: true,
+          clubId: true,
+          status: true,
+          costPerBillingInterval: true,
+          stripePriceId: true,
+          initiationFeeStripePriceId: true
+        },
+        where: { id: newMembershipTierId }
+      });
+      
+      if (newTier.status !== "PUBLISHED") {
+        throw new Error(
+          `Cannot change to unpublished tier with id ${newMembershipTierId}`
+        );
+      }
+
+      if (newTier.clubId !== membership.membershipTier.clubId) {
+        throw new Error(
+          `New tier must belong to the same club as current membership`
+        );
+      }
+
+      // Don't allow changing to the same tier
+      if (membership.membershipTier.id === newMembershipTierId) {
+        throw new Error(`Already on membership tier ${newMembershipTierId}`);
+      }
+
+      const isCurrentTierFree = isPrismaResultDefaultFreeTier(membership.membershipTier);
+      const isNewTierFree = newTier.costPerBillingInterval.toNumber() === 0;
+
+      // Handle subscription changes based on tier types
+      if (isCurrentTierFree && isNewTierFree) {
+        // Free to Free - just update the membership
+        logger.info(
+          `Changing from free tier to free tier for membership ${membershipId}`
+        );
+      } else if (isCurrentTierFree && !isNewTierFree) {
+        // Free to Paid - create customer and subscription
+        logger.info(
+          `Changing from free tier to paid tier for membership ${membershipId}`
+        );
+        
+        // Create customer if doesn't exist
+        if (!membership.stripeCustomerId) {
+          await createStripeCustomer(membershipId, tx);
+        }
+
+        // Create subscription
+        const { subscriptionId } = await paymentService.createSubscriptionForMembership({
+          membershipId: membershipId
+        });
+
+        await tx.membership.update({
+          data: { stripeSubscriptionId: subscriptionId },
+          where: { id: membershipId }
+        });
+      } else if (!isCurrentTierFree && isNewTierFree) {
+        // Paid to Free - cancel subscription
+        logger.info(
+          `Changing from paid tier to free tier for membership ${membershipId}`
+        );
+        
+        await paymentService.cancelSubscription(membershipId, tx);
+        
+        await tx.membership.update({
+          data: { stripeSubscriptionId: null },
+          where: { id: membershipId }
+        });
+      } else {
+        // Paid to Paid - update subscription
+        logger.info(
+          `Changing from paid tier to paid tier for membership ${membershipId}`
+        );
+        
+        if (!membership.stripeSubscriptionId) {
+          throw new Error(
+            `Expected subscription for paid membership ${membershipId} but found none`
+          );
+        }
+
+        if (!newTier.stripePriceId) {
+          throw new Error(
+            `Expected Stripe price ID for paid tier ${newMembershipTierId} but found none`
+          );
+        }
+
+        await paymentService.updateSubscription(
+          membershipId,
+          newTier.stripePriceId,
+          newTier.initiationFeeStripePriceId
+        );
+      }
+
+      // Update the membership tier
+      await tx.membership.update({
+        data: { membershipTierId: newMembershipTierId },
+        where: { id: membershipId }
+      });
+
+      logger.info(
+        `Updated membership ${membershipId} from tier ${membership.membershipTier.id} to tier ${newMembershipTierId}`
+      );
+
+      return NO_ID_MUTATION_RESULT;
+    });
+  }
+
   return {
     getUserMemberships,
     getActiveMembershipsForClub,
@@ -839,6 +971,7 @@ export function createMembershipService(
     withdrawMembershipApplication,
     deactivateMembership,
     setMembershipAsWelcomed,
+    updateMembershipTierForMembership,
     createLeadMembership,
     notifyMembershipApplicationSubmitted,
     membershipStatus

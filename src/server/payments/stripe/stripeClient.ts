@@ -20,6 +20,8 @@ import {
   SubscriptionStatusResponse,
   UpdateProductAndPricesForMembershipTierInput,
   UpdateProductAndPricesForMembershipTierResponse,
+  UpdateSubscriptionInput,
+  UpdateSubscriptionResponse,
   NullablePriceIdResponse
 } from "~/server/payments/stripe/types";
 import { rootLogger } from "~/logger";
@@ -719,6 +721,77 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
+  async function updateSubscription(
+    input: UpdateSubscriptionInput,
+    byAccountId: string
+  ): Promise<UpdateSubscriptionResponse> {
+    try {
+      const subscription = await stripe.subscriptions.retrieve(
+        input.subscriptionId,
+        {
+          stripeAccount: byAccountId
+        }
+      );
+
+      const items = subscription.items.data;
+      if (items.length === 0) {
+        throw new Error(
+          `subscription ${input.subscriptionId} has no items to update`
+        );
+      }
+
+      const firstItem = items[0];
+      if (!firstItem) {
+        throw new Error(
+          `subscription ${input.subscriptionId} has no valid first item`
+        );
+      }
+
+      // Update the subscription with the new price
+      // This will handle proration automatically
+      const updatedSubscription = await stripe.subscriptions.update(
+        input.subscriptionId,
+        {
+          items: [
+            {
+              id: firstItem.id,
+              price: input.newPriceId
+            }
+          ],
+          proration_behavior: "create_prorations"
+        },
+        {
+          stripeAccount: byAccountId
+        }
+      );
+
+      // If there's an initiation fee for the new tier, create an invoice item
+      if (input.newInitiationFeePriceId) {
+        await stripe.invoiceItems.create(
+          {
+            customer: subscription.customer as string,
+            price: input.newInitiationFeePriceId,
+            subscription: input.subscriptionId
+          },
+          {
+            stripeAccount: byAccountId
+          }
+        );
+      }
+
+      logger.info(
+        `updated subscription ${input.subscriptionId} with new price ${input.newPriceId}`
+      );
+      return { subscriptionId: updatedSubscription.id };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update subscription with id ${input.subscriptionId}`
+      );
+      throw e;
+    }
+  }
+
   async function getSubscriptionStatus(
     subscriptionId: string,
     byAccountId: string
@@ -759,6 +832,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     createCheckoutSessionForMembership,
     createSubscriptionForMembership,
     cancelSubscription,
+    updateSubscription,
     getSubscriptionStatus
   };
 }

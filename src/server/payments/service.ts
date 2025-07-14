@@ -15,6 +15,9 @@ import {
   CreateSubscriptionForMembershipInput,
   CreateProductAndPricesForMembershipTierInput,
   UpdateProductAndPricesForMembershipTierInput,
+  UpdateProductAndPricesForMembershipTierResult,
+  CancelSubscriptionResult,
+  UpdateSubscriptionResult
 } from "~/server/payments/types";
 import { stringify, asNullFilteredList } from "~/utils";
 import { Maybe } from "~/utils/types";
@@ -543,6 +546,49 @@ export function createPaymentService(
     }
   }
 
+  async function updateSubscription(
+    membershipId: bigint,
+    newPriceId: string,
+    newInitiationFeePriceId: Maybe<string>
+  ): Promise<UpdateSubscriptionResult> {
+    try {
+      const membership = await prisma.membership.findUniqueOrThrow({
+        select: {
+          stripeSubscriptionId: true
+        },
+        where: { id: membershipId }
+      });
+
+      if (!membership.stripeSubscriptionId) {
+        throw new Error(
+          `membership with id ${membershipId} does not have stripe subscription`
+        );
+      }
+
+      const accountId = await accountIdResolver.fromMembership(membershipId);
+
+      const { subscriptionId } = await stripeClient.updateSubscription(
+        {
+          subscriptionId: membership.stripeSubscriptionId,
+          newPriceId: newPriceId,
+          newInitiationFeePriceId: newInitiationFeePriceId
+        },
+        accountId
+      );
+
+      logger.info(
+        `updated stripe subscription ${subscriptionId} for membership with id ${membershipId}`
+      );
+      return { subscriptionId };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update stripe subscription for membership with id ${membershipId}`
+      );
+      throw e;
+    }
+  }
+
   async function createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
@@ -816,6 +862,7 @@ export function createPaymentService(
     createCustomerForMembership,
     createSubscriptionForMembership,
     cancelSubscription,
+    updateSubscription,
     createProductAndPricesForMembershipTier,
     archiveProductAndPricesForMembershipTier,
     publishProductAndPricesForMembershipTier,

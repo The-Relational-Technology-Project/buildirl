@@ -64,6 +64,10 @@ type MembershipMutations = {
     input: DeactivateMembershipInput
   ): Promise<MutationResult>;
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
+  updateMembershipTierForMembership(
+    membershipId: bigint,
+    newMembershipTierId: number
+  ): Promise<MutationResult>;
   // internal
   createLeadMembership(
     membershipTierId: number,
