@@ -19,7 +19,9 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "format": "yarn prettier --write .",
-    "format-check": "yarn prettier --check ."
+    "format-check": "yarn prettier --check .",
+    "unused-exports": "ts-unused-exports tsconfig.json --excludePathsFromReport=test",
+    "build-verify": "jest test/e2e/buildVerification.test.ts"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",
@@ -89,6 +91,7 @@
     "rimraf": "^6.0.1",
     "testcontainers": "^10.16.0",
     "ts-jest": "^29.2.5",
+    "ts-unused-exports": "^11.0.1",
     "typescript": "^5.5.3"
   },
   "ct3aMetadata": {
