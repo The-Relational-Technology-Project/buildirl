@@ -31,7 +31,7 @@ export default class UpdateMembershipTierCommand
       m.getMembershipTierIds()
     );
     return (
-      this.isNotUpdatingCostOnTierWithActiveOrPendingMembers(
+      this.isNotUpdatingPricingOnTierWithActiveOrPendingMembers(
         m,
         membershipTierId
       ) &&
@@ -42,17 +42,20 @@ export default class UpdateMembershipTierCommand
     );
   }
 
-  isNotUpdatingCostOnTierWithActiveOrPendingMembers(
+  isNotUpdatingPricingOnTierWithActiveOrPendingMembers(
     m: Readonly<SystemState>,
     membershipTierId: number
   ) {
     const currentTier = m.getMembershipTier(membershipTierId);
     const currentCost = currentTier.costPerBillingInterval;
-    const isUpdatingCost = currentCost !== this.input.costPerBillingInterval;
+    const currentInterval = currentTier.billingInterval;
+    const isUpdatingPricing = 
+      currentCost !== this.input.costPerBillingInterval ||
+      currentInterval !== this.input.billingInterval;
     const hasActiveMembersOrPendingApplications =
       m.hasActiveMembersOrPendingApplications(membershipTierId);
-    // cannot update cost on tier with active members or pending applications
-    return !(isUpdatingCost && hasActiveMembersOrPendingApplications);
+    // cannot update pricing parameters on tier with active members or pending applications
+    return !(isUpdatingPricing && hasActiveMembersOrPendingApplications);
   }
 
   isNotUpdatingInitiationFeeCostOnTierWithPendingMembers(
