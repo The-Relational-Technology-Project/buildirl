@@ -248,7 +248,7 @@ export function createMembershipService(
         }
       });
 
-      await createStripeCustomer(id, tx);
+      await paymentService.createCustomerForMembership(id, tx);
       // only notify once application is fully pending
       if (status === "PENDING") {
         await notifyMembershipApplicationSubmittedInTransaction(id, tx);
@@ -265,16 +265,6 @@ export function createMembershipService(
       );
       throw e;
     }
-  }
-
-  async function createStripeCustomer(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ) {
-    await paymentService.createCustomerForMembership(
-      membershipId,
-      tx
-    );
   }
 
   async function updateMembershipWithNewApplication(
@@ -325,7 +315,7 @@ export function createMembershipService(
         `updated membership to pending membership from input ${stringify(input)} with membershipId ${id}`
       );
 
-      await createStripeCustomer(id, tx);
+      await paymentService.createCustomerForMembership(id, tx);
       // only notify once in fully pending
       if (status === "PENDING") {
         await notifyMembershipApplicationSubmitted(id);
@@ -483,7 +473,12 @@ export function createMembershipService(
       // external communications
       await followingService.unfollowClubForMembership(membershipId, tx);
 
-      await createSubscription(membershipId, tx);
+      await paymentService.createSubscriptionForMembership(
+        {
+          membershipId: membershipId
+        },
+        tx
+      );
       await notifyMembershipApproved(membershipId, tx);
 
       logger.info(`approved membership with id ${membershipId}`);
@@ -492,18 +487,6 @@ export function createMembershipService(
       logger.error(e, `failed to approve membership with id ${membershipId}`);
       throw e;
     }
-  }
-
-  async function createSubscription(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ): Promise<void> {
-    await paymentService.createSubscriptionForMembership(
-      {
-        membershipId: membershipId
-      },
-      tx
-    );
   }
 
   async function notifyMembershipApproved(
@@ -717,7 +700,7 @@ export function createMembershipService(
       // if subscription was cancelled outside of this system,
       // that is OK because these operations are idempotent
       // https://docs.stripe.com/api/idempotent_requests
-      await cancelSubscription(membershipId, tx);
+      await paymentService.cancelSubscription(membershipId, tx);
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are reactivated
 
@@ -732,13 +715,6 @@ export function createMembershipService(
       );
       throw e;
     }
-  }
-
-  async function cancelSubscription(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ) {
-    await paymentService.cancelSubscription(membershipId, tx);
   }
 
   async function notifyMembershipDeactivated(
