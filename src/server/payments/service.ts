@@ -356,16 +356,10 @@ export function createPaymentService(
         accountId
       );
 
-      if (response.customerId) {
-        await tx.membership.update({
-          data: { stripeCustomerId: response.customerId },
-          where: { id: membershipId }
-        });
-
-        logger.info(
-          `updated membership with id ${membershipId} with stripeCustomerId ${response.customerId}`
-        );
-      }
+      await tx.membership.update({
+        data: { stripeCustomerId: response.customerId },
+        where: { id: membershipId }
+      });
 
       logger.info(
         `created stripe customer ${response.customerId} for membership with id ${membershipId}`
@@ -460,17 +454,12 @@ export function createPaymentService(
           accountId
         );
 
-      if (subscriptionId) {
-        await tx.membership.update({
-          data: {
-            stripeSubscriptionId: subscriptionId
-          },
-          where: { id: input.membershipId }
-        });
-        logger.info(
-          `updated membership with id ${input.membershipId} with subscription id ${subscriptionId}`
-        );
-      }
+      await tx.membership.update({
+        data: {
+          stripeSubscriptionId: subscriptionId
+        },
+        where: { id: input.membershipId }
+      });
 
       logger.info(
         `created stripe subscription ${subscriptionId} for membership with id ${input.membershipId}`
@@ -585,20 +574,18 @@ export function createPaymentService(
           accountId
         );
 
-      // Only update the database if products were created (not null for free tier)
-      if (productId && priceId) {
-        await tx.membershipTier.update({
-          where: { id: input.membershipTierId },
-          data: {
-            stripeProductId: productId,
-            stripePriceId: priceId,
-            initiationFeeStripePriceId: initiationFeePriceId
-          }
-        });
-        logger.info(
-          `updated membership tier with id ${input.membershipTierId} with stripeProductId ${productId}, stripePriceId ${priceId}, and initiationFeeStripePriceId ${initiationFeePriceId}`
-        );
-      }
+      await tx.membershipTier.update({
+        where: { id: input.membershipTierId },
+        data: {
+          stripeProductId: productId,
+          stripePriceId: priceId,
+          initiationFeeStripePriceId: initiationFeePriceId
+        }
+      });
+
+      logger.info(
+        `created stripe product and prices for membership tier with id ${input.membershipTierId}`
+      );
     } catch (e) {
       logger.error(
         e,
