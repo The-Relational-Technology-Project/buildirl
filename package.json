@@ -19,9 +19,10 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "format": "yarn prettier --write .",
-    "format-check": "yarn prettier --check .",
+    "format-check": "yarn prettier --check . && yarn unused-exports",
     "unused-exports": "ts-unused-exports tsconfig.json --excludePathsFromReport=test",
-    "build-verify": "yarn typecheck && yarn test test/e2e/system.test.ts && yarn unused-exports"
+    "verify": "yarn typecheck && yarn test test/e2e/system.test.ts",
+    "format-verify": "yarn format-check && yarn verify"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",
