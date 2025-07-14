@@ -49,8 +49,3 @@ export function isPrismaResultDefaultFreeTier(membershipTier: {
   return membershipTier.costPerBillingInterval.toNumber() === 0;
 }
 
-export function getEffectiveCost(membershipTier: {
-  costPerBillingInterval: Prisma.Decimal;
-}): number {
-  return membershipTier.costPerBillingInterval.toNumber();
-}
