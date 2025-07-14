@@ -248,7 +248,7 @@ export function createMembershipService(
         }
       });
 
-      await createStripeCustomer(id, tx);
+      await paymentService.createCustomerForMembership(id, tx);
       // only notify once application is fully pending
       if (status === "PENDING") {
         await notifyMembershipApplicationSubmittedInTransaction(id, tx);
@@ -262,36 +262,6 @@ export function createMembershipService(
       logger.error(
         e,
         `failed to create pending membership from input ${stringify(input)}`
-      );
-      throw e;
-    }
-  }
-
-  async function createStripeCustomer(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ) {
-    try {
-      const { customerId } = await paymentService.createCustomerForMembership(
-        membershipId,
-        tx
-      );
-
-      // Only update the database if a customer was created (not null for free tier)
-      if (customerId) {
-        await tx.membership.update({
-          data: { stripeCustomerId: customerId },
-          where: { id: membershipId }
-        });
-
-        logger.info(
-          `updated membership with id ${membershipId} with stripeCustomerId ${customerId}`
-        );
-      }
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe customer for membership with id ${membershipId}`
       );
       throw e;
     }
@@ -345,7 +315,7 @@ export function createMembershipService(
         `updated membership to pending membership from input ${stringify(input)} with membershipId ${id}`
       );
 
-      await createStripeCustomer(id, tx);
+      await paymentService.createCustomerForMembership(id, tx);
       // only notify once in fully pending
       if (status === "PENDING") {
         await notifyMembershipApplicationSubmitted(id);
@@ -503,44 +473,18 @@ export function createMembershipService(
       // external communications
       await followingService.unfollowClubForMembership(membershipId, tx);
 
-      await createSubscription(membershipId, tx);
+      await paymentService.createSubscriptionForMembership(
+        {
+          membershipId: membershipId
+        },
+        tx
+      );
       await notifyMembershipApproved(membershipId, tx);
 
       logger.info(`approved membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(e, `failed to approve membership with id ${membershipId}`);
-      throw e;
-    }
-  }
-
-  async function createSubscription(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ): Promise<void> {
-    try {
-      const { subscriptionId } =
-        await paymentService.createSubscriptionForMembership({
-          membershipId: membershipId
-        });
-
-      // Only update the database if a subscription was created (not null for free tier)
-      if (subscriptionId) {
-        await tx.membership.update({
-          data: {
-            stripeSubscriptionId: subscriptionId
-          },
-          where: { id: membershipId }
-        });
-        logger.info(
-          `updated membership with id ${membershipId} with subscription id ${subscriptionId}`
-        );
-      }
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe subscription for membership with id ${membershipId}`
-      );
       throw e;
     }
   }
@@ -756,7 +700,7 @@ export function createMembershipService(
       // if subscription was cancelled outside of this system,
       // that is OK because these operations are idempotent
       // https://docs.stripe.com/api/idempotent_requests
-      await cancelSubscription(membershipId, tx);
+      await paymentService.cancelSubscription(membershipId, tx);
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are reactivated
 
@@ -768,36 +712,6 @@ export function createMembershipService(
       logger.error(
         e,
         `failed to deactivate membership with id ${membershipId}`
-      );
-      throw e;
-    }
-  }
-
-  async function cancelSubscription(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ) {
-    try {
-      const { wasCancelled } = await paymentService.cancelSubscription(
-        membershipId,
-        tx
-      );
-
-      if (wasCancelled) {
-        await tx.membership.update({
-          data: {
-            stripeSubscriptionId: null
-          },
-          where: { id: membershipId }
-        });
-        logger.info(
-          `updated membership with id ${membershipId} to set subscriptionId to null`
-        );
-      }
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to cancel stripe subscription for membership with id ${membershipId}`
       );
       throw e;
     }

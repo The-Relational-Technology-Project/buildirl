@@ -29,18 +29,19 @@ type PaymentMutations = {
   createCustomerForMembership(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<CreateCustomerForMembershipResult>;
+  ): Promise<void>;
   createSubscriptionForMembership(
-    input: CreateSubscriptionForMembershipInput
-  ): Promise<CreateSubscriptionForMembershipResult>;
+    input: CreateSubscriptionForMembershipInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
   cancelSubscription(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<CancelSubscriptionResult>;
+  ): Promise<void>;
   createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
-  ): Promise<CreateProductAndPricesForMembershipTierResult>;
+  ): Promise<void>;
   archiveProductAndPricesForMembershipTier(
     membershipTierId: number,
     tx: Prisma.TransactionClient
@@ -52,7 +53,7 @@ type PaymentMutations = {
   updateProductAndPricesForMembershipTier(
     input: UpdateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
-  ): Promise<UpdateProductAndPricesForMembershipTierResult>;
+  ): Promise<void>;
 };
 
 export type AccountStatus = {
@@ -104,16 +105,8 @@ export type CreateCustomerPortalSessionResult = {
   redirectUrl: Url;
 };
 
-export type CreateCustomerForMembershipResult = {
-  customerId: Maybe<string>;
-};
-
 export type CreateSubscriptionForMembershipInput = {
   membershipId: bigint;
-};
-
-export type CreateSubscriptionForMembershipResult = {
-  subscriptionId: Maybe<string>;
 };
 
 export type CreateProductAndPricesForMembershipTierInput = {
@@ -125,12 +118,6 @@ export type CreateProductAndPricesForMembershipTierInput = {
   membershipTierId: number;
 };
 
-export type CreateProductAndPricesForMembershipTierResult = {
-  productId: Maybe<string>;
-  priceId: Maybe<string>;
-  initiationFeePriceId: Maybe<string>;
-};
-
 export type UpdateProductAndPricesForMembershipTierInput = {
   name: string;
   description: string;
@@ -138,17 +125,4 @@ export type UpdateProductAndPricesForMembershipTierInput = {
   billingInterval: BillingInterval;
   initiationFeeInUSD: Maybe<MonetaryValue>;
   membershipTierId: number;
-};
-
-export type NullablePriceIdResult = {
-  updatedPriceId: Maybe<string>;
-};
-
-export type UpdateProductAndPricesForMembershipTierResult = {
-  updatedPriceId: Maybe<string>;
-  updatedInitiationFeePriceId: Maybe<NullablePriceIdResult>;
-};
-
-export type CancelSubscriptionResult = {
-  wasCancelled: boolean;
 };

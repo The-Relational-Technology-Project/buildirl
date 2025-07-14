@@ -12,14 +12,9 @@ import {
   CreateCheckoutSessionResult,
   CreateCustomerPortalSessionResult,
   CreateCustomerPortalSessionInput,
-  CreateCustomerForMembershipResult,
   CreateSubscriptionForMembershipInput,
-  CreateSubscriptionForMembershipResult,
   CreateProductAndPricesForMembershipTierInput,
-  CreateProductAndPricesForMembershipTierResult,
   UpdateProductAndPricesForMembershipTierInput,
-  UpdateProductAndPricesForMembershipTierResult,
-  CancelSubscriptionResult
 } from "~/server/payments/types";
 import { stringify, asNullFilteredList } from "~/utils";
 import { Maybe } from "~/utils/types";
@@ -302,7 +297,7 @@ export function createPaymentService(
   async function createCustomerForMembership(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<CreateCustomerForMembershipResult> {
+  ): Promise<void> {
     try {
       const membership = await tx.membership.findUniqueOrThrow({
         where: { id: membershipId },
@@ -331,14 +326,14 @@ export function createPaymentService(
         logger.info(
           `membership with id ${membershipId} already has stripeCustomerId ${membership.stripeCustomerId}`
         );
-        return { customerId: membership.stripeCustomerId };
+        return;
       }
       // no Stripe customer needed for default free tier
       if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
         logger.info(
           `membership with id ${membershipId} is free tier, no Stripe customer needed`
         );
-        return { customerId: null };
+        return;
       }
 
       if (!membership.user.settings?.email) {
@@ -361,11 +356,14 @@ export function createPaymentService(
         accountId
       );
 
+      await tx.membership.update({
+        data: { stripeCustomerId: response.customerId },
+        where: { id: membershipId }
+      });
+
       logger.info(
         `created stripe customer ${response.customerId} for membership with id ${membershipId}`
       );
-
-      return { customerId: response.customerId };
     } catch (e) {
       logger.error(
         e,
@@ -376,10 +374,11 @@ export function createPaymentService(
   }
 
   async function createSubscriptionForMembership(
-    input: CreateSubscriptionForMembershipInput
-  ): Promise<CreateSubscriptionForMembershipResult> {
+    input: CreateSubscriptionForMembershipInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
     try {
-      const membership = await prisma.membership.findUniqueOrThrow({
+      const membership = await tx.membership.findUniqueOrThrow({
         select: {
           stripeSetupIntentId: true,
           stripeCustomerId: true,
@@ -406,7 +405,7 @@ export function createPaymentService(
         logger.info(
           `membership with id ${input.membershipId} is free tier, no subscription needed`
         );
-        return { subscriptionId: null };
+        return;
       }
 
       const customerId = membership.stripeCustomerId;
@@ -438,8 +437,9 @@ export function createPaymentService(
         );
       }
 
-      const accountId = await accountIdResolver.fromMembership(
-        input.membershipId
+      const accountId = await accountIdResolver.fromMembershipInTransaction(
+        input.membershipId,
+        tx
       );
 
       const { subscriptionId } =
@@ -454,10 +454,16 @@ export function createPaymentService(
           accountId
         );
 
+      await tx.membership.update({
+        data: {
+          stripeSubscriptionId: subscriptionId
+        },
+        where: { id: input.membershipId }
+      });
+
       logger.info(
         `created stripe subscription ${subscriptionId} for membership with id ${input.membershipId}`
       );
-      return { subscriptionId };
     } catch (e) {
       logger.error(
         e,
@@ -470,7 +476,7 @@ export function createPaymentService(
   async function cancelSubscription(
     membershipId: bigint,
     tx: Prisma.TransactionClient
-  ): Promise<CancelSubscriptionResult> {
+  ): Promise<void> {
     try {
       const membership = await tx.membership.findUniqueOrThrow({
         select: {
@@ -489,7 +495,7 @@ export function createPaymentService(
         logger.info(
           `membership with id ${membershipId} is free tier, no subscription to cancel`
         );
-        return { wasCancelled: false };
+        return;
       }
 
       if (!membership.stripeSubscriptionId) {
@@ -498,7 +504,7 @@ export function createPaymentService(
         logger.error(
           `membership with id ${membershipId} has no stripeSubscriptionId to cancel`
         );
-        return { wasCancelled: false };
+        return;
       }
 
       const accountId = await accountIdResolver.fromMembershipInTransaction(
@@ -511,10 +517,16 @@ export function createPaymentService(
         accountId
       );
 
+
+      await tx.membership.update({
+        data: {
+          stripeSubscriptionId: null
+        },
+        where: { id: membershipId }
+      });
       logger.info(
-        `cancelled stripe subscription ${membership.stripeSubscriptionId} for membership with id ${membershipId}`
+        `updated membership with id ${membershipId} to set subscriptionId to null and cancelled stripe subscription ${membership.stripeSubscriptionId}`
       );
-      return { wasCancelled: true };
     } catch (e) {
       logger.error(
         e,
@@ -527,7 +539,7 @@ export function createPaymentService(
   async function createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
-  ): Promise<CreateProductAndPricesForMembershipTierResult> {
+  ): Promise<void> {
     try {
       const membershipTier = await tx.membershipTier.findUniqueOrThrow({
         where: { id: input.membershipTierId },
@@ -541,7 +553,7 @@ export function createPaymentService(
         logger.info(
           `membership tier with id ${input.membershipTierId} is free tier, no Stripe products needed`
         );
-        return { productId: null, priceId: null, initiationFeePriceId: null };
+        return;
       }
 
       const accountId = await accountIdResolver.fromMembershipTierInTransaction(
@@ -562,10 +574,18 @@ export function createPaymentService(
           accountId
         );
 
+      await tx.membershipTier.update({
+        where: { id: input.membershipTierId },
+        data: {
+          stripeProductId: productId,
+          stripePriceId: priceId,
+          initiationFeeStripePriceId: initiationFeePriceId
+        }
+      });
+
       logger.info(
-        `created stripe product ${productId} with price ${priceId} for membership tier with id ${input.membershipTierId}`
+        `created stripe product and prices for membership tier with id ${input.membershipTierId}`
       );
-      return { productId, priceId, initiationFeePriceId };
     } catch (e) {
       logger.error(
         e,
@@ -695,7 +715,7 @@ export function createPaymentService(
   async function updateProductAndPricesForMembershipTier(
     input: UpdateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
-  ): Promise<UpdateProductAndPricesForMembershipTierResult> {
+  ): Promise<void> {
     try {
       const membershipTier = await tx.membershipTier.findUniqueOrThrow({
         where: { id: input.membershipTierId },
@@ -712,7 +732,7 @@ export function createPaymentService(
         logger.info(
           `membership tier with id ${input.membershipTierId} is free tier, no Stripe products to update`
         );
-        return { updatedPriceId: null, updatedInitiationFeePriceId: null };
+        return;
       }
 
       if (!membershipTier.stripeProductId) {
@@ -748,10 +768,28 @@ export function createPaymentService(
           accountId
         );
 
-      logger.info(
-        `updated stripe product ${membershipTier.stripeProductId} for membership tier with id ${input.membershipTierId}`
-      );
-      return { updatedPriceId, updatedInitiationFeePriceId };
+      // only update price ids if they have changed
+      if (!!updatedPriceId) {
+        await tx.membershipTier.update({
+          where: { id: input.membershipTierId },
+          data: { stripePriceId: updatedPriceId }
+        });
+        logger.info(
+          `updated membership tier with id ${input.membershipTierId} with stripePriceId ${updatedPriceId}`
+        );
+      }
+      if (!!updatedInitiationFeePriceId) {
+        await tx.membershipTier.update({
+          where: { id: input.membershipTierId },
+          data: {
+            initiationFeeStripePriceId:
+              updatedInitiationFeePriceId.updatedPriceId
+          }
+        });
+        logger.info(
+          `updated membership tier with id ${input.membershipTierId} with initiationFeeStripePriceId ${updatedInitiationFeePriceId.updatedPriceId}`
+        );
+      }
     } catch (e) {
       logger.error(
         e,

@@ -66,41 +66,17 @@ export function createMembershipTierService(
     input: CreateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    try {
-      const { productId, priceId, initiationFeePriceId } =
-        await paymentService.createProductAndPricesForMembershipTier(
-          {
-            name: input.name,
-            description: input.benefitDescription,
-            pricePerBillingInterval: input.costPerBillingInterval,
-            billingInterval: input.billingInterval,
-            initiationFeeInUSD: input.initiationFeeCostInUSD,
-            membershipTierId: membershipTierId
-          },
-          tx
-        );
-
-      // Only update the database if products were created (not null for free tier)
-      if (productId && priceId) {
-        await tx.membershipTier.update({
-          where: { id: membershipTierId },
-          data: {
-            stripeProductId: productId,
-            stripePriceId: priceId,
-            initiationFeeStripePriceId: initiationFeePriceId
-          }
-        });
-        logger.info(
-          `updated membership tier with id ${membershipTierId} with stripeProductId ${productId}, stripePriceId ${priceId}, and initiationFeeStripePriceId ${initiationFeePriceId}`
-        );
-      }
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to create stripe product and prices for membership tier with id ${membershipTierId}`
-      );
-      throw e;
-    }
+    await paymentService.createProductAndPricesForMembershipTier(
+      {
+        name: input.name,
+        description: input.benefitDescription,
+        pricePerBillingInterval: input.costPerBillingInterval,
+        billingInterval: input.billingInterval,
+        initiationFeeInUSD: input.initiationFeeCostInUSD,
+        membershipTierId: membershipTierId
+      },
+      tx
+    );
   }
 
   async function createDefaultFreeMembershipTier(
@@ -364,49 +340,17 @@ export function createMembershipTierService(
     input: UpdateMembershipTierInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    try {
-      const { updatedPriceId, updatedInitiationFeePriceId } =
-        await paymentService.updateProductAndPricesForMembershipTier(
-          {
-            name: input.name,
-            description: input.benefitDescription,
-            pricePerBillingInterval: input.costPerBillingInterval,
-            billingInterval: input.billingInterval,
-            initiationFeeInUSD: input.initiationFeeCostInUSD,
-            membershipTierId: membershipTierId
-          },
-          tx
-        );
-
-      // only update price ids if they have changed
-      if (!!updatedPriceId) {
-        await tx.membershipTier.update({
-          where: { id: membershipTierId },
-          data: { stripePriceId: updatedPriceId }
-        });
-        logger.info(
-          `updated membership tier with id ${membershipTierId} with stripePriceId ${updatedPriceId}`
-        );
-      }
-      if (!!updatedInitiationFeePriceId) {
-        await tx.membershipTier.update({
-          where: { id: membershipTierId },
-          data: {
-            initiationFeeStripePriceId:
-              updatedInitiationFeePriceId.updatedPriceId
-          }
-        });
-        logger.info(
-          `updated membership tier with id ${membershipTierId} with initiationFeeStripePriceId ${updatedInitiationFeePriceId.updatedPriceId}`
-        );
-      }
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to update stripe product and prices for membership tier with id ${membershipTierId}`
-      );
-      throw e;
-    }
+    await paymentService.updateProductAndPricesForMembershipTier(
+      {
+        name: input.name,
+        description: input.benefitDescription,
+        pricePerBillingInterval: input.costPerBillingInterval,
+        billingInterval: input.billingInterval,
+        initiationFeeInUSD: input.initiationFeeCostInUSD,
+        membershipTierId: membershipTierId
+      },
+      tx
+    );
   }
 
   async function checkNoActiveMembersOrPendingApplicationsOnMembershipTier(
