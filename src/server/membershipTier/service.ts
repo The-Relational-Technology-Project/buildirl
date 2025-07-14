@@ -181,7 +181,7 @@ export function createMembershipTierService(
       const currentInterval = membershipTier.billingInterval;
 
       logger.info(
-        `queried cost and interval for membership tier with id ${membershipTierId} with result cost=${currentCost}, interval=${currentInterval}`
+        `queried cost and interval for membership tier with id ${membershipTierId} with result costPerBillingInterval=${currentCost}, billingInterval=${currentInterval}`
       );
       
       return (
