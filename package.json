@@ -21,7 +21,7 @@
     "format": "yarn prettier --write .",
     "format-check": "yarn prettier --check .",
     "unused-exports": "ts-unused-exports tsconfig.json --excludePathsFromReport=test",
-    "build-verify": "jest test/e2e/buildVerification.test.ts"
+    "build-verify": "yarn typecheck && yarn test test/e2e/system.test.ts && yarn unused-exports"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",
