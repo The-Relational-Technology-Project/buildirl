@@ -126,7 +126,3 @@ export type UpdateProductAndPricesForMembershipTierInput = {
   initiationFeeInUSD: Maybe<MonetaryValue>;
   membershipTierId: number;
 };
-
-export type NullablePriceIdResult = {
-  updatedPriceId: Maybe<string>;
-};
