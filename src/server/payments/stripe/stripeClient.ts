@@ -107,27 +107,25 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
   function toStripeRecurring(
     interval: BillingInterval
-  ): Stripe.Price.Recurring.Interval {
+  ): Pick<Stripe.Price.Recurring, 'interval' | 'interval_count'> {
     switch (interval) {
       case BillingInterval.MONTHLY:
-        return "month";
+        return {
+          interval: "month",
+          interval_count: 1
+        };
       case BillingInterval.QUARTERLY:
-        return "month";
+        return {
+          interval: "month",
+          interval_count: 3
+        };
       case BillingInterval.SEMI_ANNUAL:
-        return "month";
-    }
-  }
-
-  function toStripeRecurringIntervalCount(
-    interval: BillingInterval
-  ): number | undefined {
-    switch (interval) {
-      case BillingInterval.MONTHLY:
-        return 1;
-      case BillingInterval.QUARTERLY:
-        return 3;
-      case BillingInterval.SEMI_ANNUAL:
-        return 6;
+        return {
+          interval: "month",
+          interval_count: 6
+        };
+      default:
+        throw new Error(`Unexpected BillingInterval: ${interval}`);
     }
   }
 
@@ -144,12 +142,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         unit_amount: unitAmount(priceInUSD),
         currency: "usd",
         nickname: nickname,
-        recurring: billingInterval
-          ? {
-              interval: toStripeRecurring(billingInterval),
-              interval_count: toStripeRecurringIntervalCount(billingInterval)
-            }
-          : undefined
+        recurring: billingInterval ? toStripeRecurring(billingInterval) : undefined
       },
       {
         stripeAccount: byAccountId
@@ -288,11 +281,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
       const existingRecurring = existingPrice.recurring;
       const newRecurring = newBillingInterval
-        ? {
-            interval: toStripeRecurring(newBillingInterval),
-            interval_count: toStripeRecurringIntervalCount(newBillingInterval)
-          }
-        : null;
+        ? toStripeRecurring(newBillingInterval)
+        : undefined;
 
       let hasIntervalChanged = false;
       if (existingRecurring && newRecurring) {
