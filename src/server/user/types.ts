@@ -2,7 +2,8 @@ import {
   Email,
   LongTextSchema,
   MutationResult,
-  RequiredStringSchema
+  RequiredStringSchema,
+  UrlSchema
 } from "~/server/utils/types";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
@@ -25,11 +26,20 @@ export type UserQueries = {
   ): Promise<Email[]>;
 };
 
+export type UserSocials = {
+  twitter?: string;
+  instagram?: string;
+  facebook?: string;
+  linkedin?: string;
+  website?: string;
+};
+
 export type User = {
   id: number;
   firstName: string;
   lastName: string;
   description: string;
+  socials?: UserSocials;
   createdAt: Date;
 };
 
@@ -40,6 +50,7 @@ export type UserMutations = {
     authEmail: string
   ): Promise<MutationResult>;
   updateUser(id: number, input: UpdateUserInput): Promise<MutationResult>;
+  updateUserSocials(id: number, input: UpdateUserSocialsInput): Promise<MutationResult>;
 };
 
 export const CreateUserInputSchema = z.object({
@@ -53,3 +64,12 @@ export const UpdateUserInputSchema = z.object({
   description: LongTextSchema
 });
 export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
+
+export const UpdateUserSocialsInputSchema = z.object({
+  twitter: UrlSchema.nullable().or(z.literal("")),
+  instagram: UrlSchema.nullable().or(z.literal("")),
+  facebook: UrlSchema.nullable().or(z.literal("")),
+  linkedin: UrlSchema.nullable().or(z.literal("")),
+  website: UrlSchema.nullable().or(z.literal(""))
+});
+export type UpdateUserSocialsInput = z.infer<typeof UpdateUserSocialsInputSchema>;

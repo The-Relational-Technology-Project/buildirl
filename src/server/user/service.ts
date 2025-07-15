@@ -4,6 +4,7 @@ import { stringify } from "~/utils";
 import {
   CreateUserInput,
   UpdateUserInput,
+  UpdateUserSocialsInput,
   User,
   UserService
 } from "~/server/user/types";
@@ -23,17 +24,39 @@ export const USER_SELECT = {
   createdAt: true
 };
 
+export const USER_SELECT_WITH_SOCIALS = {
+  ...USER_SELECT,
+  socials: true
+};
+
 export function createUserService(prisma: PrismaClient): UserService {
   async function getUser(id: number): Promise<User> {
     try {
       const user = await prisma.user.findUniqueOrThrow({
-        select: USER_SELECT,
+        select: USER_SELECT_WITH_SOCIALS,
         where: {
           id: id
         }
       });
-      logger.info(`queried user with id ${id} with result ${stringify(user)}`);
-      return user;
+      const socials = user.socials ? {
+        twitter: user.socials.twitter ?? undefined,
+        instagram: user.socials.instagram ?? undefined,
+        facebook: user.socials.facebook ?? undefined,
+        linkedin: user.socials.linkedin ?? undefined,
+        website: user.socials.website ?? undefined
+      } : undefined;
+
+      const result: User = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        description: user.description,
+        createdAt: user.createdAt,
+        socials
+      };
+
+      logger.info(`queried user with id ${id} with result ${stringify(result)}`);
+      return result;
     } catch (e) {
       logger.error(e, `failed to query user with id ${id}`);
       throw e;
@@ -167,6 +190,39 @@ export function createUserService(prisma: PrismaClient): UserService {
     }
   }
 
+  async function updateUserSocials(
+    id: number,
+    input: UpdateUserSocialsInput
+  ): Promise<MutationResult> {
+    try {
+      const socialData = {
+        twitter: input.twitter === "" ? null : input.twitter,
+        instagram: input.instagram === "" ? null : input.instagram,
+        facebook: input.facebook === "" ? null : input.facebook,
+        linkedin: input.linkedin === "" ? null : input.linkedin,
+        website: input.website === "" ? null : input.website
+      };
+
+      await prisma.userSocials.upsert({
+        where: { userId: id },
+        create: {
+          userId: id,
+          ...socialData
+        },
+        update: socialData
+      });
+
+      logger.info(`updated user socials for user with id ${id} from input ${stringify(input)}`);
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update user socials for user with id ${id} from input ${stringify(input)}`
+      );
+      throw e;
+    }
+  }
+
   return {
     getUser,
     getUserEmail,
@@ -174,6 +230,7 @@ export function createUserService(prisma: PrismaClient): UserService {
     getUserEmailInTransaction,
     getUserEmailsInTransaction,
     createUser,
-    updateUser
+    updateUser,
+    updateUserSocials
   };
 }
