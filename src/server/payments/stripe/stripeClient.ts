@@ -29,6 +29,11 @@ import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "stripeClient" });
 
+type StripePriceInterval = Pick<
+  Stripe.Price.Recurring,
+  "interval" | "interval_count"
+>;
+
 export function createStripeClient(stripe: Stripe): StripeClient {
   async function createAccount(): Promise<CreateAccountResponse> {
     try {
@@ -105,29 +110,27 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     return priceInUSD * 100;
   }
 
-  function toStripeRecurring(
+  function toStripePriceInterval(
     interval: BillingInterval
-  ): Stripe.Price.Recurring.Interval {
+  ): StripePriceInterval {
     switch (interval) {
       case BillingInterval.MONTHLY:
-        return "month";
+        return {
+          interval: "month",
+          interval_count: 1
+        };
       case BillingInterval.QUARTERLY:
-        return "month";
+        return {
+          interval: "month",
+          interval_count: 3
+        };
       case BillingInterval.SEMI_ANNUAL:
-        return "month";
-    }
-  }
-
-  function toStripeRecurringIntervalCount(
-    interval: BillingInterval
-  ): number | undefined {
-    switch (interval) {
-      case BillingInterval.MONTHLY:
-        return 1;
-      case BillingInterval.QUARTERLY:
-        return 3;
-      case BillingInterval.SEMI_ANNUAL:
-        return 6;
+        return {
+          interval: "month",
+          interval_count: 6
+        };
+      default:
+        throw new Error(`Unexpected BillingInterval: ${interval}`);
     }
   }
 
@@ -145,10 +148,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         currency: "usd",
         nickname: nickname,
         recurring: billingInterval
-          ? {
-              interval: toStripeRecurring(billingInterval),
-              interval_count: toStripeRecurringIntervalCount(billingInterval)
-            }
+          ? toStripePriceInterval(billingInterval)
           : undefined
       },
       {
@@ -162,8 +162,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
     return price.id;
   }
-
-
 
   async function createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
@@ -221,8 +219,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-
-
   async function updateProductAndPricesForMembershipTier(
     input: UpdateProductAndPricesForMembershipTierInput,
     byAccountId: string
@@ -239,7 +235,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         }
       );
 
-      const updatedPriceId = await updatePriceIfAmountOrIntervalChanged(
+      const updatedPriceId = await updatePriceIfChanged(
         input.productId,
         input.priceId,
         input.pricePerBillingInterval,
@@ -249,7 +245,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       );
 
       const updatedInitiationFeePriceId =
-        await upsertNullableStripePrice(
+        await upsertNonRecurringNullablePriceIfChanged(
           input.productId,
           input.initiationFee.priceId,
           input.initiationFee.priceInUSD,
@@ -270,7 +266,42 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  async function updatePriceIfAmountOrIntervalChanged(
+  function isPriceChanged(
+    existingPrice: Stripe.Price,
+    newPriceInUSD: number,
+    newBillingInterval: Maybe<BillingInterval>
+  ): boolean {
+    const isPriceChanged =
+      existingPrice.unit_amount !== unitAmount(newPriceInUSD);
+
+    const newPriceInterval = newBillingInterval
+      ? toStripePriceInterval(newBillingInterval)
+      : null;
+
+    return (
+      isPriceChanged ||
+      isPriceIntervalChanged(existingPrice.recurring, newPriceInterval)
+    );
+  }
+
+  function isPriceIntervalChanged(
+    existingInterval: Maybe<StripePriceInterval>,
+    newInterval: Maybe<StripePriceInterval>
+  ): boolean {
+    if (existingInterval === null && newInterval === null) {
+      return false;
+    }
+    // one is null other is non-null
+    if (existingInterval === null || newInterval === null) {
+      return true;
+    }
+    return (
+      existingInterval.interval !== newInterval.interval ||
+      existingInterval.interval_count !== newInterval.interval_count
+    );
+  }
+
+  async function updatePriceIfChanged(
     productId: string,
     currentPriceId: string,
     newPriceInUSD: number,
@@ -283,27 +314,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         stripeAccount: byAccountId
       });
 
-      const hasPriceChanged =
-        existingPrice.unit_amount !== unitAmount(newPriceInUSD);
-
-      const existingRecurring = existingPrice.recurring;
-      const newRecurring = newBillingInterval
-        ? {
-            interval: toStripeRecurring(newBillingInterval),
-            interval_count: toStripeRecurringIntervalCount(newBillingInterval)
-          }
-        : null;
-
-      let hasIntervalChanged = false;
-      if (existingRecurring && newRecurring) {
-        hasIntervalChanged =
-          existingRecurring.interval !== newRecurring.interval ||
-          existingRecurring.interval_count !== newRecurring.interval_count;
-      } else if (existingRecurring || newRecurring) {
-        hasIntervalChanged = true;
-      }
-
-      if (hasPriceChanged || hasIntervalChanged) {
+      if (isPriceChanged(existingPrice, newPriceInUSD, newBillingInterval)) {
         const newPriceId = await createPrice(
           productId,
           newPriceInUSD,
@@ -334,7 +345,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  async function upsertNullableStripePrice(
+  async function upsertNonRecurringNullablePriceIfChanged(
     productId: string,
     currentPriceId: Maybe<string>,
     newPriceInUSD: Maybe<number>,
@@ -373,7 +384,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       );
     }
 
-    const updatePriceId = await updatePriceIfAmountOrIntervalChanged(
+    const updatePriceId = await updatePriceIfChanged(
       productId,
       currentPriceId,
       newPriceInUSD,

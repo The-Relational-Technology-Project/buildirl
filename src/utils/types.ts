@@ -21,17 +21,6 @@ export const BILLING_INTERVAL_OPTIONS = [
   { value: BillingInterval.SEMI_ANNUAL, label: "Semi-Annually" }
 ];
 
-export function getBillingIntervalCostLabel(interval: BillingInterval): string {
-  switch (interval) {
-    case BillingInterval.MONTHLY:
-      return "Monthly Cost";
-    case BillingInterval.QUARTERLY:
-      return "Quarterly Cost";
-    case BillingInterval.SEMI_ANNUAL:
-      return "Semi-Annual Cost";
-  }
-}
-
 export type Id = number | bigint;
 
 // helper unwrap methods for converting id to proper types
