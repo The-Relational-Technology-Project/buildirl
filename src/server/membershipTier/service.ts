@@ -166,7 +166,7 @@ export function createMembershipTierService(
     }
   }
 
-  async function isUpdateOnPricingParameters(
+  async function isUpdateOnPriceParameters(
     membershipTierId: number,
     input: UpdateMembershipTierInput
   ): Promise<boolean> {
@@ -197,11 +197,11 @@ export function createMembershipTierService(
     }
   }
 
-  async function checkNotUpdatingPricingWithActiveOrPendingApplicationsOnMembershipTier(
+  async function checkNotUpdatingPriceWithActiveOrPendingApplicationsOnMembershipTier(
     membershipTierId: number,
     input: UpdateMembershipTierInput
   ): Promise<void> {
-    const updatingPricing = await isUpdateOnPricingParameters(
+    const updatingPrice = await isUpdateOnPriceParameters(
       membershipTierId,
       input
     );
@@ -209,7 +209,7 @@ export function createMembershipTierService(
       await hasActiveMembersOrPendingApplicationsOnMembershipTier(
         membershipTierId
       );
-    if (updatingPricing && hasActiveMembersOrPendingApplications) {
+    if (updatingPrice && hasActiveMembersOrPendingApplications) {
       throw new Error(
         "cannot update cost and interval of membership tier if there are active members or pending applications"
       );
@@ -288,7 +288,7 @@ export function createMembershipTierService(
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
-    await checkNotUpdatingPricingWithActiveOrPendingApplicationsOnMembershipTier(
+    await checkNotUpdatingPriceWithActiveOrPendingApplicationsOnMembershipTier(
       id,
       input
     );
