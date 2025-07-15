@@ -29,6 +29,11 @@ import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "stripeClient" });
 
+type StripePriceInterval = Pick<
+  Stripe.Price.Recurring,
+  "interval" | "interval_count"
+>;
+
 export function createStripeClient(stripe: Stripe): StripeClient {
   async function createAccount(): Promise<CreateAccountResponse> {
     try {
@@ -105,9 +110,9 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     return priceInUSD * 100;
   }
 
-  function toStripeRecurring(
+  function toStripePriceInterval(
     interval: BillingInterval
-  ): Pick<Stripe.Price.Recurring, 'interval' | 'interval_count'> {
+  ): StripePriceInterval {
     switch (interval) {
       case BillingInterval.MONTHLY:
         return {
@@ -142,7 +147,9 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         unit_amount: unitAmount(priceInUSD),
         currency: "usd",
         nickname: nickname,
-        recurring: billingInterval ? toStripeRecurring(billingInterval) : undefined
+        recurring: billingInterval
+          ? toStripePriceInterval(billingInterval)
+          : undefined
       },
       {
         stripeAccount: byAccountId
@@ -155,8 +162,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
 
     return price.id;
   }
-
-
 
   async function createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
@@ -214,8 +219,6 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-
-
   async function updateProductAndPricesForMembershipTier(
     input: UpdateProductAndPricesForMembershipTierInput,
     byAccountId: string
@@ -268,23 +271,34 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     newPriceInUSD: number,
     newBillingInterval: Maybe<BillingInterval>
   ): boolean {
-    // Check if amount changed
-    const hasPriceChanged = existingPrice.unit_amount !== unitAmount(newPriceInUSD);
-    
-    // Check if interval changed
-    const existingRecurring = existingPrice.recurring;
-    const newRecurring = newBillingInterval ? toStripeRecurring(newBillingInterval) : undefined;
-    
-    let hasIntervalChanged = false;
-    if (existingRecurring && newRecurring) {
-      hasIntervalChanged =
-        existingRecurring.interval !== newRecurring.interval ||
-        existingRecurring.interval_count !== newRecurring.interval_count;
-    } else if (existingRecurring || newRecurring) {
-      hasIntervalChanged = true;
+    const isPriceChanged =
+      existingPrice.unit_amount !== unitAmount(newPriceInUSD);
+
+    const newPriceInterval = newBillingInterval
+      ? toStripePriceInterval(newBillingInterval)
+      : null;
+
+    return (
+      isPriceChanged ||
+      isPriceIntervalChanged(existingPrice.recurring, newPriceInterval)
+    );
+  }
+
+  function isPriceIntervalChanged(
+    existingInterval: Maybe<StripePriceInterval>,
+    newInterval: Maybe<StripePriceInterval>
+  ): boolean {
+    if (existingInterval === null && newInterval === null) {
+      return false;
     }
-    
-    return hasPriceChanged || hasIntervalChanged;
+    // one is null other is non-null
+    if (existingInterval === null || newInterval === null) {
+      return true;
+    }
+    return (
+      existingInterval.interval !== newInterval.interval ||
+      existingInterval.interval_count !== newInterval.interval_count
+    );
   }
 
   async function updatePriceIfChanged(
