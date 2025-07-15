@@ -59,6 +59,7 @@ model User {
   lastName    String          @map("last_name")
   description String
   settings    UserSettings?
+  socials     UserSocials?
   memberships Membership[]
   following   ClubFollowing[]
   createdAt   DateTime        @default(now()) @map("created_at")
@@ -77,6 +78,20 @@ model UserSettings {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("user_settings")
+}
+
+model UserSocials {
+  userId    Int      @id @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  twitter   String?
+  instagram String?
+  facebook  String?
+  linkedin  String?
+  website   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user_socials")
 }
 
 model Club {
