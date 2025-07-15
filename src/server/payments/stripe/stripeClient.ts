@@ -263,6 +263,30 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
+  function isPriceChanged(
+    existingPrice: Stripe.Price,
+    newPriceInUSD: number,
+    newBillingInterval: Maybe<BillingInterval>
+  ): boolean {
+    // Check if amount changed
+    const hasPriceChanged = existingPrice.unit_amount !== unitAmount(newPriceInUSD);
+    
+    // Check if interval changed
+    const existingRecurring = existingPrice.recurring;
+    const newRecurring = newBillingInterval ? toStripeRecurring(newBillingInterval) : undefined;
+    
+    let hasIntervalChanged = false;
+    if (existingRecurring && newRecurring) {
+      hasIntervalChanged =
+        existingRecurring.interval !== newRecurring.interval ||
+        existingRecurring.interval_count !== newRecurring.interval_count;
+    } else if (existingRecurring || newRecurring) {
+      hasIntervalChanged = true;
+    }
+    
+    return hasPriceChanged || hasIntervalChanged;
+  }
+
   async function updatePriceIfChanged(
     productId: string,
     currentPriceId: string,
@@ -276,24 +300,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         stripeAccount: byAccountId
       });
 
-      const hasPriceChanged =
-        existingPrice.unit_amount !== unitAmount(newPriceInUSD);
-
-      const existingRecurring = existingPrice.recurring;
-      const newRecurring = newBillingInterval
-        ? toStripeRecurring(newBillingInterval)
-        : undefined;
-
-      let hasIntervalChanged = false;
-      if (existingRecurring && newRecurring) {
-        hasIntervalChanged =
-          existingRecurring.interval !== newRecurring.interval ||
-          existingRecurring.interval_count !== newRecurring.interval_count;
-      } else if (existingRecurring || newRecurring) {
-        hasIntervalChanged = true;
-      }
-
-      if (hasPriceChanged || hasIntervalChanged) {
+      if (isPriceChanged(existingPrice, newPriceInUSD, newBillingInterval)) {
         const newPriceId = await createPrice(
           productId,
           newPriceInUSD,
