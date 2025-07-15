@@ -232,7 +232,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         }
       );
 
-      const updatedPriceId = await updatePriceIfAmountOrIntervalChanged(
+      const updatedPriceId = await updatePriceIfChanged(
         input.productId,
         input.priceId,
         input.pricePerBillingInterval,
@@ -242,7 +242,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       );
 
       const updatedInitiationFeePriceId =
-        await upsertNullableStripePrice(
+        await upsertNonRecurringNullablePriceIfChanged(
           input.productId,
           input.initiationFee.priceId,
           input.initiationFee.priceInUSD,
@@ -263,7 +263,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  async function updatePriceIfAmountOrIntervalChanged(
+  async function updatePriceIfChanged(
     productId: string,
     currentPriceId: string,
     newPriceInUSD: number,
@@ -324,7 +324,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  async function upsertNullableStripePrice(
+  async function upsertNonRecurringNullablePriceIfChanged(
     productId: string,
     currentPriceId: Maybe<string>,
     newPriceInUSD: Maybe<number>,
@@ -363,7 +363,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       );
     }
 
-    const updatePriceId = await updatePriceIfAmountOrIntervalChanged(
+    const updatePriceId = await updatePriceIfChanged(
       productId,
       currentPriceId,
       newPriceInUSD,
