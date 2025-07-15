@@ -166,7 +166,7 @@ export function createMembershipTierService(
     }
   }
 
-  async function isUpdateOnCostPerBillingInterval(
+  async function isUpdateOnPriceParameters(
     membershipTierId: number,
     input: UpdateMembershipTierInput
   ): Promise<boolean> {
@@ -181,7 +181,7 @@ export function createMembershipTierService(
       const currentInterval = membershipTier.billingInterval;
 
       logger.info(
-        `queried cost and interval for membership tier with id ${membershipTierId} with result cost=${currentCost}, interval=${currentInterval}`
+        `queried cost and interval for membership tier with id ${membershipTierId} with result costPerBillingInterval=${currentCost}, billingInterval=${currentInterval}`
       );
       
       return (
@@ -197,11 +197,11 @@ export function createMembershipTierService(
     }
   }
 
-  async function checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTier(
+  async function checkNotUpdatingPriceWithActiveOrPendingApplicationsOnMembershipTier(
     membershipTierId: number,
     input: UpdateMembershipTierInput
   ): Promise<void> {
-    const updatingCost = await isUpdateOnCostPerBillingInterval(
+    const updatingPrice = await isUpdateOnPriceParameters(
       membershipTierId,
       input
     );
@@ -209,9 +209,9 @@ export function createMembershipTierService(
       await hasActiveMembersOrPendingApplicationsOnMembershipTier(
         membershipTierId
       );
-    if (updatingCost && hasActiveMembersOrPendingApplications) {
+    if (updatingPrice && hasActiveMembersOrPendingApplications) {
       throw new Error(
-        "cannot update cost of membership tier if there are active members or pending applications"
+        "cannot update cost and interval of membership tier if there are active members or pending applications"
       );
     }
   }
@@ -288,7 +288,7 @@ export function createMembershipTierService(
     id: number,
     input: UpdateMembershipTierInput
   ): Promise<MutationResult> {
-    await checkNotUpdatingCostPerBillingIntervalWithActiveOrPendingApplicationsOnMembershipTier(
+    await checkNotUpdatingPriceWithActiveOrPendingApplicationsOnMembershipTier(
       id,
       input
     );

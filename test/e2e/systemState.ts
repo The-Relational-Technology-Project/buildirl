@@ -1,4 +1,4 @@
-import { isDefaultFreeTier, Maybe } from "~/utils/types";
+import { isDefaultFreeTier, Maybe, BillingInterval } from "~/utils/types";
 import { OmitRecursively } from "~/utils/omit";
 import { FormQuestions, FormResponses } from "~/server/club/types/form";
 import { TemplateTheme } from "~/client/theme/templates";
@@ -188,13 +188,24 @@ export class SystemState {
     return clubStates[0]!;
   }
 
+  private getBillingIntervalSortPriority(interval: BillingInterval): number {
+    switch (interval) {
+      case BillingInterval.MONTHLY:
+        return 1;
+      case BillingInterval.QUARTERLY:
+        return 2;
+      case BillingInterval.SEMI_ANNUAL:
+        return 3;
+      default:
+        return 999;
+    }
+  }
+
   private orderByCost(membershipTiers: MembershipTier[]): MembershipTier[] {
-    return (
-      membershipTiers
-        // if equal cost, sort by id
-        .sort((a, b) => a.id - b.id)
-        .sort((a, b) => a.costPerBillingInterval - b.costPerBillingInterval)
-    );
+    return membershipTiers
+      .sort((a, b) => a.id - b.id) 
+      .sort((a, b) => a.costPerBillingInterval - b.costPerBillingInterval) 
+      .sort((a, b) => this.getBillingIntervalSortPriority(a.billingInterval) - this.getBillingIntervalSortPriority(b.billingInterval)); 
   }
 
   public clubStateToClub(

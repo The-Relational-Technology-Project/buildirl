@@ -19,7 +19,7 @@ import { PAGE_WIDTH } from "~/client/components/HeaderBar";
 import UserAvatar from "~/client/components/UserAvatar";
 import { Membership } from "~/server/membership/types";
 import { useMounted } from "@mantine/hooks";
-import { formatBillingInterval } from "~/client/utils";
+import { billingIntervalLabel } from "~/client/utils";
 
 type MembershipApplicationTableProps = {
   clubId: number;
@@ -69,7 +69,7 @@ export default function MembershipApplicationTable({
         <Text
           size={"sm"}
           style={{ textWrap: "nowrap" }}
-        >{`$${m.membershipTier.costPerBillingInterval}.00/${formatBillingInterval(m.membershipTier.billingInterval)}`}</Text>
+        >{`$${m.membershipTier.costPerBillingInterval}.00/${billingIntervalLabel(m.membershipTier.billingInterval)}`}</Text>
       </Table.Td>
       <Table.Td>
         <Text

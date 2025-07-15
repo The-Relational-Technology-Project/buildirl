@@ -35,12 +35,26 @@ export function asMembershipTier(
   };
 }
 
-export function orderedByCost(
+function getBillingIntervalSortPriority(interval: BillingInterval): number {
+  switch (interval) {
+    case BillingInterval.MONTHLY:
+      return 1;
+    case BillingInterval.QUARTERLY:
+      return 2;
+    case BillingInterval.SEMI_ANNUAL:
+      return 3;
+    default:
+      return 999;
+  }
+}
+
+export function orderedByPricing(
   membershipTiers: MembershipTier[]
 ): MembershipTier[] {
   return membershipTiers
-    .sort((a, b) => a.id - b.id)
-    .sort((a, b) => a.costPerBillingInterval - b.costPerBillingInterval);
+    .sort((a, b) => a.id - b.id) 
+    .sort((a, b) => a.costPerBillingInterval - b.costPerBillingInterval)
+    .sort((a, b) => getBillingIntervalSortPriority(a.billingInterval) - getBillingIntervalSortPriority(b.billingInterval));
 }
 
 export function isPrismaResultDefaultFreeTier(membershipTier: {
@@ -49,8 +63,3 @@ export function isPrismaResultDefaultFreeTier(membershipTier: {
   return membershipTier.costPerBillingInterval.toNumber() === 0;
 }
 
-export function getEffectiveCost(membershipTier: {
-  costPerBillingInterval: Prisma.Decimal;
-}): number {
-  return membershipTier.costPerBillingInterval.toNumber();
-}

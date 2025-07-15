@@ -69,6 +69,9 @@ export const UpdateMembershipTierInputSchema = z.object({
   name: MembershipTierNameSchema,
   benefitDescription: LongTextSchema,
   contributionDescription: LongTextSchema,
+  // allow 0 no-op update only on the default free membership tier
+  // there is no good way to express this as a check on zod though; it
+  // will be checked in service layer
   costPerBillingInterval: MonetaryValueSchema.or(z.literal(0)),
   billingInterval: z.nativeEnum(BillingInterval),
   initiationFeeCostInUSD: MonetaryValueSchema.nullable()

@@ -38,7 +38,7 @@ export function toDisplayDate(dateTime: Date): string {
   });
 }
 
-export function formatBillingInterval(interval: BillingInterval): string {
+export function billingIntervalLabel(interval: BillingInterval): string {
   switch (interval) {
     case BillingInterval.MONTHLY:
       return "month";

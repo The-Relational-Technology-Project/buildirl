@@ -13,7 +13,7 @@ import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionA
 import ManagePaymentsButton from "~/app/(main)/club/[clubId]/manage-membership/_components/ManagePaymentsButton";
 import { handleDefaultMutationError } from "~/client/logger";
 import { MembershipWithClub } from "~/server/membership/types";
-import { formatBillingInterval } from "~/client/utils";
+import { billingIntervalLabel } from "~/client/utils";
 
 type DeactivateMembershipSectionProps = {
   membership: MembershipWithClub;
@@ -102,7 +102,7 @@ export default function ManageMembership() {
   }
 
   const cost = membership.membershipTier.costPerBillingInterval;
-  const interval = formatBillingInterval(membership.membershipTier.billingInterval);
+  const interval = billingIntervalLabel(membership.membershipTier.billingInterval);
 
   return (
     // go back explicitly to root because we might have gone
