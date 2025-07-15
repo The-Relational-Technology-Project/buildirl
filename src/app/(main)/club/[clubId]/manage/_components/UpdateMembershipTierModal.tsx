@@ -16,8 +16,7 @@ import {
 import React from "react";
 import {
   isDefaultFreeTier,
-  BILLING_INTERVAL_OPTIONS,
-  getBillingIntervalCostLabel
+  BILLING_INTERVAL_OPTIONS
 } from "~/utils/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
@@ -138,9 +137,7 @@ export default function UpdateMembershipTierModal({
           {!isDefaultFreeTier(membershipTier) && (
             <Stack>
               <Stack gap={12}>
-                <Title order={6}>
-                  {getBillingIntervalCostLabel(form.values.billingInterval)}
-                </Title>
+                <Title order={6}>Dues Cost</Title>
                 <CostInput
                   value={form.values.costPerBillingInterval}
                   onChange={(value) =>
@@ -150,7 +147,7 @@ export default function UpdateMembershipTierModal({
               </Stack>
 
               <Stack gap={12}>
-                <Title order={6}>Billing Frequency</Title>
+                <Title order={6}>Dues Frequency</Title>
                 <SegmentedControl
                   data={BILLING_INTERVAL_OPTIONS}
                   key={form.key("billingInterval")}

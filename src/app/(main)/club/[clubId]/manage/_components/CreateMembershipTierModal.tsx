@@ -19,8 +19,7 @@ import { handleDefaultMutationError } from "~/client/logger";
 import {
   Maybe,
   BillingInterval,
-  BILLING_INTERVAL_OPTIONS,
-  getBillingIntervalCostLabel
+  BILLING_INTERVAL_OPTIONS
 } from "~/utils/types";
 import {
   CostInput,
@@ -125,9 +124,7 @@ export default function CreateMembershipTierModal({
           />
 
           <Stack gap={12}>
-            <Title order={6}>
-              {getBillingIntervalCostLabel(form.values.billingInterval)}
-            </Title>
+            <Title order={6}>Dues Cost</Title>
             <CostInput
               value={form.values.costPerBillingInterval}
               onChange={(value) =>
@@ -138,7 +135,7 @@ export default function CreateMembershipTierModal({
           </Stack>
 
           <Stack gap={12}>
-            <Title order={6}>Billing Frequency</Title>
+            <Title order={6}>Dues Frequency</Title>
             <SegmentedControl
               data={BILLING_INTERVAL_OPTIONS}
               key={form.key("billingInterval")}

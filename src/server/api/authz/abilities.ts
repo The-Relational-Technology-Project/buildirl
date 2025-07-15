@@ -100,13 +100,6 @@ async function getUserLedClubIds(
   return clubs.map((club) => club.id);
 }
 
-/**
- * Get all membership tier IDs for clubs that a user leads.
- * A user is considered a lead of a club if they have a 'LEAD' role in any
- * of that club's membership tiers. This function grants them permission
- * to manage *all* tiers within that club, not just the specific tier
- * their LEAD membership is associated with.
- */
 async function getMembershipTierIdsForClubsLedByUser(
   prisma: PrismaClient,
   userId: number
