@@ -8,7 +8,7 @@ import {
   Box,
   Space,
   useMatches,
-  useMantineColorScheme,
+  useMantineColorScheme
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { MembershipTier } from "~/server/membershipTier/types";
@@ -19,24 +19,18 @@ interface MembershipTierCarouselProps {
   tiers: MembershipTier[];
   onTierSelect: (tier: MembershipTier) => void;
   buttonText?: string;
-  buttonColor?: string;
-  excludeTierId?: number;
+  excludedTierId?: number;
 }
 
 export function MembershipTierCarousel({
   tiers,
   onTierSelect,
   buttonText = "Select",
-  buttonColor = "lilac",
-  excludeTierId,
+  excludedTierId
 }: MembershipTierCarouselProps) {
   const isMobile = useMatches({ base: true, md: false });
   const withCarouselControls = useMatches({ base: false, md: true });
   const { colorScheme } = useMantineColorScheme();
-
-  const displayTiers = excludeTierId 
-    ? tiers.filter(t => t.id !== excludeTierId)
-    : tiers;
 
   return (
     <Carousel
@@ -44,9 +38,9 @@ export function MembershipTierCarousel({
       slideGap="md"
       align="center"
       withControls={withCarouselControls}
-      withIndicators={isMobile && displayTiers.length > 1}
+      withIndicators={isMobile && tiers.length > 1}
       styles={
-        isMobile && displayTiers.length > 1
+        isMobile && tiers.length > 1
           ? {
               indicator: {
                 backgroundColor: `${colorScheme === "dark" ? "white" : "black"}`,
@@ -58,13 +52,13 @@ export function MembershipTierCarousel({
       }
       pb={{ base: 60, md: 0 }}
     >
-      {displayTiers.map((tier) => (
+      {tiers.map((tier) => (
         <Carousel.Slide key={tier.id} py={4}>
           <MembershipTierCard
             membershipTier={tier}
             onSelect={() => onTierSelect(tier)}
             buttonText={buttonText}
-            buttonColor={buttonColor}
+            disabled={tier.id === excludedTierId}
           />
         </Carousel.Slide>
       ))}
@@ -72,6 +66,7 @@ export function MembershipTierCarousel({
   );
 }
 
+// it is intentional to omit dollar sign here as $ sign causes anxiety for consumers
 function costDisplayText(membershipTier: MembershipTier) {
   const cost = membershipTier.costPerBillingInterval;
   const interval = formatBillingInterval(membershipTier.billingInterval);
@@ -88,14 +83,14 @@ interface MembershipTierCardProps {
   membershipTier: MembershipTier;
   onSelect: () => void;
   buttonText: string;
-  buttonColor: string;
+  disabled: boolean;
 }
 
 function MembershipTierCard({
   membershipTier,
   onSelect,
   buttonText,
-  buttonColor,
+  disabled
 }: MembershipTierCardProps) {
   return (
     <Paper key={membershipTier.id} h={425} w={300} p={"lg"}>
@@ -133,8 +128,9 @@ function MembershipTierCard({
             <PrimaryButton
               size={"lg"}
               w={200}
-              color={buttonColor}
+              color={"lilac"}
               onClick={onSelect}
+              disabled={disabled}
             >
               {buttonText}
             </PrimaryButton>

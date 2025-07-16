@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Stack,
-  Title,
-  Text,
-  useMatches,
-  TitleOrder
-} from "@mantine/core";
+import { Stack, Title, Text, useMatches, TitleOrder } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -17,6 +11,7 @@ import PrimaryButton from "~/client/components/PrimaryButton";
 import { billingIntervalLabel } from "~/client/utils";
 import { MembershipTierCarousel } from "~/components/membership/MembershipTierCarousel";
 import { MembershipTier } from "~/server/membershipTier/types";
+import { MembershipTierCarousel } from "~/client/components/MembershipTierCarousel";
 
 export default function ClubTiers() {
   const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
@@ -62,7 +57,6 @@ export default function ClubTiers() {
             tiers={publishedTiers}
             onTierSelect={handleTierSelect}
             buttonText="Apply to Join"
-            buttonColor="lilac"
           />
 
           <Text
