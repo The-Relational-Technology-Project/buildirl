@@ -868,9 +868,7 @@ export function createMembershipService(
         id: true,
         clubId: true,
         status: true,
-        costPerBillingInterval: true,
-        stripePriceId: true,
-        initiationFeeStripePriceId: true
+        costPerBillingInterval: true
       },
       where: { id: newMembershipTierId }
     });
@@ -941,17 +939,7 @@ export function createMembershipService(
         );
       }
 
-      if (!newTier.stripePriceId) {
-        throw new Error(
-          `Expected Stripe price ID for paid tier ${newMembershipTierId} but found none`
-        );
-      }
-
-      await paymentService.updateSubscription(
-        membershipId,
-        newTier.stripePriceId,
-        newTier.initiationFeeStripePriceId
-      );
+      await paymentService.updateSubscription(membershipId);
     }
 
     logger.info(

@@ -39,9 +39,7 @@ type PaymentMutations = {
     tx: Prisma.TransactionClient
   ): Promise<CancelSubscriptionResult>;
   updateSubscription(
-    membershipId: bigint,
-    newPriceId: string,
-    newInitiationFeePriceId: Maybe<string>
+    membershipId: bigint
   ): Promise<UpdateSubscriptionResult>;
   createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,

@@ -527,7 +527,6 @@ export function createPaymentService(
         accountId
       );
 
-
       await tx.membership.update({
         data: {
           stripeSubscriptionId: null
@@ -547,14 +546,19 @@ export function createPaymentService(
   }
 
   async function updateSubscription(
-    membershipId: bigint,
-    newPriceId: string,
-    newInitiationFeePriceId: Maybe<string>
+    membershipId: bigint
   ): Promise<UpdateSubscriptionResult> {
     try {
       const membership = await prisma.membership.findUniqueOrThrow({
         select: {
-          stripeSubscriptionId: true
+          stripeSubscriptionId: true,
+          membershipTier: {
+            select: {
+              costPerBillingInterval: true,
+              stripePriceId: true,
+              initiationFeeStripePriceId: true
+            }
+          }
         },
         where: { id: membershipId }
       });
@@ -565,13 +569,26 @@ export function createPaymentService(
         );
       }
 
+      if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
+        throw new Error(
+          `cannot update subscription to free tier for membership ${membershipId}`
+        );
+      }
+
+      if (!membership.membershipTier.stripePriceId) {
+        throw new Error(
+          `membership tier for membership ${membershipId} does not have stripePriceId`
+        );
+      }
+
       const accountId = await accountIdResolver.fromMembership(membershipId);
 
       const { subscriptionId } = await stripeClient.updateSubscription(
         {
           subscriptionId: membership.stripeSubscriptionId,
-          newPriceId: newPriceId,
-          newInitiationFeePriceId: newInitiationFeePriceId
+          newPriceId: membership.membershipTier.stripePriceId,
+          newInitiationFeePriceId:
+            membership.membershipTier.initiationFeeStripePriceId
         },
         accountId
       );
