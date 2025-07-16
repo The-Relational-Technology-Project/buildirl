@@ -19,7 +19,8 @@ function createVerifiers() {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      description: user.description
+      description: user.description,
+      socials: user.socials
     };
   }
 

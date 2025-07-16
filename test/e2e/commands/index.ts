@@ -25,6 +25,7 @@ import {
 } from "~/server/utils/types";
 import { BillingInterval } from "~/utils/types";
 import UpdateUserCommand from "./updateUserCommand";
+import UpdateUserSocialsCommand from "./updateUserSocialsCommand";
 import itemSelector from "../utils/itemSelector";
 import CreateClubCommand from "./createClubCommand";
 import { isZodType } from "~/utils/zod";
@@ -66,6 +67,7 @@ export const allCommands = () => {
   return [
     createUserCommands(),
     updateUserCommands(),
+    updateUserSocialsCommands(),
     createClubCommands(),
     updateClubCommands(),
     deleteClubCommands(),
@@ -126,6 +128,29 @@ function updateUserCommands() {
       new UpdateUserCommand(
         {
           description: i.description
+        },
+        i.userIdSelector
+      )
+  );
+}
+
+function updateUserSocialsCommands() {
+  return record({
+    userIdSelector: itemSelector<number>(),
+    twitter: option(webUrl(), { freq: 3 }),
+    instagram: option(webUrl(), { freq: 3 }),
+    facebook: option(webUrl(), { freq: 3 }),
+    linkedin: option(webUrl(), { freq: 3 }),
+    website: option(webUrl(), { freq: 3 })
+  }).map(
+    (i) =>
+      new UpdateUserSocialsCommand(
+        {
+          twitter: i.twitter || "",
+          instagram: i.instagram || "",
+          facebook: i.facebook || "",
+          linkedin: i.linkedin || "",
+          website: i.website || ""
         },
         i.userIdSelector
       )
