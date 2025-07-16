@@ -858,8 +858,7 @@ export function createMembershipService(
             costPerBillingInterval: true
           }
         },
-        stripeSubscriptionId: true,
-        stripeCustomerId: true
+        stripeSubscriptionId: true
       },
       where: { id: membershipId }
     });
@@ -915,10 +914,7 @@ export function createMembershipService(
         `Changing from free tier to paid tier for membership ${membershipId}`
       );
 
-      // Create customer if doesn't exist
-      if (!membership.stripeCustomerId) {
-        await paymentService.createCustomerForMembership(membershipId, tx);
-      }
+      await paymentService.createCustomerForMembership(membershipId, tx);
 
       // For free to paid transitions, we need to handle the payment method
       // This will need to be done through a checkout session, not direct subscription creation
