@@ -37,6 +37,8 @@ export function MembershipTierCarousel({
       slideSize="33.333333%"
       slideGap="md"
       align="center"
+      // we need indicators for mobile because
+      // the next and previous card are not visible
       withControls={withCarouselControls}
       withIndicators={isMobile && tiers.length > 1}
       styles={
@@ -50,6 +52,7 @@ export function MembershipTierCarousel({
             }
           : undefined
       }
+      // shifts the indicator down
       pb={{ base: 60, md: 0 }}
     >
       {tiers.map((tier) => (
