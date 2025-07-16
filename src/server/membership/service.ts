@@ -899,32 +899,48 @@ export function createMembershipService(
       where: { id: membershipId }
     });
 
-    // update Stripe subscription
+    await updateSubscriptionForMembershipTierChange(
+      membershipId,
+      currentTier.id,
+      newTier.id,
+      isCurrentTierFree,
+      isNewTierFree,
+      tx
+    );
 
+    return NO_ID_MUTATION_RESULT;
+  }
+
+  async function updateSubscriptionForMembershipTierChange(
+    membershipId: bigint,
+    currentTierId: number,
+    newTierId: number,
+    isCurrentTierFree: boolean,
+    isNewTierFree: boolean,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
     if (isCurrentTierFree && isNewTierFree) {
       // free -> free, no action needed
       logger.info(
-        `updated membership with id ${membershipId} from free tier ${currentTier.id} to free tier ${newTier.id}`
+        `updated membership with id ${membershipId} from free tier ${currentTierId} to free tier ${newTierId}`
       );
     } else if (isCurrentTierFree && !isNewTierFree) {
       logger.info(
-        `updated membership with id ${membershipId} from free tier ${currentTier.id} to free tier ${newTier.id}, creating new subscription`
+        `updated membership with id ${membershipId} from free tier ${currentTierId} to paid tier ${newTierId}, creating new subscription`
       );
       await paymentService.createCustomerForMembership(membershipId, tx);
       // TODO! implement proper free-to-paid transition with checkout session
     } else if (!isCurrentTierFree && isNewTierFree) {
       logger.info(
-        `updated membership with id ${membershipId} from paid tier ${currentTier.id} to free tier ${newTier.id}, canceling subscription`
+        `updated membership with id ${membershipId} from paid tier ${currentTierId} to free tier ${newTierId}, canceling subscription`
       );
       await paymentService.cancelSubscription(membershipId, tx);
     } else {
       logger.info(
-        `updated membership with id ${membershipId} from paid tier ${currentTier.id} to paid tier ${newTier.id}, updating subscription`
+        `updated membership with id ${membershipId} from paid tier ${currentTierId} to paid tier ${newTierId}, updating subscription`
       );
       await paymentService.updateSubscription(membershipId);
     }
-
-    return NO_ID_MUTATION_RESULT;
   }
 
   return {
