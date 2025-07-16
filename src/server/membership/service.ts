@@ -847,68 +847,80 @@ export function createMembershipService(
     newMembershipTierId: number,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
-    await checkMembershipStatus(membershipId, "ACTIVE");
+    try {
+      await checkMembershipStatus(membershipId, "ACTIVE");
 
-    const membership = await tx.membership.findUniqueOrThrow({
-      select: {
-        membershipTier: {
-          select: {
-            id: true,
-            clubId: true,
-            costPerBillingInterval: true
+      const membership = await tx.membership.findUniqueOrThrow({
+        select: {
+          membershipTier: {
+            select: {
+              id: true,
+              clubId: true,
+              costPerBillingInterval: true
+            }
           }
-        }
-      },
-      where: { id: membershipId }
-    });
+        },
+        where: { id: membershipId }
+      });
 
-    const currentTier = membership.membershipTier;
-    const newTier = await tx.membershipTier.findUniqueOrThrow({
-      select: {
-        id: true,
-        clubId: true,
-        status: true,
-        costPerBillingInterval: true
-      },
-      where: { id: newMembershipTierId }
-    });
+      const currentTier = membership.membershipTier;
+      const newTier = await tx.membershipTier.findUniqueOrThrow({
+        select: {
+          id: true,
+          clubId: true,
+          status: true,
+          costPerBillingInterval: true
+        },
+        where: { id: newMembershipTierId }
+      });
 
-    if (newTier.status !== "PUBLISHED") {
-      throw new Error(
-        `cannot change to unpublished tier with id ${newMembershipTierId}`
+      if (newTier.status !== "PUBLISHED") {
+        throw new Error(
+          `cannot change to unpublished tier with id ${newMembershipTierId}`
+        );
+      }
+
+      if (newTier.clubId !== currentTier.clubId) {
+        throw new Error(
+          `new tier must belong to the same club as current membership`
+        );
+      }
+
+      if (currentTier.id === newMembershipTierId) {
+        throw new Error(`already on membership tier ${newMembershipTierId}`);
+      }
+
+      const isCurrentTierFree = isPrismaResultDefaultFreeTier(currentTier);
+      const isNewTierFree = isPrismaResultDefaultFreeTier(newTier);
+
+      // this must be first so that downstream operations in payment service
+      // can operate on the new tier
+      await tx.membership.update({
+        data: { membershipTierId: newMembershipTierId },
+        where: { id: membershipId }
+      });
+
+      await updateSubscriptionForMembershipTierChange(
+        membershipId,
+        currentTier.id,
+        newTier.id,
+        isCurrentTierFree,
+        isNewTierFree,
+        tx
       );
-    }
 
-    if (newTier.clubId !== currentTier.clubId) {
-      throw new Error(
-        `new tier must belong to the same club as current membership`
+      logger.info(
+        `successfully updated membership ${membershipId} from tier ${currentTier.id} to tier ${newMembershipTierId}`
       );
+
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update membership tier for membership ${membershipId} to tier ${newMembershipTierId}`
+      );
+      throw e;
     }
-
-    if (currentTier.id === newMembershipTierId) {
-      throw new Error(`already on membership tier ${newMembershipTierId}`);
-    }
-
-    const isCurrentTierFree = isPrismaResultDefaultFreeTier(currentTier);
-    const isNewTierFree = isPrismaResultDefaultFreeTier(newTier);
-
-    // this must be first so that downstream operations in payment service
-    // can operate on the new tier
-    await tx.membership.update({
-      data: { membershipTierId: newMembershipTierId },
-      where: { id: membershipId }
-    });
-
-    await updateSubscriptionForMembershipTierChange(
-      membershipId,
-      currentTier.id,
-      newTier.id,
-      isCurrentTierFree,
-      isNewTierFree,
-      tx
-    );
-
-    return NO_ID_MUTATION_RESULT;
   }
 
   async function updateSubscriptionForMembershipTierChange(
