@@ -10,7 +10,7 @@ import {
   Group,
   Divider
 } from "@mantine/core";
-import { IconPlus, IconX } from "@tabler/icons-react";
+import { IconPlus, IconX, IconChevronUp, IconChevronDown } from "@tabler/icons-react";
 import { Club } from "~/server/club/types";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
@@ -20,10 +20,22 @@ export default function FAQsSection() {
     formState: { errors }
   } = useFormContext<Club>();
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control,
     name: "faqs.items"
   });
+
+  const moveUp = (index: number) => {
+    if (index > 0) {
+      move(index, index - 1);
+    }
+  };
+
+  const moveDown = (index: number) => {
+    if (index < fields.length - 1) {
+      move(index, index + 1);
+    }
+  };
 
   return (
     <Stack gap={8}>
@@ -38,6 +50,20 @@ export default function FAQsSection() {
               {index > 0 && <Divider my="xs" />}
               <Box>
                 <Group justify="flex-end" mb={8}>
+                  <ColorSchemeAwareActionIcon 
+                    onClick={() => moveUp(index)}
+                    disabled={index === 0}
+                  >
+                    <IconChevronUp size={16} />
+                  </ColorSchemeAwareActionIcon>
+                  
+                  <ColorSchemeAwareActionIcon 
+                    onClick={() => moveDown(index)}
+                    disabled={index === fields.length - 1}
+                  >
+                    <IconChevronDown size={16} />
+                  </ColorSchemeAwareActionIcon>
+                  
                   <ColorSchemeAwareActionIcon onClick={() => remove(index)}>
                     <IconX size={16} />
                   </ColorSchemeAwareActionIcon>
