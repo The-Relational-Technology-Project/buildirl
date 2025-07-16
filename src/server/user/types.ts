@@ -24,6 +24,11 @@ export type UserQueries = {
     userIds: number[],
     tx: Prisma.TransactionClient
   ): Promise<Email[]>;
+  getUserSocials(userId: number): Promise<UserSocials | null>;
+  getUserSocialsInTransaction(
+    userId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<UserSocials | null>;
 };
 
 export type UserSocials = {

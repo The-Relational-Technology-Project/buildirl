@@ -1,4 +1,5 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
+import UserGetPayload = Prisma.UserGetPayload;
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
 import {
@@ -6,7 +7,8 @@ import {
   UpdateUserInput,
   UpdateUserSocialsInput,
   User,
-  UserService
+  UserService,
+  UserSocials
 } from "~/server/user/types";
 import {
   Email,
@@ -21,40 +23,42 @@ export const USER_SELECT = {
   firstName: true,
   lastName: true,
   description: true,
+  socials: true,
   createdAt: true
 };
 
-export const USER_SELECT_WITH_SOCIALS = {
-  ...USER_SELECT,
-  socials: true
-};
+export function asUser(
+  r: UserGetPayload<{ select: typeof USER_SELECT }>
+): User {
+  const socials = r.socials ? {
+    twitter: r.socials.twitter ?? undefined,
+    instagram: r.socials.instagram ?? undefined,
+    facebook: r.socials.facebook ?? undefined,
+    linkedin: r.socials.linkedin ?? undefined,
+    website: r.socials.website ?? undefined
+  } : undefined;
+
+  return {
+    id: r.id,
+    firstName: r.firstName,
+    lastName: r.lastName,
+    description: r.description,
+    createdAt: r.createdAt,
+    socials
+  };
+}
 
 export function createUserService(prisma: PrismaClient): UserService {
   async function getUser(id: number): Promise<User> {
     try {
       const user = await prisma.user.findUniqueOrThrow({
-        select: USER_SELECT_WITH_SOCIALS,
+        select: USER_SELECT,
         where: {
           id: id
         }
       });
-      const socials = user.socials ? {
-        twitter: user.socials.twitter ?? undefined,
-        instagram: user.socials.instagram ?? undefined,
-        facebook: user.socials.facebook ?? undefined,
-        linkedin: user.socials.linkedin ?? undefined,
-        website: user.socials.website ?? undefined
-      } : undefined;
-
-      const result: User = {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        description: user.description,
-        createdAt: user.createdAt,
-        socials
-      };
-
+      
+      const result = asUser(user);
       logger.info(`queried user with id ${id} with result ${stringify(result)}`);
       return result;
     } catch (e) {
@@ -107,6 +111,44 @@ export function createUserService(prisma: PrismaClient): UserService {
     return Promise.all(
       userIds.map((userId) => getUserEmailInTransaction(userId, tx))
     );
+  }
+
+  async function getUserSocials(userId: number): Promise<UserSocials | null> {
+    return prisma.$transaction(async (tx) => {
+      return getUserSocialsInTransaction(userId, tx);
+    });
+  }
+
+  async function getUserSocialsInTransaction(
+    userId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<UserSocials | null> {
+    try {
+      const userSocials = await tx.userSocials.findUnique({
+        where: {
+          userId: userId
+        }
+      });
+      
+      if (!userSocials) {
+        logger.info(`no socials found for user with id ${userId}`);
+        return null;
+      }
+
+      const result: UserSocials = {
+        twitter: userSocials.twitter ?? undefined,
+        instagram: userSocials.instagram ?? undefined,
+        facebook: userSocials.facebook ?? undefined,
+        linkedin: userSocials.linkedin ?? undefined,
+        website: userSocials.website ?? undefined
+      };
+
+      logger.info(`queried user socials for user with id ${userId}`);
+      return result;
+    } catch (e) {
+      logger.error(e, `failed to query user socials for user with id ${userId}`);
+      throw e;
+    }
   }
 
   async function createUser(
@@ -229,6 +271,8 @@ export function createUserService(prisma: PrismaClient): UserService {
     getUserEmails,
     getUserEmailInTransaction,
     getUserEmailsInTransaction,
+    getUserSocials,
+    getUserSocialsInTransaction,
     createUser,
     updateUser,
     updateUserSocials
