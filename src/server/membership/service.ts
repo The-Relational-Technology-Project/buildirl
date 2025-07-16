@@ -857,12 +857,12 @@ export function createMembershipService(
             clubId: true,
             costPerBillingInterval: true
           }
-        },
-        stripeSubscriptionId: true
+        }
       },
       where: { id: membershipId }
     });
 
+    const currentTier = membership.membershipTier;
     const newTier = await tx.membershipTier.findUniqueOrThrow({
       select: {
         id: true,
@@ -879,19 +879,17 @@ export function createMembershipService(
       );
     }
 
-    if (newTier.clubId !== membership.membershipTier.clubId) {
+    if (newTier.clubId !== currentTier.clubId) {
       throw new Error(
         `new tier must belong to the same club as current membership`
       );
     }
 
-    if (membership.membershipTier.id === newMembershipTierId) {
+    if (currentTier.id === newMembershipTierId) {
       throw new Error(`already on membership tier ${newMembershipTierId}`);
     }
 
-    const isCurrentTierFree = isPrismaResultDefaultFreeTier(
-      membership.membershipTier
-    );
+    const isCurrentTierFree = isPrismaResultDefaultFreeTier(currentTier);
     const isNewTierFree = isPrismaResultDefaultFreeTier(newTier);
 
     // this must be first so that downstream operations in payment service
@@ -901,50 +899,30 @@ export function createMembershipService(
       where: { id: membershipId }
     });
 
+    // update Stripe subscription
+
     if (isCurrentTierFree && isNewTierFree) {
-      // free to free - no payment changes needed
+      // free -> free, no action needed
       logger.info(
-        `Changed from free tier to free tier for membership ${membershipId}`
+        `updated membership with id ${membershipId} from free tier ${currentTier.id} to free tier ${newTier.id}`
       );
     } else if (isCurrentTierFree && !isNewTierFree) {
-      // Free to Paid - create customer and subscription
       logger.info(
-        `Changing from free tier to paid tier for membership ${membershipId}`
+        `updated membership with id ${membershipId} from free tier ${currentTier.id} to free tier ${newTier.id}, creating new subscription`
       );
-
       await paymentService.createCustomerForMembership(membershipId, tx);
-
-      // For free to paid transitions, we need to handle the payment method
-      // This will need to be done through a checkout session, not direct subscription creation
-      logger.warn(
-        `Free to paid tier transitions require payment method setup. Consider using checkout session for membership ${membershipId}`
-      );
-      // TODO: Implement proper free-to-paid transition with checkout session
+      // TODO! implement proper free-to-paid transition with checkout session
     } else if (!isCurrentTierFree && isNewTierFree) {
-      // Paid to Free - cancel subscription
       logger.info(
-        `Changed from paid tier to free tier for membership ${membershipId}`
+        `updated membership with id ${membershipId} from paid tier ${currentTier.id} to free tier ${newTier.id}, canceling subscription`
       );
-
       await paymentService.cancelSubscription(membershipId, tx);
     } else {
-      // Paid to Paid - update subscription
       logger.info(
-        `Changed from paid tier to paid tier for membership ${membershipId}`
+        `updated membership with id ${membershipId} from paid tier ${currentTier.id} to paid tier ${newTier.id}, updating subscription`
       );
-
-      if (!membership.stripeSubscriptionId) {
-        throw new Error(
-          `Expected subscription for paid membership ${membershipId} but found none`
-        );
-      }
-
       await paymentService.updateSubscription(membershipId);
     }
-
-    logger.info(
-      `updated membership ${membershipId} from tier ${membership.membershipTier.id} to tier ${newMembershipTierId}`
-    );
 
     return NO_ID_MUTATION_RESULT;
   }
