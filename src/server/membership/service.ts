@@ -951,7 +951,7 @@ export function createMembershipService(
       logger.info(
         `updated membership with id ${membershipId} from paid tier ${currentTierId} to paid tier ${newTierId}, updating subscription`
       );
-      await paymentService.updateSubscription(membershipId);
+      await paymentService.updateSubscription(membershipId, tx);
     }
   }
 

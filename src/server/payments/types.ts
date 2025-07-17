@@ -38,9 +38,12 @@ type PaymentMutations = {
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ): Promise<void>;
-  // updates the subscription with the membership tier associated
-  // with the membership
-  updateSubscription(membershipId: bigint): Promise<UpdateSubscriptionResult>;
+  // updates the subscription with the current membership tier
+  // associated with the membership
+  updateSubscription(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
   createProductAndPricesForMembershipTier(
     input: CreateProductAndPricesForMembershipTierInput,
     tx: Prisma.TransactionClient
@@ -128,21 +131,4 @@ export type UpdateProductAndPricesForMembershipTierInput = {
   billingInterval: BillingInterval;
   initiationFeeInUSD: Maybe<MonetaryValue>;
   membershipTierId: number;
-};
-
-export type NullablePriceIdResult = {
-  updatedPriceId: Maybe<string>;
-};
-
-export type UpdateProductAndPricesForMembershipTierResult = {
-  updatedPriceId: Maybe<string>;
-  updatedInitiationFeePriceId: Maybe<NullablePriceIdResult>;
-};
-
-export type CancelSubscriptionResult = {
-  wasCancelled: boolean;
-};
-
-export type UpdateSubscriptionResult = {
-  subscriptionId: string;
 };

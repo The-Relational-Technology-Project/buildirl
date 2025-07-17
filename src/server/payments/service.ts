@@ -546,10 +546,11 @@ export function createPaymentService(
   }
 
   async function updateSubscription(
-    membershipId: bigint
-  ): Promise<UpdateSubscriptionResult> {
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
     try {
-      const membership = await prisma.membership.findUniqueOrThrow({
+      const membership = await tx.membership.findUniqueOrThrow({
         select: {
           stripeSubscriptionId: true,
           membershipTier: {
@@ -565,7 +566,7 @@ export function createPaymentService(
 
       if (!membership.stripeSubscriptionId) {
         throw new Error(
-          `membership with id ${membershipId} does not have stripe subscription`
+          `membership with id ${membershipId} does not have stripeSubscriptionId`
         );
       }
 
@@ -593,10 +594,17 @@ export function createPaymentService(
         accountId
       );
 
+      await tx.membership.update({
+        data: {
+          stripeSubscriptionId: subscriptionId
+        },
+        where: { id: membershipId }
+      });
+
       logger.info(
         `updated stripe subscription ${subscriptionId} for membership with id ${membershipId}`
       );
-      return { subscriptionId };
+      return;
     } catch (e) {
       logger.error(
         e,
