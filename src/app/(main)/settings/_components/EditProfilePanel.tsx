@@ -1,14 +1,15 @@
 import { User } from "~/server/user/types";
-import { LongTextSchema } from "~/server/utils/types";
+import { LongTextSchema, UrlSchema } from "~/server/utils/types";
 import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import EditableUserAvatar from "~/client/components/EditableUserAvatar";
+import PrefixedInput from "~/client/components/PrefixedInput";
 import React from "react";
-import { Button, Stack, Text, Textarea, Title } from "@mantine/core";
-import { handleDefaultMutationError } from "~/client/logger";
+import { Button, Stack, Text, Textarea, Title, TextInput } from "@mantine/core";
+import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 
 type UserFormProps = {
   user: User;
@@ -24,20 +25,46 @@ function UpdateUserForm({ user }: UserFormProps) {
     onError: handleDefaultMutationError
   });
 
+  const updateUserSocials = api.main.updateUserSocials.useMutation({
+    onSuccess: async (_, v) => {
+      await utils.main.user.invalidate();
+      await utils.main.userById.invalidate({ id: v.id });
+    },
+    onError: handleDefaultMutationError
+  });
+
   const form = useForm({
     initialValues: {
-      description: user.description
+      description: user.description,
+      twitter: user.socials?.twitter || "",
+      instagram: user.socials?.instagram || "",
+      facebook: user.socials?.facebook || "",
+      linkedin: user.socials?.linkedin || "",
+      website: user.socials?.website || ""
     },
     validateInputOnChange: true,
     validate: {
-      description: (v) => safeValidateSchema(LongTextSchema, v)
+      description: (v) => safeValidateSchema(LongTextSchema, v),
+      // No validation for social handles (they're optional and users know their usernames)
+      twitter: undefined,
+      instagram: undefined,
+      facebook: undefined,
+      linkedin: undefined,
+      website: (v) => v ? safeValidateSchema(UrlSchema, v) : undefined
     }
   });
 
   return (
     <form
-      onSubmit={form.onSubmit(async ({ description }) => {
+      onSubmit={form.onSubmit(async ({ description, twitter, instagram, facebook, linkedin, website }) => {
         await updateUser.mutateAsync({ id: user.id, input: { description } });
+        
+        await updateUserSocials.mutateAsync({ 
+          id: user.id, 
+          input: { twitter, instagram, facebook, linkedin, website }
+        });
+        
+        notifySuccess("Profile updated", "Your profile has been updated successfully!");
       })}
     >
       <Stack w="100%" miw={{ base: 300, md: 400 }} gap="md">
@@ -58,12 +85,49 @@ function UpdateUserForm({ user }: UserFormProps) {
           w="100%"
         />
 
+        <Stack gap="xs">
+          <Title order={6}>Social Links</Title>
+          <Text size="sm" c="dimmed">
+            Connect your social media profiles (optional)
+          </Text>
+          
+          <PrefixedInput 
+            prefix="twitter.com/"
+            placeholder="username"
+            key={form.key("twitter")}
+            {...form.getInputProps("twitter")}
+          />
+          <PrefixedInput 
+            prefix="instagram.com/"
+            placeholder="username"
+            key={form.key("instagram")}
+            {...form.getInputProps("instagram")}
+          />
+          <PrefixedInput 
+            prefix="facebook.com/"
+            placeholder="username"
+            key={form.key("facebook")}
+            {...form.getInputProps("facebook")}
+          />
+          <PrefixedInput 
+            prefix="linkedin.com/in/"
+            placeholder="username"
+            key={form.key("linkedin")}
+            {...form.getInputProps("linkedin")}
+          />
+          <TextInput
+            placeholder="https://yourwebsite.com"
+            key={form.key("website")}
+            {...form.getInputProps("website")}
+          />
+        </Stack>
+
         <Button
           type="submit"
           w={100}
           mt="sm"
           disabled={!form.isValid()}
-          loading={updateUser.isPending}
+          loading={updateUser.isPending || updateUserSocials.isPending}
           style={{ alignSelf: "center" }}
         >
           Save

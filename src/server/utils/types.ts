@@ -22,11 +22,29 @@ export const UrlSchema = z
 export type Url = z.infer<typeof UrlSchema>;
 
 const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._]{0,29}$/;
+const TWITTER_HANDLE_REGEX = /^[a-zA-Z0-9_]{1,15}$/;
+const FACEBOOK_HANDLE_REGEX = /^[a-zA-Z0-9.]{5,50}$/;
+const LINKEDIN_HANDLE_REGEX = /^[a-zA-Z0-9-]{3,100}$/;
 
 export const InstagramHandleSchema = z
   .string()
   .regex(INSTAGRAM_HANDLE_REGEX, "Not a valid Instagram handle");
 export type InstagramHandle = z.infer<typeof InstagramHandleSchema>;
+
+export const TwitterHandleSchema = z
+  .string()
+  .regex(TWITTER_HANDLE_REGEX, "Not a valid Twitter handle");
+export type TwitterHandle = z.infer<typeof TwitterHandleSchema>;
+
+export const FacebookHandleSchema = z
+  .string()
+  .regex(FACEBOOK_HANDLE_REGEX, "Not a valid Facebook handle");
+export type FacebookHandle = z.infer<typeof FacebookHandleSchema>;
+
+export const LinkedInHandleSchema = z
+  .string()
+  .regex(LINKEDIN_HANDLE_REGEX, "Not a valid LinkedIn handle");
+export type LinkedInHandle = z.infer<typeof LinkedInHandleSchema>;
 
 export const EmailSchema = z.string().email("Not a valid email");
 export type Email = z.infer<typeof EmailSchema>;

@@ -3,7 +3,11 @@ import {
   LongTextSchema,
   MutationResult,
   RequiredStringSchema,
-  UrlSchema
+  UrlSchema,
+  TwitterHandleSchema,
+  InstagramHandleSchema,
+  FacebookHandleSchema,
+  LinkedInHandleSchema
 } from "~/server/utils/types";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
@@ -71,10 +75,10 @@ export const UpdateUserInputSchema = z.object({
 export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
 
 export const UpdateUserSocialsInputSchema = z.object({
-  twitter: UrlSchema.nullable().or(z.literal("")),
-  instagram: UrlSchema.nullable().or(z.literal("")),
-  facebook: UrlSchema.nullable().or(z.literal("")),
-  linkedin: UrlSchema.nullable().or(z.literal("")),
+  twitter: TwitterHandleSchema.nullable().or(z.literal("")),
+  instagram: InstagramHandleSchema.nullable().or(z.literal("")),
+  facebook: FacebookHandleSchema.nullable().or(z.literal("")),
+  linkedin: LinkedInHandleSchema.nullable().or(z.literal("")),
   website: UrlSchema.nullable().or(z.literal(""))
 });
 export type UpdateUserSocialsInput = z.infer<typeof UpdateUserSocialsInputSchema>;
