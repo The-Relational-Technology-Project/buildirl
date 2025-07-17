@@ -733,31 +733,30 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         }
       );
 
-      const items = subscription.items.data;
-      if (items.length === 0) {
+      const subscriptionItems = subscription.items.data;
+      if (subscriptionItems.length !== 1) {
         throw new Error(
-          `subscription ${input.subscriptionId} has no items to update`
+          `subscription ${input.subscriptionId} has ${subscriptionItems.length} subscription items, only one subscription item is expected`
         );
       }
 
-      const firstItem = items[0];
-      if (!firstItem) {
+      const subscriptionItem = subscriptionItems[0];
+      if (!subscriptionItem) {
         throw new Error(
-          `subscription ${input.subscriptionId} has no valid first item`
+          `subscription ${input.subscriptionId} has no valid subscription item`
         );
       }
 
-      // Update the subscription with the new price
-      // This will handle proration automatically
       const updatedSubscription = await stripe.subscriptions.update(
         input.subscriptionId,
         {
           items: [
             {
-              id: firstItem.id,
+              id: subscriptionItem.id,
               price: input.newPriceId
             }
           ],
+          // calculate negative and positive prorations in next invoice
           proration_behavior: "create_prorations"
         },
         {
@@ -765,7 +764,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         }
       );
 
-      // If there's an initiation fee for the new tier, create an invoice item
+      // if there's an initiation fee for the new tier, create an invoice item
       if (input.newInitiationFeePriceId) {
         await stripe.invoiceItems.create(
           {

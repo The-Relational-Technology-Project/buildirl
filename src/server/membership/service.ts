@@ -942,6 +942,7 @@ export function createMembershipService(
       );
       await paymentService.createCustomerForMembership(membershipId, tx);
       // TODO! implement proper free-to-paid transition with checkout session
+      throw new Error("implemented");
     } else if (!isCurrentTierFree && isNewTierFree) {
       logger.info(
         `updated membership with id ${membershipId} from paid tier ${currentTierId} to free tier ${newTierId}, canceling subscription`
