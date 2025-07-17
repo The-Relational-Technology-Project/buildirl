@@ -31,7 +31,7 @@ export default class UpdateMembershipTierForMembershipCommand
       m.getActiveMembershipIdsToClubWithMultipleMembershipTiers();
     this.membershipId = this.membershipIdSelector.select(activeMembershipIds);
 
-    const membership = m.getMembership(this.membershipId);
+    const membership = m.getMembershipState(this.membershipId);
     const clubId = m.getClubIdForMembershipTier(membership.membershipTierId);
     const publishedTierIds = m.getPublishedMembershipTierIdsForClub(clubId);
     const availableTierIds = publishedTierIds.filter(
@@ -50,9 +50,8 @@ export default class UpdateMembershipTierForMembershipCommand
       this.newMembershipTierId
     );
 
-    const updatedMembership = m.getMembership(this.membershipId);
-    await verifiers.verifyUserMemberships(updatedMembership.userId, r, m);
-    await verifiers.verifyClubMemberships(updatedMembership.clubId, r, m);
+    await verifiers.verifyUserMemberships(membership.userId, r, m);
+    await verifiers.verifyClubMemberships(membership.clubId, r, m);
   }
 
   toString() {
