@@ -9,6 +9,7 @@ import React from "react";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
 import UserAvatar from "~/client/components/UserAvatar";
+import UserSocialLinks from "~/client/components/UserSocialLinks";
 
 type UserProfileProps = {
   userId: number;
@@ -31,6 +32,7 @@ function UserProfile({ userId }: UserProfileProps) {
             <Title order={3} fw={500} pt={10}>
               {user.data!.firstName} {user.data!.lastName}
             </Title>
+            <UserSocialLinks socials={user.data!.socials} />
           </Stack>
         </Group>
         {user.data!.description !== "" && (

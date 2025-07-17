@@ -88,7 +88,7 @@ function UpdateUserForm({ user }: UserFormProps) {
         <Stack gap="xs">
           <Title order={6}>Social Links</Title>
           <Text size="sm" c="dimmed">
-            Connect your social media profiles (optional)
+            Connect your social media profiles
           </Text>
           
           <PrefixedInput 
