@@ -39,7 +39,7 @@ function UserProfile({ userId }: UserProfileProps) {
           <>
             <Divider my={"md"} />
             <Title order={4}>Bio</Title>
-            <Text size={"sm"}>{user.data!.description}</Text>
+            <Text size={"sm"} style={{ whiteSpace: 'pre-wrap' }}>{user.data!.description}</Text>
           </>
         )}
       </Stack>
