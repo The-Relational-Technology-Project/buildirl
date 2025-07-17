@@ -224,9 +224,13 @@ export class SystemState {
 
   private orderByCost(membershipTiers: MembershipTier[]): MembershipTier[] {
     return membershipTiers
-      .sort((a, b) => a.id - b.id) 
-      .sort((a, b) => a.costPerBillingInterval - b.costPerBillingInterval) 
-      .sort((a, b) => this.getBillingIntervalSortPriority(a.billingInterval) - this.getBillingIntervalSortPriority(b.billingInterval)); 
+      .sort((a, b) => a.id - b.id)
+      .sort((a, b) => a.costPerBillingInterval - b.costPerBillingInterval)
+      .sort(
+        (a, b) =>
+          this.getBillingIntervalSortPriority(a.billingInterval) -
+          this.getBillingIntervalSortPriority(b.billingInterval)
+      );
   }
 
   public clubStateToClub(
@@ -743,6 +747,30 @@ export class SystemState {
     return Array.from(this.memberships.values())
       .filter((m) => m.status === "ACTIVE")
       .map((m) => m.id);
+  }
+
+  public getActiveMembershipIdsToClubWithMultipleMembershipTiers(): bigint[] {
+    const clubsWithMultipleTiers = Array.from(this.clubs.values())
+      .filter((club) => {
+        const publishedTierIds = this.getPublishedMembershipTierIdsForClub(
+          club.id
+        );
+        return publishedTierIds.length > 1;
+      })
+      .map((club) => club.id);
+
+    return Array.from(this.memberships.values())
+      .filter(
+        (m) =>
+          m.status === "ACTIVE" && clubsWithMultipleTiers.includes(m.clubId)
+      )
+      .map((m) => m.id);
+  }
+
+  public hasActiveMembershipIdsToClubWithMultipleMembershipTiers() {
+    return (
+      this.getActiveMembershipIdsToClubWithMultipleMembershipTiers().length > 0
+    );
   }
 
   public getPendingMembershipIds(): bigint[] {
