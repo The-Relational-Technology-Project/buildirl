@@ -15,10 +15,9 @@ export enum BillingInterval {
   SEMI_ANNUAL = "SEMI_ANNUAL"
 }
 
+// TODO!: Turn this back on for quarterly and semi-annual billing options. 
 export const BILLING_INTERVAL_OPTIONS = [
-  { value: BillingInterval.MONTHLY, label: "Monthly" },
-  { value: BillingInterval.QUARTERLY, label: "Quarterly" },
-  { value: BillingInterval.SEMI_ANNUAL, label: "Semi-Annually" }
+  { value: BillingInterval.MONTHLY, label: "Monthly" }
 ];
 
 export type Id = number | bigint;
