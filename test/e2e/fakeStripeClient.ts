@@ -20,8 +20,7 @@ import {
   SubscriptionStatusResponse,
   UpdateProductAndPricesForMembershipTierInput,
   UpdateProductAndPricesForMembershipTierResponse,
-  UpdateSubscriptionInput,
-  UpdateSubscriptionResponse
+  UpdateSubscriptionInput
 } from "~/server/payments/stripe/types";
 import { Maybe } from "~/utils/types";
 
@@ -167,8 +166,8 @@ export function createFakeStripeClient(): StripeClient {
   async function updateSubscription(
     _: UpdateSubscriptionInput,
     __: string
-  ): Promise<UpdateSubscriptionResponse> {
-    throw new Error("not implemented");
+  ): Promise<void> {
+    return Promise.resolve();
   }
 
   return {

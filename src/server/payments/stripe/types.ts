@@ -48,7 +48,7 @@ export type StripeClient = {
   updateSubscription(
     input: UpdateSubscriptionInput,
     byAccountId: string
-  ): Promise<UpdateSubscriptionResponse>;
+  ): Promise<void>;
   getSubscriptionStatus(
     subscriptionId: string,
     byAccountId: string
@@ -198,10 +198,6 @@ export type UpdateSubscriptionInput = {
   newPriceId: string;
   // null if there is no initiation fee for the new tier
   newInitiationFeePriceId: Maybe<string>;
-};
-
-export type UpdateSubscriptionResponse = {
-  subscriptionId: string;
 };
 
 export type SubscriptionStatusResponse = {

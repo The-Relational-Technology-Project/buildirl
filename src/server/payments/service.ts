@@ -564,15 +564,15 @@ export function createPaymentService(
         where: { id: membershipId }
       });
 
-      if (!membership.stripeSubscriptionId) {
-        throw new Error(
-          `membership with id ${membershipId} does not have stripeSubscriptionId`
-        );
-      }
-
       if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
         throw new Error(
           `cannot update subscription to free tier for membership ${membershipId}`
+        );
+      }
+
+      if (!membership.stripeSubscriptionId) {
+        throw new Error(
+          `membership with id ${membershipId} does not have stripeSubscriptionId`
         );
       }
 
@@ -584,7 +584,7 @@ export function createPaymentService(
 
       const accountId = await accountIdResolver.fromMembership(membershipId);
 
-      const { subscriptionId } = await stripeClient.updateSubscription(
+      await stripeClient.updateSubscription(
         {
           subscriptionId: membership.stripeSubscriptionId,
           newPriceId: membership.membershipTier.stripePriceId,
@@ -594,15 +594,8 @@ export function createPaymentService(
         accountId
       );
 
-      await tx.membership.update({
-        data: {
-          stripeSubscriptionId: subscriptionId
-        },
-        where: { id: membershipId }
-      });
-
       logger.info(
-        `updated stripe subscription ${subscriptionId} for membership with id ${membershipId}`
+        `updated stripe subscription ${membership.stripeSubscriptionId} for membership with id ${membershipId}`
       );
       return;
     } catch (e) {

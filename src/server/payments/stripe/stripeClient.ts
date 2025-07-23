@@ -21,7 +21,6 @@ import {
   UpdateProductAndPricesForMembershipTierInput,
   UpdateProductAndPricesForMembershipTierResponse,
   UpdateSubscriptionInput,
-  UpdateSubscriptionResponse,
   NullablePriceIdResponse
 } from "~/server/payments/stripe/types";
 import { rootLogger } from "~/logger";
@@ -724,7 +723,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
   async function updateSubscription(
     input: UpdateSubscriptionInput,
     byAccountId: string
-  ): Promise<UpdateSubscriptionResponse> {
+  ): Promise<void> {
     try {
       const subscription = await stripe.subscriptions.retrieve(
         input.subscriptionId,
@@ -747,7 +746,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         );
       }
 
-      const updatedSubscription = await stripe.subscriptions.update(
+      await stripe.subscriptions.update(
         input.subscriptionId,
         {
           items: [
@@ -781,7 +780,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       logger.info(
         `updated subscription ${input.subscriptionId} with new price ${input.newPriceId}`
       );
-      return { subscriptionId: updatedSubscription.id };
+      return;
     } catch (e) {
       logger.error(
         e,
