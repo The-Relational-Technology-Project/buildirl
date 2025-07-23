@@ -103,7 +103,9 @@ export default function ManageMembership() {
   }
 
   const cost = membership.membershipTier.costPerBillingInterval;
-  const interval = billingIntervalLabel(membership.membershipTier.billingInterval);
+  const interval = billingIntervalLabel(
+    membership.membershipTier.billingInterval
+  );
 
   return (
     // go back explicitly to root because we might have gone
@@ -150,7 +152,9 @@ export default function ManageMembership() {
 
             <Group mt="lg" gap="sm">
               <Button
-                onClick={() => router.push(`/club/${clubId}/change-tier`)}
+                onClick={() =>
+                  router.push(`/club/${clubId}/manage-membership/change-tier`)
+                }
                 variant="light"
               >
                 Change Tier

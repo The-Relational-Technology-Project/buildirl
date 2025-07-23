@@ -755,8 +755,9 @@ export function createStripeClient(stripe: Stripe): StripeClient {
               price: input.newPriceId
             }
           ],
-          // calculate negative and positive prorations in next invoice
-          proration_behavior: "create_prorations"
+          // charge for new price immediately, and calculate prorations
+          // as an immediate invoice
+          proration_behavior: "always_invoice"
         },
         {
           stripeAccount: byAccountId

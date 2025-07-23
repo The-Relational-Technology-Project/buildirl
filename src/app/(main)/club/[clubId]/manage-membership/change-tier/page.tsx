@@ -107,7 +107,7 @@ export default function ChangeTierPage() {
     } else if (!isCurrentFree && !isNewFree) {
       if (currentTier.billingInterval === selectedTier.billingInterval) {
         message +=
-          "Your subscription price will start next billing cycle. You will receive proration on difference in rate.";
+          "Your new subscription will start immediately. You will receive a proration for old subscription.";
       } else {
         message += `Your new subscription will start immediately.`;
       }
