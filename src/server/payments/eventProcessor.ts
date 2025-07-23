@@ -2,8 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import Stripe from "stripe";
 import { rootLogger } from "~/logger";
 import { MembershipService } from "~/server/membership/types";
-import { stringify } from "~/utils";
-import { Maybe } from "~/utils/types";
 
 const logger = rootLogger.child({ module: "paymentEventProcessor" });
 
@@ -22,11 +20,11 @@ export function createPaymentEventProcessor(
     try {
       // it is important this is idempotent because stripe can send webhook event
       // multiple times
-      const stripeSetupIntentId =
-        await membershipStripeSetupIntentId(membershipId);
-      if (stripeSetupIntentId !== null) {
+      const membershipStatus =
+        await membershipService.membershipStatus(membershipId);
+      if (membershipStatus !== "PENDING_INCOMPLETE") {
         logger.warn(
-          `membership with id ${membershipId} already has stripeSetupIntentId ${setupIntentId}; skipping update`
+          `membership with id ${membershipId} is not PENDING_INCOMPLETE but ${membershipStatus}; skipping update`
         );
         return;
       }
@@ -51,27 +49,6 @@ export function createPaymentEventProcessor(
       logger.error(
         e,
         `failed to update membership with id ${membershipId} with stripeSetupIntentId ${setupIntentId}`
-      );
-      throw e;
-    }
-  }
-
-  async function membershipStripeSetupIntentId(
-    membershipId: bigint
-  ): Promise<Maybe<string>> {
-    try {
-      const membership = await prisma.membership.findUniqueOrThrow({
-        select: { stripeSetupIntentId: true },
-        where: { id: membershipId }
-      });
-      logger.info(
-        `queried membership stripeSetupIntentId for membership with id ${membershipId} with result ${stringify(membership.stripeSetupIntentId)}`
-      );
-      return membership.stripeSetupIntentId;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to query membership stripeSetupIntentId for membership with id ${membershipId}`
       );
       throw e;
     }

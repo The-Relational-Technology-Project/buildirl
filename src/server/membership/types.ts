@@ -17,6 +17,8 @@ type MembershipQueries = {
     includeEmail: boolean
   ): Promise<Membership[]>;
   getMembershipApplicationsForClub(clubId: number): Promise<Membership[]>;
+  // internal
+  membershipStatus(membershipId: bigint): Promise<MembershipStatus>;
 };
 
 export type MembershipStatus =

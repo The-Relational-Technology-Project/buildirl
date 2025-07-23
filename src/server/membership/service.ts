@@ -870,6 +870,7 @@ export function createMembershipService(
     deactivateMembership,
     setMembershipAsWelcomed,
     createLeadMembership,
-    notifyMembershipApplicationSubmitted
+    notifyMembershipApplicationSubmitted,
+    membershipStatus
   };
 }
