@@ -9,14 +9,15 @@ import {
   SendEmailForMembershipDeactivatedByMemberToLeadInput,
   SendEmailForMembershipDeactivatedByLeadInput,
   SendEmailForMembershipDeclinedInput,
-  SendEmailForApplicationWithdrawnByMemberToLeadInput
+  SendEmailForApplicationWithdrawnByMemberToLeadInput,
+  Emails
 } from "~/server/email/client/types";
 import { Email } from "~/server/utils/types";
 
 export function createDummyEmailClient(): EmailClient {
   async function sendCustomEmail(
-    _: Email,
-    __: Email,
+    _: Emails,
+    __: Emails,
     ___: string,
     ____: string,
     _____: string

@@ -47,23 +47,35 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   }
 
   async function sendEmailBlast(input: SendEmailBlastInput): Promise<void> {
-    try {
-      await sendCustomEmail(
-        input.recipients,
-        input.replyTo,
-        input.subject,
-        input.htmlContent,
-        input.textContent
-      );
-      logger.info(
-        `sent email blast to ${input.recipients.length} recipients with subject "${input.subject}"`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to send email blast to recipients with subject "${input.subject}"`
-      );
-      throw e;
+    const { recipients, replyTo, subject, htmlContent, textContent } = input;
+    let successCount = 0;
+    let failureCount = 0;
+    
+    const recipientArray = Array.isArray(recipients) ? recipients : [recipients];
+    
+    // send individual email to avoid Postmark's 50-recipient limit
+    for (const recipient of recipientArray) {
+      try {
+        await sendCustomEmail(
+          recipient,        
+          replyTo,
+          subject,
+          htmlContent,
+          textContent
+        );
+        successCount++;
+      } catch (error) {
+        failureCount++;
+        logger.error(error, `Failed to send email blast to ${recipient}`);
+      }
+    }
+    
+    logger.info(
+      `Email blast completed: sent to ${successCount}/${recipientArray.length} recipients with subject "${subject}"`
+    );
+    
+    if (failureCount > 0) {
+      logger.warn(`Email blast had ${failureCount} failures out of ${recipientArray.length} total recipients`);
     }
   }
 
