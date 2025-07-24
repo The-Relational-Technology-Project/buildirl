@@ -15,6 +15,7 @@ import {
   MutationResult,
   NO_ID_MUTATION_RESULT
 } from "~/server/utils/types";
+import { Maybe } from "~/utils/types";
 
 const logger = rootLogger.child({ module: "userService" });
 
@@ -30,13 +31,13 @@ export const USER_SELECT = {
 export function asUser(
   r: UserGetPayload<{ select: typeof USER_SELECT }>
 ): User {
-  const socials = r.socials ? {
-    twitter: r.socials.twitter ?? undefined,
-    instagram: r.socials.instagram ?? undefined,
-    facebook: r.socials.facebook ?? undefined,
-    linkedin: r.socials.linkedin ?? undefined,
-    website: r.socials.website ?? undefined
-  } : undefined;
+  const socials: Maybe<UserSocials> = r.socials ? {
+    twitter: r.socials.twitter,
+    instagram: r.socials.instagram,
+    facebook: r.socials.facebook,
+    linkedin: r.socials.linkedin,
+    website: r.socials.website
+  } : null;
 
   return {
     id: r.id,
@@ -113,7 +114,7 @@ export function createUserService(prisma: PrismaClient): UserService {
     );
   }
 
-  async function getUserSocials(userId: number): Promise<UserSocials | null> {
+  async function getUserSocials(userId: number): Promise<Maybe<UserSocials>> {
     return prisma.$transaction(async (tx) => {
       return getUserSocialsInTransaction(userId, tx);
     });
@@ -122,7 +123,7 @@ export function createUserService(prisma: PrismaClient): UserService {
   async function getUserSocialsInTransaction(
     userId: number,
     tx: Prisma.TransactionClient
-  ): Promise<UserSocials | null> {
+  ): Promise<Maybe<UserSocials>> {
     try {
       const userSocials = await tx.userSocials.findUnique({
         where: {
@@ -136,11 +137,11 @@ export function createUserService(prisma: PrismaClient): UserService {
       }
 
       const result: UserSocials = {
-        twitter: userSocials.twitter ?? undefined,
-        instagram: userSocials.instagram ?? undefined,
-        facebook: userSocials.facebook ?? undefined,
-        linkedin: userSocials.linkedin ?? undefined,
-        website: userSocials.website ?? undefined
+        twitter: userSocials.twitter,
+        instagram: userSocials.instagram,
+        facebook: userSocials.facebook,
+        linkedin: userSocials.linkedin,
+        website: userSocials.website
       };
 
       logger.info(`queried user socials for user with id ${userId}`);
@@ -237,21 +238,13 @@ export function createUserService(prisma: PrismaClient): UserService {
     input: UpdateUserSocialsInput
   ): Promise<MutationResult> {
     try {
-      const socialData = {
-        twitter: input.twitter === "" ? null : input.twitter,
-        instagram: input.instagram === "" ? null : input.instagram,
-        facebook: input.facebook === "" ? null : input.facebook,
-        linkedin: input.linkedin === "" ? null : input.linkedin,
-        website: input.website === "" ? null : input.website
-      };
-
       await prisma.userSocials.upsert({
         where: { userId: id },
         create: {
           userId: id,
-          ...socialData
+          ...input
         },
-        update: socialData
+        update: input
       });
 
       logger.info(`updated user socials for user with id ${id} from input ${stringify(input)}`);

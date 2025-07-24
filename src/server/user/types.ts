@@ -9,6 +9,7 @@ import {
   FacebookHandleSchema,
   LinkedInHandleSchema
 } from "~/server/utils/types";
+import { Maybe } from "~/utils/types";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 
@@ -28,19 +29,19 @@ export type UserQueries = {
     userIds: number[],
     tx: Prisma.TransactionClient
   ): Promise<Email[]>;
-  getUserSocials(userId: number): Promise<UserSocials | null>;
+  getUserSocials(userId: number): Promise<Maybe<UserSocials>>;
   getUserSocialsInTransaction(
     userId: number,
     tx: Prisma.TransactionClient
-  ): Promise<UserSocials | null>;
+  ): Promise<Maybe<UserSocials>>;
 };
 
 export type UserSocials = {
-  twitter?: string;
-  instagram?: string;
-  facebook?: string;
-  linkedin?: string;
-  website?: string;
+  twitter: Maybe<string>;
+  instagram: Maybe<string>;
+  facebook: Maybe<string>;
+  linkedin: Maybe<string>;
+  website: Maybe<string>;
 };
 
 export type User = {
@@ -48,7 +49,7 @@ export type User = {
   firstName: string;
   lastName: string;
   description: string;
-  socials?: UserSocials;
+  socials: Maybe<UserSocials>;
   createdAt: Date;
 };
 
@@ -75,10 +76,10 @@ export const UpdateUserInputSchema = z.object({
 export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
 
 export const UpdateUserSocialsInputSchema = z.object({
-  twitter: TwitterHandleSchema.nullable().or(z.literal("")),
-  instagram: InstagramHandleSchema.nullable().or(z.literal("")),
-  facebook: FacebookHandleSchema.nullable().or(z.literal("")),
-  linkedin: LinkedInHandleSchema.nullable().or(z.literal("")),
-  website: UrlSchema.nullable().or(z.literal(""))
+  twitter: TwitterHandleSchema.nullable(),
+  instagram: InstagramHandleSchema.nullable(),
+  facebook: FacebookHandleSchema.nullable(),
+  linkedin: LinkedInHandleSchema.nullable(),
+  website: UrlSchema.nullable()
 });
 export type UpdateUserSocialsInput = z.infer<typeof UpdateUserSocialsInputSchema>;

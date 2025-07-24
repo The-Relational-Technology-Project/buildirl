@@ -1,5 +1,12 @@
 import { User } from "~/server/user/types";
-import { LongTextSchema, UrlSchema } from "~/server/utils/types";
+import { 
+  LongTextSchema, 
+  UrlSchema,
+  TwitterHandleSchema,
+  InstagramHandleSchema,
+  FacebookHandleSchema,
+  LinkedInHandleSchema
+} from "~/server/utils/types";
 import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
@@ -36,21 +43,20 @@ function UpdateUserForm({ user }: UserFormProps) {
   const form = useForm({
     initialValues: {
       description: user.description,
-      twitter: user.socials?.twitter || "",
-      instagram: user.socials?.instagram || "",
-      facebook: user.socials?.facebook || "",
-      linkedin: user.socials?.linkedin || "",
-      website: user.socials?.website || ""
+      twitter: user.socials?.twitter ?? null,
+      instagram: user.socials?.instagram ?? null,
+      facebook: user.socials?.facebook ?? null,
+      linkedin: user.socials?.linkedin ?? null,
+      website: user.socials?.website ?? null
     },
     validateInputOnChange: true,
     validate: {
       description: (v) => safeValidateSchema(LongTextSchema, v),
-      // No validation for social handles (they're optional and users know their usernames)
-      twitter: undefined,
-      instagram: undefined,
-      facebook: undefined,
-      linkedin: undefined,
-      website: (v) => v ? safeValidateSchema(UrlSchema, v) : undefined
+      twitter: (v) => v ? safeValidateSchema(TwitterHandleSchema, v) : null,
+      instagram: (v) => v ? safeValidateSchema(InstagramHandleSchema, v) : null,
+      facebook: (v) => v ? safeValidateSchema(FacebookHandleSchema, v) : null,
+      linkedin: (v) => v ? safeValidateSchema(LinkedInHandleSchema, v) : null,
+      website: (v) => v ? safeValidateSchema(UrlSchema, v) : null
     }
   });
 

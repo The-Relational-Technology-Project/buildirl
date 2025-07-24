@@ -37,7 +37,7 @@ import {
   MembershipTier,
   UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
-import { CreateUserInput, UpdateUserInput, UpdateUserSocialsInput, User, UserSocials } from "~/server/user/types";
+import { CreateUserInput, UpdateUserInput, UpdateUserSocialsInput, UpdateUserSocialsInputSchema, User, UserSocials } from "~/server/user/types";
 import { stringify } from "~/utils";
 
 // this entities differ from api ones mostly in that nested entities
@@ -86,7 +86,7 @@ type UserState = {
   firstName: string;
   lastName: string;
   description: string;
-  socials?: UserSocials;
+  socials: Maybe<UserSocials>;
   // settings
   email: Maybe<string>;
 };
@@ -135,7 +135,7 @@ export class SystemState {
       firstName: user.firstName,
       lastName: user.lastName,
       description: user.description,
-      socials: user.socials || undefined
+      socials: user.socials
       // do not pass through user settings like email
     };
   }
@@ -155,6 +155,7 @@ export class SystemState {
     this.users.set(id, {
       id: id,
       ...input,
+      socials: null,
       email: email
     });
   }
@@ -169,14 +170,14 @@ export class SystemState {
 
   public updateUserSocials(id: number, input: UpdateUserSocialsInput) {
     const user = this.getUserState(id);
+    const validatedInput = UpdateUserSocialsInputSchema.parse(input);
     
-    // normalize null and empty strings to undefined
     const socials: UserSocials = {
-      twitter: input.twitter === "" || input.twitter === null ? undefined : input.twitter,
-      instagram: input.instagram === "" || input.instagram === null ? undefined : input.instagram,
-      facebook: input.facebook === "" || input.facebook === null ? undefined : input.facebook,
-      linkedin: input.linkedin === "" || input.linkedin === null ? undefined : input.linkedin,
-      website: input.website === "" || input.website === null ? undefined : input.website
+      twitter: validatedInput.twitter,
+      instagram: validatedInput.instagram,
+      facebook: validatedInput.facebook,
+      linkedin: validatedInput.linkedin,
+      website: validatedInput.website
     };
     
     this.users.set(id, {

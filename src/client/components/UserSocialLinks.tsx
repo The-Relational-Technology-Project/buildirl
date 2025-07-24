@@ -7,10 +7,11 @@ import {
   IconWorld
 } from "@tabler/icons-react";
 import { UserSocials } from "~/server/user/types";
+import { Maybe } from "~/utils/types";
 import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
 
 type UserSocialLinksProps = {
-  socials?: UserSocials;
+  socials: Maybe<UserSocials>;
   size?: "sm" | "md" | "lg";
 };
 
@@ -61,7 +62,7 @@ export default function UserSocialLinks({ socials, size = "lg" }: UserSocialLink
       )}
       {socials.website && (
         <ActionIconBox
-          onClick={() => window.open(socials.website)}
+          onClick={() => window.open(socials.website!)}
           icon={<IconWorld />}
           size={size}
         />
