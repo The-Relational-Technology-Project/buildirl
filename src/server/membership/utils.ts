@@ -1,4 +1,4 @@
-import { USER_SELECT } from "~/server/user/service";
+import { USER_SELECT, asUser } from "~/server/user/service";
 import { Prisma } from ".prisma/client";
 import { Membership, MembershipWithClub } from "~/server/membership/types";
 import { parseAsZodType } from "~/utils/zod";
@@ -47,7 +47,7 @@ export function asMembership(
 ): Membership {
   return {
     id: r.id,
-    user: r.user,
+    user: asUser(r.user),
     membershipTier: asMembershipTier(r.membershipTier),
     status: r.status,
     applicationResponses: parseAsZodType(
@@ -67,7 +67,7 @@ export async function asMembershipWithClub(
 ): Promise<MembershipWithClub> {
   return {
     id: r.id,
-    user: r.user,
+    user: asUser(r.user),
     club: asClub(r.membershipTier.club),
     membershipTier: asMembershipTier(r.membershipTier),
     status: r.status,

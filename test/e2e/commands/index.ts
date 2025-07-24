@@ -21,13 +21,18 @@ import {
 } from "~/server/club/types";
 import {
   InstagramHandleSchema,
-  RequiredStringSchema
+  RequiredStringSchema,
+  TwitterHandleSchema,
+  FacebookHandleSchema,
+  LinkedInHandleSchema
 } from "~/server/utils/types";
 import { BillingInterval } from "~/utils/types";
 import UpdateUserCommand from "./updateUserCommand";
+import UpdateUserSocialsCommand from "./updateUserSocialsCommand";
 import itemSelector from "../utils/itemSelector";
 import CreateClubCommand from "./createClubCommand";
 import { isZodType } from "~/utils/zod";
+import { z } from "zod";
 import UpdateClubCommand from "./updateClubCommand";
 import UpdateClubApplicationQuestionsCommand from "./updateClubApplicationQuestionsCommand";
 import CreateMembershipTierCommand from "./createMembershipTierCommand";
@@ -66,6 +71,7 @@ export const allCommands = () => {
   return [
     createUserCommands(),
     updateUserCommands(),
+    updateUserSocialsCommands(),
     createClubCommands(),
     updateClubCommands(),
     deleteClubCommands(),
@@ -126,6 +132,33 @@ function updateUserCommands() {
       new UpdateUserCommand(
         {
           description: i.description
+        },
+        i.userIdSelector
+      )
+  );
+}
+
+function socialHandleArbitrary<T extends z.ZodSchema>(schema: T): Arbitrary<string> {
+  return string().filter((s) => isZodType(s, schema));
+}
+
+function updateUserSocialsCommands() {
+  return record({
+    userIdSelector: itemSelector<number>(),
+    twitter: option(socialHandleArbitrary(TwitterHandleSchema), { freq: 3 }),
+    instagram: option(socialHandleArbitrary(InstagramHandleSchema), { freq: 3 }),
+    facebook: option(socialHandleArbitrary(FacebookHandleSchema), { freq: 3 }),
+    linkedin: option(socialHandleArbitrary(LinkedInHandleSchema), { freq: 3 }),
+    website: option(webUrl(), { freq: 3 })
+  }).map(
+    (i) =>
+      new UpdateUserSocialsCommand(
+        {
+          twitter: i.twitter ?? null,
+          instagram: i.instagram ?? null,
+          facebook: i.facebook ?? null,
+          linkedin: i.linkedin ?? null,
+          website: i.website ?? null
         },
         i.userIdSelector
       )

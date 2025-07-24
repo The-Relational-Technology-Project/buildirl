@@ -37,7 +37,7 @@ import {
   MembershipTier,
   UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
-import { CreateUserInput, UpdateUserInput, User } from "~/server/user/types";
+import { CreateUserInput, UpdateUserInput, UpdateUserSocialsInput, UpdateUserSocialsInputSchema, User, UserSocials } from "~/server/user/types";
 import { stringify } from "~/utils";
 
 // this entities differ from api ones mostly in that nested entities
@@ -86,6 +86,7 @@ type UserState = {
   firstName: string;
   lastName: string;
   description: string;
+  socials: Maybe<UserSocials>;
   // settings
   email: Maybe<string>;
 };
@@ -133,7 +134,8 @@ export class SystemState {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      description: user.description
+      description: user.description,
+      socials: user.socials
       // do not pass through user settings like email
     };
   }
@@ -153,6 +155,7 @@ export class SystemState {
     this.users.set(id, {
       id: id,
       ...input,
+      socials: null,
       email: email
     });
   }
@@ -162,6 +165,24 @@ export class SystemState {
     this.users.set(id, {
       ...user,
       description: input.description
+    });
+  }
+
+  public updateUserSocials(id: number, input: UpdateUserSocialsInput) {
+    const user = this.getUserState(id);
+    const validatedInput = UpdateUserSocialsInputSchema.parse(input);
+    
+    const socials: UserSocials = {
+      twitter: validatedInput.twitter,
+      instagram: validatedInput.instagram,
+      facebook: validatedInput.facebook,
+      linkedin: validatedInput.linkedin,
+      website: validatedInput.website
+    };
+    
+    this.users.set(id, {
+      ...user,
+      socials: socials
     });
   }
 

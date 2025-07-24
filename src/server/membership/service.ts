@@ -113,7 +113,10 @@ export function createMembershipService(
       });
       const memberships = await Promise.all(
         results.map(async (r) =>
-          asMembership(r, await userService.getUserEmail(r.user.id))
+          asMembership(
+            r, 
+            await userService.getUserEmail(r.user.id)
+          )
         )
       );
       logger.info(
