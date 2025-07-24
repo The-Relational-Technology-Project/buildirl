@@ -18,7 +18,7 @@ import {
   Text,
   Card
 } from "@mantine/core";
-import { IconPlus, IconX, IconDeviceFloppy } from "@tabler/icons-react";
+import { IconPlus, IconX, IconDeviceFloppy, IconChevronUp, IconChevronDown } from "@tabler/icons-react";
 import {
   FormQuestionType,
   FormQuestionsSchema,
@@ -70,10 +70,22 @@ export default function ManageIntakePanel({ club }: ManageIntakePanelProps) {
     formState: { errors }
   } = methods;
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control,
     name: "questions"
   });
+
+  const moveUp = (index: number) => {
+    if (index > 0) {
+      move(index, index - 1);
+    }
+  };
+
+  const moveDown = (index: number) => {
+    if (index < fields.length - 1) {
+      move(index, index + 1);
+    }
+  };
 
   const onSubmit = async (questions: FormQuestions) => {
     await updateClubApplicationQuestions.mutateAsync({
@@ -93,6 +105,10 @@ export default function ManageIntakePanel({ club }: ManageIntakePanelProps) {
                 index={index}
                 errors={errors}
                 onDelete={() => remove(index)}
+                onMoveUp={() => moveUp(index)}
+                onMoveDown={() => moveDown(index)}
+                canMoveUp={index > 0}
+                canMoveDown={index < fields.length - 1}
               />
             ))}
 
@@ -131,10 +147,14 @@ export default function ManageIntakePanel({ club }: ManageIntakePanelProps) {
 type QuestionPanelProps = {
   index: number;
   onDelete: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
   errors: FieldErrors<FormQuestions>;
 };
 
-function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
+function QuestionPanel({ index, onDelete, onMoveUp, onMoveDown, canMoveUp, canMoveDown, errors }: QuestionPanelProps) {
   const { watch, setValue, control, clearErrors } =
     useFormContext<FormQuestions>();
   const questionType = watch(`questions.${index}.type`);
@@ -162,12 +182,25 @@ function QuestionPanel({ index, onDelete, errors }: QuestionPanelProps) {
 
   return (
     <Card pt={"sm"} pb="md" px="md">
-      <ColorSchemeAwareActionIcon
-        onClick={onDelete}
-        style={{ alignSelf: "flex-end" }}
-      >
-        <IconX size={16} />
-      </ColorSchemeAwareActionIcon>
+      <Group justify="flex-end" mb={8}>
+        <ColorSchemeAwareActionIcon 
+          onClick={onMoveUp}
+          disabled={!canMoveUp}
+        >
+          <IconChevronUp size={16} />
+        </ColorSchemeAwareActionIcon>
+        
+        <ColorSchemeAwareActionIcon 
+          onClick={onMoveDown}
+          disabled={!canMoveDown}
+        >
+          <IconChevronDown size={16} />
+        </ColorSchemeAwareActionIcon>
+        
+        <ColorSchemeAwareActionIcon onClick={onDelete}>
+          <IconX size={16} />
+        </ColorSchemeAwareActionIcon>
+      </Group>
       <Stack>
         <Controller
           name={`questions.${index}.question`}

@@ -9,7 +9,7 @@ import ClubGetPayload = Prisma.ClubGetPayload;
 import {
   asMembershipTier,
   MEMBERSHIP_TIER_SELECT,
-  orderedByCost
+  orderedByPricing
 } from "~/server/membershipTier/utils";
 
 export const CLUB_SELECT = {
@@ -58,7 +58,7 @@ export function asClub(
     themeHeadingFont: r.themeHeadingFont,
     displayImageUrls: parseAsZodType(r.displayImageUrls, z.array(UrlSchema)),
     faqs: parseAsZodType(r.faqs, FAQsSchema),
-    membershipTiers: orderedByCost(
+    membershipTiers: orderedByPricing(
       r.membershipTiers.map((t) => asMembershipTier(t))
     )
   };

@@ -9,6 +9,18 @@ import { Club } from "~/server/club/types";
 
 export type Maybe<T> = T | null;
 
+export enum BillingInterval {
+  MONTHLY = "MONTHLY",
+  QUARTERLY = "QUARTERLY",
+  SEMI_ANNUAL = "SEMI_ANNUAL"
+}
+
+export const BILLING_INTERVAL_OPTIONS = [
+  { value: BillingInterval.MONTHLY, label: "Monthly" },
+  { value: BillingInterval.QUARTERLY, label: "Quarterly" },
+  { value: BillingInterval.SEMI_ANNUAL, label: "Semi-Annually" }
+];
+
 export type Id = number | bigint;
 
 // helper unwrap methods for converting id to proper types
@@ -42,8 +54,7 @@ export function isDefaultFreeTier(
     | CreateMembershipTierInput
     | UpdateMembershipTierInput
 ): boolean {
-  // this is the definition of default free tier
-  return membershipTier.costPerMonthInUSD === 0;
+  return membershipTier.costPerBillingInterval === 0;
 }
 
 export function membershipForClub(

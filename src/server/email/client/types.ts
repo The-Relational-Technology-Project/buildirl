@@ -9,35 +9,35 @@ export type EmailClient = {
     textContent: string
   ): Promise<void>;
   sendEmailBlast(input: SendEmailBlastInput): Promise<void>;
-  sendDefaultEmailForMembershipApplicationSubmitted(
-    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
+  sendEmailForMembershipApplicationSubmitted(
+    input: SendEmailForMembershipApplicationSubmittedInput,
     sendTo: Emails
   ): Promise<void>;
-  sendDefaultEmailForMembershipApproved(
-    input: SendDefaultEmailForMembershipApprovedInput,
+  sendEmailForMembershipApproved(
+    input: SendEmailForMembershipApprovedInput,
     sendTo: Email,
     replyTo: Emails
   ): Promise<void>;
-  sendDefaultEmailForMembershipDeclined(
-    input: SendDefaultEmailForMembershipDeclinedInput,
+  sendEmailForMembershipDeclined(
+    input: SendEmailForMembershipDeclinedInput,
     sendTo: Email,
     replyTo: Emails
   ): Promise<void>;
-  sendDefaultEmailForMembershipDeactivatedByMemberToLead(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
+  sendEmailForMembershipDeactivatedByMemberToLead(
+    input: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     sendTo: Emails
   ): Promise<void>;
-  sendDefaultEmailForMembershipDeactivatedByMemberToMember(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+  sendEmailForMembershipDeactivatedByMemberToMember(
+    input: SendEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Email,
     replyTo: Emails
   ): Promise<void>;
-  sendDefaultEmailForMembershipDeactivatedByLead(
-    input: SendDefaultEmailForMembershipDeactivatedByLeadInput,
+  sendEmailForMembershipDeactivatedByLead(
+    input: SendEmailForMembershipDeactivatedByLeadInput,
     sendTo: Email
   ): Promise<void>;
-  sendDefaultEmailForApplicationWithdrawnByMemberToLead(
-    input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  sendEmailForApplicationWithdrawnByMemberToLead(
+    input: SendEmailForApplicationWithdrawnByMemberToLeadInput,
     sendTo: Emails
   ): Promise<void>;
 };
@@ -52,7 +52,7 @@ export type SendEmailBlastInput = {
 
 export type Emails = Email | Email[];
 
-export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
+export type SendEmailForMembershipApplicationSubmittedInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
@@ -60,7 +60,7 @@ export type SendDefaultEmailForMembershipApplicationSubmittedInput = {
   clubId: number;
 };
 
-export type SendDefaultEmailForMembershipApprovedInput = {
+export type SendEmailForMembershipApprovedInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
@@ -69,22 +69,14 @@ export type SendDefaultEmailForMembershipApprovedInput = {
   clubPublicId: string;
 };
 
-export type SendDefaultEmailForMembershipDeclinedInput = {
+export type SendEmailForMembershipDeclinedInput = {
   membershipId: bigint;
   memberFirstName: string;
   clubId: number;
   clubName: string;
 };
 
-export type SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput = {
-  membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
-  clubName: string;
-  clubId: number;
-};
-
-export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
+export type SendEmailForMembershipDeactivatedByMemberToLeadInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;
@@ -92,12 +84,20 @@ export type SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput = {
   clubId: number;
 };
 
-export type SendDefaultEmailForMembershipDeactivatedByLeadInput = {
+export type SendEmailForMembershipDeactivatedByMemberToMemberInput = {
+  membershipId: bigint;
+  memberFirstName: string;
+  memberLastName: string;
+  clubName: string;
+  clubId: number;
+};
+
+export type SendEmailForMembershipDeactivatedByLeadInput = {
   membershipId: bigint;
   clubName: string;
 };
 
-export type SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput = {
+export type SendEmailForApplicationWithdrawnByMemberToLeadInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;

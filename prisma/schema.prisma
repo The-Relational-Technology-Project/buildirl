@@ -39,6 +39,12 @@ enum EmailBlastStatus {
   SENT
 }
 
+enum BillingInterval {
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+}
+
 enum Role {
   // this role also includes club management permissions
   LEAD
@@ -70,7 +76,6 @@ model UserSettings {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([userId])
   @@map("user_settings")
 }
 
@@ -110,7 +115,8 @@ model MembershipTier {
   name                       String
   benefitDescription         String               @map("benefit_description")
   contributionDescription    String               @map("contribution_description")
-  costPerMonthInUSD          Decimal              @map("cost_per_month_usd")
+  costPerBillingInterval     Decimal              @map("cost_per_billing_interval")
+  billingInterval            BillingInterval      @map("billing_interval")
   initiationFeeCostInUSD     Decimal?             @map("initiation_fee_cost_in_usd")
   club                       Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubId                     Int                  @map("club_id")

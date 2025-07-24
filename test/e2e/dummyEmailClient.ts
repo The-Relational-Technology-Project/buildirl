@@ -3,20 +3,21 @@
 import {
   EmailClient,
   SendEmailBlastInput,
-  SendDefaultEmailForMembershipApplicationSubmittedInput,
-  SendDefaultEmailForMembershipApprovedInput,
-  SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
-  SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
-  SendDefaultEmailForMembershipDeactivatedByLeadInput,
-  SendDefaultEmailForMembershipDeclinedInput,
-  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput
+  SendEmailForMembershipApplicationSubmittedInput,
+  SendEmailForMembershipApprovedInput,
+  SendEmailForMembershipDeactivatedByMemberToMemberInput,
+  SendEmailForMembershipDeactivatedByMemberToLeadInput,
+  SendEmailForMembershipDeactivatedByLeadInput,
+  SendEmailForMembershipDeclinedInput,
+  SendEmailForApplicationWithdrawnByMemberToLeadInput,
+  Emails
 } from "~/server/email/client/types";
 import { Email } from "~/server/utils/types";
 
 export function createDummyEmailClient(): EmailClient {
   async function sendCustomEmail(
-    _: Email,
-    __: Email,
+    _: Emails,
+    __: Emails,
     ___: string,
     ____: string,
     _____: string
@@ -24,59 +25,57 @@ export function createDummyEmailClient(): EmailClient {
     return;
   }
 
-  async function sendEmailBlast(
-    _: SendEmailBlastInput
-  ): Promise<void> {
+  async function sendEmailBlast(_: SendEmailBlastInput): Promise<void> {
     return;
   }
 
-  async function sendDefaultEmailForMembershipApplicationSubmitted(
-    _: SendDefaultEmailForMembershipApplicationSubmittedInput,
+  async function sendEmailForMembershipApplicationSubmitted(
+    _: SendEmailForMembershipApplicationSubmittedInput,
     __: Email
   ): Promise<void> {
     return;
   }
 
-  async function sendDefaultEmailForMembershipApproved(
-    _: SendDefaultEmailForMembershipApprovedInput,
+  async function sendEmailForMembershipApproved(
+    _: SendEmailForMembershipApprovedInput,
     __: Email,
     ___: Email
   ): Promise<void> {
     return;
   }
 
-  async function sendDefaultEmailForMembershipDeclined(
-    _: SendDefaultEmailForMembershipDeclinedInput,
+  async function sendEmailForMembershipDeclined(
+    _: SendEmailForMembershipDeclinedInput,
     __: Email,
     ___: Email
   ): Promise<void> {
     return;
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByMemberToLead(
-    _: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
+  async function sendEmailForMembershipDeactivatedByMemberToLead(
+    _: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     __: Email
   ): Promise<void> {
     return;
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
-    _: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+  async function sendEmailForMembershipDeactivatedByMemberToMember(
+    _: SendEmailForMembershipDeactivatedByMemberToMemberInput,
     __: Email,
     ___: Email
   ): Promise<void> {
     return;
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByLead(
-    _: SendDefaultEmailForMembershipDeactivatedByLeadInput,
+  async function sendEmailForMembershipDeactivatedByLead(
+    _: SendEmailForMembershipDeactivatedByLeadInput,
     __: Email
   ): Promise<void> {
     return;
   }
 
-  async function sendDefaultEmailForApplicationWithdrawnByMemberToLead(
-    _: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  async function sendEmailForApplicationWithdrawnByMemberToLead(
+    _: SendEmailForApplicationWithdrawnByMemberToLeadInput,
     __: Email
   ): Promise<void> {
     return;
@@ -85,12 +84,12 @@ export function createDummyEmailClient(): EmailClient {
   return {
     sendCustomEmail,
     sendEmailBlast,
-    sendDefaultEmailForMembershipApplicationSubmitted,
-    sendDefaultEmailForMembershipApproved,
-    sendDefaultEmailForMembershipDeclined,
-    sendDefaultEmailForMembershipDeactivatedByLead,
-    sendDefaultEmailForMembershipDeactivatedByMemberToLead,
-    sendDefaultEmailForMembershipDeactivatedByMemberToMember,
-    sendDefaultEmailForApplicationWithdrawnByMemberToLead,
+    sendEmailForMembershipApplicationSubmitted,
+    sendEmailForMembershipApproved,
+    sendEmailForMembershipDeclined,
+    sendEmailForMembershipDeactivatedByLead,
+    sendEmailForMembershipDeactivatedByMemberToLead,
+    sendEmailForMembershipDeactivatedByMemberToMember,
+    sendEmailForApplicationWithdrawnByMemberToLead
   };
 }

@@ -20,6 +20,7 @@ import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHe
 import { Carousel } from "@mantine/carousel";
 import { useMounted } from "@mantine/hooks";
 import PrimaryButton from "~/client/components/PrimaryButton";
+import { billingIntervalLabel } from "~/client/utils";
 
 export default function ClubTiers() {
   const isMobile = useMatches({ base: true, md: false });
@@ -106,13 +107,15 @@ export default function ClubTiers() {
 
 // It is intentional to omit dollar sign here as $ sign causes anxiety for consumers
 function costDisplayText(membershipTier: MembershipTier) {
-  return (
-    membershipTier.costPerMonthInUSD +
-    " / month" +
-    (null === membershipTier.initiationFeeCostInUSD
-      ? ""
-      : " + " + membershipTier.initiationFeeCostInUSD + " initiation")
-  );
+  const cost = membershipTier.costPerBillingInterval;
+  const interval = billingIntervalLabel(membershipTier.billingInterval);
+  const initiationFee = membershipTier.initiationFeeCostInUSD;
+
+  let text = `${cost} / ${interval}`;
+  if (initiationFee !== null && initiationFee > 0) {
+    text += ` + ${initiationFee} initiation`;
+  }
+  return text;
 }
 
 type MembershipTierCardProps = {

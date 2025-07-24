@@ -2,13 +2,13 @@ import { Transporter } from "nodemailer";
 import {
   EmailClient,
   SendEmailBlastInput,
-  SendDefaultEmailForMembershipApplicationSubmittedInput,
-  SendDefaultEmailForMembershipApprovedInput,
-  SendDefaultEmailForMembershipDeclinedInput,
-  SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
-  SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
-  SendDefaultEmailForMembershipDeactivatedByLeadInput,
-  SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  SendEmailForMembershipApplicationSubmittedInput,
+  SendEmailForMembershipApprovedInput,
+  SendEmailForMembershipDeclinedInput,
+  SendEmailForMembershipDeactivatedByMemberToLeadInput,
+  SendEmailForMembershipDeactivatedByMemberToMemberInput,
+  SendEmailForMembershipDeactivatedByLeadInput,
+  SendEmailForApplicationWithdrawnByMemberToLeadInput,
   Emails
 } from "./types";
 import { rootLogger } from "~/logger";
@@ -47,28 +47,34 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   }
 
   async function sendEmailBlast(input: SendEmailBlastInput): Promise<void> {
-    try {
-      await sendCustomEmail(
-        input.recipients,
-        input.replyTo,
-        input.subject,
-        input.htmlContent,
-        input.textContent
-      );
-      logger.info(
-        `sent email blast to ${input.recipients.length} recipients with subject "${input.subject}"`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to send email blast to recipients with subject "${input.subject}"`
-      );
-      throw e;
+    const { recipients, replyTo, subject, htmlContent, textContent } = input;
+    let successCount = 0;
+    
+    const recipientArray = Array.isArray(recipients) ? recipients : [recipients];
+    
+    // send individual email to avoid Postmark's 50-recipient limit
+    for (const recipient of recipientArray) {
+      try {
+        await sendCustomEmail(
+          recipient,        
+          replyTo,
+          subject,
+          htmlContent,
+          textContent
+        );
+        successCount++;
+      } catch (error) {
+        logger.error(error, `Failed to send email blast to ${recipient}`);
+      }
     }
+    
+    logger.info(
+      `Email blast completed: sent to ${successCount}/${recipientArray.length} recipients with subject "${subject}"`
+    );
   }
 
-  async function sendDefaultEmailForMembershipApplicationSubmitted(
-    input: SendDefaultEmailForMembershipApplicationSubmittedInput,
+  async function sendEmailForMembershipApplicationSubmitted(
+    input: SendEmailForMembershipApplicationSubmittedInput,
     sendTo: Emails
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -98,8 +104,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipApproved(
-    input: SendDefaultEmailForMembershipApprovedInput,
+  async function sendEmailForMembershipApproved(
+    input: SendEmailForMembershipApprovedInput,
     sendTo: Emails,
     replyTo: Emails
   ): Promise<void> {
@@ -134,8 +140,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipDeclined(
-    input: SendDefaultEmailForMembershipDeclinedInput,
+  async function sendEmailForMembershipDeclined(
+    input: SendEmailForMembershipDeclinedInput,
     sendTo: Emails,
     replyTo: Emails
   ): Promise<void> {
@@ -168,8 +174,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByMemberToLead(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToLeadInput,
+  async function sendEmailForMembershipDeactivatedByMemberToLead(
+    input: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     sendTo: Emails
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -201,8 +207,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByMemberToMember(
-    input: SendDefaultEmailForMembershipDeactivatedByMemberToMemberInput,
+  async function sendEmailForMembershipDeactivatedByMemberToMember(
+    input: SendEmailForMembershipDeactivatedByMemberToMemberInput,
     sendTo: Emails,
     replyTo: Emails
   ): Promise<void> {
@@ -233,8 +239,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForMembershipDeactivatedByLead(
-    input: SendDefaultEmailForMembershipDeactivatedByLeadInput,
+  async function sendEmailForMembershipDeactivatedByLead(
+    input: SendEmailForMembershipDeactivatedByLeadInput,
     sendTo: Emails
   ): Promise<void> {
     try {
@@ -264,8 +270,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendDefaultEmailForApplicationWithdrawnByMemberToLead(
-    input: SendDefaultEmailForApplicationWithdrawnByMemberToLeadInput,
+  async function sendEmailForApplicationWithdrawnByMemberToLead(
+    input: SendEmailForApplicationWithdrawnByMemberToLeadInput,
     sendTo: Emails
   ): Promise<void> {
     const managePeopleDashboardUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/club/${input.clubId}/manage?tab=people`;
@@ -298,12 +304,12 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   return {
     sendCustomEmail,
     sendEmailBlast,
-    sendDefaultEmailForMembershipApplicationSubmitted,
-    sendDefaultEmailForMembershipApproved,
-    sendDefaultEmailForMembershipDeclined,
-    sendDefaultEmailForMembershipDeactivatedByMemberToLead,
-    sendDefaultEmailForMembershipDeactivatedByMemberToMember,
-    sendDefaultEmailForMembershipDeactivatedByLead,
-    sendDefaultEmailForApplicationWithdrawnByMemberToLead
+    sendEmailForMembershipApplicationSubmitted,
+    sendEmailForMembershipApproved,
+    sendEmailForMembershipDeclined,
+    sendEmailForMembershipDeactivatedByMemberToLead,
+    sendEmailForMembershipDeactivatedByMemberToMember,
+    sendEmailForMembershipDeactivatedByLead,
+    sendEmailForApplicationWithdrawnByMemberToLead
   };
 }

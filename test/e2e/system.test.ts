@@ -82,11 +82,12 @@ describe("service", () => {
     const accountIdResolver = createAccountIdResolver(prisma);
     const dummyEmailClient = createDummyEmailClient();
     userService = createUserService(prisma);
-    membershipTierService = createMembershipTierService(
-      prisma,
+    paymentService = createPaymentService(
       fakeStripeClient,
+      prisma,
       accountIdResolver
     );
+    membershipTierService = createMembershipTierService(prisma, paymentService);
     followingService = createFollowingService(prisma, userService);
     roleService = createRoleService(prisma);
     emailService = createEmailService(prisma, dummyEmailClient, userService);
@@ -96,21 +97,18 @@ describe("service", () => {
       membershipTierService,
       followingService,
       roleService,
-      fakeStripeClient,
       emailService,
-      accountIdResolver
+      paymentService
     );
     clubService = createClubService(
       prisma,
       membershipTierService,
       membershipService
     );
-    paymentService = createPaymentService(
-      fakeStripeClient,
+    paymentEventProcessor = createPaymentEventProcessor(
       prisma,
-      accountIdResolver
+      membershipService
     );
-    paymentEventProcessor = createPaymentEventProcessor(prisma);
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull
   }, 30000);

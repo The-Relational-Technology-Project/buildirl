@@ -13,6 +13,7 @@ import InactiveSubscriptionAlert from "~/client/components/InactiveSubscriptionA
 import ManagePaymentsButton from "~/app/(main)/club/[clubId]/manage-membership/_components/ManagePaymentsButton";
 import { handleDefaultMutationError } from "~/client/logger";
 import { MembershipWithClub } from "~/server/membership/types";
+import { billingIntervalLabel } from "~/client/utils";
 
 type DeactivateMembershipSectionProps = {
   membership: MembershipWithClub;
@@ -100,6 +101,9 @@ export default function ManageMembership() {
     return null;
   }
 
+  const cost = membership.membershipTier.costPerBillingInterval;
+  const interval = billingIntervalLabel(membership.membershipTier.billingInterval);
+
   return (
     // go back explicitly to root because we might have gone
     // to Stripe and do not want to redirect back there
@@ -141,9 +145,7 @@ export default function ManageMembership() {
             <Title order={5} mt={"sm"}>
               Cost
             </Title>
-            <Text
-              size={"sm"}
-            >{`$${membership.membershipTier.costPerMonthInUSD}.00/month`}</Text>
+            <Text size={"sm"}>{`$${cost}.00/${interval}`}</Text>
 
             {!isDefaultFreeTier(membership.membershipTier) && (
               <ManagePaymentsButton membershipId={membership.id} mt={"lg"} />

@@ -20,6 +20,7 @@ import UserAvatar from "~/client/components/UserAvatar";
 import { Membership } from "~/server/membership/types";
 import { useMounted } from "@mantine/hooks";
 import RoleBadge from "~/client/components/RoleBadge";
+import { billingIntervalLabel } from "~/client/utils";
 
 type ActiveMembershipTableProps = {
   clubId: number;
@@ -70,7 +71,7 @@ export default function ActiveMembershipTable({
       </Table.Td>
       <Table.Td>
         <Text size={"sm"} style={{ textWrap: "nowrap" }}>
-          {`$${m.membershipTier.costPerMonthInUSD}.00/month`}
+          {`$${m.membershipTier.costPerBillingInterval}.00/${billingIntervalLabel(m.membershipTier.billingInterval)}`}
         </Text>
       </Table.Td>
       <Table.Td>

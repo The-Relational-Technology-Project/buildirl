@@ -16,7 +16,7 @@ import {
   IconUser
 } from "@tabler/icons-react";
 import { Membership } from "~/server/membership/types";
-import { toDisplayDate } from "~/client/utils";
+import { toDisplayDate, billingIntervalLabel } from "~/client/utils";
 import ColorSchemeAwareThemeIcon from "~/client/components/ColorSchemeAwareThemeIcon";
 import RoleBadge from "~/client/components/RoleBadge";
 
@@ -53,7 +53,7 @@ export default function MembershipInfoCard({
               Contribution:
             </Text>
             <Text size="sm">
-              ${membership.membershipTier.costPerMonthInUSD}.00/month
+              {`$${membership.membershipTier.costPerBillingInterval}.00/${billingIntervalLabel(membership.membershipTier.billingInterval)}`}
             </Text>
           </Group>
 

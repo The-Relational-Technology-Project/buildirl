@@ -18,19 +18,16 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { defineAbilityFor } from "~/server/api/authz/abilities";
 import { AppAction, AppSubject } from "~/server/api/authz/types";
 import { MongoAbility } from "@casl/ability";
-import { createPaymentService } from "~/server/payments/service";
-import { createStripeClient } from "~/server/payments/stripe/stripeClient";
-import { stripe } from "~/server/payments/stripe/stripe";
-import { createAccountIdResolver } from "~/server/payments/accountIdResolver";
-import { createEmailService } from "~/server/email/service";
-import { createUserService } from "~/server/user/service";
-import { createMembershipTierService } from "~/server/membershipTier/service";
-import { createClubService } from "~/server/club/service";
-import { createMembershipService } from "~/server/membership/service";
-import { createEmailClient } from "~/server/email/client/emailClient";
-import { mailTransport } from "~/server/email/client/nodemailer";
-import { createFollowingService } from "~/server/following/service";
-import { createRoleService } from "~/server/role/service";
+import {
+  clubService,
+  emailService,
+  followingService,
+  membershipService,
+  membershipTierService,
+  paymentService,
+  roleService,
+  userService
+} from "~/server/services";
 
 /**
  * 1. CONTEXT
@@ -49,33 +46,7 @@ export const createTRPCContext = async (opts: {
   supabase: SupabaseClient;
 }) => {
   const user = await authUser(opts.supabase);
-  const stripeClient = createStripeClient(stripe);
-  const accountIdResolver = createAccountIdResolver(prisma);
-  const emailClient = createEmailClient(mailTransport);
-  const userService = createUserService(prisma);
-  const emailService = createEmailService(prisma, emailClient, userService);
-  const membershipTierService = createMembershipTierService(
-    prisma,
-    stripeClient,
-    accountIdResolver
-  );
-  const followingService = createFollowingService(prisma, userService);
-  const roleService = createRoleService(prisma);
-  const membershipService = createMembershipService(
-    prisma,
-    userService,
-    membershipTierService,
-    followingService,
-    roleService,
-    stripeClient,
-    emailService,
-    accountIdResolver
-  );
-  const clubService = createClubService(
-    prisma,
-    membershipTierService,
-    membershipService
-  );
+
   return {
     service: {
       user: userService,
@@ -85,7 +56,7 @@ export const createTRPCContext = async (opts: {
       following: followingService,
       role: roleService,
       email: emailService,
-      payment: createPaymentService(stripeClient, prisma, accountIdResolver)
+      payment: paymentService
     },
     user: user,
     headers: opts.headers,

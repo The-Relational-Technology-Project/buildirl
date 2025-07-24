@@ -1,6 +1,8 @@
 import { z } from "zod";
-import { Url } from "~/server/utils/types";
+import { MonetaryValue, Url } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
+import { Prisma } from "@prisma/client";
+import { BillingInterval } from "~/utils/types";
 
 export type PaymentService = PaymentMutations & PaymentQueries;
 
@@ -24,6 +26,34 @@ type PaymentMutations = {
     input: CreateCustomerPortalSessionInput,
     membershipId: bigint
   ): Promise<CreateCustomerPortalSessionResult>;
+  createCustomerForMembership(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  createSubscriptionForMembership(
+    input: CreateSubscriptionForMembershipInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  cancelSubscription(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  createProductAndPricesForMembershipTier(
+    input: CreateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  archiveProductAndPricesForMembershipTier(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  publishProductAndPricesForMembershipTier(
+    membershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  updateProductAndPricesForMembershipTier(
+    input: UpdateProductAndPricesForMembershipTierInput,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
 };
 
 export type AccountStatus = {
@@ -73,4 +103,26 @@ export type CreateCustomerPortalSessionInput = z.infer<
 
 export type CreateCustomerPortalSessionResult = {
   redirectUrl: Url;
+};
+
+export type CreateSubscriptionForMembershipInput = {
+  membershipId: bigint;
+};
+
+export type CreateProductAndPricesForMembershipTierInput = {
+  name: string;
+  description: Maybe<string>;
+  pricePerBillingInterval: MonetaryValue;
+  billingInterval: BillingInterval;
+  initiationFeeInUSD: Maybe<MonetaryValue>;
+  membershipTierId: number;
+};
+
+export type UpdateProductAndPricesForMembershipTierInput = {
+  name: string;
+  description: string;
+  pricePerBillingInterval: MonetaryValue;
+  billingInterval: BillingInterval;
+  initiationFeeInUSD: Maybe<MonetaryValue>;
+  membershipTierId: number;
 };

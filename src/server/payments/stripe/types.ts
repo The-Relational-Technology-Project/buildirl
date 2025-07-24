@@ -1,5 +1,6 @@
 import { MonetaryValue, Url } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
+import { BillingInterval } from "~/utils/types";
 
 export type StripeClient = {
   // connected account management
@@ -81,7 +82,8 @@ export type AccountStatusResponse = {
 export type CreateProductAndPricesForMembershipTierInput = {
   name: string;
   description?: string;
-  pricePerMonthInUSD: MonetaryValue;
+  pricePerBillingInterval: MonetaryValue;
+  billingInterval: BillingInterval;
   // null if no initiation fee price
   initiationFeeInUSD: Maybe<MonetaryValue>;
   membershipTierId: number;
@@ -111,7 +113,8 @@ export type UpdateProductAndPricesForMembershipTierInput = {
   name: string;
   description: string;
   priceId: string;
-  pricePerMonthInUSD: MonetaryValue;
+  pricePerBillingInterval: MonetaryValue;
+  billingInterval: BillingInterval;
   initiationFee: UpsertNullablePriceInput;
 };
 

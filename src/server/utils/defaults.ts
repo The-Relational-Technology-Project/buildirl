@@ -1,4 +1,5 @@
 import { FormQuestions, FormQuestionType } from "~/server/club/types/form";
+import { BillingInterval } from "~/utils/types";
 
 export const DEFAULT_FREE_MEMBERSHIP_TIER = {
   name: "The Club Crew",
@@ -6,7 +7,8 @@ export const DEFAULT_FREE_MEMBERSHIP_TIER = {
     "Weekly meetups (rain or shine), member-only whatsapp, IRL hangs, and sweet local perks.",
   contributionDescription:
     "We're member-led — so co-host, pitch in, or just show up. Your dues cover venues, snacks, and all the magic-making essentials. 💛",
-  costPerMonthInUSD: 0,
+  costPerBillingInterval: 0,
+  billingInterval: BillingInterval.MONTHLY,
   initiationFeeCostInUSD: null
 };
 

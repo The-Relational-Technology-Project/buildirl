@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import Stripe from "stripe";
 import { rootLogger } from "~/logger";
+import { MembershipService } from "~/server/membership/types";
 
 const logger = rootLogger.child({ module: "paymentEventProcessor" });
 
@@ -9,7 +10,8 @@ export type PaymentEventProcessor = {
 };
 
 export function createPaymentEventProcessor(
-  prisma: PrismaClient
+  prisma: PrismaClient,
+  membershipService: MembershipService
 ): PaymentEventProcessor {
   async function updateMembershipWithStripeSetupIntentId(
     membershipId: bigint,
@@ -18,6 +20,15 @@ export function createPaymentEventProcessor(
     try {
       // it is important this is idempotent because stripe can send webhook event
       // multiple times
+      const membershipStatus =
+        await membershipService.membershipStatus(membershipId);
+      if (membershipStatus !== "PENDING_INCOMPLETE") {
+        logger.warn(
+          `membership with id ${membershipId} is not PENDING_INCOMPLETE but ${membershipStatus}; skipping update`
+        );
+        return;
+      }
+
       await prisma.membership.update({
         data: { stripeSetupIntentId: setupIntentId, status: "PENDING" },
         where: { id: membershipId }
@@ -25,6 +36,15 @@ export function createPaymentEventProcessor(
       logger.info(
         `updated membership with id ${membershipId} with stripeSetupIntentId ${setupIntentId}`
       );
+
+      // fire-and-forget because this webhook endpoint needs to return a timely response
+      // the implication is that this can fail silently without handling but as notifications
+      // are not on critical path; this is acceptable
+      //
+      // TODO asynchronous infrastructure needed to better ensure delivery
+      void membershipService.notifyMembershipApplicationSubmitted(membershipId);
+
+      return;
     } catch (e) {
       logger.error(
         e,

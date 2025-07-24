@@ -1,8 +1,6 @@
 import { $Enums, Prisma, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
-import { StripeClient } from "~/server/payments/stripe/types";
-import { AccountIdResolver } from "~/server/payments/accountIdResolver";
 import { EmailService } from "~/server/email/types";
 import {
   DeactivateMembershipInput,
@@ -26,6 +24,7 @@ import { Maybe } from "~/utils/types";
 import { MembershipTierService } from "~/server/membershipTier/types";
 import Role = $Enums.Role;
 import { RoleService } from "~/server/role/types";
+import { PaymentService } from "~/server/payments/types";
 
 const logger = rootLogger.child({ module: "membershipService" });
 
@@ -35,9 +34,8 @@ export function createMembershipService(
   membershipTierService: MembershipTierService,
   followingService: FollowingService,
   roleService: RoleService,
-  stripeClient: StripeClient,
   emailService: EmailService,
-  accountIdResolver: AccountIdResolver
+  paymentService: PaymentService
 ): MembershipService {
   async function getUserMemberships(
     userId: number
@@ -232,14 +230,17 @@ export function createMembershipService(
     isDefaultFreeTier: boolean,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
+    // if not free tier, still awaiting setup intent
+    const status: MembershipStatus = isDefaultFreeTier
+      ? "PENDING"
+      : "PENDING_INCOMPLETE";
     try {
       const { id } = await tx.membership.create({
         data: {
           userId: userId,
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          // if not free tier, still awaiting setup intent
-          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
+          status: status,
           role: "MEMBER"
         },
         select: {
@@ -247,8 +248,11 @@ export function createMembershipService(
         }
       });
 
-      await createStripeCustomer(id, tx);
-      await notifyMembershipApplicationSubmittedInTransaction(id, tx);
+      await paymentService.createCustomerForMembership(id, tx);
+      // only notify once application is fully pending
+      if (status === "PENDING") {
+        await notifyMembershipApplicationSubmittedInTransaction(id, tx);
+      }
 
       logger.info(
         `created pending membership from input ${stringify(input)} with membershipId ${id}`
@@ -258,80 +262,6 @@ export function createMembershipService(
       logger.error(
         e,
         `failed to create pending membership from input ${stringify(input)}`
-      );
-      throw e;
-    }
-  }
-
-  async function createStripeCustomer(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ) {
-    try {
-      const membership = await tx.membership.findUniqueOrThrow({
-        where: { id: membershipId },
-        select: {
-          stripeCustomerId: true,
-          membershipTier: {
-            select: {
-              costPerMonthInUSD: true
-            }
-          },
-          user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              settings: {
-                select: { email: true }
-              }
-            }
-          }
-        }
-      });
-
-      if (membership.stripeCustomerId !== null) {
-        // already have a stripeCustomerId, no need to create a new one
-        return;
-      }
-
-      if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
-        // no Stripe customer needed for default free tier
-        return;
-      }
-
-      if (!membership.user.settings?.email) {
-        throw new Error(
-          `user with id ${membership.user.id} has no settings with email to create Stripe customer`
-        );
-      }
-
-      const accountId = await accountIdResolver.fromMembershipInTransaction(
-        membershipId,
-        tx
-      );
-
-      const response = await stripeClient.createCustomerForMembership(
-        {
-          email: membership.user.settings.email,
-          name: `${membership.user.firstName} ${membership.user.lastName}`,
-          membershipId: membershipId
-        },
-        accountId
-      );
-
-      await tx.membership.update({
-        data: { stripeCustomerId: response.customerId },
-        where: { id: membershipId }
-      });
-
-      logger.info(
-        `updated membership with id ${membershipId} with stripeCustomerId ${response.customerId}`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to update membership with id ${membershipId} with stripeCustomerId`
       );
       throw e;
     }
@@ -362,12 +292,15 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
+      // if not free tier, still awaiting setup intent
+      const status: MembershipStatus = isDefaultFreeTier
+        ? "PENDING"
+        : "PENDING_INCOMPLETE";
       const { id } = await tx.membership.update({
         data: {
           membershipTierId: membershipTierId,
           applicationResponses: input.applicationResponses,
-          // if not free tier, awaiting setup intent
-          status: isDefaultFreeTier ? "PENDING" : "PENDING_INCOMPLETE",
+          status: status,
           // reset role even if they left as different role
           role: "MEMBER",
           // reset welcome status
@@ -382,8 +315,11 @@ export function createMembershipService(
         `updated membership to pending membership from input ${stringify(input)} with membershipId ${id}`
       );
 
-      await createStripeCustomer(id, tx);
-      await notifyMembershipApplicationSubmitted(id);
+      await paymentService.createCustomerForMembership(id, tx);
+      // only notify once in fully pending
+      if (status === "PENDING") {
+        await notifyMembershipApplicationSubmitted(id);
+      }
 
       // need to return id as this is considered creation
       return { createdEntityId: id };
@@ -411,7 +347,7 @@ export function createMembershipService(
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipApplicationSubmitted(
+    await emailService.sendEmailForMembershipApplicationSubmitted(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -429,6 +365,9 @@ export function createMembershipService(
   ): Promise<MembershipStatus> {
     try {
       const membership = await prisma.membership.findUniqueOrThrow({
+        select: {
+          status: true
+        },
         where: { id: membershipId }
       });
       logger.info(
@@ -534,109 +473,18 @@ export function createMembershipService(
       // external communications
       await followingService.unfollowClubForMembership(membershipId, tx);
 
-      await createSubscription(membershipId, tx);
+      await paymentService.createSubscriptionForMembership(
+        {
+          membershipId: membershipId
+        },
+        tx
+      );
       await notifyMembershipApproved(membershipId, tx);
 
       logger.info(`approved membership with id ${membershipId}`);
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(e, `failed to approve membership with id ${membershipId}`);
-      throw e;
-    }
-  }
-
-  async function createSubscription(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ): Promise<void> {
-    const membership = await tx.membership.findUniqueOrThrow({
-      select: {
-        stripeSetupIntentId: true,
-        stripeCustomerId: true,
-        membershipTier: {
-          select: {
-            id: true,
-            stripePriceId: true,
-            costPerMonthInUSD: true,
-            initiationFeeStripePriceId: true,
-            club: {
-              select: {
-                id: true,
-                stripeConnectAccountId: true
-              }
-            }
-          }
-        }
-      },
-      where: { id: membershipId }
-    });
-
-    // free tier does not need to create subscription
-    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
-      return;
-    }
-
-    const customerId = membership.stripeCustomerId;
-    const stripeAccountId =
-      membership.membershipTier.club.stripeConnectAccountId;
-    const setupIntentId = membership.stripeSetupIntentId;
-    const priceId = membership.membershipTier.stripePriceId;
-    const initiationFeeStripePriceId =
-      membership.membershipTier.initiationFeeStripePriceId;
-
-    if (!customerId) {
-      throw new Error(
-        `membership with id ${membershipId} has no stripeCustomerId to create subscription`
-      );
-    }
-    if (!stripeAccountId) {
-      throw new Error(
-        `club with id ${membership.membershipTier.club.id} has no stripeAccountId create subscription`
-      );
-    }
-    if (!setupIntentId) {
-      throw new Error(
-        `membership with id ${membershipId} has no stripeSetupIntentId to create subscription`
-      );
-    }
-    if (!priceId) {
-      throw new Error(
-        `membership tier with id ${membership.membershipTier.id} has no priceId to create subscription`
-      );
-    }
-
-    const accountId = await accountIdResolver.fromMembershipInTransaction(
-      membershipId,
-      tx
-    );
-
-    const { subscriptionId } =
-      await stripeClient.createSubscriptionForMembership(
-        {
-          setupIntentId: setupIntentId,
-          customerId: customerId,
-          priceId: priceId,
-          membershipId: membershipId,
-          initiationFeePriceId: initiationFeeStripePriceId
-        },
-        accountId
-      );
-
-    try {
-      await tx.membership.update({
-        data: {
-          stripeSubscriptionId: subscriptionId
-        },
-        where: { id: membershipId }
-      });
-      logger.info(
-        `updated membership with id ${membershipId} with subscription id ${subscriptionId}`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to update membership with id ${membershipId} with subscription id ${subscriptionId}`
-      );
       throw e;
     }
   }
@@ -648,7 +496,7 @@ export function createMembershipService(
     // noinspection DuplicatedCode
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserId = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipApproved(
+    await emailService.sendEmailForMembershipApproved(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -706,7 +554,7 @@ export function createMembershipService(
         stripeSetupIntentId: true,
         membershipTier: {
           select: {
-            costPerMonthInUSD: true
+            costPerBillingInterval: true
           }
         }
       },
@@ -760,7 +608,7 @@ export function createMembershipService(
     // noinspection DuplicatedCode
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipDeclined(
+    await emailService.sendEmailForMembershipDeclined(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -852,7 +700,7 @@ export function createMembershipService(
       // if subscription was cancelled outside of this system,
       // that is OK because these operations are idempotent
       // https://docs.stripe.com/api/idempotent_requests
-      await cancelSubscription(membershipId, tx);
+      await paymentService.cancelSubscription(membershipId, tx);
       await dissociateStripeSetupIntentId(membershipId, tx);
       // keep customer id in case we are reactivated
 
@@ -864,65 +712,6 @@ export function createMembershipService(
       logger.error(
         e,
         `failed to deactivate membership with id ${membershipId}`
-      );
-      throw e;
-    }
-  }
-
-  async function cancelSubscription(
-    membershipId: bigint,
-    tx: Prisma.TransactionClient
-  ) {
-    const membership = await tx.membership.findUniqueOrThrow({
-      select: {
-        membershipTier: {
-          select: {
-            costPerMonthInUSD: true
-          }
-        },
-        stripeSubscriptionId: true
-      },
-      where: { id: membershipId }
-    });
-
-    // free tier does not need to cancel subscription
-    if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
-      return;
-    }
-
-    if (!membership.stripeSubscriptionId) {
-      // unexpected and we should look into but since it is non-actionable and doesn't result in bad state,
-      // we should not block
-      logger.error(
-        `membership with id ${membershipId} has no stripeSubscriptionId to cancel`
-      );
-      return;
-    }
-
-    const accountId = await accountIdResolver.fromMembershipInTransaction(
-      membershipId,
-      tx
-    );
-
-    await stripeClient.cancelSubscription(
-      membership.stripeSubscriptionId,
-      accountId
-    );
-
-    try {
-      await tx.membership.update({
-        data: {
-          stripeSubscriptionId: null
-        },
-        where: { id: membershipId }
-      });
-      logger.info(
-        `updated membership with id ${membershipId} to set subscriptionId to null`
-      );
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to update membership with id ${membershipId} to set subscriptionId to null`
       );
       throw e;
     }
@@ -947,7 +736,7 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
-    await emailService.sendDefaultEmailForMembershipDeactivatedByLead(
+    await emailService.sendEmailForMembershipDeactivatedByLead(
       {
         membershipId: membershipId,
         clubName: membership.club.name,
@@ -964,7 +753,7 @@ export function createMembershipService(
     // noinspection DuplicatedCode
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToMember(
+    await emailService.sendEmailForMembershipDeactivatedByMemberToMember(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -984,7 +773,7 @@ export function createMembershipService(
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForMembershipDeactivatedByMemberToLead(
+    await emailService.sendEmailForMembershipDeactivatedByMemberToLead(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -1003,7 +792,7 @@ export function createMembershipService(
   ) {
     const membership = await getMembershipWithClub(membershipId, tx);
     const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
-    await emailService.sendDefaultEmailForApplicationWithdrawnByMemberToLead(
+    await emailService.sendEmailForApplicationWithdrawnByMemberToLead(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
@@ -1080,6 +869,8 @@ export function createMembershipService(
     withdrawMembershipApplication,
     deactivateMembership,
     setMembershipAsWelcomed,
-    createLeadMembership
+    createLeadMembership,
+    notifyMembershipApplicationSubmitted,
+    membershipStatus
   };
 }

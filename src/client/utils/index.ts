@@ -3,6 +3,7 @@
 
 import { type TRPCClientErrorLike } from "@trpc/client";
 import { type UseTRPCQueryResult } from "@trpc/react-query/shared";
+import { BillingInterval } from "~/utils/types";
 
 export function isLoaded(
   result: UseTRPCQueryResult<unknown, TRPCClientErrorLike<any>>
@@ -35,4 +36,15 @@ export function toDisplayDate(dateTime: Date): string {
     month: "numeric",
     day: "numeric"
   });
+}
+
+export function billingIntervalLabel(interval: BillingInterval): string {
+  switch (interval) {
+    case BillingInterval.MONTHLY:
+      return "month";
+    case BillingInterval.QUARTERLY:
+      return "quarter";
+    case BillingInterval.SEMI_ANNUAL:
+      return "6 months";
+  }
 }

@@ -23,6 +23,7 @@ import {
   InstagramHandleSchema,
   RequiredStringSchema
 } from "~/server/utils/types";
+import { BillingInterval } from "~/utils/types";
 import UpdateUserCommand from "./updateUserCommand";
 import itemSelector from "../utils/itemSelector";
 import CreateClubCommand from "./createClubCommand";
@@ -258,6 +259,13 @@ function monetaryValue(): Arbitrary<number> {
       .map((n) => n / 100)
   );
 }
+function billingIntervalArbitrary() {
+  return oneof(
+    constant(BillingInterval.MONTHLY),
+    constant(BillingInterval.QUARTERLY),
+    constant(BillingInterval.SEMI_ANNUAL)
+  );
+}
 
 function createMembershipTierCommands() {
   return record({
@@ -265,8 +273,9 @@ function createMembershipTierCommands() {
     name: string(),
     benefitDescription: string(),
     contributionDescription: string(),
-    costPerMonthInUSD: monetaryValue(),
-    initiationFeeCostPerMonthInUSD: option(monetaryValue(), { freq: 2 })
+    costPerBillingInterval: monetaryValue(),
+    billingInterval: billingIntervalArbitrary(),
+    initiationFeeCostInUSD: option(monetaryValue(), { freq: 2 })
   }).map(
     (i) =>
       new CreateMembershipTierCommand(
@@ -274,8 +283,9 @@ function createMembershipTierCommands() {
           name: i.name,
           benefitDescription: i.benefitDescription,
           contributionDescription: i.contributionDescription,
-          costPerMonthInUSD: i.costPerMonthInUSD,
-          initiationFeeCostInUSD: i.initiationFeeCostPerMonthInUSD
+          costPerBillingInterval: i.costPerBillingInterval,
+          billingInterval: i.billingInterval,
+          initiationFeeCostInUSD: i.initiationFeeCostInUSD
         },
         i.clubIdSelector
       )
@@ -288,7 +298,8 @@ function updateMembershipTierCommands() {
     name: string(),
     benefitDescription: string(),
     contributionDescription: string(),
-    costPerMonthInUSD: monetaryValue(),
+    costPerBillingInterval: monetaryValue(),
+    billingInterval: billingIntervalArbitrary(),
     initiationFeeCostInUSD: option(monetaryValue(), { freq: 4 })
   }).map(
     (i) =>
@@ -297,7 +308,8 @@ function updateMembershipTierCommands() {
           name: i.name,
           benefitDescription: i.benefitDescription,
           contributionDescription: i.contributionDescription,
-          costPerMonthInUSD: i.costPerMonthInUSD,
+          costPerBillingInterval: i.costPerBillingInterval,
+          billingInterval: i.billingInterval,
           initiationFeeCostInUSD: i.initiationFeeCostInUSD
         },
         i.membershipTierIdSelector

@@ -10,10 +10,14 @@ import {
   Text,
   Title,
   Group,
-  Tooltip
+  Tooltip,
+  SegmentedControl
 } from "@mantine/core";
 import React from "react";
-import { isDefaultFreeTier } from "~/utils/types";
+import {
+  isDefaultFreeTier,
+  BILLING_INTERVAL_OPTIONS
+} from "~/utils/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { z } from "zod";
@@ -63,7 +67,8 @@ export default function UpdateMembershipTierModal({
       name: membershipTier.name,
       benefitDescription: membershipTier.benefitDescription,
       contributionDescription: membershipTier.contributionDescription,
-      costPerMonthInUSD: membershipTier.costPerMonthInUSD,
+      costPerBillingInterval: membershipTier.costPerBillingInterval,
+      billingInterval: membershipTier.billingInterval,
       initiationFeeCostInUSD: membershipTier.initiationFeeCostInUSD
     },
 
@@ -73,7 +78,7 @@ export default function UpdateMembershipTierModal({
       name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
       benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
       contributionDescription: (v) => safeValidateSchema(LongTextSchema, v),
-      costPerMonthInUSD: (v) =>
+      costPerBillingInterval: (v) =>
         safeValidateSchema(MonetaryValueSchema.or(z.literal(0)), v),
       initiationFeeCostInUSD: (v) =>
         safeValidateSchema(MonetaryValueSchema.nullable(), v)
@@ -100,7 +105,8 @@ export default function UpdateMembershipTierModal({
               name: v.name,
               benefitDescription: v.benefitDescription,
               contributionDescription: v.contributionDescription,
-              costPerMonthInUSD: v.costPerMonthInUSD,
+              costPerBillingInterval: v.costPerBillingInterval,
+              billingInterval: v.billingInterval,
               initiationFeeCostInUSD: v.initiationFeeCostInUSD
             }
           });
@@ -131,12 +137,21 @@ export default function UpdateMembershipTierModal({
           {!isDefaultFreeTier(membershipTier) && (
             <Stack>
               <Stack gap={12}>
-                <Title order={6}>Monthly Cost</Title>
+                <Title order={6}>Dues Cost</Title>
                 <CostInput
-                  value={form.values.costPerMonthInUSD}
+                  value={form.values.costPerBillingInterval}
                   onChange={(value) =>
-                    form.setFieldValue("costPerMonthInUSD", value)
+                    form.setFieldValue("costPerBillingInterval", value)
                   }
+                />
+              </Stack>
+
+              <Stack gap={12}>
+                <Title order={6}>Dues Frequency</Title>
+                <SegmentedControl
+                  data={BILLING_INTERVAL_OPTIONS}
+                  key={form.key("billingInterval")}
+                  {...form.getInputProps("billingInterval")}
                 />
               </Stack>
 
