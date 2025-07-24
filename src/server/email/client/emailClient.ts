@@ -49,7 +49,6 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   async function sendEmailBlast(input: SendEmailBlastInput): Promise<void> {
     const { recipients, replyTo, subject, htmlContent, textContent } = input;
     let successCount = 0;
-    let failureCount = 0;
     
     const recipientArray = Array.isArray(recipients) ? recipients : [recipients];
     
@@ -65,7 +64,6 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
         );
         successCount++;
       } catch (error) {
-        failureCount++;
         logger.error(error, `Failed to send email blast to ${recipient}`);
       }
     }
@@ -73,10 +71,6 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     logger.info(
       `Email blast completed: sent to ${successCount}/${recipientArray.length} recipients with subject "${subject}"`
     );
-    
-    if (failureCount > 0) {
-      logger.warn(`Email blast had ${failureCount} failures out of ${recipientArray.length} total recipients`);
-    }
   }
 
   async function sendEmailForMembershipApplicationSubmitted(
