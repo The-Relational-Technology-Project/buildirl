@@ -31,7 +31,7 @@ interface CampaignHeroProps {
   membershipTierId: number;
   membershipCostPerMonth: number;
   billingInterval: BillingInterval;
-  goalCount: number;
+  goalAmount: number;
   supporters: Membership[];
   clubPublicId: string;
 }
@@ -40,14 +40,14 @@ export default function CampaignHero({
   membershipCostPerMonth,
   billingInterval,
   supporters,
-  goalCount,
+  goalAmount,
   clubPublicId,
   membershipTierId
 }: CampaignHeroProps) {
   const router = useRouter();
   const supportersCount = supporters.length;
   const currentAmount = supportersCount * membershipCostPerMonth;
-  const goalAmount = goalCount * membershipCostPerMonth;
+  const goalCount = goalAmount / membershipCostPerMonth;
   const progressPercentage = (currentAmount / goalAmount) * 100;
 
   const handleJoin = () => {

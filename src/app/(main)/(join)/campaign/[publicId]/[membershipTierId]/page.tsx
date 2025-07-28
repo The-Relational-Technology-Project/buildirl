@@ -63,7 +63,7 @@ export default function Campaign() {
   });
 
   // HARDCODED
-  const goalCount = 40;
+  const goalAmount = 1200;
 
   // Get membership tier details
   const membershipTier = club.data?.membershipTiers.find(
@@ -105,15 +105,14 @@ export default function Campaign() {
         membershipCostPerMonth={membershipCostPerMonth}
         billingInterval={billingInterval}
         supporters={supporters}
-        goalCount={goalCount}
+        goalAmount={goalAmount}
         clubPublicId={publicId}
       />
       <CampaignStory club={club.data!} membershipTierId={membershipTierId} />
       <ContributionInterface
         club={club.data!}
         membershipTierId={membershipTierId}
-        membershipCostPerMonth={membershipCostPerMonth}
-        goalCount={goalCount}
+        goalAmount={goalAmount}
       />
       <FinancialAssistance />
     </Box>

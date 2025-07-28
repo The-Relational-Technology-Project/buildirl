@@ -21,17 +21,14 @@ import { useRouter } from "next/navigation";
 interface ContributionInterfaceProps {
   club: Club;
   membershipTierId: number;
-  membershipCostPerMonth: number;
-  goalCount: number;
+  goalAmount: number;
 }
 
 export default function ContributionInterface({
   club,
   membershipTierId,
-  membershipCostPerMonth,
-  goalCount
+  goalAmount
 }: ContributionInterfaceProps) {
-  const goalAmount = goalCount * membershipCostPerMonth;
   const router = useRouter();
 
   const handleContribute = () => {
