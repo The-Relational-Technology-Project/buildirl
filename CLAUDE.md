@@ -116,6 +116,9 @@ yarn start
 │   ├── (main)/            # Main app routes
 │   │   ├── (join)/        # Public joining flow (apply, campaign, join)
 │   │   ├── club/          # Club management and member actions
+│   │   │   └── [clubId]/
+│   │   │       └── manage/
+│   │   │           └── communication/  # Email blasts and templates
 │   │   ├── settings/      # User settings
 │   │   └── user/          # User profiles
 │   └── api/               # API routes (tRPC, webhooks)

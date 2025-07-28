@@ -88,7 +88,7 @@ function EmailBlastEditorContent() {
     onSuccess: () => {
       utils.email.emailBlasts.invalidate({ clubId: clubId });
       notifySuccess("Success", "Email blast has been deleted");
-      router.push(`/club/${clubId}/manage?tab=email`);
+      router.push(`/club/${clubId}/manage/communication`);
     },
     onError: (e) => {
       handleDefaultMutationError(e);
@@ -132,7 +132,7 @@ function EmailBlastEditorContent() {
       }
     });
 
-    router.push(`/club/${clubId}/manage?tab=email`);
+    router.push(`/club/${clubId}/manage/communication`);
   };
 
   const handleSaveAndSend = async () => {
@@ -157,7 +157,7 @@ function EmailBlastEditorContent() {
       await sendEmailBlast.mutateAsync({ id: blast.id });
     }
 
-    router.push(`/club/${clubId}/manage?tab=email`);
+    router.push(`/club/${clubId}/manage/communication`);
   };
 
   const handleDelete = async () => {
@@ -174,7 +174,7 @@ function EmailBlastEditorContent() {
   };
 
   const handleCancel = () => {
-    router.push(`/club/${clubId}/manage?tab=email`);
+    router.push(`/club/${clubId}/manage/communication`);
   };
 
   if (!isLoaded(emailBlasts)) {
@@ -254,7 +254,7 @@ export default function EmailBlastEditorPage() {
   const { clubId } = useParams<{ clubId: string }>();
 
   return (
-    <WithLocalNavigationHeader navigateTo={`/club/${clubId}/manage?tab=email`}>
+    <WithLocalNavigationHeader navigateTo={`/club/${clubId}/manage/communication`}>
       <EmailBlastEditorContent />
     </WithLocalNavigationHeader>
   );
