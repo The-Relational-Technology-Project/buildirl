@@ -77,12 +77,10 @@ export const mainRouter = createTRPCRouter({
       );
     }),
 
-  membershipApplicationsForClub: securedProcedureWithAbilityFor("Club")
+  // TODO! public for campaign prototype
+  membershipApplicationsForClub: publicProcedure
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
-      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
       return ctx.service.membership.getMembershipApplicationsForClub(
         input.clubId
       );
