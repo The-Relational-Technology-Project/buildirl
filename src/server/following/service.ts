@@ -4,7 +4,7 @@ import { Club } from "~/server/club/types";
 import { asClub, CLUB_SELECT } from "~/server/club/utils";
 import { stringify } from "~/utils";
 import { rootLogger } from "~/logger";
-import { USER_SELECT } from "~/server/user/service";
+import { USER_SELECT, asUser } from "~/server/user/service";
 import UserGetPayload = Prisma.UserGetPayload;
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import { UserService } from "~/server/user/types";
@@ -51,7 +51,7 @@ export function createFollowingService(
       throw new Error(`expected to find email for user ${r.id} but found none`);
     }
     return {
-      user: r,
+      user: asUser(r),
       email: email,
       createdAt: createdAt
     };

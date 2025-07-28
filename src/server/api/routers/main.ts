@@ -10,7 +10,8 @@ import { subject } from "@casl/ability";
 import { TRPCError } from "@trpc/server";
 import {
   CreateUserInputSchema,
-  UpdateUserInputSchema
+  UpdateUserInputSchema,
+  UpdateUserSocialsInputSchema
 } from "~/server/user/types";
 import {
   CreateClubInputSchema,
@@ -76,12 +77,10 @@ export const mainRouter = createTRPCRouter({
       );
     }),
 
-  membershipApplicationsForClub: securedProcedureWithAbilityFor("Club")
+  // TODO! public for campaign prototype
+  membershipApplicationsForClub: publicProcedure
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
-      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
       return ctx.service.membership.getMembershipApplicationsForClub(
         input.clubId
       );
@@ -125,6 +124,15 @@ export const mainRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.service.user.updateUser(input.id, input.input);
+    }),
+
+  updateUserSocials: securedProcedureWithAbilityFor("User")
+    .input(z.object({ id: z.number(), input: UpdateUserSocialsInputSchema }))
+    .mutation(({ ctx, input }) => {
+      if (!ctx.ability.can("manage", subject("User", { id: input.id }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.user.updateUserSocials(input.id, input.input);
     }),
 
   createClub: securedProcedure
