@@ -300,8 +300,10 @@ export default function CampaignHero({
                     c="lilac"
                     style={{ animation: "bounce-soft 2s infinite" }}
                   >
-                    {Math.max(goalCount - supportersCount, 0)} more amazing
-                    humans needed
+                    {goalCount - supportersCount > 0
+                      ? `${goalCount - supportersCount} more amazing
+                    humans needed`
+                      : `Goal reached!`}
                   </Text>
                   <Text
                     component="span"
@@ -310,7 +312,9 @@ export default function CampaignHero({
                     c="dimmed"
                     mt="xs"
                   >
-                    {`to reach the $${goalAmount}/month sustainability goal`}
+                    {goalCount - supportersCount > 0
+                      ? `to reach the $${goalAmount}/month sustainability goal`
+                      : "More contributions are welcome and help the club thrive!"}
                   </Text>
                 </Text>
               </Stack>
