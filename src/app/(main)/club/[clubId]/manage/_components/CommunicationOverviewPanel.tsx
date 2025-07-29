@@ -44,8 +44,8 @@ function AutoEmailTemplatesSection({ clubId }: { clubId: number }) {
     return <Text>Loading...</Text>;
   }
 
-  const handleManageTemplates = () => {
-    router.push(`/club/${clubId}/manage/communication/auto-emails`);
+  const handleEditTemplate = (type: EmailTemplateType) => {
+    router.push(`/club/${clubId}/manage/communication/auto-emails/${type}`);
   };
 
   return (
@@ -61,30 +61,31 @@ function AutoEmailTemplatesSection({ clubId }: { clubId: number }) {
         <Stack gap="xs">
           {EMAIL_TEMPLATE_TYPES.map((type, index) => {
             const query = templateQueries[index];
-            const hasCustomTemplate = query.data !== null;
+            const hasCustomTemplate = query?.data !== null;
             
             return (
               <Flex key={type} justify="space-between" align="center">
-                <Text size="sm">{TEMPLATE_LABELS[type]}</Text>
-                <Badge 
-                  color={hasCustomTemplate ? "blue" : "gray"}
+                <Flex align="center" gap="xs">
+                  <Text size="sm">{TEMPLATE_LABELS[type]}</Text>
+                  <Badge 
+                    color={hasCustomTemplate ? "blue" : "gray"}
+                    variant="light"
+                    size="xs"
+                  >
+                    {hasCustomTemplate ? "Custom" : "Default"}
+                  </Badge>
+                </Flex>
+                <Button 
+                  size="xs"
                   variant="light"
-                  size="sm"
+                  onClick={() => handleEditTemplate(type)}
                 >
-                  {hasCustomTemplate ? "Custom" : "Default"}
-                </Badge>
+                  Edit
+                </Button>
               </Flex>
             );
           })}
         </Stack>
-
-        <Button 
-          variant="outline" 
-          onClick={handleManageTemplates}
-          fullWidth
-        >
-          Manage Auto Email Templates
-        </Button>
       </Stack>
     </Paper>
   );
