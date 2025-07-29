@@ -9,15 +9,12 @@ import {
   Text,
   Button,
   Badge,
-  Table,
-  Group,
   Box,
   Flex
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { EmailTemplateType } from "~/server/email/types";
-import { isLoaded, toDisplayDate } from "~/client/utils";
-import { QueryError } from "~/client/utils/QueryError";
+import { isLoaded } from "~/client/utils";
 
 type CommunicationOverviewPanelProps = {
   clubId: number;
@@ -94,26 +91,9 @@ function AutoEmailTemplatesSection({ clubId }: { clubId: number }) {
 function EmailBlastsSection({ clubId }: { clubId: number }) {
   const router = useRouter();
 
-  const emailBlasts = api.email.emailBlasts.useQuery({ clubId });
-
-  QueryError.checkNullable({
-    result: emailBlasts,
-    fieldName: "emailBlasts"
-  });
-
-  const handleCreateNew = () => {
-    router.push(`/club/${clubId}/manage/communication/email-blasts/new`);
+  const handleManageEmailBlasts = () => {
+    router.push(`/club/${clubId}/manage/communication/email-blasts`);
   };
-
-  const handleViewAll = () => {
-    router.push(`/club/${clubId}/manage/communication`);
-  };
-
-  if (!isLoaded(emailBlasts)) {
-    return <Text>Loading...</Text>;
-  }
-
-  const recentBlasts = emailBlasts.data?.slice(0, 3) || [];
 
   return (
     <Paper withBorder p="lg">
@@ -125,55 +105,13 @@ function EmailBlastsSection({ clubId }: { clubId: number }) {
           </Text>
         </Box>
 
-        {recentBlasts.length > 0 ? (
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Subject</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Date</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {recentBlasts.map((blast) => (
-                <Table.Tr key={blast.id.toString()}>
-                  <Table.Td>
-                    <Text size="sm" truncate>
-                      {blast.subject || <i>Untitled</i>}
-                    </Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge 
-                      color={blast.status === "SENT" ? "green" : "gray"}
-                      variant="light"
-                      size="xs"
-                    >
-                      {blast.status}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="xs" c="dimmed">
-                      {toDisplayDate(new Date(blast.updatedAt))}
-                    </Text>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        ) : (
-          <Text size="sm" c="dimmed" ta="center">
-            No email blasts yet
-          </Text>
-        )}
-
-        <Group grow>
-          <Button onClick={handleCreateNew}>
-            Create New Blast
-          </Button>
-          <Button variant="outline" onClick={handleViewAll}>
-            View All Blasts
-          </Button>
-        </Group>
+        <Button 
+          variant="outline" 
+          onClick={handleManageEmailBlasts}
+          fullWidth
+        >
+          Manage Email Blasts
+        </Button>
       </Stack>
     </Paper>
   );

@@ -49,7 +49,7 @@ function CreateEmailBlastContent() {
     onSuccess: () => {
       utils.email.emailBlasts.invalidate({ clubId: clubIdNumber });
       notifySuccess("Success", "Email blast has been created");
-      router.push(`/club/${clubId}/manage?tab=email`);
+      router.push(`/club/${clubId}/manage/communication/email-blasts`);
     },
     onError: (e) => {
       handleDefaultMutationError(e);
@@ -78,7 +78,7 @@ function CreateEmailBlastContent() {
   };
 
   const handleCancel = () => {
-    router.push(`/club/${clubId}/manage?tab=email`);
+    router.push(`/club/${clubId}/manage/communication/email-blasts`);
   };
 
   return (
@@ -116,7 +116,7 @@ export default function CreateEmailBlastPage() {
   const { clubId } = useParams<{ clubId: string }>();
 
   return (
-    <WithLocalNavigationHeader navigateTo={`/club/${clubId}/manage?tab=email`}>
+    <WithLocalNavigationHeader navigateTo={`/club/${clubId}/manage/communication/email-blasts`}>
       <Suspense fallback={null}>
         <CreateEmailBlastContent />
       </Suspense>
