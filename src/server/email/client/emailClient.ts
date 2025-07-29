@@ -12,6 +12,11 @@ import {
   Emails
 } from "./types";
 import { rootLogger } from "~/logger";
+import { 
+  DEFAULT_EMAIL_TEMPLATES, 
+  interpolateEmailTemplate,
+  EmailTemplateVariables 
+} from "~/utils/emailTemplates";
 
 const logger = rootLogger.child({ module: "emailClient" });
 
@@ -111,22 +116,25 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   ): Promise<void> {
     try {
       const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
+      
+      const variables: EmailTemplateVariables = {
+        clubName: input.clubName,
+        memberFirstName: input.memberFirstName,
+        joinPageUrl
+      };
+      
+      const emailContent = interpolateEmailTemplate(
+        DEFAULT_EMAIL_TEMPLATES.ACCEPTANCE,
+        variables
+      );
 
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
         replyTo: replyTo,
-        subject: `You're in! Welcome to ${input.clubName}! 🎉`,
-        text: `Hey ${input.memberFirstName} — amazing news: you're officially a member of ${input.clubName}! 🎉\n\n
-        We're hyped to have you! 🥳\n\n
-        👉 Click here to see more! ${joinPageUrl}`,
-        html: `
-          <div>
-            <p>Hey <strong>${input.memberFirstName}</strong> — amazing news: you're officially a member of <strong>${input.clubName}</strong>! 🎉</p>
-            <p>We're hyped to have you! 🥳</p>
-            <p>👉 <a href="${joinPageUrl}">Click here to see more!</a></p>
-          </div>
-        `
+        subject: emailContent.subject,
+        text: emailContent.textContent,
+        html: emailContent.htmlContent
       });
 
       logger.info(
@@ -146,21 +154,23 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     replyTo: Emails
   ): Promise<void> {
     try {
+      const variables: EmailTemplateVariables = {
+        clubName: input.clubName,
+        memberFirstName: input.memberFirstName
+      };
+      
+      const emailContent = interpolateEmailTemplate(
+        DEFAULT_EMAIL_TEMPLATES.REJECTION,
+        variables
+      );
+
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
         replyTo: replyTo,
-        subject: `Sorry, your application was not accepted this time`,
-        text: `Hey ${input.memberFirstName} — thanks for applying to the ${input.clubName}. 
-        We couldn't accept your application this time. 💌 Plenty more clubs to explore — go find your people.
-        P.S. If you shared payment info, no worries — you won't be charged.`,
-        html: `
-          <div>
-            <p>Hey <strong>${input.memberFirstName}</strong> — thanks for applying to the <strong>${input.clubName}</strong>.</p>
-            <p>We couldn't accept your application this time. 💌 Plenty more clubs to explore — go find your people.</p>
-            <p>P.S. If you shared payment info, no worries — you won't be charged.</p>
-          </div>
-        `
+        subject: emailContent.subject,
+        text: emailContent.textContent,
+        html: emailContent.htmlContent
       });
 
       logger.info(
@@ -213,19 +223,24 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     replyTo: Emails
   ): Promise<void> {
     try {
+      const variables: EmailTemplateVariables = {
+        clubName: input.clubName,
+        memberFirstName: input.memberFirstName,
+        memberLastName: input.memberLastName
+      };
+      
+      const emailContent = interpolateEmailTemplate(
+        DEFAULT_EMAIL_TEMPLATES.DEPARTURE,
+        variables
+      );
+
       await mailTransport.sendMail({
         from: FROM_EMAIL,
         to: sendTo,
         replyTo: replyTo,
-        subject: "Sorry to see you go! 👋",
-        text: `The ${input.clubName} will miss you, ${input.memberFirstName} ${input.memberLastName}! 
-        Thank-you for being a contributing member! 🙏`,
-        html: `
-          <div>
-            <p>The <strong>${input.clubName}</strong> will miss you, ${input.memberFirstName} ${input.memberLastName}!</p>
-            <p>Thank-you for being a contributing member! 🙏</p>
-          </div>
-        `
+        subject: emailContent.subject,
+        text: emailContent.textContent,
+        html: emailContent.htmlContent
       });
 
       logger.info(

@@ -12,6 +12,7 @@ import { isLoaded } from "~/client/utils";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import EmailEditor from "~/client/components/EmailEditor";
 import { IconTrash } from "@tabler/icons-react";
+import { getDefaultEmailTemplate } from "~/utils/emailTemplates";
 
 const VALID_TEMPLATE_TYPES: EmailTemplateType[] = ["ACCEPTANCE", "DEPARTURE", "REJECTION"];
 
@@ -88,11 +89,19 @@ function EmailTemplateEditorContent() {
   });
 
   useEffect(() => {
-    if (!emailTemplate.data) return;
-    setSubject(emailTemplate.data.subject);
-    setHtmlContent(emailTemplate.data.htmlContent);
-    setTextContent(emailTemplate.data.textContent);
-  }, [emailTemplate.data]);
+    if (emailTemplate.data) {
+      // Use existing custom template
+      setSubject(emailTemplate.data.subject);
+      setHtmlContent(emailTemplate.data.htmlContent);
+      setTextContent(emailTemplate.data.textContent);
+    } else if (draftState === "DRAFT") {
+      // Pre-populate with default template when starting to create custom template
+      const defaultTemplate = getDefaultEmailTemplate(templateType);
+      setSubject(defaultTemplate.subject);
+      setHtmlContent(defaultTemplate.htmlContent);
+      setTextContent(defaultTemplate.textContent);
+    }
+  }, [emailTemplate.data, draftState, templateType]);
 
   const handleContentChange = (
     newSubject: string,
