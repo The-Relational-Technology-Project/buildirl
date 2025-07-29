@@ -37,8 +37,9 @@ function DraftBadge({ state }: { state: DraftState }) {
 }
 
 function validateTemplateType(type: string): EmailTemplateType {
-  if (VALID_TEMPLATE_TYPES.includes(type as EmailTemplateType)) {
-    return type as EmailTemplateType;
+  const uppercaseType = type.toUpperCase();
+  if (VALID_TEMPLATE_TYPES.includes(uppercaseType as EmailTemplateType)) {
+    return uppercaseType as EmailTemplateType;
   }
   throw new Error(`Invalid template type: ${type}`);
 }
@@ -171,7 +172,7 @@ function EmailTemplateEditorContent() {
       <Container size="lg">
         <Stack gap="lg">
           <Stack gap="xs">
-            <Title order={2}>Edit {TEMPLATE_LABELS[templateType]} Template</Title>
+            <Title order={2}>{TEMPLATE_LABELS[templateType]} Email Template</Title>
             <Text size="sm" c="dimmed">
               {TEMPLATE_DESCRIPTIONS[templateType]}
             </Text>
@@ -180,10 +181,10 @@ function EmailTemplateEditorContent() {
           <Paper withBorder p="xl">
             <Stack align="center" gap="md">
               <Title order={5} style={{ textAlign: "center" }}>
-                Default email will be used for {TEMPLATE_LABELS[templateType]}.
+                Using default {TEMPLATE_LABELS[templateType].toLowerCase()} email
               </Title>
               <Text size="md" style={{ textAlign: "center" }}>
-                {TEMPLATE_DESCRIPTIONS[templateType]}. You can define a custom email to be sent instead.
+                You can define a custom email to be sent instead.
               </Text>
               <Button onClick={() => setDraftState("DRAFT")}>
                 Edit Custom Email
@@ -199,7 +200,7 @@ function EmailTemplateEditorContent() {
     <Container size="lg">
       <Stack gap="lg">
         <Stack gap="xs">
-          <Title order={2}>Edit {TEMPLATE_LABELS[templateType]} Template</Title>
+          <Title order={2}>{TEMPLATE_LABELS[templateType]} Email Template</Title>
           <Text size="sm" c="dimmed">
             {TEMPLATE_DESCRIPTIONS[templateType]}
           </Text>

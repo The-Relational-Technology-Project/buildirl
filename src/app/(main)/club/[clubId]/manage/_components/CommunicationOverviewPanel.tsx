@@ -42,7 +42,7 @@ function AutoEmailTemplatesSection({ clubId }: { clubId: number }) {
   }
 
   const handleEditTemplate = (type: EmailTemplateType) => {
-    router.push(`/club/${clubId}/manage/communication/auto-emails/${type}`);
+    router.push(`/club/${clubId}/manage/communication/auto-emails/${type.toLowerCase()}`);
   };
 
   return (
