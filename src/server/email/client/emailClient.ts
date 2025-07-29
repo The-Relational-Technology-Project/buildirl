@@ -15,7 +15,8 @@ import { rootLogger } from "~/logger";
 import { 
   DEFAULT_EMAIL_TEMPLATES, 
   interpolateEmailTemplate,
-  EmailTemplateVariables 
+  EmailTemplateVariables,
+  EmailTemplateContent
 } from "~/utils/emailTemplates";
 
 const logger = rootLogger.child({ module: "emailClient" });
@@ -49,6 +50,23 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       );
       throw e;
     }
+  }
+
+  async function sendTemplatedEmail(
+    template: EmailTemplateContent,
+    variables: EmailTemplateVariables,
+    sendTo: Emails,
+    replyTo: Emails
+  ): Promise<void> {
+    const interpolatedTemplate = interpolateEmailTemplate(template, variables);
+    
+    await sendCustomEmail(
+      sendTo,
+      replyTo,
+      interpolatedTemplate.subject,
+      interpolatedTemplate.htmlContent,
+      interpolatedTemplate.textContent
+    );
   }
 
   async function sendEmailBlast(input: SendEmailBlastInput): Promise<void> {
@@ -318,6 +336,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   return {
     sendCustomEmail,
+    sendTemplatedEmail,
     sendEmailBlast,
     sendEmailForMembershipApplicationSubmitted,
     sendEmailForMembershipApproved,

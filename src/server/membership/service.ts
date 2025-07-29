@@ -615,6 +615,7 @@ export function createMembershipService(
       {
         membershipId: membershipId,
         memberFirstName: membership.user.firstName,
+        memberLastName: membership.user.lastName,
         clubName: membership.club.name,
         clubId: membership.club.id,
         clubLeadUserIds: leadUserIds,

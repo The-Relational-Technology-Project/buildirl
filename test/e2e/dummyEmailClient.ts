@@ -13,6 +13,7 @@ import {
   Emails
 } from "~/server/email/client/types";
 import { Email } from "~/server/utils/types";
+import { EmailTemplateContent, EmailTemplateVariables } from "~/utils/emailTemplates";
 
 export function createDummyEmailClient(): EmailClient {
   async function sendCustomEmail(
@@ -21,6 +22,15 @@ export function createDummyEmailClient(): EmailClient {
     ___: string,
     ____: string,
     _____: string
+  ): Promise<void> {
+    return;
+  }
+
+  async function sendTemplatedEmail(
+    _: EmailTemplateContent,
+    __: EmailTemplateVariables,
+    ___: Emails,
+    ____: Emails
   ): Promise<void> {
     return;
   }
@@ -83,6 +93,7 @@ export function createDummyEmailClient(): EmailClient {
 
   return {
     sendCustomEmail,
+    sendTemplatedEmail,
     sendEmailBlast,
     sendEmailForMembershipApplicationSubmitted,
     sendEmailForMembershipApproved,

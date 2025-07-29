@@ -1,4 +1,5 @@
 import { Email } from "~/server/utils/types";
+import { EmailTemplateContent, EmailTemplateVariables } from "~/utils/emailTemplates";
 
 export type EmailClient = {
   sendCustomEmail(
@@ -7,6 +8,12 @@ export type EmailClient = {
     subject: string,
     htmlContent: string,
     textContent: string
+  ): Promise<void>;
+  sendTemplatedEmail(
+    template: EmailTemplateContent,
+    variables: EmailTemplateVariables,
+    sendTo: Emails,
+    replyTo: Emails
   ): Promise<void>;
   sendEmailBlast(input: SendEmailBlastInput): Promise<void>;
   sendEmailForMembershipApplicationSubmitted(

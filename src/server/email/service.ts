@@ -21,6 +21,7 @@ import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
 import { EmailClient } from "~/server/email/client/types";
 import { UserService } from "~/server/user/types";
+import { EmailTemplateVariables } from "~/utils/emailTemplates";
 
 const logger = rootLogger.child({ module: "emailTemplateService" });
 
@@ -157,12 +158,18 @@ export function createEmailService(
     );
 
     if (template) {
-      await emailClient.sendCustomEmail(
+      const variables: EmailTemplateVariables = {
+        clubName: input.clubName,
+        memberFirstName: input.memberFirstName,
+        memberLastName: input.memberLastName,
+        joinPageUrl: `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`
+      };
+      
+      await emailClient.sendTemplatedEmail(
+        template,
+        variables,
         memberEmail,
-        leadEmails,
-        template.subject,
-        template.htmlContent,
-        template.textContent
+        leadEmails
       );
     } else {
       await emailClient.sendEmailForMembershipApproved(
@@ -192,12 +199,17 @@ export function createEmailService(
     );
 
     if (template) {
-      await emailClient.sendCustomEmail(
+      const variables: EmailTemplateVariables = {
+        clubName: input.clubName,
+        memberFirstName: input.memberFirstName,
+        memberLastName: input.memberLastName
+      };
+      
+      await emailClient.sendTemplatedEmail(
+        template,
+        variables,
         memberEmail,
-        leadEmails,
-        template.subject,
-        template.htmlContent,
-        template.textContent
+        leadEmails
       );
     } else {
       await emailClient.sendEmailForMembershipDeclined(
@@ -241,12 +253,17 @@ export function createEmailService(
     );
 
     if (template) {
-      await emailClient.sendCustomEmail(
+      const variables: EmailTemplateVariables = {
+        clubName: input.clubName,
+        memberFirstName: input.memberFirstName,
+        memberLastName: input.memberLastName
+      };
+      
+      await emailClient.sendTemplatedEmail(
+        template,
+        variables,
         memberEmail,
-        leadEmails,
-        template.subject,
-        template.htmlContent,
-        template.textContent
+        leadEmails
       );
     } else {
       await emailClient.sendEmailForMembershipDeactivatedByMemberToMember(
