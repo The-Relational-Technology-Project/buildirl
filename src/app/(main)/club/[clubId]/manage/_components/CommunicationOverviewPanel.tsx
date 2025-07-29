@@ -97,7 +97,7 @@ function EmailBlastsSection({ clubId }: { clubId: number }) {
 
   return (
     <Paper withBorder p="lg">
-      <Stack gap="md">
+      <Stack gap="md" justify="space-between" style={{ minHeight: "100%" }}>
         <Box>
           <Title order={3}>Email Blasts</Title>
           <Text size="sm" c="dimmed">
