@@ -2,7 +2,6 @@
 
 import { api } from "~/trpc/react";
 import {
-  SimpleGrid,
   Paper,
   Stack,
   Title,
@@ -38,7 +37,7 @@ function AutoEmailTemplatesSection({ clubId }: { clubId: number }) {
   const allLoaded = templateQueries.every(query => isLoaded(query));
 
   if (!allLoaded) {
-    return <Text>Loading...</Text>;
+    return null;
   }
 
   const handleEditTemplate = (type: EmailTemplateType) => {
@@ -97,7 +96,7 @@ function EmailBlastsSection({ clubId }: { clubId: number }) {
 
   return (
     <Paper withBorder p="lg">
-      <Stack gap="md" justify="space-between" style={{ minHeight: "100%" }}>
+      <Stack gap="md" justify="space-between">
         <Box>
           <Title order={3}>Email Blasts</Title>
           <Text size="sm" c="dimmed">
@@ -120,10 +119,8 @@ function EmailBlastsSection({ clubId }: { clubId: number }) {
 export default function CommunicationOverviewPanel({ clubId }: CommunicationOverviewPanelProps) {
   return (
     <Stack gap="lg" py="lg">
-      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
-        <AutoEmailTemplatesSection clubId={clubId} />
-        <EmailBlastsSection clubId={clubId} />
-      </SimpleGrid>
+      <AutoEmailTemplatesSection clubId={clubId} />
+      <EmailBlastsSection clubId={clubId} />
     </Stack>
   );
 }

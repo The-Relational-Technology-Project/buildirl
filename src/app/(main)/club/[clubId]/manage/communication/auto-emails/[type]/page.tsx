@@ -49,7 +49,6 @@ function EmailTemplateEditorContent() {
   const params = useParams<{ clubId: string; type: string }>();
   const clubId = strictParseInt(params.clubId);
   
-  // Validate template type following codebase patterns
   const templateType = validateTemplateType(params.type);
   
   const [draftState, setDraftState] = useState<DraftState>("NO_DRAFT");
