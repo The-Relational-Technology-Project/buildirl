@@ -11,7 +11,7 @@ export default function AutoEmailsPage() {
   const clubIdNumber = strictParseInt(clubId);
 
   return (
-    <WithLocalNavigationHeader navigateTo={`/club/${clubId}/manage/communication`}>
+    <WithLocalNavigationHeader navigateTo={`/club/${clubId}/manage?tab=email`}>
       <Container size="lg">
         <Stack gap="lg">
           <Stack gap="xs">
