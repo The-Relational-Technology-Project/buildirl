@@ -1,5 +1,5 @@
 import { Email } from "~/server/utils/types";
-import { EmailContent, EmailVariables } from "~/utils/emailTemplates";
+import { EmailContent, EmailVariables } from "~/utils/email";
 
 export type EmailClient = {
   sendCustomEmail(

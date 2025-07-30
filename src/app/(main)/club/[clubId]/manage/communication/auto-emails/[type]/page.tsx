@@ -12,7 +12,9 @@ import { isLoaded } from "~/client/utils";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import EmailEditor from "~/client/components/EmailEditor";
 import { IconTrash } from "@tabler/icons-react";
-import { getDefaultEmailTemplate } from "~/utils/emailTemplates";
+import { getDefaultEmailTemplate } from "~/utils/email";
+import EmailVariableDoc from "~/client/components/EmailVariableDoc";
+import { getEmailTemplateVariables } from "~/utils/email";
 
 const VALID_TEMPLATE_TYPES: EmailTemplateType[] = ["ACCEPTANCE", "DEPARTURE", "REJECTION"];
 
@@ -213,6 +215,12 @@ function EmailTemplateEditorContent() {
             {TEMPLATE_DESCRIPTIONS[templateType]}
           </Text>
         </Stack>
+
+        <EmailVariableDoc 
+          variables={getEmailTemplateVariables(templateType)}
+          title="Available Variables for Email Template"
+          subtitle="Use these variables to personalize your email. They will be automatically replaced when the email is sent to members."
+        />
 
         <Paper withBorder p="xl">
           <Stack gap={0}>

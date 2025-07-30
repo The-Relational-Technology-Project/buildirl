@@ -17,6 +17,8 @@ import { TextAlign } from "@tiptap/extension-text-align";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Highlight } from "@tiptap/extension-highlight";
 import { IconDeviceFloppy } from "@tabler/icons-react";
+import EmailVariableDoc from "~/client/components/EmailVariableDoc";
+import { getEmailBlastVariables } from "~/utils/email";
 
 function CreateEmailBlastContent() {
   const { clubId } = useParams<{ clubId: string }>();
@@ -87,6 +89,12 @@ function CreateEmailBlastContent() {
       <Text size="sm" c="dimmed">
         Create a new email blast for your members
       </Text>
+
+      <EmailVariableDoc 
+        variables={getEmailBlastVariables()}
+        title="Available Variables for Email Blast"
+        subtitle="Use these variables to personalize your email blast. They will be automatically replaced when the email is sent to each member."
+      />
 
       <Paper withBorder p="xl">
         <EmailEditorInput

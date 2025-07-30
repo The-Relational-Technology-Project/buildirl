@@ -16,7 +16,7 @@ import {
   interpolateEmail,
   EmailVariables,
   EmailContent
-} from "~/utils/emailTemplates";
+} from "~/utils/email";
 
 const logger = rootLogger.child({ module: "emailClient" });
 

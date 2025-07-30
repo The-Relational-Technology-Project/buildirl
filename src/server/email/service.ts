@@ -21,7 +21,7 @@ import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
 import { EmailClient } from "~/server/email/client/types";
 import { UserService } from "~/server/user/types";
-import { EmailVariables } from "~/utils/emailTemplates";
+import { EmailVariables } from "~/utils/email";
 
 const logger = rootLogger.child({ module: "emailTemplateService" });
 

@@ -12,7 +12,7 @@ import {
   Emails
 } from "~/server/email/client/types";
 import { Email } from "~/server/utils/types";
-import { EmailContent, EmailVariables } from "~/utils/emailTemplates";
+import { EmailContent, EmailVariables } from "~/utils/email";
 
 export function createDummyEmailClient(): EmailClient {
   async function sendCustomEmail(
