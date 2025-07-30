@@ -10,7 +10,7 @@ export type EmailContent = {
 export type EmailVariables = {
   clubName: string;
   memberFirstName: string;
-  memberLastName?: string;
+  memberLastName: string;
   joinPageUrl?: string;
 };
 

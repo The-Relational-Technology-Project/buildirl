@@ -71,6 +71,7 @@ export type SendEmailForMembershipApprovedInput = {
 export type SendEmailForMembershipDeclinedInput = {
   membershipId: bigint;
   memberFirstName: string;
+  memberLastName: string;
   clubId: number;
   clubName: string;
 };

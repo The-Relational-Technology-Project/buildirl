@@ -111,6 +111,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       const variables: EmailVariables = {
         clubName: input.clubName,
         memberFirstName: input.memberFirstName,
+        memberLastName: input.memberLastName,
         joinPageUrl
       };
       
@@ -147,7 +148,8 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     try {
       const variables: EmailVariables = {
         clubName: input.clubName,
-        memberFirstName: input.memberFirstName
+        memberFirstName: input.memberFirstName,
+        memberLastName: input.memberLastName
       };
       
       const emailContent = interpolateEmail(
