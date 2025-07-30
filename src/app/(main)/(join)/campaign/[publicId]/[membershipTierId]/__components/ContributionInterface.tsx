@@ -45,7 +45,7 @@ export default function ContributionInterface({
         w={64}
         h={64}
         style={{
-          backgroundColor: "rgba(175, 158, 255, 0.1)",
+          backgroundColor: "rgba(122, 62, 218, 0.1)",
           borderRadius: "50%",
           animation: "float 3s ease-in-out infinite"
         }}
@@ -69,7 +69,7 @@ export default function ContributionInterface({
         w={80}
         h={80}
         style={{
-          backgroundColor: "rgba(255, 125, 82, 0.1)",
+          backgroundColor: "rgba(255, 120, 51, 0.1)",
           borderRadius: "50%",
           animation: "float 3s ease-in-out infinite"
         }}
@@ -80,7 +80,7 @@ export default function ContributionInterface({
         <Card
           p={{ base: "lg", md: "xl" }}
           style={{
-            background: "rgba(255, 255, 255, 0.75)",
+            background: "rgba(255, 255, 255, 0.3)",
             backdropFilter: "blur(10px)",
             WebkitBackdropFilter: "blur(10px)",
             border: "1px solid rgba(64, 175, 105, 0.2)",
@@ -118,7 +118,7 @@ export default function ContributionInterface({
                     <Text fw={600} fz="sm">
                       All-or-Nothing Magic 💚
                     </Text>
-                    <Text fz="sm" c="dimmed" ta="center">
+                    <Text fz="sm" c="dark.3" ta="center">
                       You&apos;re only charged if we reach our full monthly goal
                       by the deadline
                     </Text>
@@ -132,9 +132,9 @@ export default function ContributionInterface({
                     w={48}
                     h={48}
                     style={{
-                      backgroundColor: "rgba(175, 158, 255, 0.2)",
+                      backgroundColor: "rgba(122, 62, 218, 0.2)",
                       borderRadius: "50%",
-                      color: "#af9eff",
+                      color: "#7A3EDA",
                       fontWeight: 700,
                       fontSize: 18
                     }}
@@ -145,7 +145,7 @@ export default function ContributionInterface({
                     <Text fw={600} fz="sm">
                       Monthly Community Power ⚡
                     </Text>
-                    <Text fz="sm" c="dimmed" ta="center">
+                    <Text fz="sm" c="dark.3" ta="center">
                       If successful, your contribution keeps our magic alive
                       every month
                     </Text>
@@ -159,9 +159,9 @@ export default function ContributionInterface({
                     w={48}
                     h={48}
                     style={{
-                      backgroundColor: "rgba(255, 125, 82, 0.2)",
+                      backgroundColor: "rgba(255, 120, 51, 0.2)",
                       borderRadius: "50%",
-                      color: "#FF7D52",
+                      color: "#FF7833",
                       fontWeight: 700,
                       fontSize: 18
                     }}
@@ -170,10 +170,11 @@ export default function ContributionInterface({
                   </Center>
                   <Stack gap={8} align="center">
                     <Text fw={600} fz="sm">
-                      Total Freedom ✨
+                      Flexible ✨
                     </Text>
-                    <Text fz="sm" c="dimmed" ta="center">
-                      Change or cancel your membership anytime after we launch
+                    <Text fz="sm" c="dark.3" ta="center">
+                      Change or cancel membership anytime. Only your first
+                      contribution is committed at launch.
                     </Text>
                   </Stack>
                 </Stack>
@@ -194,11 +195,11 @@ export default function ContributionInterface({
           <Card
             p={{ base: "lg", md: "xl" }}
             style={{
-              background: "rgba(255, 255, 255, 0.85)",
+              background: "rgba(255, 255, 255, 0.3)",
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
-              border: "1px solid rgba(175, 158, 255, 0.2)",
-              boxShadow: "0 8px 25px -5px rgba(175, 158, 255, 0.15)",
+              border: "1px solid rgba(122, 62, 218, 0.2)",
+              boxShadow: "0 8px 25px -5px rgba(122, 62, 218, 0.15)",
               position: "relative",
               overflow: "hidden",
               maxWidth: 800,
@@ -224,7 +225,7 @@ export default function ContributionInterface({
               w={80}
               h={80}
               style={{
-                backgroundColor: "rgba(255, 125, 82, 0.1)",
+                backgroundColor: "rgba(255, 120, 51, 0.1)",
                 borderRadius: "50%",
                 transform: "translate(-40px, 40px)"
               }}
@@ -242,7 +243,7 @@ export default function ContributionInterface({
                 color="lilac"
                 leftSection={<IconSparkles size={16} />}
                 style={{
-                  backgroundColor: "rgba(175, 158, 255)",
+                  backgroundColor: "rgba(122, 62, 218)",
                   animation: "pulse 2s ease-in-out infinite"
                 }}
               >
@@ -255,7 +256,7 @@ export default function ContributionInterface({
                 ta="center"
                 style={{
                   background:
-                    "linear-gradient(135deg, #af9eff, #FFC857, #FF7D52)",
+                    "linear-gradient(135deg, #7A3EDA, #FFC857, #FF7833)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent"
                 }}
@@ -264,7 +265,7 @@ export default function ContributionInterface({
               </Title>
 
               <Stack align="center" gap="lg">
-                <Text fz={{ base: 16, md: 18 }} c="dimmed" ta="center" fw={500}>
+                <Text fz={{ base: 16, md: 18 }} c="dark.3" ta="center" fw={500}>
                   Become a founding member! You&apos;re not just funding —
                   you&apos;re{" "}
                   <Text component="span" fw={700} c="lilac">
@@ -277,12 +278,14 @@ export default function ContributionInterface({
                   p="lg"
                   radius="md"
                   style={{
-                    backgroundColor: "rgba(175, 158, 255, 0.1)",
-                    border: "1px solid rgba(175, 158, 255, 0.2)"
+                    background: "rgba(122, 62, 218, 0.08)",
+                    backdropFilter: "blur(8px)",
+                    WebkitBackdropFilter: "blur(8px)",
+                    border: "1px solid rgba(122, 62, 218, 0.2)"
                   }}
                 >
                   <Stack align="center" gap="xs">
-                    <Text fz="sm" c="dimmed">
+                    <Text fz="sm" c="dark.3">
                       Monthly Goal
                     </Text>
                     <Title
@@ -290,18 +293,18 @@ export default function ContributionInterface({
                       fz={{ base: 42, md: 48 }}
                       style={{
                         background:
-                          "linear-gradient(135deg, #af9eff, #FFC857, #FF7D52)",
+                          "linear-gradient(135deg, #7A3EDA, #FFC857, #FF7833)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent"
                       }}
                     >
                       ${goalAmount}
                     </Title>
-                    <Text fz="sm" c="dimmed">
+                    <Text fz="sm" c="dark.3">
                       to keep our magic alive
                     </Text>
                     <Group gap="xs" mt="xs">
-                      <Text fz="xs" c="dimmed">
+                      <Text fz="xs" c="dark.3">
                         Sustainable & community-supported
                       </Text>
                       <IconHeart size={12} color="#FFC857" />
@@ -326,7 +329,7 @@ export default function ContributionInterface({
 
               <Text
                 fz={{ base: 12, md: 14 }}
-                c="dimmed"
+                c="dark.3"
                 ta="center"
                 maw={600}
                 style={{ lineHeight: 1.6 }}

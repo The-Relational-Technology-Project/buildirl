@@ -30,13 +30,13 @@ export default function CTAButton({
       case "primary":
         return {
           ...baseStyles,
-          background: "linear-gradient(135deg, #af9eff, #d291ff, #FFC857)",
+          background: "linear-gradient(135deg, #7A3EDA, #9b6eea, #FFC857)",
           color: "white",
           border: "1px solid black",
-          boxShadow: "3px 3px 0px #7a63cb, 6px 6px 12px rgba(175, 158, 255, 0.3)",
+          boxShadow: "3px 3px 0px #5c2fb8, 6px 6px 12px rgba(122, 62, 218, 0.3)",
           "&:hover": {
             transform: "scale(1.05)",
-            boxShadow: "0 0 20px rgba(175, 158, 255, 0.4)"
+            boxShadow: "0 0 20px rgba(122, 62, 218, 0.4)"
           }
         };
       case "secondary":
@@ -55,11 +55,11 @@ export default function CTAButton({
       case "outline":
         return {
           ...baseStyles,
-          border: "1px solid rgba(175, 158, 255, 0.3)",
-          color: "#af9eff",
-          backgroundColor: "rgba(175, 158, 255, 0.05)",
+          border: "1px solid rgba(122, 62, 218, 0.3)",
+          color: "#7A3EDA",
+          backgroundColor: "rgba(122, 62, 218, 0.05)",
           "&:hover": {
-            backgroundColor: "#af9eff",
+            backgroundColor: "#7A3EDA",
             color: "white",
             transform: "scale(1.05)"
           }

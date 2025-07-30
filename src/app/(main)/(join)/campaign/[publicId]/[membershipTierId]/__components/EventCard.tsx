@@ -9,6 +9,7 @@ interface EventCardProps {
   time: string;
   image: string;
   imageAlt: string;
+  link: string;
 }
 
 export default function EventCard({
@@ -17,14 +18,15 @@ export default function EventCard({
   date,
   time,
   image,
-  imageAlt
+  imageAlt,
+  link
 }: EventCardProps) {
   return (
     <Card
       p={{ base: "md", md: "lg" }}
       style={{
         textAlign: "center",
-        background: "rgba(255, 255, 255, 0.7)",
+        background: "rgba(255, 255, 255, 0.5)",
         backdropFilter: "blur(10px)",
         WebkitBackdropFilter: "blur(10px)",
         border: "1px solid rgba(64, 175, 105, 0.2)",
@@ -41,10 +43,22 @@ export default function EventCard({
         p={{ base: "sm", md: "md" }}
         mb={{ base: "sm", md: "md" }}
         style={{
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
           backdropFilter: "blur(8px)",
           border: "1px solid rgba(64, 175, 105, 0.2)",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)"
+          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+          transition: "all 0.2s ease",
+          cursor: "pointer"
+        }}
+        onClick={() => window.open(link)}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "scale(1.05)";
+          e.currentTarget.style.boxShadow =
+            "0 8px 30px rgba(64, 175, 105, 0.2)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+          e.currentTarget.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.1)";
         }}
       >
         <Stack>
@@ -60,7 +74,7 @@ export default function EventCard({
               <Text fw={500} fz={{ base: 14, md: 16 }}>
                 {title}
               </Text>
-              <Text fz={{ base: 12, md: 14 }} c="dimmed">
+              <Text fz={{ base: 12, md: 14 }} c="dark.3">
                 {description}
               </Text>
             </Stack>
@@ -69,7 +83,7 @@ export default function EventCard({
             <Text fw={700} fz={{ base: 14, md: 16 }} c="#40AF69">
               {date}
             </Text>
-            <Text fz={{ base: 12, md: 14 }} c="dimmed">
+            <Text fz={{ base: 12, md: 14 }} c="dark.3">
               {time}
             </Text>
           </Stack>
@@ -81,11 +95,11 @@ export default function EventCard({
           0%,
           100% {
             opacity: 1;
-            box-shadow: 0 0 20px rgba(175, 158, 255, 0.4);
+            box-shadow: 0 0 20px rgba(122, 62, 218, 0.4);
           }
           50% {
             opacity: 0.8;
-            box-shadow: 0 0 30px rgba(175, 158, 255, 0.6);
+            box-shadow: 0 0 30px rgba(122, 62, 218, 0.6);
           }
         }
       `}</style>

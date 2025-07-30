@@ -35,9 +35,12 @@ interface CampaignStoryProps {
   membershipTierId: number;
 }
 
-export default function CampaignStory({ club, membershipTierId }: CampaignStoryProps) {
+export default function CampaignStory({
+  club,
+  membershipTierId
+}: CampaignStoryProps) {
   const router = useRouter();
-  
+
   const handleJoin = () => {
     router.push(`/apply/${club.publicId}?membershipTierId=${membershipTierId}`);
   };
@@ -75,20 +78,20 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
     },
     {
       icon: IconHeart,
-      title: "Respect & Fun",
-      desc: "Safe space + good times guaranteed",
+      title: "Mutual Respect",
+      desc: "Make all feel safe & heard. Above all, be kind️",
       color: "orange"
     },
     {
       icon: IconHandStop,
       title: "Show Up",
-      desc: "Be present & lift each other up ✨",
+      desc: "Be present & lift each other up",
       color: "green"
     },
     {
       icon: IconMoodSmile,
-      title: "Have Fun",
-      desc: "Make jokes, start games, choose fun",
+      title: "Choose Fun",
+      desc: "Start a game, crack a joke, it's all fair",
       color: "yellow"
     }
   ];
@@ -109,7 +112,14 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
               />
 
               <ExpandableText
-                text="Hey! We're just a bunch of people who think life hits different when we actually hang out IRL. Makers Workshop Club is where builders, creators, and wonderfully curious humans come to tinker, learn, and make real friendships (not just LinkedIn connections 😅). We believe cities desperately need more spaces for actual connection — not just another bar or sterile coworking space, but somewhere ideas come alive and friendships bloom through shared creation and late-night 'what if we...' conversations."
+                text={`Building a club? Join the club! Running an IRL club is hard. Don’t do it alone.
+
+We’re a tight-knit crew of club builders who support each other at every step — launching and growing clubs, designing for belonging, and co-creating shared resources like IRL spaces, funds, and playbooks.
+
+We’ve hosted 300 person club fairs, expert workshops, epic dinner discussions and more.
+
+If you’re hosting meetups, events, or dreaming of starting something IRL in SF. Join us. Let’s build IRL together and have a blast while we do it 🥳 😝
+`}
                 wordLimit={50}
               />
             </SectionCard>
@@ -176,7 +186,11 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
               />
 
               <Box mb={{ base: "lg", md: "xl" }}>
-                <ExpandableText text="Our monthly gatherings are the heartbeat, but this is your space to co-create! Members regularly spin up their own workshops, skill-shares, and 'let's try this weird thing' sessions." />
+                <ExpandableText
+                  text={`Our monthly member hang is a time to connect, share learnings, celebrate wins, and surface opportunities. Think music, bites, great discussion, inspiration, helpful hacks and great humans. 
+                 
+                  This club is built by members — so you can co-host our meetup, pitch in, bring your ideas or just show up 💛`}
+                />
               </Box>
 
               <Grid gutter={{ base: "md", md: "lg" }}>
@@ -184,32 +198,21 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
                   <Card
                     p={{ base: "sm", md: "md" }}
                     style={{
-                      background: "rgba(255, 255, 255, 0.6)",
+                      background: "rgba(255, 255, 255, 0.5)",
                       backdropFilter: "blur(8px)",
                       WebkitBackdropFilter: "blur(8px)",
-                      border: "1px solid rgba(175, 158, 255, 0.2)",
-                      transition: "all 0.2s ease",
-                      cursor: "pointer"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "scale(1.05)";
-                      e.currentTarget.style.boxShadow =
-                        "0 8px 30px rgba(175, 158, 255, 0.2)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                      e.currentTarget.style.boxShadow = "";
+                      border: "1px solid rgba(122, 62, 218, 0.2)"
                     }}
                   >
                     <Group gap="sm">
                       <Box
                         p={{ base: "xs", md: "sm" }}
                         style={{
-                          backgroundColor: "rgba(175, 158, 255, 0.2)",
+                          backgroundColor: "rgba(122, 62, 218, 0.2)",
                           borderRadius: 12
                         }}
                       >
-                        <IconCalendar size={18} color="#af9eff" />
+                        <IconCalendar size={18} color="#7A3EDA" />
                       </Box>
                       <Title order={6} fz={{ base: 12, md: 14 }}>
                         Every month
@@ -222,21 +225,10 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
                   <Card
                     p={{ base: "sm", md: "md" }}
                     style={{
-                      background: "rgba(255, 255, 255, 0.6)",
+                      background: "rgba(255, 255, 255, 0.5)",
                       backdropFilter: "blur(8px)",
                       WebkitBackdropFilter: "blur(8px)",
-                      border: "1px solid rgba(255, 200, 87, 0.2)",
-                      transition: "all 0.2s ease",
-                      cursor: "pointer"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "scale(1.05)";
-                      e.currentTarget.style.boxShadow =
-                        "0 8px 30px rgba(255, 200, 87, 0.2)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                      e.currentTarget.style.boxShadow = "";
+                      border: "1px solid rgba(255, 200, 87, 0.2)"
                     }}
                   >
                     <Group gap="sm">
@@ -266,18 +258,20 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
                 <Title order={3} fz={{ base: 18, md: 20 }} mb="xs">
                   Upcoming Events
                 </Title>
-                <Text fz="sm" c="dimmed">
-                  Join us for our next gathering
+                <Text fz="sm" c="dark.3">
+                  Join us for our next gathering. See our full event calendar{" "}
+                  <a href={"https://lu.ma/buildirl?k=c"}>here</a>!
                 </Text>
               </Box>
 
               <EventCard
-                title="Build IRL Reunion"
-                description="Time to bring the gang back together + launch of Builder's club"
-                date="July 30"
-                time="6-8:30pm"
-                image="https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/event-covers/yk/50a96bf1-ccbc-48dd-837c-cd061a6eae41.png"
+                title="IRL Builders Club Monthly Gathering"
+                description="A monthly hangout for the doers shaping SF’s IRL scene—club leaders, community starters, and creators of all kinds."
+                date="August 27"
+                time="6-8:00pm"
+                image="https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/event-covers/9z/f4f4be12-4a25-4e4e-86af-052c065ff230.png"
                 imageAlt="BuildIRL"
+                link={"https://lu.ma/04ncy3on"}
               />
             </SectionCard>
           </Grid.Col>
@@ -290,13 +284,13 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
             <Box>
               <Group gap="sm" mb="sm">
                 <ThemeIcon>
-                  <IconHeart size={18} color="#af9eff" />
+                  <IconHeart size={18} color="#7A3EDA" />
                 </ThemeIcon>
                 <Title order={2} fz={{ base: 18, md: 20 }}>
                   Why join us
                 </Title>
               </Group>
-              <Text fz="sm" c="dimmed" mb="lg">
+              <Text fz="sm" c="dark.3" mb="lg">
                 All the good stuff that comes with being a founding member ✨
               </Text>
             </Box>
@@ -343,7 +337,9 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
                     <Text c="lilac" fw={600}>
                       ✓
                     </Text>
-                    <Text fz="sm">Good times, great people 🥳</Text>
+                    <Text fz="sm">
+                      Co-create. Co-host. Bring your ideas. 💡
+                    </Text>
                   </Group>
                 </Stack>
               </Grid.Col>
@@ -361,7 +357,9 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
                   Ready to be part of something special?
                 </Text>
                 <Box style={{ alignSelf: "center" }}>
-                  <CTAButton icon={IconHeart} onClick={handleJoin}>Join the club</CTAButton>
+                  <CTAButton icon={IconHeart} onClick={handleJoin}>
+                    Join the club
+                  </CTAButton>
                 </Box>
               </Stack>
             </Box>
@@ -376,7 +374,7 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
               <Title order={2} fz={{ base: 20, md: 24 }} mb="xs">
                 Our vibe check ✨
               </Title>
-              <Text fz="sm" c="dimmed">
+              <Text fz="sm" c="dark.3">
                 The values that make our community special
               </Text>
             </Grid.Col>
@@ -392,10 +390,10 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
                       radius="md"
                       h="100%"
                       style={{
-                        background: "rgba(255, 255, 255, 0.7)",
+                        background: "rgba(255, 255, 255, 0.5)",
                         backdropFilter: "blur(8px)",
                         WebkitBackdropFilter: "blur(8px)",
-                        border: "1px solid rgba(175, 158, 255, 0.2)",
+                        border: "1px solid rgba(122, 62, 218, 0.2)",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
@@ -410,21 +408,21 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
                           alignItems: "center",
                           justifyContent: "center",
                           margin: "0 auto 8px",
-                          backgroundColor: "rgba(175, 158, 255, 0.1)",
+                          backgroundColor: "rgba(122, 62, 218, 0.1)",
                           borderRadius: "50%",
                           flexShrink: 0
                         }}
                       >
                         <value.icon
                           size={22}
-                          color="#af9eff"
+                          color="#7A3EDA"
                           style={{ flexShrink: 0 }}
                         />
                       </Box>
                       <Title order={6} fz="sm" mb={4}>
                         {value.title}
                       </Title>
-                      <Text fz="xs" c="dimmed">
+                      <Text fz="xs" c="dark.3">
                         {value.desc}
                       </Text>
                     </Card>
@@ -441,10 +439,10 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
             radius="md"
             pos="relative"
             style={{
-              background: "rgba(255, 255, 255, 0.8)",
+              background: "rgba(255, 255, 255, 0.5)",
               backdropFilter: "blur(10px)",
               WebkitBackdropFilter: "blur(10px)",
-              border: "2px solid rgba(175, 158, 255, 0.3)",
+              border: "2px solid rgba(122, 62, 218, 0.3)",
               overflow: "hidden"
             }}
           >
@@ -467,8 +465,7 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
                 fz={16}
                 mb="xs"
                 style={{
-                  background:
-                    "linear-gradient(135deg, #af9eff, #FFC857, #FF7D52)",
+                  background: "#7A3EDA",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent"
                 }}
@@ -478,7 +475,9 @@ export default function CampaignStory({ club, membershipTierId }: CampaignStoryP
               <Text fz="xs" c="dark.2" mb="md" style={{ lineHeight: 1.6 }}>
                 Join builders who believe in real connection & shared creation.
               </Text>
-              <CTAButton variant="secondary" onClick={handleJoin}>Back this club</CTAButton>
+              <CTAButton icon={IconHeart} onClick={handleJoin}>
+                Back this club
+              </CTAButton>
             </Box>
           </Card>
         </SectionCard>
