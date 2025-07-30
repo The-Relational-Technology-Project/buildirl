@@ -303,7 +303,7 @@ export default function CampaignHero({
                     style={{ animation: "bounce-soft 2s infinite" }}
                   >
                     {goalCount - supportersCount > 0
-                      ? `${goalCount - supportersCount} more amazing
+                      ? `${goalCount - supportersCount} amazing
                     humans to go!`
                       : `Goal reached! You can still sign up.`}
                   </Text>
@@ -446,7 +446,7 @@ export default function CampaignHero({
               <Grid.Col span={{ base: 12, lg: 6 }}>
                 <Stack gap="md">
                   <Title order={3} fz={17}>
-                    Future Founding Crew* 👷
+                    Future Founding Crew 👷
                   </Title>
 
                   <Card
