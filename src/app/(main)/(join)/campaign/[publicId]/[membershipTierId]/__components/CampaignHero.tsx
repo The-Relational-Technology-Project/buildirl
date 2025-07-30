@@ -22,7 +22,6 @@ import {
   IconUsers
 } from "@tabler/icons-react";
 import CTAButton from "./CTAButton";
-import ExpandableText from "./ExpandableText";
 import { BillingInterval } from "~/utils/types";
 import { Membership } from "~/server/membership/types";
 import { useRouter } from "next/navigation";
@@ -47,16 +46,17 @@ export default function CampaignHero({
   const router = useRouter();
   const supportersCount = supporters.length;
   const currentAmount = supportersCount * membershipCostPerMonth;
-  const goalCount = goalAmount / membershipCostPerMonth;
+  const goalCount = Math.ceil(goalAmount / membershipCostPerMonth);
   const progressPercentage = (currentAmount / goalAmount) * 100;
 
   const handleJoin = () => {
     router.push(`/apply/${clubPublicId}?membershipTierId=${membershipTierId}`);
   };
   // HARDCODED
-  const targetDate = new Date("2025-08-14 23:59:59");
-  const daysLeft = Math.ceil(
-    (targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  const targetDate = new Date("2025-08-20 23:59:59");
+  const daysLeft = Math.max(
+    Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+    0
   );
 
   // Static emojis and colors for the first 5 visible members
@@ -91,7 +91,8 @@ export default function CampaignHero({
             backgroundSize: "cover",
             backgroundPosition: "center",
             position: "relative",
-            overflow: "hidden"
+            overflow: "hidden",
+            borderRadius: 12
           }}
         >
           <Box
@@ -102,7 +103,7 @@ export default function CampaignHero({
             bottom={0}
             style={{
               background:
-                "linear-gradient(to bottom right, rgba(175, 158, 255, 0.8), rgba(255, 200, 87, 0.8), rgba(255, 125, 82, 0.8))"
+                "linear-gradient(to bottom right, rgba(122, 62, 218, 0.8), rgba(255, 200, 87, 0.8), rgba(255, 120, 51, 0.8))"
             }}
           />
 
@@ -112,13 +113,10 @@ export default function CampaignHero({
                 <Badge
                   size="lg"
                   radius="xl"
-                  variant="light"
-                  color="white"
+                  color="lilac"
                   leftSection={<IconSparkles size={16} />}
                   style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                    backdropFilter: "blur(8px)",
-                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    backgroundColor: "rgba(122, 62, 218)",
                     animation: "pulse 2s ease-in-out infinite"
                   }}
                 >
@@ -142,9 +140,10 @@ export default function CampaignHero({
                   c="white"
                   style={{ opacity: 0.95, maxWidth: 800, lineHeight: 1.5 }}
                 >
-                  Where builders, dreamers & creators gather IRL ✨<br />
-                  <Text component="span" c="yellow.2" fw={600}>
-                    Let&apos;s build our dream club together!
+                  Calling all IRL builders, dreamers and gatherers in SF. ✨
+                  <br />
+                  <Text component="span" c={"white"} fw={600}>
+                    Let&apos;s make this club come to life!
                   </Text>
                 </Text>
               </Stack>
@@ -159,68 +158,71 @@ export default function CampaignHero({
           mt={{ base: -48, md: -64 }}
           style={{ zIndex: 20 }}
         >
-          <Grid gutter={{ base: "sm", md: "md" }} justify="center">
-            <Grid.Col span={{ base: 12, sm: 4 }}>
-              <Card
-                p="sm"
-                radius="md"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(175, 158, 255, 0.2)",
-                  boxShadow: "0 8px 25px -5px rgba(175, 158, 255, 0.2)",
-                  animation: "float 3s ease-in-out infinite"
-                }}
-              >
-                <Group justify="center" gap="xs">
-                  <IconMapPin size={16} color="#af9eff" />
-                  <Text fz="sm" fw={500}>
-                    SF Commons
-                  </Text>
-                </Group>
-              </Card>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 4 }}>
-              <Card
-                p="sm"
-                radius="md"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(255, 200, 87, 0.2)",
-                  boxShadow: "0 8px 25px -5px rgba(255, 200, 87, 0.25)",
-                  animation: "bounce-soft 2s infinite"
-                }}
-              >
-                <Group justify="center" gap="xs">
-                  <IconCalendar size={16} color="#FFC857" />
-                  <Text fz="sm" fw={500}>
-                    Last Wed every month
-                  </Text>
-                </Group>
-              </Card>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 4 }}>
-              <Card
-                p="sm"
-                radius="md"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(255, 125, 82, 0.2)",
-                  boxShadow: "0 8px 25px -5px rgba(175, 158, 255, 0.2)",
-                  animation: "float 3s ease-in-out infinite"
-                }}
-              >
-                <Group justify="center" gap="xs">
-                  <IconUsers size={16} color="#FF7D52" />
-                  <Text fz="sm" fw={500}>
-                    {supportersCount} members
-                  </Text>
-                </Group>
-              </Card>
-            </Grid.Col>
-          </Grid>
+          <Group justify="center" gap="sm">
+            <Card
+              p={{ base: 6, md: 8 }}
+              px={{ base: 16, md: 20 }}
+              radius="xl"
+              style={{
+                display: "inline-flex",
+                width: "auto",
+                backgroundColor: "rgba(255, 255, 255, 0.5)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(122, 62, 218, 0.2)",
+                boxShadow: "0 8px 25px -5px rgba(122, 62, 218, 0.2)",
+                animation: "float 3s ease-in-out infinite"
+              }}
+            >
+              <Group gap="xs">
+                <IconMapPin size={16} color="#7A3EDA" />
+                <Text fz="sm" fw={500}>
+                  SF Commons
+                </Text>
+              </Group>
+            </Card>
+            <Card
+              p={{ base: 6, md: 8 }}
+              px={{ base: 16, md: 20 }}
+              radius="xl"
+              style={{
+                display: "inline-flex",
+                width: "auto",
+                backgroundColor: "rgba(255, 255, 255, 0.5)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(255, 200, 87, 0.2)",
+                boxShadow: "0 8px 25px -5px rgba(255, 200, 87, 0.25)",
+                animation: "bounce-soft 2s infinite"
+              }}
+            >
+              <Group gap="xs">
+                <IconCalendar size={16} color="#FFC857" />
+                <Text fz="sm" fw={500}>
+                  Last Wed every month
+                </Text>
+              </Group>
+            </Card>
+            <Card
+              p={{ base: 6, md: 8 }}
+              px={{ base: 16, md: 20 }}
+              radius="xl"
+              style={{
+                display: "inline-flex",
+                width: "auto",
+                backgroundColor: "rgba(255, 255, 255, 0.5)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(255, 120, 51, 0.2)",
+                boxShadow: "0 8px 25px -5px rgba(122, 62, 218, 0.2)",
+                animation: "float 3s ease-in-out infinite"
+              }}
+            >
+              <Group gap="xs">
+                <IconUsers size={16} color="#FF7833" />
+                <Text fz="sm" fw={500}>
+                  {supportersCount} members
+                </Text>
+              </Group>
+            </Card>
+          </Group>
         </Container>
       </Box>
 
@@ -230,10 +232,10 @@ export default function CampaignHero({
           shadow="lg"
           radius="md"
           style={{
-            background: "rgba(255, 255, 255, 0.85)",
+            background: "rgba(255, 255, 255, 0.3)",
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(175, 158, 255, 0.2)",
+            border: "1px solid rgba(122, 62, 218, 0.2)",
             overflow: "hidden"
           }}
         >
@@ -254,7 +256,7 @@ export default function CampaignHero({
                     >
                       ${currentAmount}
                     </Title>
-                    <Text fz={{ base: 11, md: 14 }} c="dimmed" ta="center">
+                    <Text fz={{ base: 11, md: 14 }} c="dark.3" ta="center">
                       {`pledged of $${goalAmount}/month goal`}
                     </Text>
                   </Stack>
@@ -264,8 +266,8 @@ export default function CampaignHero({
                     <Title order={1} fz={{ base: 24, md: 36, lg: 48 }}>
                       {supportersCount}
                     </Title>
-                    <Text fz={{ base: 11, md: 14 }} c="dimmed" ta="center">
-                      amazing humans
+                    <Text fz={{ base: 11, md: 14 }} c="dark.3" ta="center">
+                      amazing humans supporting
                     </Text>
                   </Stack>
                 </Grid.Col>
@@ -278,7 +280,7 @@ export default function CampaignHero({
                     >
                       {daysLeft}
                     </Title>
-                    <Text fz={{ base: 11, md: 14 }} c="dimmed" ta="center">
+                    <Text fz={{ base: 11, md: 14 }} c="dark.3" ta="center">
                       days to go
                     </Text>
                   </Stack>
@@ -288,7 +290,7 @@ export default function CampaignHero({
               <Stack w="100%" gap="md">
                 <Progress
                   value={progressPercentage}
-                  size="md"
+                  size="xl"
                   color="lilac"
                   bg="gray.2"
                 />
@@ -302,19 +304,19 @@ export default function CampaignHero({
                   >
                     {goalCount - supportersCount > 0
                       ? `${goalCount - supportersCount} more amazing
-                    humans needed`
-                      : `Goal reached!`}
+                    humans to go!`
+                      : `Goal reached! You can still sign up.`}
                   </Text>
                   <Text
                     component="span"
                     display="block"
                     fz={{ base: 12, md: 14 }}
-                    c="dimmed"
+                    c="dark.3"
                     mt="xs"
                   >
                     {goalCount - supportersCount > 0
-                      ? `to reach the $${goalAmount}/month sustainability goal`
-                      : "More contributions are welcome and help the club thrive!"}
+                      ? `To reach the $${goalAmount}/month sustainability goal`
+                      : "Additional contributions will be used to make the club even better!"}
                   </Text>
                 </Text>
               </Stack>
@@ -326,128 +328,141 @@ export default function CampaignHero({
               mb={{ base: "lg", md: "xl" }}
             >
               <Grid.Col span={{ base: 12, lg: 6 }}>
-                <Stack gap="md">
-                  <Group gap="sm">
-                    <Title order={3} fz={17}>
-                      Club Fuel: Monthly $ Needs 🎯
-                    </Title>
-                  </Group>
+                {currentAmount >= goalAmount ? (
+                  <Stack gap="md">
+                    <Group gap="sm">
+                      <Title order={3} fz={17}>
+                        Goal met! You can still join us. 🎉
+                      </Title>
+                    </Group>
 
-                  <Card
-                    p="md"
-                    radius="md"
-                    style={{
-                      background: "rgba(175, 158, 255, 0.1)",
-                      backdropFilter: "blur(8px)",
-                      WebkitBackdropFilter: "blur(8px)",
-                      border: "1px solid rgba(175, 158, 255, 0.2)"
-                    }}
-                  >
-                    <Text ta="center" fz={24} fw={700} c="lilac">
-                      ${goalAmount}
-                    </Text>
-                    <Text ta="center" fz="sm" c="dimmed">
-                      total monthly goal
-                    </Text>
-                  </Card>
-
-                  <Stack gap="sm">
-                    <Group
-                      justify="space-between"
-                      p="sm"
+                    <Card
+                      p="md"
+                      radius="md"
                       style={{
-                        background: "rgba(175, 158, 255, 0.1)",
-                        backdropFilter: "blur(6px)",
-                        WebkitBackdropFilter: "blur(6px)",
-                        borderRadius: 12,
-                        border: "1px solid rgba(175, 158, 255, 0.15)"
+                        background: "rgba(122, 62, 218, 0.08)",
+                        backdropFilter: "blur(8px)",
+                        WebkitBackdropFilter: "blur(8px)",
+                        border: "1px solid rgba(122, 62, 218, 0.2)"
                       }}
                     >
-                      <Text fz="sm" fw={500}>
-                        Epic venue rental 🏠
-                      </Text>
-                      <Text fw={700} c="lilac">
-                        $500
-                      </Text>
-                    </Group>
-                    <Group
-                      justify="space-between"
-                      p="sm"
-                      style={{
-                        background: "rgba(255, 200, 87, 0.1)",
-                        backdropFilter: "blur(6px)",
-                        WebkitBackdropFilter: "blur(6px)",
-                        borderRadius: 12,
-                        border: "1px solid rgba(255, 200, 87, 0.15)"
-                      }}
-                    >
-                      <Text fz="sm" fw={500}>
-                        Snacks & materials 🛠️
-                      </Text>
-                      <Text fw={700} c="yellow.8">
-                        $200
-                      </Text>
-                    </Group>
-                    <Group
-                      justify="space-between"
-                      p="sm"
-                      style={{
-                        background: "rgba(255, 125, 82, 0.1)",
-                        backdropFilter: "blur(6px)",
-                        WebkitBackdropFilter: "blur(6px)",
-                        borderRadius: 12,
-                        border: "1px solid rgba(255, 125, 82, 0.15)"
-                      }}
-                    >
-                      <Text fz="sm" fw={500}>
-                        Hosts & coordination 💜
-                      </Text>
-                      <Text fw={700} c="orange">
-                        $200
-                      </Text>
-                    </Group>
-                    <Group
-                      justify="space-between"
-                      p="sm"
-                      style={{
-                        background: "rgba(255, 200, 87, 0.1)",
-                        backdropFilter: "blur(6px)",
-                        WebkitBackdropFilter: "blur(6px)",
-                        borderRadius: 12,
-                        border: "1px solid rgba(255, 200, 87, 0.15)"
-                      }}
-                    >
-                      <Text fz="sm" fw={500}>
-                        Merch & fun 🎉
-                      </Text>
-                      <Text fw={700} c="yellow.8">
-                        $300
-                      </Text>
-                    </Group>
+                      <Stack align="center" gap="sm">
+                        <Text ta="center" fz={20} fw={700} c="lilac">
+                          ❤️ Community-supported
+                        </Text>
+                        <Text ta="center" fz="sm" c="dark.3">
+                          Member contributions cover venues, snacks, and all the
+                          magic-making essentials. 💛
+                        </Text>
+                      </Stack>
+                    </Card>
                   </Stack>
-                </Stack>
+                ) : (
+                  <Stack gap="md">
+                    <Group gap="sm">
+                      <Title order={3} fz={17}>
+                        Club Fuel: Monthly $ Needs 🎯
+                      </Title>
+                    </Group>
+
+                    <Card
+                      p="md"
+                      radius="md"
+                      style={{
+                        background: "rgba(122, 62, 218, 0.08)",
+                        backdropFilter: "blur(8px)",
+                        WebkitBackdropFilter: "blur(8px)",
+                        border: "1px solid rgba(122, 62, 218, 0.2)"
+                      }}
+                    >
+                      <Text ta="center" fz={24} fw={700} c="lilac">
+                        ${goalAmount}
+                      </Text>
+                      <Text ta="center" fz="sm" c="dark.3">
+                        total monthly goal
+                      </Text>
+                    </Card>
+
+                    <Stack gap="sm">
+                      <Group
+                        justify="space-between"
+                        p="sm"
+                        style={{
+                          background: "rgba(122, 62, 218, 0.08)",
+                          backdropFilter: "blur(6px)",
+                          WebkitBackdropFilter: "blur(6px)",
+                          borderRadius: 12,
+                          border: "1px solid rgba(122, 62, 218, 0.15)"
+                        }}
+                      >
+                        <Text fz="sm" fw={500}>
+                          Epic venue rental 🏠
+                        </Text>
+                        <Text fw={700} c="lilac">
+                          $300
+                        </Text>
+                      </Group>
+                      <Group
+                        justify="space-between"
+                        p="sm"
+                        style={{
+                          background: "rgba(255, 200, 87, 0.08)",
+                          backdropFilter: "blur(6px)",
+                          WebkitBackdropFilter: "blur(6px)",
+                          borderRadius: 12,
+                          border: "1px solid rgba(255, 200, 87, 0.15)"
+                        }}
+                      >
+                        <Text fz="sm" fw={500}>
+                          Food & snacks 🍕️
+                        </Text>
+                        <Text fw={700} c="yellow.8">
+                          $100
+                        </Text>
+                      </Group>
+                      <Group
+                        justify="space-between"
+                        p="sm"
+                        style={{
+                          background: "rgba(255, 120, 51, 0.08)",
+                          backdropFilter: "blur(6px)",
+                          WebkitBackdropFilter: "blur(6px)",
+                          borderRadius: 12,
+                          border: "1px solid rgba(255, 120, 51, 0.15)"
+                        }}
+                      >
+                        <Text fz="sm" fw={500}>
+                          Hosting, materials & fun 💜
+                        </Text>
+                        <Text fw={700} c="orange">
+                          $40
+                        </Text>
+                      </Group>
+                    </Stack>
+                  </Stack>
+                )}
               </Grid.Col>
 
               <Grid.Col span={{ base: 12, lg: 6 }}>
                 <Stack gap="md">
                   <Title order={3} fz={17}>
-                    Our Founding Crew 👷
+                    Future Founding Crew* 👷
                   </Title>
 
                   <Card
                     p="md"
                     radius="md"
                     style={{
-                      background: "rgba(175, 158, 255, 0.1)",
+                      background: "rgba(122, 62, 218, 0.08)",
                       backdropFilter: "blur(8px)",
                       WebkitBackdropFilter: "blur(8px)",
-                      border: "1px solid rgba(175, 158, 255, 0.2)"
+                      border: "1px solid rgba(122, 62, 218, 0.2)"
                     }}
                   >
                     <Text ta="center" fz={24} fw={700} c="lilac">
                       {`$${membershipCostPerMonth}/month`}
                     </Text>
-                    <Text ta="center" fz="sm" c="dimmed">
+                    <Text ta="center" fz="sm" c="dark.3">
                       {billingInterval === BillingInterval.MONTHLY
                         ? "paid monthly"
                         : billingInterval === BillingInterval.QUARTERLY
@@ -455,6 +470,10 @@ export default function CampaignHero({
                           : "paid semi-annually"}
                     </Text>
                   </Card>
+
+                  <Text size={"sm"}>
+                    {`Join this crew of IRL builders, and dreamers! ✨ Become a founding member - only contribute if campaign succeeds.`}
+                  </Text>
 
                   <Grid>
                     {foundingMembers.map((member, index) => (
@@ -465,10 +484,10 @@ export default function CampaignHero({
                           radius="md"
                           shadow="sm"
                           style={{
-                            background: "rgba(255, 255, 255, 0.8)",
+                            background: "rgba(255, 255, 255, 0.5)",
                             backdropFilter: "blur(6px)",
                             WebkitBackdropFilter: "blur(6px)",
-                            border: "1px solid rgba(175, 158, 255, 0.15)"
+                            border: "1px solid rgba(122, 62, 218, 0.15)"
                           }}
                         >
                           <Stack gap="xs" h={50} align={"center"}>
@@ -488,7 +507,7 @@ export default function CampaignHero({
                           p="xs"
                           radius="md"
                           style={{
-                            background: "rgba(128, 128, 128, 0.1)",
+                            background: "rgba(128, 128, 128, 0.5)",
                             backdropFilter: "blur(6px)",
                             WebkitBackdropFilter: "blur(6px)",
                             border: "1px solid rgba(128, 128, 128, 0.15)"
@@ -498,7 +517,7 @@ export default function CampaignHero({
                             <Avatar color="gray" radius="xl" size="sm">
                               +{supporters.length - 5}
                             </Avatar>
-                            <Text fz="sm" fw={500} c="dimmed">
+                            <Text fz="sm" fw={500} c="dark.3">
                               more!
                             </Text>
                           </Stack>
@@ -507,10 +526,10 @@ export default function CampaignHero({
                     )}
                   </Grid>
 
-                  <ExpandableText
-                    text={`Join this crew of IRL builders, and dreamers! ✨ Contribute $${membershipCostPerMonth}/month to become a founding member`}
-                    wordLimit={30}
-                  />
+                  <Text fz={{ base: 12, md: 14 }} c="dark.3">
+                    *Amazing humans interested in joining. Final membership
+                    subject to mutual fit.
+                  </Text>
                 </Stack>
               </Grid.Col>
             </Grid>
@@ -522,10 +541,11 @@ export default function CampaignHero({
               </CTAButton>
               <Text
                 fz={{ base: 12, md: 14 }}
-                c="dimmed"
+                c="dark.3"
                 style={{ textAlign: "center" }}
               >
-                💚 All-or-nothing: only charged if we hit our goal!
+                💚 All-or-nothing: This club will only be launched if it reaches
+                its goal by Wednesday, August 20, 2025 11:59 PM PDT
               </Text>
             </Stack>
 
@@ -535,9 +555,10 @@ export default function CampaignHero({
               p={{ base: "md", md: "lg" }}
               radius="md"
               style={{
-                background:
-                  "linear-gradient(to right, rgba(175, 158, 255, 0.05), rgba(255, 200, 87, 0.05))",
-                border: "1px solid rgba(175, 158, 255, 0.1)"
+                background: "rgba(255, 255, 255, 0.3)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                border: "1px solid rgba(122, 62, 218, 0.2)"
               }}
             >
               <Stack align="center" gap="sm">
@@ -547,7 +568,7 @@ export default function CampaignHero({
                   ta="center"
                   style={{
                     background:
-                      "linear-gradient(135deg, #af9eff, #FFC857, #FF7D52)",
+                      "linear-gradient(135deg, #7A3EDA, #FFC857, #FF7833)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent"
                   }}
@@ -558,7 +579,7 @@ export default function CampaignHero({
                 <Text fw={600} fz={{ base: 18, md: 20 }}>
                   — Saum, Colt, & Mike
                 </Text>
-                <Text fz={{ base: 12, md: 14 }} c="dimmed">
+                <Text fz={{ base: 12, md: 14 }} c="dark.3">
                   Your soon-to-be founding hosts ✨
                 </Text>
               </Stack>
@@ -582,11 +603,11 @@ export default function CampaignHero({
           0%,
           100% {
             opacity: 1;
-            box-shadow: 0 0 20px rgba(175, 158, 255, 0.4);
+            box-shadow: 0 0 20px rgba(122, 62, 218, 0.4);
           }
           50% {
             opacity: 0.8;
-            box-shadow: 0 0 30px rgba(175, 158, 255, 0.6);
+            box-shadow: 0 0 30px rgba(122, 62, 218, 0.6);
           }
         }
 

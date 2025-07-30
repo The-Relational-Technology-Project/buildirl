@@ -33,13 +33,12 @@ export default function FinancialAssistance() {
 
           <Text
             fz={{ base: "sm", md: "md" }}
-            c="dimmed"
+            c="dark.3"
             maw={600}
             style={{ lineHeight: 1.6 }}
           >
-            We would not want financial limitations from you joining our club.
-            Reach out to us and we can figure out other ways for you to
-            contribute!
+            We don’t want finances to keep you from joining. Reach out, and
+            we’ll find other ways for you to contribute!
           </Text>
 
           <Anchor
@@ -47,7 +46,7 @@ export default function FinancialAssistance() {
             fz={{ base: "sm", md: "md" }}
             fw={500}
             style={{
-              color: "#af9eff",
+              color: "#7A3EDA",
               textDecoration: "none",
               transition: "all 0.2s ease",
               "&:hover": {
