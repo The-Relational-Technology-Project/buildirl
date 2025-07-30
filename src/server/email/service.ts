@@ -21,7 +21,7 @@ import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
 import { EmailClient } from "~/server/email/client/types";
 import { UserService } from "~/server/user/types";
-import { EmailTemplateVariables } from "~/utils/emailTemplates";
+import { EmailVariables } from "~/utils/emailTemplates";
 
 const logger = rootLogger.child({ module: "emailTemplateService" });
 
@@ -158,14 +158,14 @@ export function createEmailService(
     );
 
     if (template) {
-      const variables: EmailTemplateVariables = {
+      const variables: EmailVariables = {
         clubName: input.clubName,
         memberFirstName: input.memberFirstName,
         memberLastName: input.memberLastName,
         joinPageUrl: `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`
       };
       
-      await emailClient.sendTemplatedEmail(
+      await emailClient.sendInterpolatedEmail(
         template,
         variables,
         memberEmail,
@@ -199,13 +199,13 @@ export function createEmailService(
     );
 
     if (template) {
-      const variables: EmailTemplateVariables = {
+      const variables: EmailVariables = {
         clubName: input.clubName,
         memberFirstName: input.memberFirstName,
         memberLastName: input.memberLastName
       };
       
-      await emailClient.sendTemplatedEmail(
+      await emailClient.sendInterpolatedEmail(
         template,
         variables,
         memberEmail,
@@ -253,13 +253,13 @@ export function createEmailService(
     );
 
     if (template) {
-      const variables: EmailTemplateVariables = {
+      const variables: EmailVariables = {
         clubName: input.clubName,
         memberFirstName: input.memberFirstName,
         memberLastName: input.memberLastName
       };
       
-      await emailClient.sendTemplatedEmail(
+      await emailClient.sendInterpolatedEmail(
         template,
         variables,
         memberEmail,
@@ -444,13 +444,11 @@ export function createEmailService(
           throw new Error(`No lead emails found for club ${emailBlast.clubId}`);
         }
 
-        // Get club name for interpolation
         const club = await tx.club.findUniqueOrThrow({
           where: { id: emailBlast.clubId },
           select: { name: true }
         });
 
-        // Get memberships with user details for interpolation
         const memberships = await tx.membership.findMany({
           where: {
             membershipTier: { clubId: emailBlast.clubId },
@@ -467,25 +465,22 @@ export function createEmailService(
           }
         });
 
-        // Create email template
         const template = {
           subject: emailBlast.subject,
           htmlContent: emailBlast.htmlContent,
           textContent: emailBlast.textContent
         };
 
-        // Send individual email to each member with interpolation (like auto-emails)
         for (const membership of memberships) {
           const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
           
-          const variables: EmailTemplateVariables = {
+          const variables: EmailVariables = {
             clubName: club.name,
             memberFirstName: membership.user.firstName,
             memberLastName: membership.user.lastName
           };
           
-          // Use existing sendTemplatedEmail method (same as auto-emails)
-          await emailClient.sendTemplatedEmail(template, variables, memberEmail, leadEmails);
+          await emailClient.sendInterpolatedEmail(template, variables, memberEmail, leadEmails);
         }
 
         await setEmailBlastStatus(id, "SENT");

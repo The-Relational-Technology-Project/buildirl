@@ -1,19 +1,19 @@
 import { EmailTemplateType } from "~/server/email/types";
 
-export type EmailTemplateContent = {
+export type EmailContent = {
   subject: string;
   htmlContent: string;
   textContent: string;
 };
 
-export type EmailTemplateVariables = {
+export type EmailVariables = {
   clubName: string;
   memberFirstName: string;
   memberLastName?: string;
   joinPageUrl?: string;
 };
 
-export const DEFAULT_EMAIL_TEMPLATES: Record<EmailTemplateType, EmailTemplateContent> = {
+export const DEFAULT_EMAIL_TEMPLATES: Record<EmailTemplateType, EmailContent> = {
   ACCEPTANCE: {
     subject: "You're in! Welcome to {{clubName}}! 🎉",
     textContent: `Hey {{memberFirstName}} — amazing news: you're officially a member of {{clubName}}! 🎉
@@ -60,10 +60,10 @@ Thank-you for being a contributing member! 🙏`,
 /**
  * Interpolates template variables in email content
  */
-export function interpolateEmailTemplate(
-  template: EmailTemplateContent,
-  variables: EmailTemplateVariables
-): EmailTemplateContent {
+export function interpolateEmail(
+  template: EmailContent,
+  variables: EmailVariables
+): EmailContent {
   const interpolate = (text: string): string => {
     return Object.entries(variables).reduce((result, [key, value]) => {
       const placeholder = `{{${key}}}`;
@@ -81,6 +81,6 @@ export function interpolateEmailTemplate(
 /**
  * Gets the default template for a given email template type
  */
-export function getDefaultEmailTemplate(type: EmailTemplateType): EmailTemplateContent {
+export function getDefaultEmailTemplate(type: EmailTemplateType): EmailContent {
   return DEFAULT_EMAIL_TEMPLATES[type];
 }

@@ -13,9 +13,9 @@ import {
 import { rootLogger } from "~/logger";
 import { 
   DEFAULT_EMAIL_TEMPLATES, 
-  interpolateEmailTemplate,
-  EmailTemplateVariables,
-  EmailTemplateContent
+  interpolateEmail,
+  EmailVariables,
+  EmailContent
 } from "~/utils/emailTemplates";
 
 const logger = rootLogger.child({ module: "emailClient" });
@@ -51,13 +51,13 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendTemplatedEmail(
-    template: EmailTemplateContent,
-    variables: EmailTemplateVariables,
+  async function sendInterpolatedEmail(
+    template: EmailContent,
+    variables: EmailVariables,
     sendTo: Emails,
     replyTo: Emails
   ): Promise<void> {
-    const interpolatedTemplate = interpolateEmailTemplate(template, variables);
+    const interpolatedTemplate = interpolateEmail(template, variables);
     
     await sendCustomEmail(
       sendTo,
@@ -108,13 +108,13 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     try {
       const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
       
-      const variables: EmailTemplateVariables = {
+      const variables: EmailVariables = {
         clubName: input.clubName,
         memberFirstName: input.memberFirstName,
         joinPageUrl
       };
       
-      const emailContent = interpolateEmailTemplate(
+      const emailContent = interpolateEmail(
         DEFAULT_EMAIL_TEMPLATES.ACCEPTANCE,
         variables
       );
@@ -145,12 +145,12 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     replyTo: Emails
   ): Promise<void> {
     try {
-      const variables: EmailTemplateVariables = {
+      const variables: EmailVariables = {
         clubName: input.clubName,
         memberFirstName: input.memberFirstName
       };
       
-      const emailContent = interpolateEmailTemplate(
+      const emailContent = interpolateEmail(
         DEFAULT_EMAIL_TEMPLATES.REJECTION,
         variables
       );
@@ -214,13 +214,13 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     replyTo: Emails
   ): Promise<void> {
     try {
-      const variables: EmailTemplateVariables = {
+      const variables: EmailVariables = {
         clubName: input.clubName,
         memberFirstName: input.memberFirstName,
         memberLastName: input.memberLastName
       };
       
-      const emailContent = interpolateEmailTemplate(
+      const emailContent = interpolateEmail(
         DEFAULT_EMAIL_TEMPLATES.DEPARTURE,
         variables
       );
@@ -309,7 +309,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   return {
     sendCustomEmail,
-    sendTemplatedEmail,
+    sendInterpolatedEmail,
     sendEmailForMembershipApplicationSubmitted,
     sendEmailForMembershipApproved,
     sendEmailForMembershipDeclined,
