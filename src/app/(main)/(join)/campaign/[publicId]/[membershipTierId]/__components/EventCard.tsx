@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Group, Text, Image, Stack, Box, Anchor } from "@mantine/core";
+import { Card, Group, Text, Image, Stack, Box } from "@mantine/core";
 
 interface EventCardProps {
   title: string;
@@ -53,7 +53,8 @@ export default function EventCard({
         onClick={() => window.open(link)}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = "scale(1.05)";
-          e.currentTarget.style.boxShadow = "0 8px 30px rgba(64, 175, 105, 0.2)";
+          e.currentTarget.style.boxShadow =
+            "0 8px 30px rgba(64, 175, 105, 0.2)";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = "scale(1)";

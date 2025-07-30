@@ -108,6 +108,10 @@ export const TEMPLATE_THEME_SELECTION = {
   Sunrise: {
     backgroundFileName: "sunrise.png",
     isDark: true
+  },
+  BuildIrlBlocks: {
+    backgroundFileName: "build-irl-blocks.png",
+    isDark: false
   }
 };
 
