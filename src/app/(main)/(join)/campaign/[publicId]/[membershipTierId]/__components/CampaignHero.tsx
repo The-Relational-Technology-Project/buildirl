@@ -472,7 +472,7 @@ export default function CampaignHero({
                   </Card>
 
                   <Text size={"sm"}>
-                    {`Join this crew of IRL builders, and dreamers! ✨ Become a founding member - only contribute if campaign succeeds.`}
+                    {`Join this crew of IRL builders, and dreamers! ✨`}
                   </Text>
 
                   <Grid>
