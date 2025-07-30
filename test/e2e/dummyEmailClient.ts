@@ -2,7 +2,6 @@
 // NOTE: Added above line to prevent this file throwing type-errors.
 import {
   EmailClient,
-  SendEmailBlastInput,
   SendEmailForMembershipApplicationSubmittedInput,
   SendEmailForMembershipApprovedInput,
   SendEmailForMembershipDeactivatedByMemberToMemberInput,
@@ -35,9 +34,6 @@ export function createDummyEmailClient(): EmailClient {
     return;
   }
 
-  async function sendEmailBlast(_: SendEmailBlastInput): Promise<void> {
-    return;
-  }
 
   async function sendEmailForMembershipApplicationSubmitted(
     _: SendEmailForMembershipApplicationSubmittedInput,
@@ -94,7 +90,6 @@ export function createDummyEmailClient(): EmailClient {
   return {
     sendCustomEmail,
     sendTemplatedEmail,
-    sendEmailBlast,
     sendEmailForMembershipApplicationSubmitted,
     sendEmailForMembershipApproved,
     sendEmailForMembershipDeclined,

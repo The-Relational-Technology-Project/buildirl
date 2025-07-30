@@ -1,7 +1,6 @@
 import { Transporter } from "nodemailer";
 import {
   EmailClient,
-  SendEmailBlastInput,
   SendEmailForMembershipApplicationSubmittedInput,
   SendEmailForMembershipApprovedInput,
   SendEmailForMembershipDeclinedInput,
@@ -69,32 +68,6 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     );
   }
 
-  async function sendEmailBlast(input: SendEmailBlastInput): Promise<void> {
-    const { recipients, replyTo, subject, htmlContent, textContent } = input;
-    let successCount = 0;
-    
-    const recipientArray = Array.isArray(recipients) ? recipients : [recipients];
-    
-    // send individual email to avoid Postmark's 50-recipient limit
-    for (const recipient of recipientArray) {
-      try {
-        await sendCustomEmail(
-          recipient,        
-          replyTo,
-          subject,
-          htmlContent,
-          textContent
-        );
-        successCount++;
-      } catch (error) {
-        logger.error(error, `Failed to send email blast to ${recipient}`);
-      }
-    }
-    
-    logger.info(
-      `Email blast completed: sent to ${successCount}/${recipientArray.length} recipients with subject "${subject}"`
-    );
-  }
 
   async function sendEmailForMembershipApplicationSubmitted(
     input: SendEmailForMembershipApplicationSubmittedInput,
@@ -337,7 +310,6 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
   return {
     sendCustomEmail,
     sendTemplatedEmail,
-    sendEmailBlast,
     sendEmailForMembershipApplicationSubmitted,
     sendEmailForMembershipApproved,
     sendEmailForMembershipDeclined,

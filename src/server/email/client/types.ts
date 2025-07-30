@@ -15,7 +15,6 @@ export type EmailClient = {
     sendTo: Emails,
     replyTo: Emails
   ): Promise<void>;
-  sendEmailBlast(input: SendEmailBlastInput): Promise<void>;
   sendEmailForMembershipApplicationSubmitted(
     input: SendEmailForMembershipApplicationSubmittedInput,
     sendTo: Emails
@@ -49,13 +48,6 @@ export type EmailClient = {
   ): Promise<void>;
 };
 
-export type SendEmailBlastInput = {
-  subject: string;
-  htmlContent: string;
-  textContent: string;
-  replyTo: Emails;
-  recipients: Emails;
-};
 
 export type Emails = Email | Email[];
 
