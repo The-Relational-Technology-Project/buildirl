@@ -29,7 +29,11 @@ export default function ExpandableText({
   }
 
   return (
-    <Text component="span" className={className}>
+    <Text
+      component="span"
+      className={className}
+      style={{ whiteSpace: "pre-line" }}
+    >
       {displayText}
       <Anchor
         component="button"

@@ -21,7 +21,7 @@ export default function SectionHeader({
   return (
     <Group gap="md" mb="lg" align="flex-start">
       <ThemeIcon>
-        <Icon size={24} color={iconColor === "lilac" ? "#af9eff" : "#FFC857"} />
+        <Icon size={24} color={iconColor === "lilac" ? "#7A3EDA" : "#FFC857"} />
       </ThemeIcon>
       <div>
         <Title order={2} fz={{ base: 18, md: 20 }} mb="xs">

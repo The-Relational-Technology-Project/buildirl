@@ -63,7 +63,7 @@ export default function Campaign() {
   });
 
   // HARDCODED
-  const goalAmount = 1200;
+  const goalAmount = 440;
 
   // Get membership tier details
   const membershipTier = club.data?.membershipTiers.find(

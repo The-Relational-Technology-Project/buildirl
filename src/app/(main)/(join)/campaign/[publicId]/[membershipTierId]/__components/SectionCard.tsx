@@ -20,11 +20,11 @@ export default function SectionCard({
       pos="relative"
       style={{
         overflow: "hidden",
-        background: "rgba(255, 255, 255, 0.75)",
+        background: "rgba(255, 255, 255, 0.3)",
         backdropFilter: "blur(10px)",
         WebkitBackdropFilter: "blur(10px)",
-        border: "1px solid rgba(175, 158, 255, 0.2)",
-        boxShadow: "0 8px 32px rgba(175, 158, 255, 0.1)",
+        border: "1px solid rgba(122, 62, 218, 0.2)",
+        boxShadow: "0 8px 32px rgba(122, 62, 218, 0.1)",
         display: "flex",
         flexDirection: "column",
         ...style
@@ -40,7 +40,7 @@ export default function SectionCard({
               right: 0,
               width: 80,
               height: 80,
-              backgroundColor: "rgba(175, 158, 255, 0.1)",
+              backgroundColor: "rgba(122, 62, 218, 0.1)",
               borderRadius: "50%",
               transform: "translate(40px, -40px)"
             }}
