@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, Suspense } from "react";
-import { Stack, Title, Text, Paper, Button, Flex } from "@mantine/core";
+import { Stack, Title, Text, Paper, Box, Button, Flex } from "@mantine/core";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { api } from "~/trpc/react";
 import { strictParseInt } from "~/utils";
@@ -90,12 +90,6 @@ function CreateEmailBlastContent() {
         Create a new email blast for your members
       </Text>
 
-      <EmailVariableDoc 
-        variables={getEmailBlastVariables()}
-        title="Available Variables for Email Blast"
-        subtitle="Use these variables to personalize your email blast. They will be automatically replaced when the email is sent to each member."
-      />
-
       <Paper withBorder p="xl">
         <EmailEditorInput
           editor={editor!}
@@ -116,6 +110,14 @@ function CreateEmailBlastContent() {
           </Button>
         </Flex>
       </Paper>
+
+      <Box mb="md">
+        <EmailVariableDoc 
+          variables={getEmailBlastVariables()}
+          title="Available Variables for Email Blast"
+          subtitle="Use these variables to personalize your email blast. They will be automatically replaced when the email is sent to each member."
+        />
+      </Box>
     </Stack>
   );
 }

@@ -216,12 +216,6 @@ function EmailTemplateEditorContent() {
           </Text>
         </Stack>
 
-        <EmailVariableDoc 
-          variables={getEmailTemplateVariables(templateType)}
-          title="Available Variables for Email Template"
-          subtitle="Use these variables to personalize your email. They will be automatically replaced when the email is sent to members."
-        />
-
         <Paper withBorder p="xl">
           <Stack gap={0}>
             <Flex
@@ -254,6 +248,14 @@ function EmailTemplateEditorContent() {
             />
           </Stack>
         </Paper>
+
+        <Box mb="lg">
+          <EmailVariableDoc 
+            variables={getEmailTemplateVariables(templateType)}
+            title="Available Variables for Email Template"
+            subtitle="Use these variables to personalize your email. They will be automatically replaced when the email is sent to members."
+          />
+        </Box>
       </Stack>
     </Container>
   );

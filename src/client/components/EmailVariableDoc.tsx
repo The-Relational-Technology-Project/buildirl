@@ -27,18 +27,18 @@ export default function EmailVariableDoc({
     <Paper withBorder p="md" bg="gray.0">
       <Stack gap="sm">
         <Group gap="xs">
-          <IconInfoCircle size={16} color="var(--mantine-color-blue-6)" />
+          <IconInfoCircle size={16} color="var(--mantine-color-dark-4)" />
           <Button
             variant="transparent"
             size="compact-sm"
             p={0}
-            c="blue"
+            c="dark"
             onClick={() => setExpanded(!expanded)}
             rightSection={
               expanded ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />
             }
           >
-            <Text fw={500} size="sm">
+            <Text fw={600} size="md">
               {title}
             </Text>
           </Button>
@@ -53,7 +53,7 @@ export default function EmailVariableDoc({
             <Stack gap="xs">
               {variables.map((variable) => (
                 <Group key={variable.name} gap="sm" align="flex-start">
-                  <Code c="blue">
+                  <Code>
                     {`{{${variable.name}}}`}
                   </Code>
                   <Text size="sm" flex={1}>
