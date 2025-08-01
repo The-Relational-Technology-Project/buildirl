@@ -1,3 +1,5 @@
+// !! PROTOTYPE
+
 "use client";
 
 import { Card, Group, Text, Image, Stack, Box } from "@mantine/core";

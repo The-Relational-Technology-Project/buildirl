@@ -1,3 +1,5 @@
+// !! PROTOTYPE
+
 "use client";
 
 import { Button, ButtonProps } from "@mantine/core";
@@ -33,7 +35,8 @@ export default function CTAButton({
           background: "linear-gradient(135deg, #7A3EDA, #9b6eea, #FFC857)",
           color: "white",
           border: "1px solid black",
-          boxShadow: "3px 3px 0px #5c2fb8, 6px 6px 12px rgba(122, 62, 218, 0.3)",
+          boxShadow:
+            "3px 3px 0px #5c2fb8, 6px 6px 12px rgba(122, 62, 218, 0.3)",
           "&:hover": {
             transform: "scale(1.05)",
             boxShadow: "0 0 20px rgba(122, 62, 218, 0.4)"
