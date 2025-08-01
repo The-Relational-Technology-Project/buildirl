@@ -21,9 +21,8 @@ export default function ApplicationCompleted() {
     fieldName: "clubByPublicId"
   });
 
-  // TODO! for BuildIRL campaign prototype
   // !! PROTOTYPE
-  if (isLoaded(club) && club.data!.id === 77) {
+  if (isLoaded(club) && club.data!.id === 1) {
     return <ReturnToCampaignSection club={club.data!} />;
   }
 

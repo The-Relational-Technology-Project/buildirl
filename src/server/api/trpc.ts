@@ -26,7 +26,8 @@ import {
   membershipTierService,
   paymentService,
   roleService,
-  userService
+  userService,
+  referralService
 } from "~/server/services";
 
 /**
@@ -56,7 +57,8 @@ export const createTRPCContext = async (opts: {
       following: followingService,
       role: roleService,
       email: emailService,
-      payment: paymentService
+      payment: paymentService,
+      referral: referralService
     },
     user: user,
     headers: opts.headers,

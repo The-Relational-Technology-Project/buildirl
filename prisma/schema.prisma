@@ -213,3 +213,14 @@ model EmailBlast {
   @@index([clubId, status])
   @@map("email_blast")
 }
+
+// !! PROTOTYPE
+model ReferralEmail {
+  id         BigInt   @id @default(autoincrement())
+  referrerId Int      @map("referrer_id")
+  email      String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([referrerId])
+  @@map("referral_email")
+}
