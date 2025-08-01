@@ -8,7 +8,7 @@ import {
   TextInput,
   Button,
   Group,
-  Box
+  Paper
 } from "@mantine/core";
 import ClubImage from "~/client/components/ClubImage";
 import SecondaryButton from "~/client/components/SecondaryButton";
@@ -60,7 +60,7 @@ export function ReturnToCampaignSection({
   const hasValidEmails = emails.some((email) => email.trim() !== "");
 
   return (
-    <Center pt={80} px={{ base: undefined, md: 200 }}>
+    <Center py={80} px={{ base: undefined, md: 200 }}>
       <Stack align="center" gap={"lg"} maw={600} w="100%">
         <Title order={1} ta={"center"}>
           THANK YOU FOR YOUR SUPPORT!
@@ -72,7 +72,7 @@ export function ReturnToCampaignSection({
 
         <ClubImage club={club} size={240} />
 
-        <Box w="100%" mt="xl">
+        <Paper w="100%" mt="xl" p={"lg"}>
           <Stack gap="md">
             <Title order={3} ta="center">
               Know someone who&apos;d love to join?
@@ -108,7 +108,7 @@ export function ReturnToCampaignSection({
               </Text>
             )}
           </Stack>
-        </Box>
+        </Paper>
 
         <SecondaryButton
           mt={"lg"}

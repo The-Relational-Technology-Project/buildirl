@@ -22,7 +22,7 @@ export default function ApplicationCompleted() {
   });
 
   // !! PROTOTYPE
-  if (isLoaded(club) && club.data!.id === 77) {
+  if (isLoaded(club) && club.data!.id === 1) {
     return <ReturnToCampaignSection club={club.data!} />;
   }
 
