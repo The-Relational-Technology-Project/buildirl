@@ -304,12 +304,6 @@ function JoinButton({ club }: JoinButtonProps) {
     fieldName: "isUserAuthenticated"
   });
 
-  // TODO! this is BuildIRL club in prod! this is a hack - remove this after the
-  //  launch of BuildIRL club
-  if (club.id === 77) {
-    return <PrimaryButton disabled>Coming soon!</PrimaryButton>;
-  }
-
   if (isUserAuthenticated.data!) {
     return <AuthenticatedJoinButton club={club} />;
   }

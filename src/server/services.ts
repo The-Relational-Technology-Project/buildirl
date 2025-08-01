@@ -12,6 +12,7 @@ import { createFollowingService } from "~/server/following/service";
 import { createRoleService } from "~/server/role/service";
 import { createMembershipService } from "~/server/membership/service";
 import { createClubService } from "~/server/club/service";
+import { createReferralService } from "~/server/referral/service";
 
 const stripeClient = createStripeClient(stripe);
 const accountIdResolver = createAccountIdResolver(prisma);
@@ -52,3 +53,4 @@ export const clubService = createClubService(
   membershipTierService,
   membershipService
 );
+export const referralService = createReferralService(prisma);

@@ -410,5 +410,18 @@ export const mainRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.service.role.clearMembershipRole(input.membershipId);
+    }),
+
+  submitReferralEmails: securedProcedure
+    .input(
+      z.object({
+        emails: z.array(z.string().email()).min(1).max(5)
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.service.referral.submitReferralEmails(
+        ctx.user.userId,
+        input.emails
+      );
     })
 });

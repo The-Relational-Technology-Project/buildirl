@@ -1,3 +1,5 @@
+// !! PROTOTYPE
+
 "use client";
 
 import {
@@ -73,7 +75,7 @@ export default function CampaignStory({
     {
       icon: IconBolt,
       title: "Be Real",
-      desc: "Share wild ideas, fails & wins",
+      desc: "Be you. Share wild ideas, fails & wins",
       color: "yellow"
     },
     {
