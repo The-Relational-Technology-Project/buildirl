@@ -251,7 +251,7 @@ function EmailTemplateEditorContent() {
 
         <Box mb="lg">
           <EmailVariableDoc 
-            variables={getEmailTemplateVariables(templateType)}
+            variables={getEmailTemplateVariables()}
             title="Available Variables for Email Template"
             subtitle="Use these variables to personalize your email. They will be automatically replaced when the email is sent to members."
           />

@@ -69,7 +69,7 @@ export default function EmailVariableDoc({
             </Stack>
 
             <Text size="xs" c="dimmed" style={{ fontStyle: "italic" }}>
-              Example: &ldquo;Welcome to {`{{clubName}}, {{memberFirstName}}`}!&rdquo; becomes &ldquo;Welcome to Tech Book Club, John!&rdquo;
+              {`Example: "Welcome to {{clubName}}, {{memberFirstName}}!" becomes "Welcome to Tech Book Club, John!"`}
             </Text>
           </Stack>
         </Collapse>

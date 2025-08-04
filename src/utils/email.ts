@@ -86,8 +86,8 @@ export function getDefaultEmailTemplate(type: EmailTemplateType): EmailContent {
   return DEFAULT_EMAIL_TEMPLATES[type];
 }
 
-export function getEmailTemplateVariables(templateType: EmailTemplateType): EmailVariable[] {
-  const baseVariables: EmailVariable[] = [
+export function getEmailTemplateVariables(): EmailVariable[] {
+  return [
     {
       name: "clubName",
       description: "The name of your club"
@@ -100,21 +100,13 @@ export function getEmailTemplateVariables(templateType: EmailTemplateType): Emai
       name: "memberLastName",
       description: "The member's last name",
       required: false
+    },
+    {
+      name: "joinPageUrl",
+      description: "Link to your club's join page for the member to access",
+      required: false
     }
   ];
-
-  // ACCEPTANCE template gets the additional joinPageUrl variable
-  if (templateType === "ACCEPTANCE") {
-    return [
-      ...baseVariables,
-      {
-        name: "joinPageUrl",
-        description: "Link to your club's join page for the member to access"
-      }
-    ];
-  }
-
-  return baseVariables;
 }
 
 export function getEmailBlastVariables(): EmailVariable[] {
@@ -130,6 +122,11 @@ export function getEmailBlastVariables(): EmailVariable[] {
     {
       name: "memberLastName", 
       description: "The member's last name",
+      required: false
+    },
+    {
+      name: "joinPageUrl",
+      description: "Link to your club's join page for the member to access",
       required: false
     }
   ];
