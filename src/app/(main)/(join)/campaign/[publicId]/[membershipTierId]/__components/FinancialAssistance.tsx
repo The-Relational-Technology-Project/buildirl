@@ -16,7 +16,7 @@ import SectionCard from "./SectionCard";
 
 export default function FinancialAssistance() {
   return (
-    <Container size="lg" py={{ base: 16, md: 32 }}>
+    <Container size="lg" pt={0} pb={16}>
       <SectionCard>
         <Stack gap="lg" ta="center" align="center">
           <Group gap="sm" justify="center">
