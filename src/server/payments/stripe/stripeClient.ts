@@ -652,7 +652,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
           }
         },
         {
-          stripeAccount: byAccountId
+          stripeAccount: byAccountId,
+          idempotencyKey: input.idempotencyKey ?? undefined
         }
       );
 

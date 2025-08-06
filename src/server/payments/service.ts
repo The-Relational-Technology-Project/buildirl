@@ -382,6 +382,7 @@ export function createPaymentService(
         select: {
           stripeSetupIntentId: true,
           stripeCustomerId: true,
+          stripeSubscriptionId: true,
           membershipTier: {
             select: {
               id: true,
@@ -399,6 +400,13 @@ export function createPaymentService(
         },
         where: { id: input.membershipId }
       });
+
+      if (membership.stripeSubscriptionId) {
+        logger.info(
+          `Subscription ${membership.stripeSubscriptionId} already exists for membership ${input.membershipId}, skipping creation (idempotent)`
+        );
+        return;
+      }
 
       // free tier does not need to create subscription
       if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
@@ -449,7 +457,8 @@ export function createPaymentService(
             customerId: customerId,
             priceId: priceId,
             membershipId: input.membershipId,
-            initiationFeePriceId: initiationFeeStripePriceId
+            initiationFeePriceId: initiationFeeStripePriceId,
+            idempotencyKey: input.idempotencyKey
           },
           accountId
         );

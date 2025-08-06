@@ -474,9 +474,14 @@ export function createMembershipService(
       // external communications
       await followingService.unfollowClubForMembership(membershipId, tx);
 
+      // Generate unique idempotency key with timestamp to ensure uniqueness
+      // Format includes timestamp to handle re-approvals after deactivation
+      const idempotencyKey = `membership-${membershipId}-approval-${Date.now()}`;
+
       await paymentService.createSubscriptionForMembership(
         {
-          membershipId: membershipId
+          membershipId: membershipId,
+          idempotencyKey: idempotencyKey
         },
         tx
       );
