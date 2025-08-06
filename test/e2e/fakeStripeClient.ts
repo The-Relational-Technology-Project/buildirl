@@ -30,6 +30,8 @@ export function createFakeStripeClient(): StripeClient {
   let nextCustomerId: number = 1;
   let nextSubscriptionId: number = 1;
   let nextConfigurationId: number = 1;
+  
+  const subscriptionCache = new Map<string, CreateSubscriptionForMembershipResponse>();
 
   async function createAccount(): Promise<CreateAccountResponse> {
     const response = { accountId: `account:id:${nextAccountId}` };
@@ -141,13 +143,23 @@ export function createFakeStripeClient(): StripeClient {
   }
 
   async function createSubscriptionForMembership(
-    _: CreateSubscriptionForMembershipInput,
+    input: CreateSubscriptionForMembershipInput,
     __: string
   ): Promise<CreateSubscriptionForMembershipResponse> {
+
+    if (input.idempotencyKey && subscriptionCache.has(input.idempotencyKey)) {
+      return Promise.resolve(subscriptionCache.get(input.idempotencyKey)!);
+    }
+    
     const response = {
       subscriptionId: `subscription:id:${nextSubscriptionId}`
     };
     nextSubscriptionId++;
+    
+    if (input.idempotencyKey) {
+      subscriptionCache.set(input.idempotencyKey, response);
+    }
+    
     return Promise.resolve(response);
   }
 

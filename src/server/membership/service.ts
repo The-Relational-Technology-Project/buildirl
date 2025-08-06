@@ -474,9 +474,9 @@ export function createMembershipService(
       // external communications
       await followingService.unfollowClubForMembership(membershipId, tx);
 
-      // Generate unique idempotency key with timestamp to ensure uniqueness
-      // Format includes timestamp to handle re-approvals after deactivation
-      const idempotencyKey = `membership-${membershipId}-approval-${Date.now()}`;
+      // Idempotency key ensures no duplicate subscriptions for same membership approval
+      // Stripe caches this for 24 hours, preventing race conditions and double-clicks
+      const idempotencyKey = `membership-${membershipId}-approval`;
 
       await paymentService.createSubscriptionForMembership(
         {
