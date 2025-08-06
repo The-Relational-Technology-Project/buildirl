@@ -7,12 +7,10 @@ import { ReactNode } from "react";
 
 interface SectionCardProps extends CardProps {
   children: ReactNode;
-  decorative?: boolean;
 }
 
 export default function SectionCard({
   children,
-  decorative = true,
   style,
   ...props
 }: SectionCardProps) {
@@ -33,35 +31,30 @@ export default function SectionCard({
       }}
       {...props}
     >
-      {decorative && (
-        <>
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              width: 80,
-              height: 80,
-              backgroundColor: "rgba(122, 62, 218, 0.1)",
-              borderRadius: "50%",
-              transform: "translate(40px, -40px)"
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              width: 64,
-              height: 64,
-              backgroundColor: "rgba(255, 200, 87, 0.1)",
-              borderRadius: "50%",
-              transform: "translate(-32px, 32px)"
-            }}
-          />
-        </>
-      )}
-
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: 80,
+          height: 80,
+          backgroundColor: "rgba(122, 62, 218, 0.1)",
+          borderRadius: "50%",
+          transform: "translate(40px, -40px)"
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: 64,
+          height: 64,
+          backgroundColor: "rgba(255, 200, 87, 0.1)",
+          borderRadius: "50%",
+          transform: "translate(-32px, 32px)"
+        }}
+      />
       <div style={{ position: "relative", zIndex: 10, flex: 1 }}>
         {children}
       </div>
