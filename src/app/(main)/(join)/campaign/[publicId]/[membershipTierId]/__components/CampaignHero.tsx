@@ -15,8 +15,7 @@ import {
   Avatar,
   Center,
   Container,
-  useMatches,
-  Image
+  useMatches
 } from "@mantine/core";
 import {
   IconSparkles,
@@ -55,26 +54,6 @@ export default function CampaignHero({
   const handleJoin = () => {
     router.push(`/apply/${clubPublicId}?membershipTierId=${membershipTierId}`);
   };
-
-  const photoGallery = [
-    {
-      src: "https://images.squarespace-cdn.com/content/v1/65e40100471cd325b28cb39f/4916135d-e91c-41c4-8f1f-a4a1d25f4e84/PXL_20240628_033612718.MP.jpg?format=1500w",
-      alt: "BuildIRL Cohort 1"
-    },
-    {
-      src: "https://zepmgttkkbjigvvvbbce.supabase.co/storage/v1/object/public/images/club/77/display/PXL_20250309_015210568.jpg",
-      alt: "BuildIRL Fun"
-    },
-    {
-      src: "https://images.squarespace-cdn.com/content/v1/65e40100471cd325b28cb39f/9f50ef2b-02e8-46ec-9834-e18338327dd3/20240608_102853.jpg?format=1500w",
-      alt: "BuildIRL Commons"
-    },
-    {
-      src: "https://media.licdn.com/dms/image/v2/D5622AQHEzlugNXNCgQ/feedshare-shrink_2048_1536/B56ZahjCrRGkAw-/0/1746467042433?e=1756339200&v=beta&t=Xpv2A5Gd7xa-6whB86oIhxduKTP248ywIKd-EJxd9B4",
-      alt: "BuildIRL Cohort 2"
-    }
-  ];
-
   // HARDCODED
   const targetDate = new Date("2025-08-20 23:59:59");
   const daysLeft = Math.max(
@@ -249,64 +228,8 @@ export default function CampaignHero({
         </Container>
       </Box>
 
-      {/* Photo Gallery */}
-      <Container size="lg" pt={{ base: 16, md: 64 }} pb={16}>
-        <Card
-          style={{
-            background: "rgba(255, 255, 255, 0.3)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(122, 62, 218, 0.2)",
-            overflow: "hidden"
-          }}
-        >
-          <Box p={{ base: "md", md: "xl" }}>
-            <Grid gutter={{ base: "sm", md: "md" }} mb="md">
-              {photoGallery.map((photo, index) => (
-                <Grid.Col span={{ base: 6, md: 3 }} key={index}>
-                  <Box
-                    style={{
-                      aspectRatio: "1/1",
-                      borderRadius: 16,
-                      overflow: "hidden",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "scale(1.05)";
-                      e.currentTarget.style.boxShadow =
-                        "0 8px 30px rgba(0, 0, 0, 0.15)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                      e.currentTarget.style.boxShadow =
-                        "0 4px 20px rgba(0, 0, 0, 0.1)";
-                    }}
-                    onClick={() =>
-                      window.open(
-                        photo.src.replace("w=600", "w=1200"),
-                        "_blank"
-                      )
-                    }
-                  >
-                    <Image
-                      src={photo.src}
-                      alt={photo.alt}
-                      w="100%"
-                      h="100%"
-                      fit="cover"
-                    />
-                  </Box>
-                </Grid.Col>
-              ))}
-            </Grid>
-          </Box>
-        </Card>
-      </Container>
-
       {/* Campaign Progress */}
-      <Container size="lg" pt={{ base: 16, md: 32 }} pb={16}>
+      <Container size="lg" py={{ base: "xl", md: 64 }}>
         <Card
           shadow="lg"
           radius="md"
