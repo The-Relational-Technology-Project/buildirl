@@ -38,7 +38,7 @@ export default function ContributionInterface({
   };
 
   return (
-    <Container size="lg" pt={32} pb={64} pos="relative">
+    <Container size="lg" py={64} pos="relative">
       {/* Background decorations */}
       <Box
         pos="absolute"
