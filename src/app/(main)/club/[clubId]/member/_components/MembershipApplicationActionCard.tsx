@@ -82,6 +82,7 @@ export default function MembershipApplicationActionCard({
             size="sm"
             onClick={handleApproveMembership}
             loading={approveMembershipApplication.isPending}
+            disabled={declineMembershipApplication.isPending}
           >
             Approve
           </Button>
@@ -90,6 +91,7 @@ export default function MembershipApplicationActionCard({
             size="sm"
             onClick={handleDeclineMembership}
             loading={declineMembershipApplication.isPending}
+            disabled={approveMembershipApplication.isPending}
           >
             Decline
           </Button>

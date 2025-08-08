@@ -20,6 +20,7 @@ import UserAvatar from "~/client/components/UserAvatar";
 import { Membership } from "~/server/membership/types";
 import { useMounted } from "@mantine/hooks";
 import { billingIntervalLabel } from "~/client/utils";
+import { MembershipExportButton } from "./MembershipExportButton";
 
 type MembershipApplicationTableProps = {
   clubId: number;
@@ -102,13 +103,21 @@ export default function MembershipApplicationTable({
     mounted && (
       <Stack mt={"lg"} gap={0}>
         <Stack px={4} gap={4}>
-          <Title order={4}>Pending Applications</Title>
-          <Group gap={4}>
-            <Text
-              fw={"bold"}
-              size={"sm"}
-            >{`${membershipApplicationsForClub.data!.length}`}</Text>
-            <Text size={"sm"}>new applications</Text>
+          <Group justify="space-between" align="center">
+            <Title order={4}>Pending Applications</Title>
+          </Group>
+          <Group justify={"space-between"} align={"center"}>
+            <Group gap={4}>
+              <Text
+                fw={"bold"}
+                size={"sm"}
+              >{`${membershipApplicationsForClub.data!.length}`}</Text>
+              <Text size={"sm"}>new applications</Text>
+            </Group>
+            <MembershipExportButton
+              membership={membershipApplicationsForClub.data!}
+              filename="membership-applications"
+            />
           </Group>
         </Stack>
         <Paper mt={"sm"} px={"md"} py={"sm"}>

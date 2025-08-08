@@ -71,7 +71,9 @@ export default function ClubFollowerTable({ clubId }: ClubFollowerTableProps) {
   return (
     <Stack mt={"lg"} gap={0}>
       <Stack px={4} gap={4}>
-        <Title order={4}>Followers</Title>
+        <Group justify="space-between" align="center">
+          <Title order={4}>Followers</Title>
+        </Group>
         <Group gap={4}>
           <Text fw={"bold"} size={"sm"}>{`${clubFollowers.data!.length}`}</Text>
           <Text size={"sm"}>followers</Text>

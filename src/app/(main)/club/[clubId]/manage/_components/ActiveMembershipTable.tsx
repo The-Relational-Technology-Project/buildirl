@@ -21,6 +21,7 @@ import { Membership } from "~/server/membership/types";
 import { useMounted } from "@mantine/hooks";
 import RoleBadge from "~/client/components/RoleBadge";
 import { billingIntervalLabel } from "~/client/utils";
+import { MembershipExportButton } from "./MembershipExportButton";
 
 type ActiveMembershipTableProps = {
   clubId: number;
@@ -102,13 +103,21 @@ export default function ActiveMembershipTable({
     mounted && (
       <Stack mt={"lg"} gap={0}>
         <Stack px={4} gap={4}>
-          <Title order={4}>Active Members</Title>
-          <Group gap={4}>
-            <Text
-              fw={"bold"}
-              size={"sm"}
-            >{`${activeMembershipsForClubWithEmail.data!.length}`}</Text>
-            <Text size={"sm"}>members</Text>
+          <Group justify="space-between" align="center">
+            <Title order={4}>Active Members</Title>
+          </Group>
+          <Group justify="space-between" align="center">
+            <Group gap={4}>
+              <Text
+                fw={"bold"}
+                size={"sm"}
+              >{`${activeMembershipsForClubWithEmail.data!.length}`}</Text>
+              <Text size={"sm"}>members</Text>
+            </Group>
+            <MembershipExportButton
+              membership={activeMembershipsForClubWithEmail.data!}
+              filename="active-members"
+            />
           </Group>
         </Stack>
         <Paper mt={"sm"} px={"md"} py={"sm"}>
