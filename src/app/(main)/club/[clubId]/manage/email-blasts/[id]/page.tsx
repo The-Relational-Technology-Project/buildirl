@@ -2,14 +2,23 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Stack, Title, Text, Paper } from "@mantine/core";
+import { Stack, Title, Text, Paper, Button, Flex, Group } from "@mantine/core";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
 import { QueryError } from "~/client/utils/QueryError";
 import { strictParseInt } from "~/utils";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
-import EmailEditor from "~/client/components/EmailEditor";
+import EmailEditorInput from "~/client/components/EmailEditorInput";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { Link } from "@mantine/tiptap";
+import { Underline } from "@tiptap/extension-underline";
+import { Superscript } from "@tiptap/extension-superscript";
+import { TextAlign } from "@tiptap/extension-text-align";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Highlight } from "@tiptap/extension-highlight";
+import { IconDeviceFloppy, IconSend, IconTrash } from "@tabler/icons-react";
 
 function EmailBlastEditorContent() {
   const params = useParams<{ clubId: string; id: string }>();
@@ -36,11 +45,32 @@ function EmailBlastEditorContent() {
   const [htmlContent, setHtmlContent] = useState(blast?.htmlContent ?? "");
   const [textContent, setTextContent] = useState(blast?.textContent ?? "");
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      Link,
+      Superscript,
+      Subscript,
+      Highlight,
+      TextAlign.configure({ types: ["heading", "paragraph"] })
+    ],
+    content: htmlContent,
+    editable: !isViewMode,
+    onUpdate: ({ editor }) => {
+      setHtmlContent(editor.getHTML());
+      setTextContent(editor.getText());
+    }
+  });
+
   useEffect(() => {
     setSubject(blast.subject);
     setHtmlContent(blast.htmlContent);
     setTextContent(blast.textContent);
-  }, [blast]);
+    if (editor) {
+      editor.commands.setContent(blast.htmlContent);
+    }
+  }, [blast, editor]);
 
   const utils = api.useUtils();
 
@@ -110,6 +140,10 @@ function EmailBlastEditorContent() {
       throw new Error("unexpected operation  in read-only mode.");
     }
 
+    const confirmed = window.confirm(
+      "Are you sure you want to send this email blast to all active members? This action cannot be undone."
+    );
+
     await updateEmailBlast.mutateAsync({
       id: blast.id,
       input: {
@@ -119,9 +153,6 @@ function EmailBlastEditorContent() {
       }
     });
 
-    const confirmed = window.confirm(
-      "Are you sure you want to send this email blast to all active members? This action cannot be undone."
-    );
     if (confirmed) {
       await sendEmailBlast.mutateAsync({ id: blast.id });
     }
@@ -162,24 +193,58 @@ function EmailBlastEditorContent() {
       </Text>
 
       <Paper withBorder p="xl">
-        <EmailEditor
+        <EmailEditorInput
+          editor={editor!}
           subject={subject}
           htmlContent={htmlContent}
           onContentChange={handleContentChange}
           readOnly={isViewMode}
-          onSave={handleSave}
-          onSend={handleSaveAndSend}
-          onDelete={handleDelete}
-          onCancel={handleCancel}
-          saveButtonLoading={updateEmailBlast.isPending}
-          sendButtonLoading={sendEmailBlast.isPending}
-          sendButtonDisabled={isViewMode}
-          sendButtonText={
-            blast?.status === "SENT" ? "Already Sent" : "Save & Send"
-          }
-          showDeleteButton={true}
-          showSendButton={true}
         />
+        <Flex gap="md" mt="md" justify="space-between">
+          {!isViewMode ? (
+            <>
+              <Group gap={"md"}>
+                <Button variant="light" onClick={handleCancel}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="light"
+                  color="red"
+                  onClick={handleDelete}
+                  leftSection={<IconTrash size={16} />}
+                >
+                  Delete
+                </Button>
+              </Group>
+
+              <Group gap={"md"}>
+                <Button
+                  onClick={handleSaveAndSend}
+                  loading={
+                    updateEmailBlast.isPending || sendEmailBlast.isPending
+                  }
+                  disabled={isViewMode}
+                  leftSection={<IconSend size={16} />}
+                  color={"blue"}
+                >
+                  {"Save & Send"}
+                </Button>
+
+                <Button
+                  onClick={handleSave}
+                  loading={updateEmailBlast.isPending}
+                  leftSection={<IconDeviceFloppy size={16} />}
+                >
+                  Save
+                </Button>
+              </Group>
+            </>
+          ) : (
+            <Button variant={"light"} onClick={handleCancel}>
+              Back to List
+            </Button>
+          )}
+        </Flex>
       </Paper>
     </Stack>
   );
