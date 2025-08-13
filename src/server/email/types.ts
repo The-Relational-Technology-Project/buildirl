@@ -66,48 +66,34 @@ type EmailNotifications = {
 
 export type SendEmailForMembershipApplicationSubmittedInput = {
   membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
-  clubName: string;
+  memberUserId: number;
   clubId: number;
   clubLeadUserIds: number[];
 };
 
 export type SendEmailForMembershipApprovedInput = {
   membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
   clubId: number;
-  clubName: string;
-  clubPublicId: string;
   clubLeadUserIds: number[];
   memberUserId: number;
 };
 
 export type SendEmailForMembershipDeclinedInput = {
   membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
   clubId: number;
-  clubName: string;
   clubLeadUserIds: number[];
   memberUserId: number;
 };
 
 export type SendEmailForMembershipDeactivatedByMemberToLeadInput = {
   membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
-  clubName: string;
+  memberUserId: number;
   clubId: number;
   clubLeadUserIds: number[];
 };
 
 export type SendEmailForMembershipDeactivatedByMemberToMemberInput = {
   membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
-  clubName: string;
   clubId: number;
   clubLeadUserIds: number[];
   memberUserId: number;
@@ -115,15 +101,13 @@ export type SendEmailForMembershipDeactivatedByMemberToMemberInput = {
 
 export type SendEmailForMembershipDeactivatedByLeadInput = {
   membershipId: bigint;
-  clubName: string;
+  clubId: number;
   memberUserId: number;
 };
 
 export type SendEmailForApplicationWithdrawnByMemberToLeadInput = {
   membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
-  clubName: string;
+  memberUserId: number;
   clubId: number;
   clubLeadUserIds: number[];
 };
@@ -206,16 +190,3 @@ export const EmailBlastInputSchema = z.object({
 });
 export type EmailBlastInput = z.infer<typeof EmailBlastInputSchema>;
 
-export type EmailTemplateVariablesResult = {
-  leadEmails: string[];
-  memberEmail: Maybe<string>;
-  template: Maybe<EmailTemplate>;
-  variables: EmailVariables;
-};
-
-export type EmailVariableData = {
-  clubName: string;
-  memberFirstName: string;
-  memberLastName: string;
-  clubPublicId: Maybe<string>;
-};

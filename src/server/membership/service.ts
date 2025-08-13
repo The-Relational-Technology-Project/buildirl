@@ -353,9 +353,7 @@ export function createMembershipService(
     await emailService.sendEmailForMembershipApplicationSubmitted(
       {
         membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
-        clubName: membership.club.name,
+        memberUserId: membership.user.id,
         clubId: membership.club.id,
         clubLeadUserIds: leadUserIds
       },
@@ -502,11 +500,7 @@ export function createMembershipService(
     await emailService.sendEmailForMembershipApproved(
       {
         membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
         clubId: membership.club.id,
-        clubName: membership.club.name,
-        clubPublicId: membership.club.publicId,
         clubLeadUserIds: leadUserId,
         memberUserId: membership.user.id
       },
@@ -614,9 +608,6 @@ export function createMembershipService(
     await emailService.sendEmailForMembershipDeclined(
       {
         membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
-        clubName: membership.club.name,
         clubId: membership.club.id,
         clubLeadUserIds: leadUserIds,
         memberUserId: membership.user.id
@@ -743,7 +734,7 @@ export function createMembershipService(
     await emailService.sendEmailForMembershipDeactivatedByLead(
       {
         membershipId: membershipId,
-        clubName: membership.club.name,
+        clubId: membership.club.id,
         memberUserId: membership.user.id
       },
       tx
@@ -760,9 +751,6 @@ export function createMembershipService(
     await emailService.sendEmailForMembershipDeactivatedByMemberToMember(
       {
         membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
-        clubName: membership.club.name,
         clubId: membership.club.id,
         clubLeadUserIds: leadUserIds,
         memberUserId: membership.user.id
@@ -780,9 +768,7 @@ export function createMembershipService(
     await emailService.sendEmailForMembershipDeactivatedByMemberToLead(
       {
         membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
-        clubName: membership.club.name,
+        memberUserId: membership.user.id,
         clubId: membership.club.id,
         clubLeadUserIds: leadUserIds
       },
@@ -799,9 +785,7 @@ export function createMembershipService(
     await emailService.sendEmailForApplicationWithdrawnByMemberToLead(
       {
         membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
-        clubName: membership.club.name,
+        memberUserId: membership.user.id,
         clubId: membership.club.id,
         clubLeadUserIds: leadUserIds
       },

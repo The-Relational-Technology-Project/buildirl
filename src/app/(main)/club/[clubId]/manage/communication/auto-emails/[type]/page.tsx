@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Container, Stack, Title, Text, Paper, Flex, ActionIcon, Badge, Box, Button } from "@mantine/core";
+import { Container, Stack, Title, Text, Paper, Flex, ActionIcon, Badge, Box, Button, Group } from "@mantine/core";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { strictParseInt } from "~/utils";
 import { EmailTemplateType } from "~/server/email/types";
@@ -10,11 +10,19 @@ import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
-import EmailEditor from "~/client/components/EmailEditor";
+import EmailEditorInput from "~/client/components/EmailEditorInput";
 import { IconTrash } from "@tabler/icons-react";
 import { getDefaultEmailTemplate } from "~/utils/email";
 import EmailVariableDoc from "~/client/components/EmailVariableDoc";
 import { getEmailTemplateVariables } from "~/utils/email";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
+import Highlight from "@tiptap/extension-highlight";
+import Underline from "@tiptap/extension-underline";
+import TextAlign from "@tiptap/extension-text-align";
+import Superscript from "@tiptap/extension-superscript";
+import SubScript from "@tiptap/extension-subscript";
 
 const VALID_TEMPLATE_TYPES: EmailTemplateType[] = ["ACCEPTANCE", "DEPARTURE", "REJECTION"];
 
@@ -58,6 +66,23 @@ function EmailTemplateEditorContent() {
   const [htmlContent, setHtmlContent] = useState("");
   const [textContent, setTextContent] = useState("");
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Link,
+      Highlight,
+      Underline,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Superscript,
+      SubScript,
+    ],
+    content: htmlContent,
+    onUpdate: ({ editor }) => {
+      setHtmlContent(editor.getHTML());
+      setTextContent(editor.getText());
+    },
+  });
+
   const emailTemplate = api.email.emailTemplate.useQuery({
     clubId,
     type: templateType
@@ -91,18 +116,22 @@ function EmailTemplateEditorContent() {
 
   useEffect(() => {
     if (emailTemplate.data) {
-      // Use existing custom template
       setSubject(emailTemplate.data.subject);
       setHtmlContent(emailTemplate.data.htmlContent);
       setTextContent(emailTemplate.data.textContent);
+      if (editor) {
+        editor.commands.setContent(emailTemplate.data.htmlContent);
+      }
     } else if (draftState === "DRAFT") {
-      // Pre-populate with default template when starting to create custom template
       const defaultTemplate = getDefaultEmailTemplate(templateType);
       setSubject(defaultTemplate.subject);
       setHtmlContent(defaultTemplate.htmlContent);
       setTextContent(defaultTemplate.textContent);
+      if (editor) {
+        editor.commands.setContent(defaultTemplate.htmlContent);
+      }
     }
-  }, [emailTemplate.data, draftState, templateType]);
+  }, [emailTemplate.data, draftState, templateType, editor]);
 
   const handleContentChange = (
     newSubject: string,
@@ -236,16 +265,29 @@ function EmailTemplateEditorContent() {
               </ActionIcon>
             </Flex>
             
-            <EmailEditor
-              subject={subject}
-              htmlContent={htmlContent}
-              onContentChange={handleContentChange}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              saveButtonText="Save Template"
-              saveButtonLoading={setEmailTemplate.isPending}
-              minHeight={240}
-            />
+            {editor && (
+              <EmailEditorInput
+                editor={editor}
+                subject={subject}
+                htmlContent={htmlContent}
+                onContentChange={handleContentChange}
+                readOnly={false}
+              />
+            )}
+            
+            <Group mt="md" justify="flex-end">
+              {draftState === "DRAFT" && (
+                <Button variant="subtle" onClick={handleCancel}>
+                  Cancel
+                </Button>
+              )}
+              <Button 
+                onClick={handleSave}
+                loading={setEmailTemplate.isPending}
+              >
+                Save Template
+              </Button>
+            </Group>
           </Stack>
         </Paper>
 
