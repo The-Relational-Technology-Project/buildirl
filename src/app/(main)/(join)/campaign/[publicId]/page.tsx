@@ -7,12 +7,12 @@ import React from "react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { useParams } from "next/navigation";
-import { strictParseInt } from "~/utils";
 import { BillingInterval } from "~/utils/types";
 import CampaignHero from "./__components/CampaignHero";
 import CampaignStory from "./__components/CampaignStory";
 import ContributionInterface from "./__components/ContributionInterface";
 import FinancialAssistance from "./__components/FinancialAssistance";
+import { CAMPAIGN_CONFIGURATIONS } from "~/app/(main)/(join)/campaign/[publicId]/config";
 
 function getMembershipCostPerMonth(
   membershipCost: number,
@@ -31,12 +31,17 @@ function getMembershipCostPerMonth(
 }
 
 export default function Campaign() {
-  const params = useParams<{ publicId: string; membershipTierId: string }>();
-  const publicId = params.publicId;
-  const membershipTierId = strictParseInt(params.membershipTierId);
+  const params = useParams<{ publicId: string }>();
+  const campaignConfiguration = CAMPAIGN_CONFIGURATIONS.find(
+    (c) => c.clubPublicId === params.publicId
+  );
+
+  if (!campaignConfiguration) {
+    throw new Error("campaign is not found");
+  }
 
   const club = api.main.clubByPublicId.useQuery({
-    publicId
+    publicId: params.publicId
   });
 
   const activeMemberships = api.main.activeMembershipsForClub.useQuery(
@@ -51,7 +56,7 @@ export default function Campaign() {
 
   QueryError.check({
     result: club,
-    fieldName: "clubByPublicId"
+    fieldName: "club"
   });
 
   QueryError.check({
@@ -64,12 +69,11 @@ export default function Campaign() {
     fieldName: "membershipApplicationsForClub"
   });
 
-  // HARDCODED
-  const goalAmount = 440;
+  const goalAmount = campaignConfiguration.monthlyGoal;
 
   // Get membership tier details
   const membershipTier = club.data?.membershipTiers.find(
-    (tier) => tier.id === membershipTierId
+    (tier) => tier.id === campaignConfiguration.membershipTierId
   );
   const membershipCost = membershipTier?.costPerBillingInterval || 0;
   const billingInterval =
@@ -82,11 +86,11 @@ export default function Campaign() {
   // Get supporters for this specific tier (active + pending)
   const activeMembersForTier =
     activeMemberships.data?.filter(
-      (m) => m.membershipTier.id === membershipTierId
+      (m) => m.membershipTier.id === campaignConfiguration.membershipTierId
     ) || [];
   const pendingApplicationsForTier =
     pendingApplications.data?.filter(
-      (m) => m.membershipTier.id === membershipTierId
+      (m) => m.membershipTier.id === campaignConfiguration.membershipTierId
     ) || [];
   const supporters = [...activeMembersForTier, ...pendingApplicationsForTier];
 
@@ -103,20 +107,26 @@ export default function Campaign() {
     >
       {/* Content */}
       <CampaignHero
-        membershipTierId={membershipTierId}
+        membershipTierId={campaignConfiguration.membershipTierId}
         membershipCostPerMonth={membershipCostPerMonth}
         billingInterval={billingInterval}
         supporters={supporters}
         goalAmount={goalAmount}
-        clubPublicId={publicId}
+        clubPublicId={club.data!.publicId}
+        campaignConfiguration={campaignConfiguration}
+        club={club.data!}
       />
-      <CampaignStory club={club.data!} membershipTierId={membershipTierId} />
+      <CampaignStory
+        club={club.data!}
+        membershipTierId={campaignConfiguration.membershipTierId}
+        campaignConfiguration={campaignConfiguration}
+      />
       <ContributionInterface
         club={club.data!}
-        membershipTierId={membershipTierId}
+        membershipTierId={campaignConfiguration.membershipTierId}
         goalAmount={goalAmount}
       />
-      <FinancialAssistance />
+      <FinancialAssistance campaignConfiguration={campaignConfiguration} />
     </Box>
   );
 }

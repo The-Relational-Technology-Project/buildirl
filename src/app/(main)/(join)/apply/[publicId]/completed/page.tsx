@@ -8,6 +8,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import SecondaryButton from "~/client/components/SecondaryButton";
 import { ReturnToCampaignSection } from "~/app/(main)/(join)/apply/[publicId]/completed/__components/ReturnToCampaignSection";
+import { CAMPAIGN_CONFIGURATIONS } from "~/app/(main)/(join)/campaign/[publicId]/config";
 
 export default function ApplicationCompleted() {
   const params = useParams<{ publicId: string }>();
@@ -22,7 +23,10 @@ export default function ApplicationCompleted() {
   });
 
   // !! PROTOTYPE
-  if (isLoaded(club) && club.data!.id === 77) {
+  if (
+    CAMPAIGN_CONFIGURATIONS.find((c) => c.clubPublicId === params.publicId) !==
+    undefined
+  ) {
     return <ReturnToCampaignSection club={club.data!} />;
   }
 

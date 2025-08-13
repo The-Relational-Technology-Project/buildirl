@@ -13,8 +13,15 @@ import {
 } from "@mantine/core";
 import { IconHeart } from "@tabler/icons-react";
 import SectionCard from "./SectionCard";
+import { CampaignConfiguration } from "~/app/(main)/(join)/campaign/[publicId]/config";
 
-export default function FinancialAssistance() {
+type FinancialAssistanceProps = {
+  campaignConfiguration: CampaignConfiguration;
+};
+
+export default function FinancialAssistance({
+  campaignConfiguration
+}: FinancialAssistanceProps) {
   return (
     <Container size="lg" py={{ base: 16, md: 32 }}>
       <SectionCard>
@@ -44,7 +51,7 @@ export default function FinancialAssistance() {
           </Text>
 
           <Anchor
-            href="mailto:team@buildirl.com"
+            href={`mailto:${campaignConfiguration.contactUsEmail}`}
             fz={{ base: "sm", md: "md" }}
             fw={500}
             style={{
@@ -56,7 +63,7 @@ export default function FinancialAssistance() {
               }
             }}
           >
-            Email us at team@buildirl.com
+            Email us at {campaignConfiguration.contactUsEmail}
           </Anchor>
         </Stack>
       </SectionCard>
