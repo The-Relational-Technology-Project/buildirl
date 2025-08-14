@@ -20,7 +20,7 @@ import { Subscript } from "@tiptap/extension-subscript";
 import { Highlight } from "@tiptap/extension-highlight";
 import { IconDeviceFloppy, IconSend, IconTrash } from "@tabler/icons-react";
 import EmailVariableDoc from "~/client/components/EmailVariableDoc";
-import { getEmailBlastVariables } from "~/utils/email";
+import { getEmailVariableMetadata } from "~/utils/email";
 
 function EmailBlastEditorContent() {
   const params = useParams<{ clubId: string; id: string }>();
@@ -252,7 +252,7 @@ function EmailBlastEditorContent() {
       {!isViewMode && (
         <Box mb="md">
           <EmailVariableDoc 
-            variables={getEmailBlastVariables()}
+            variables={getEmailVariableMetadata()}
             title="Available Variables for Email Blast"
             subtitle="Use these variables to personalize your email blast. They will be automatically replaced when the email is sent to each member."
           />

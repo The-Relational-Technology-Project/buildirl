@@ -1,5 +1,5 @@
 import { EmailTemplateType } from "~/server/email/types";
-import { EmailVariable } from "~/client/components/EmailVariableDoc";
+import { EmailVariableMetadata } from "~/client/components/EmailVariableDoc";
 
 export type EmailContent = {
   subject: string;
@@ -86,7 +86,7 @@ export function getDefaultEmailTemplate(type: EmailTemplateType): EmailContent {
   return DEFAULT_EMAIL_TEMPLATES[type];
 }
 
-export function getEmailTemplateVariables(): EmailVariable[] {
+export function getEmailVariableMetadata(): EmailVariableMetadata[] {
   return [
     {
       name: "clubName",
@@ -98,27 +98,6 @@ export function getEmailTemplateVariables(): EmailVariable[] {
     },
     {
       name: "memberLastName",
-      description: "The member's last name"
-    },
-    {
-      name: "joinPageUrl",
-      description: "Link to your club's join page for the member to access"
-    }
-  ];
-}
-
-export function getEmailBlastVariables(): EmailVariable[] {
-  return [
-    {
-      name: "clubName",
-      description: "The name of your club"
-    },
-    {
-      name: "memberFirstName",
-      description: "The member's first name"
-    },
-    {
-      name: "memberLastName", 
       description: "The member's last name"
     },
     {

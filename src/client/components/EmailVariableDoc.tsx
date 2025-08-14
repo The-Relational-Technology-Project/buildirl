@@ -2,14 +2,14 @@ import { Stack, Text, Paper, Code, Collapse, Button, Group } from "@mantine/core
 import { IconInfoCircle, IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useState } from "react";
 
-export type EmailVariable = {
+export type EmailVariableMetadata = {
   name: string;
   description: string;
   required?: boolean;
 };
 
 export type EmailVariableDocProps = {
-  variables: EmailVariable[];
+  variables: EmailVariableMetadata[];
   title?: string;
   subtitle?: string;
   defaultExpanded?: boolean;

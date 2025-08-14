@@ -124,7 +124,7 @@ export function createEmailService(
     }
   }
 
-  async function getEmailVariableValues(
+  async function getEmailVariables(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ): Promise<EmailVariables> {
@@ -208,7 +208,7 @@ export function createEmailService(
       select: { userId: true }
     });
 
-    const variables = await getEmailVariableValues(input.membershipId, tx);
+    const variables = await getEmailVariables(input.membershipId, tx);
 
     const template = await getEmailTemplate({ clubId: membership.membershipTier.clubId, type: "ACCEPTANCE" });
     const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
@@ -247,7 +247,7 @@ export function createEmailService(
       select: { userId: true }
     });
 
-    const variables = await getEmailVariableValues(input.membershipId, tx);
+    const variables = await getEmailVariables(input.membershipId, tx);
 
     const template = await getEmailTemplate({ clubId: membership.membershipTier.clubId, type: "REJECTION" });
     const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
@@ -312,7 +312,7 @@ export function createEmailService(
       select: { userId: true }
     });
 
-    const variables = await getEmailVariableValues(input.membershipId, tx);
+    const variables = await getEmailVariables(input.membershipId, tx);
 
     const template = await getEmailTemplate({ clubId: membership.membershipTier.clubId, type: "DEPARTURE" });
     const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
@@ -536,7 +536,7 @@ export function createEmailService(
         for (const membership of memberships) {
           const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
           
-          const variables = await getEmailVariableValues(membership.id, tx);
+          const variables = await getEmailVariables(membership.id, tx);
           
           await emailClient.sendInterpolatedEmail(template, variables, memberEmail, leadEmails);
         }

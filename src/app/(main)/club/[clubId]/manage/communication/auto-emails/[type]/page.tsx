@@ -14,7 +14,7 @@ import EmailEditorInput from "~/client/components/EmailEditorInput";
 import { IconTrash } from "@tabler/icons-react";
 import { getDefaultEmailTemplate } from "~/utils/email";
 import EmailVariableDoc from "~/client/components/EmailVariableDoc";
-import { getEmailTemplateVariables } from "~/utils/email";
+import { getEmailVariableMetadata } from "~/utils/email";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -293,7 +293,7 @@ function EmailTemplateEditorContent() {
 
         <Box mb="lg">
           <EmailVariableDoc 
-            variables={getEmailTemplateVariables()}
+            variables={getEmailVariableMetadata()}
             title="Available Variables for Email Template"
             subtitle="Use these variables to personalize your email. They will be automatically replaced when the email is sent to members."
           />

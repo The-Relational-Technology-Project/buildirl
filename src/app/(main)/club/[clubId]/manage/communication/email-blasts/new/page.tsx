@@ -18,7 +18,7 @@ import { Subscript } from "@tiptap/extension-subscript";
 import { Highlight } from "@tiptap/extension-highlight";
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import EmailVariableDoc from "~/client/components/EmailVariableDoc";
-import { getEmailBlastVariables } from "~/utils/email";
+import { getEmailVariableMetadata } from "~/utils/email";
 
 function CreateEmailBlastContent() {
   const { clubId } = useParams<{ clubId: string }>();
@@ -113,7 +113,7 @@ function CreateEmailBlastContent() {
 
       <Box mb="md">
         <EmailVariableDoc 
-          variables={getEmailBlastVariables()}
+          variables={getEmailVariableMetadata()}
           title="Available Variables for Email Blast"
           subtitle="Use these variables to personalize your email blast. They will be automatically replaced when the email is sent to each member."
         />
