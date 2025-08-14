@@ -2,7 +2,6 @@ import {
   EmailService,
   EmailTemplate,
   EmailTemplateId,
-  EmailTemplateType,
   SetEmailTemplateInput,
   EmailBlast,
   EmailBlastInput,
@@ -127,7 +126,6 @@ export function createEmailService(
 
   async function getEmailVariableValues(
     membershipId: bigint,
-    emailType: EmailTemplateType,
     tx: Prisma.TransactionClient
   ): Promise<EmailVariables> {
     const membership = await tx.membership.findUniqueOrThrow({
@@ -149,12 +147,9 @@ export function createEmailService(
     const variables: EmailVariables = {
       clubName: membership.membershipTier.club.name,
       memberFirstName: membership.user.firstName,
-      memberLastName: membership.user.lastName
+      memberLastName: membership.user.lastName,
+      joinPageUrl: `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${membership.membershipTier.club.publicId}`
     };
-
-    if (emailType === "ACCEPTANCE") {
-      variables.joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${membership.membershipTier.club.publicId}`;
-    }
 
     return variables;
   }
@@ -213,7 +208,7 @@ export function createEmailService(
       select: { userId: true }
     });
 
-    const variables = await getEmailVariableValues(input.membershipId, "ACCEPTANCE", tx);
+    const variables = await getEmailVariableValues(input.membershipId, tx);
 
     const template = await getEmailTemplate({ clubId: membership.membershipTier.clubId, type: "ACCEPTANCE" });
     const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
@@ -252,7 +247,7 @@ export function createEmailService(
       select: { userId: true }
     });
 
-    const variables = await getEmailVariableValues(input.membershipId, "REJECTION", tx);
+    const variables = await getEmailVariableValues(input.membershipId, tx);
 
     const template = await getEmailTemplate({ clubId: membership.membershipTier.clubId, type: "REJECTION" });
     const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
@@ -317,7 +312,7 @@ export function createEmailService(
       select: { userId: true }
     });
 
-    const variables = await getEmailVariableValues(input.membershipId, "DEPARTURE", tx);
+    const variables = await getEmailVariableValues(input.membershipId, tx);
 
     const template = await getEmailTemplate({ clubId: membership.membershipTier.clubId, type: "DEPARTURE" });
     const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
@@ -521,24 +516,14 @@ export function createEmailService(
           throw new Error(`No lead emails found for club ${emailBlast.clubId}`);
         }
 
-        const club = await tx.club.findUniqueOrThrow({
-          where: { id: emailBlast.clubId },
-          select: { name: true }
-        });
-
         const memberships = await tx.membership.findMany({
           where: {
             membershipTier: { clubId: emailBlast.clubId },
             status: "ACTIVE"
           },
           select: {
-            userId: true,
-            user: {
-              select: {
-                firstName: true,
-                lastName: true
-              }
-            }
+            id: true,
+            userId: true
           }
         });
 
@@ -551,11 +536,7 @@ export function createEmailService(
         for (const membership of memberships) {
           const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
           
-          const variables: EmailVariables = {
-            clubName: club.name,
-            memberFirstName: membership.user.firstName,
-            memberLastName: membership.user.lastName
-          };
+          const variables = await getEmailVariableValues(membership.id, tx);
           
           await emailClient.sendInterpolatedEmail(template, variables, memberEmail, leadEmails);
         }

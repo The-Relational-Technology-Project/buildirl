@@ -19,24 +19,9 @@ export type EmailClient = {
     input: SendEmailForMembershipApplicationSubmittedInput,
     sendTo: Emails
   ): Promise<void>;
-  sendEmailForMembershipApproved(
-    input: SendEmailForMembershipApprovedInput,
-    sendTo: Email,
-    replyTo: Emails
-  ): Promise<void>;
-  sendEmailForMembershipDeclined(
-    input: SendEmailForMembershipDeclinedInput,
-    sendTo: Email,
-    replyTo: Emails
-  ): Promise<void>;
   sendEmailForMembershipDeactivatedByMemberToLead(
     input: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     sendTo: Emails
-  ): Promise<void>;
-  sendEmailForMembershipDeactivatedByMemberToMember(
-    input: SendEmailForMembershipDeactivatedByMemberToMemberInput,
-    sendTo: Email,
-    replyTo: Emails
   ): Promise<void>;
   sendEmailForMembershipDeactivatedByLead(
     input: SendEmailForMembershipDeactivatedByLeadInput,
@@ -59,32 +44,7 @@ export type SendEmailForMembershipApplicationSubmittedInput = {
   clubId: number;
 };
 
-export type SendEmailForMembershipApprovedInput = {
-  membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
-  clubId: number;
-  clubName: string;
-  clubPublicId: string;
-};
-
-export type SendEmailForMembershipDeclinedInput = {
-  membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
-  clubId: number;
-  clubName: string;
-};
-
 export type SendEmailForMembershipDeactivatedByMemberToLeadInput = {
-  membershipId: bigint;
-  memberFirstName: string;
-  memberLastName: string;
-  clubName: string;
-  clubId: number;
-};
-
-export type SendEmailForMembershipDeactivatedByMemberToMemberInput = {
   membershipId: bigint;
   memberFirstName: string;
   memberLastName: string;

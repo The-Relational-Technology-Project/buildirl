@@ -11,7 +11,7 @@ export type EmailVariables = {
   clubName: string;
   memberFirstName: string;
   memberLastName: string;
-  joinPageUrl?: string;
+  joinPageUrl: string;
 };
 
 export const DEFAULT_EMAIL_TEMPLATES: Record<EmailTemplateType, EmailContent> = {
@@ -98,13 +98,11 @@ export function getEmailTemplateVariables(): EmailVariable[] {
     },
     {
       name: "memberLastName",
-      description: "The member's last name",
-      required: false
+      description: "The member's last name"
     },
     {
       name: "joinPageUrl",
-      description: "Link to your club's join page for the member to access",
-      required: false
+      description: "Link to your club's join page for the member to access"
     }
   ];
 }
@@ -121,13 +119,11 @@ export function getEmailBlastVariables(): EmailVariable[] {
     },
     {
       name: "memberLastName", 
-      description: "The member's last name",
-      required: false
+      description: "The member's last name"
     },
     {
       name: "joinPageUrl",
-      description: "Link to your club's join page for the member to access",
-      required: false
+      description: "Link to your club's join page for the member to access"
     }
   ];
 }

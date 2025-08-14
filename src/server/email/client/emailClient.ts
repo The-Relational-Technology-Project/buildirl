@@ -2,17 +2,13 @@ import { Transporter } from "nodemailer";
 import {
   EmailClient,
   SendEmailForMembershipApplicationSubmittedInput,
-  SendEmailForMembershipApprovedInput,
-  SendEmailForMembershipDeclinedInput,
   SendEmailForMembershipDeactivatedByMemberToLeadInput,
-  SendEmailForMembershipDeactivatedByMemberToMemberInput,
   SendEmailForMembershipDeactivatedByLeadInput,
   SendEmailForApplicationWithdrawnByMemberToLeadInput,
   Emails
 } from "./types";
 import { rootLogger } from "~/logger";
 import { 
-  DEFAULT_EMAIL_TEMPLATES, 
   interpolateEmail,
   EmailVariables,
   EmailContent
@@ -100,83 +96,6 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendEmailForMembershipApproved(
-    input: SendEmailForMembershipApprovedInput,
-    sendTo: Emails,
-    replyTo: Emails
-  ): Promise<void> {
-    try {
-      const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
-      
-      const variables: EmailVariables = {
-        clubName: input.clubName,
-        memberFirstName: input.memberFirstName,
-        memberLastName: input.memberLastName,
-        joinPageUrl
-      };
-      
-      const emailContent = interpolateEmail(
-        DEFAULT_EMAIL_TEMPLATES.ACCEPTANCE,
-        variables
-      );
-
-      await mailTransport.sendMail({
-        from: FROM_EMAIL,
-        to: sendTo,
-        replyTo: replyTo,
-        subject: emailContent.subject,
-        text: emailContent.textContent,
-        html: emailContent.htmlContent
-      });
-
-      logger.info(
-        `sent membership accepted email to ${sendTo} for membership with id ${input.membershipId}`
-      );
-    } catch (error) {
-      logger.error(
-        error,
-        `failed to send membership accepted email to ${sendTo} for membership with id ${input.membershipId}`
-      );
-    }
-  }
-
-  async function sendEmailForMembershipDeclined(
-    input: SendEmailForMembershipDeclinedInput,
-    sendTo: Emails,
-    replyTo: Emails
-  ): Promise<void> {
-    try {
-      const variables: EmailVariables = {
-        clubName: input.clubName,
-        memberFirstName: input.memberFirstName,
-        memberLastName: input.memberLastName
-      };
-      
-      const emailContent = interpolateEmail(
-        DEFAULT_EMAIL_TEMPLATES.REJECTION,
-        variables
-      );
-
-      await mailTransport.sendMail({
-        from: FROM_EMAIL,
-        to: sendTo,
-        replyTo: replyTo,
-        subject: emailContent.subject,
-        text: emailContent.textContent,
-        html: emailContent.htmlContent
-      });
-
-      logger.info(
-        `sent membership declined email to ${sendTo} for membership with id ${input.membershipId}`
-      );
-    } catch (error) {
-      logger.error(
-        error,
-        `failed to send membership declined email to ${sendTo} for membership with id ${input.membershipId}`
-      );
-    }
-  }
-
   async function sendEmailForMembershipDeactivatedByMemberToLead(
     input: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     sendTo: Emails
@@ -206,43 +125,6 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       logger.error(
         error,
         `failed to send membership deactivated by member email to club lead at ${sendTo} for membership with id ${input.membershipId}`
-      );
-    }
-  }
-
-  async function sendEmailForMembershipDeactivatedByMemberToMember(
-    input: SendEmailForMembershipDeactivatedByMemberToMemberInput,
-    sendTo: Emails,
-    replyTo: Emails
-  ): Promise<void> {
-    try {
-      const variables: EmailVariables = {
-        clubName: input.clubName,
-        memberFirstName: input.memberFirstName,
-        memberLastName: input.memberLastName
-      };
-      
-      const emailContent = interpolateEmail(
-        DEFAULT_EMAIL_TEMPLATES.DEPARTURE,
-        variables
-      );
-
-      await mailTransport.sendMail({
-        from: FROM_EMAIL,
-        to: sendTo,
-        replyTo: replyTo,
-        subject: emailContent.subject,
-        text: emailContent.textContent,
-        html: emailContent.htmlContent
-      });
-
-      logger.info(
-        `sent membership deactivated email by member to member at ${sendTo} for membership with id ${input.membershipId}`
-      );
-    } catch (error) {
-      logger.error(
-        error,
-        `failed to send membership deactivated email by member to member at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
@@ -313,10 +195,7 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     sendCustomEmail,
     sendInterpolatedEmail,
     sendEmailForMembershipApplicationSubmitted,
-    sendEmailForMembershipApproved,
-    sendEmailForMembershipDeclined,
     sendEmailForMembershipDeactivatedByMemberToLead,
-    sendEmailForMembershipDeactivatedByMemberToMember,
     sendEmailForMembershipDeactivatedByLead,
     sendEmailForApplicationWithdrawnByMemberToLead
   };

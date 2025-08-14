@@ -2,7 +2,6 @@ import { z } from "zod";
 import { MutationResult } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
 import { Prisma } from "@prisma/client";
-import { EmailVariables } from "~/utils/email";
 
 export const EMAIL_CONTENT_LIMITS = {
   SUBJECT_MAX_LENGTH: 500,

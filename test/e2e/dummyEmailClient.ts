@@ -3,11 +3,8 @@
 import {
   EmailClient,
   SendEmailForMembershipApplicationSubmittedInput,
-  SendEmailForMembershipApprovedInput,
-  SendEmailForMembershipDeactivatedByMemberToMemberInput,
   SendEmailForMembershipDeactivatedByMemberToLeadInput,
   SendEmailForMembershipDeactivatedByLeadInput,
-  SendEmailForMembershipDeclinedInput,
   SendEmailForApplicationWithdrawnByMemberToLeadInput,
   Emails
 } from "~/server/email/client/types";
@@ -42,33 +39,9 @@ export function createDummyEmailClient(): EmailClient {
     return;
   }
 
-  async function sendEmailForMembershipApproved(
-    _: SendEmailForMembershipApprovedInput,
-    __: Email,
-    ___: Email
-  ): Promise<void> {
-    return;
-  }
-
-  async function sendEmailForMembershipDeclined(
-    _: SendEmailForMembershipDeclinedInput,
-    __: Email,
-    ___: Email
-  ): Promise<void> {
-    return;
-  }
-
   async function sendEmailForMembershipDeactivatedByMemberToLead(
     _: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     __: Email
-  ): Promise<void> {
-    return;
-  }
-
-  async function sendEmailForMembershipDeactivatedByMemberToMember(
-    _: SendEmailForMembershipDeactivatedByMemberToMemberInput,
-    __: Email,
-    ___: Email
   ): Promise<void> {
     return;
   }
@@ -91,11 +64,8 @@ export function createDummyEmailClient(): EmailClient {
     sendCustomEmail,
     sendInterpolatedEmail,
     sendEmailForMembershipApplicationSubmitted,
-    sendEmailForMembershipApproved,
-    sendEmailForMembershipDeclined,
     sendEmailForMembershipDeactivatedByLead,
     sendEmailForMembershipDeactivatedByMemberToLead,
-    sendEmailForMembershipDeactivatedByMemberToMember,
     sendEmailForApplicationWithdrawnByMemberToLead
   };
 }
