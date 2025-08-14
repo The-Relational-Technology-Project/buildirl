@@ -353,9 +353,7 @@ export function createMembershipService(
     await emailService.sendEmailForMembershipApplicationSubmitted(
       {
         membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
-        clubName: membership.club.name,
+        memberUserId: membership.user.id,
         clubId: membership.club.id,
         clubLeadUserIds: leadUserIds
       },
@@ -496,19 +494,9 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    // noinspection DuplicatedCode
-    const membership = await getMembershipWithClub(membershipId, tx);
-    const leadUserId = await getLeadUserIdsForClub(membership.club.id, tx);
     await emailService.sendEmailForMembershipApproved(
       {
-        membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
-        clubId: membership.club.id,
-        clubName: membership.club.name,
-        clubPublicId: membership.club.publicId,
-        clubLeadUserIds: leadUserId,
-        memberUserId: membership.user.id
+        membershipId: membershipId
       },
       tx
     );
@@ -608,17 +596,9 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    // noinspection DuplicatedCode
-    const membership = await getMembershipWithClub(membershipId, tx);
-    const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
     await emailService.sendEmailForMembershipDeclined(
       {
-        membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        clubName: membership.club.name,
-        clubId: membership.club.id,
-        clubLeadUserIds: leadUserIds,
-        memberUserId: membership.user.id
+        membershipId: membershipId
       },
       tx
     );
@@ -742,7 +722,7 @@ export function createMembershipService(
     await emailService.sendEmailForMembershipDeactivatedByLead(
       {
         membershipId: membershipId,
-        clubName: membership.club.name,
+        clubId: membership.club.id,
         memberUserId: membership.user.id
       },
       tx
@@ -753,18 +733,9 @@ export function createMembershipService(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ) {
-    // noinspection DuplicatedCode
-    const membership = await getMembershipWithClub(membershipId, tx);
-    const leadUserIds = await getLeadUserIdsForClub(membership.club.id, tx);
     await emailService.sendEmailForMembershipDeactivatedByMemberToMember(
       {
-        membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
-        clubName: membership.club.name,
-        clubId: membership.club.id,
-        clubLeadUserIds: leadUserIds,
-        memberUserId: membership.user.id
+        membershipId: membershipId
       },
       tx
     );
@@ -779,9 +750,7 @@ export function createMembershipService(
     await emailService.sendEmailForMembershipDeactivatedByMemberToLead(
       {
         membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
-        clubName: membership.club.name,
+        memberUserId: membership.user.id,
         clubId: membership.club.id,
         clubLeadUserIds: leadUserIds
       },
@@ -798,9 +767,7 @@ export function createMembershipService(
     await emailService.sendEmailForApplicationWithdrawnByMemberToLead(
       {
         membershipId: membershipId,
-        memberFirstName: membership.user.firstName,
-        memberLastName: membership.user.lastName,
-        clubName: membership.club.name,
+        memberUserId: membership.user.id,
         clubId: membership.club.id,
         clubLeadUserIds: leadUserIds
       },

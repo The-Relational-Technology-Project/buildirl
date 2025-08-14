@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, Suspense } from "react";
-import { Stack, Title, Text, Paper, Button, Flex } from "@mantine/core";
+import { Stack, Title, Text, Paper, Box, Button, Flex } from "@mantine/core";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { api } from "~/trpc/react";
 import { strictParseInt } from "~/utils";
@@ -17,6 +17,8 @@ import { TextAlign } from "@tiptap/extension-text-align";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Highlight } from "@tiptap/extension-highlight";
 import { IconDeviceFloppy } from "@tabler/icons-react";
+import EmailVariableDoc from "~/client/components/EmailVariableDoc";
+import { getEmailVariableMetadata } from "~/utils/email";
 
 function CreateEmailBlastContent() {
   const { clubId } = useParams<{ clubId: string }>();
@@ -49,7 +51,7 @@ function CreateEmailBlastContent() {
     onSuccess: () => {
       utils.email.emailBlasts.invalidate({ clubId: clubIdNumber });
       notifySuccess("Success", "Email blast has been created");
-      router.push(`/club/${clubId}/manage?tab=email`);
+      router.push(`/club/${clubId}/manage/communication/email-blasts`);
     },
     onError: (e) => {
       handleDefaultMutationError(e);
@@ -78,7 +80,7 @@ function CreateEmailBlastContent() {
   };
 
   const handleCancel = () => {
-    router.push(`/club/${clubId}/manage?tab=email`);
+    router.push(`/club/${clubId}/manage/communication/email-blasts`);
   };
 
   return (
@@ -108,6 +110,14 @@ function CreateEmailBlastContent() {
           </Button>
         </Flex>
       </Paper>
+
+      <Box mb="md">
+        <EmailVariableDoc 
+          variables={getEmailVariableMetadata()}
+          title="Available Variables for Email Blast"
+          subtitle="Use these variables to personalize your email blast. They will be automatically replaced when the email is sent to each member."
+        />
+      </Box>
     </Stack>
   );
 }
@@ -116,7 +126,7 @@ export default function CreateEmailBlastPage() {
   const { clubId } = useParams<{ clubId: string }>();
 
   return (
-    <WithLocalNavigationHeader navigateTo={`/club/${clubId}/manage?tab=email`}>
+    <WithLocalNavigationHeader navigateTo={`/club/${clubId}/manage/communication/email-blasts`}>
       <Suspense fallback={null}>
         <CreateEmailBlastContent />
       </Suspense>

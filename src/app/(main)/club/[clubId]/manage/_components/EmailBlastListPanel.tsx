@@ -140,15 +140,15 @@ function EmailBlastListContent({ clubId }: EmailBlastListPanelProps) {
   });
 
   const handleCreateNew = () => {
-    router.push(`/club/${clubId}/manage/email-blasts/new`, { scroll: false });
+    router.push(`/club/${clubId}/manage/communication/email-blasts/new`, { scroll: false });
   };
 
   const handleEdit = (emailBlast: EmailBlast) => {
-    router.push(`/club/${clubId}/manage/email-blasts/${emailBlast.id}`, { scroll: false });
+    router.push(`/club/${clubId}/manage/communication/email-blasts/${emailBlast.id}`, { scroll: false });
   };
 
   const handleView = (blast: EmailBlast) => {
-    router.push(`/club/${clubId}/manage/email-blasts/${blast.id}`, { scroll: false });
+    router.push(`/club/${clubId}/manage/communication/email-blasts/${blast.id}`, { scroll: false });
   };
 
   const handleDelete = async (emailBlastId: bigint) => {

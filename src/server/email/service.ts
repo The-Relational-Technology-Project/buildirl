@@ -21,6 +21,7 @@ import { stringify } from "~/utils";
 import { Maybe } from "~/utils/types";
 import { EmailClient } from "~/server/email/client/types";
 import { UserService } from "~/server/user/types";
+import { EmailVariables, DEFAULT_EMAIL_TEMPLATES } from "~/utils/email";
 
 const logger = rootLogger.child({ module: "emailTemplateService" });
 
@@ -123,16 +124,65 @@ export function createEmailService(
     }
   }
 
+  async function getEmailVariables(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<EmailVariables> {
+    const membership = await tx.membership.findUniqueOrThrow({
+      where: { id: membershipId },
+      select: {
+        user: {
+          select: { firstName: true, lastName: true }
+        },
+        membershipTier: {
+          select: {
+            club: {
+              select: { name: true, publicId: true }
+            }
+          }
+        }
+      }
+    });
+
+    const variables: EmailVariables = {
+      clubName: membership.membershipTier.club.name,
+      memberFirstName: membership.user.firstName,
+      memberLastName: membership.user.lastName,
+      joinPageUrl: `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${membership.membershipTier.club.publicId}`
+    };
+
+    return variables;
+  }
+
   async function sendEmailForMembershipApplicationSubmitted(
     input: SendEmailForMembershipApplicationSubmittedInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
+    const member = await tx.user.findUniqueOrThrow({
+      where: { id: input.memberUserId },
+      select: {
+        firstName: true,
+        lastName: true
+      }
+    });
+
+    const club = await tx.club.findUniqueOrThrow({
+      where: { id: input.clubId },
+      select: { name: true }
+    });
+
     const leadEmails = await userService.getUserEmailsInTransaction(
       input.clubLeadUserIds,
       tx
     );
+
     await emailClient.sendEmailForMembershipApplicationSubmitted(
-      input,
+      {
+        ...input,
+        memberFirstName: member.firstName,
+        memberLastName: member.lastName,
+        clubName: club.name
+      },
       leadEmails
     );
   }
@@ -141,83 +191,102 @@ export function createEmailService(
     input: SendEmailForMembershipApprovedInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const template = await getEmailTemplate({
-      clubId: input.clubId,
-      type: "ACCEPTANCE"
+    const membership = await tx.membership.findUniqueOrThrow({
+      where: { id: input.membershipId },
+      select: {
+        userId: true,
+        membershipTier: { select: { clubId: true } }
+      }
     });
 
-    const leadEmails = await userService.getUserEmailsInTransaction(
-      input.clubLeadUserIds,
-      tx
-    );
+    const leadMemberships = await tx.membership.findMany({
+      where: {
+        membershipTier: { clubId: membership.membershipTier.clubId },
+        status: "ACTIVE",
+        role: "LEAD"
+      },
+      select: { userId: true }
+    });
 
-    const memberEmail = await userService.getUserEmailInTransaction(
-      input.memberUserId,
-      tx
-    );
+    const variables = await getEmailVariables(input.membershipId, tx);
 
-    if (template) {
-      await emailClient.sendCustomEmail(
-        memberEmail,
-        leadEmails,
-        template.subject,
-        template.htmlContent,
-        template.textContent
-      );
-    } else {
-      await emailClient.sendEmailForMembershipApproved(
-        input,
-        memberEmail,
-        leadEmails
-      );
+    const template = await getEmailTemplate({ clubId: membership.membershipTier.clubId, type: "ACCEPTANCE" });
+    const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
+    const leadEmails = await userService.getUserEmailsInTransaction(leadMemberships.map(m => m.userId), tx);
+
+    if (!memberEmail) {
+      throw new Error(`No email found for member with userId ${membership.userId}`);
     }
+
+    await emailClient.sendInterpolatedEmail(
+      template || DEFAULT_EMAIL_TEMPLATES.ACCEPTANCE,
+      variables,
+      memberEmail,
+      leadEmails
+    );
   }
 
   async function sendEmailForMembershipDeclined(
     input: SendEmailForMembershipDeclinedInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const template = await getEmailTemplate({
-      clubId: input.clubId,
-      type: "REJECTION"
+    const membership = await tx.membership.findUniqueOrThrow({
+      where: { id: input.membershipId },
+      select: {
+        userId: true,
+        membershipTier: { select: { clubId: true } }
+      }
     });
 
-    const leadEmails = await userService.getUserEmailsInTransaction(
-      input.clubLeadUserIds,
-      tx
-    );
-    const memberEmail = await userService.getUserEmailInTransaction(
-      input.memberUserId,
-      tx
-    );
+    const leadMemberships = await tx.membership.findMany({
+      where: {
+        membershipTier: { clubId: membership.membershipTier.clubId },
+        status: "ACTIVE",
+        role: "LEAD"
+      },
+      select: { userId: true }
+    });
 
-    if (template) {
-      await emailClient.sendCustomEmail(
-        memberEmail,
-        leadEmails,
-        template.subject,
-        template.htmlContent,
-        template.textContent
-      );
-    } else {
-      await emailClient.sendEmailForMembershipDeclined(
-        input,
-        memberEmail,
-        leadEmails
-      );
+    const variables = await getEmailVariables(input.membershipId, tx);
+
+    const template = await getEmailTemplate({ clubId: membership.membershipTier.clubId, type: "REJECTION" });
+    const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
+    const leadEmails = await userService.getUserEmailsInTransaction(leadMemberships.map(m => m.userId), tx);
+
+    if (!memberEmail) {
+      throw new Error(`No email found for member with userId ${membership.userId}`);
     }
+
+    await emailClient.sendInterpolatedEmail(
+      template || DEFAULT_EMAIL_TEMPLATES.REJECTION,
+      variables,
+      memberEmail,
+      leadEmails
+    );
   }
 
   async function sendEmailForMembershipDeactivatedByMemberToLead(
     input: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const leadEmails = await userService.getUserEmailsInTransaction(
-      input.clubLeadUserIds,
-      tx
-    );
+
+    const member = await tx.user.findUniqueOrThrow({
+      where: { id: input.memberUserId },
+      select: { firstName: true, lastName: true }
+    });
+    const club = await tx.club.findUniqueOrThrow({
+      where: { id: input.clubId },
+      select: { name: true }
+    });
+    const leadEmails = await userService.getUserEmailsInTransaction(input.clubLeadUserIds, tx);
+
     await emailClient.sendEmailForMembershipDeactivatedByMemberToLead(
-      input,
+      {
+        ...input,
+        memberFirstName: member.firstName,
+        memberLastName: member.lastName,
+        clubName: club.name
+      },
       leadEmails
     );
   }
@@ -226,47 +295,56 @@ export function createEmailService(
     input: SendEmailForMembershipDeactivatedByMemberToMemberInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const template = await getEmailTemplate({
-      clubId: input.clubId,
-      type: "DEPARTURE"
+    const membership = await tx.membership.findUniqueOrThrow({
+      where: { id: input.membershipId },
+      select: {
+        userId: true,
+        membershipTier: { select: { clubId: true } }
+      }
     });
 
-    const leadEmails = await userService.getUserEmailsInTransaction(
-      input.clubLeadUserIds,
-      tx
-    );
-    const memberEmail = await userService.getUserEmailInTransaction(
-      input.memberUserId,
-      tx
-    );
+    const leadMemberships = await tx.membership.findMany({
+      where: {
+        membershipTier: { clubId: membership.membershipTier.clubId },
+        status: "ACTIVE",
+        role: "LEAD"
+      },
+      select: { userId: true }
+    });
 
-    if (template) {
-      await emailClient.sendCustomEmail(
-        memberEmail,
-        leadEmails,
-        template.subject,
-        template.htmlContent,
-        template.textContent
-      );
-    } else {
-      await emailClient.sendEmailForMembershipDeactivatedByMemberToMember(
-        input,
-        memberEmail,
-        leadEmails
-      );
+    const variables = await getEmailVariables(input.membershipId, tx);
+
+    const template = await getEmailTemplate({ clubId: membership.membershipTier.clubId, type: "DEPARTURE" });
+    const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
+    const leadEmails = await userService.getUserEmailsInTransaction(leadMemberships.map(m => m.userId), tx);
+
+    if (!memberEmail) {
+      throw new Error(`No email found for member with userId ${membership.userId}`);
     }
+
+    await emailClient.sendInterpolatedEmail(
+      template || DEFAULT_EMAIL_TEMPLATES.DEPARTURE,
+      variables,
+      memberEmail,
+      leadEmails
+    );
   }
 
   async function sendEmailForMembershipDeactivatedByLead(
     input: SendEmailForMembershipDeactivatedByLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const memberEmail = await userService.getUserEmailInTransaction(
-      input.memberUserId,
-      tx
-    );
+    const club = await tx.club.findUniqueOrThrow({
+      where: { id: input.clubId },
+      select: { name: true }
+    });
+    const memberEmail = await userService.getUserEmailInTransaction(input.memberUserId, tx);
+
     await emailClient.sendEmailForMembershipDeactivatedByLead(
-      input,
+      {
+        ...input,
+        clubName: club.name
+      },
       memberEmail
     );
   }
@@ -275,12 +353,23 @@ export function createEmailService(
     input: SendEmailForApplicationWithdrawnByMemberToLeadInput,
     tx: Prisma.TransactionClient
   ): Promise<void> {
-    const leadEmails = await userService.getUserEmailsInTransaction(
-      input.clubLeadUserIds,
-      tx
-    );
+    const member = await tx.user.findUniqueOrThrow({
+      where: { id: input.memberUserId },
+      select: { firstName: true, lastName: true }
+    });
+    const club = await tx.club.findUniqueOrThrow({
+      where: { id: input.clubId },
+      select: { name: true }
+    });
+    const leadEmails = await userService.getUserEmailsInTransaction(input.clubLeadUserIds, tx);
+
     await emailClient.sendEmailForApplicationWithdrawnByMemberToLead(
-      input,
+      {
+        ...input,
+        memberFirstName: member.firstName,
+        memberLastName: member.lastName,
+        clubName: club.name
+      },
       leadEmails
     );
   }
@@ -394,68 +483,74 @@ export function createEmailService(
   }
 
   async function sendEmailBlast(id: bigint): Promise<void> {
-    try {
-      const emailBlast = await prisma.emailBlast.findUniqueOrThrow({
-        where: { id }
-      });
+    return prisma.$transaction(async (tx) => {
+      try {
+        const emailBlast = await tx.emailBlast.findUniqueOrThrow({
+          where: { id }
+        });
 
-      if (emailBlast.status === "SENT") {
-        throw new Error("Email blast has already been sent");
-      }
-
-      const leadMemberships = await prisma.membership.findMany({
-        where: {
-          membershipTier: { clubId: emailBlast.clubId },
-          status: "ACTIVE",
-          role: "LEAD"
-        },
-        select: {
-          userId: true
+        if (emailBlast.status === "SENT") {
+          throw new Error("Email blast has already been sent");
         }
-      });
 
-      const leadUserIds = leadMemberships.map((m) => m.userId);
-      if (leadUserIds.length === 0) {
-        throw new Error(
-          `No lead memberships found for club ${emailBlast.clubId}`
+        const leadMemberships = await tx.membership.findMany({
+          where: {
+            membershipTier: { clubId: emailBlast.clubId },
+            status: "ACTIVE",
+            role: "LEAD"
+          },
+          select: {
+            userId: true
+          }
+        });
+
+        const leadUserIds = leadMemberships.map((m) => m.userId);
+        if (leadUserIds.length === 0) {
+          throw new Error(
+            `No lead memberships found for club ${emailBlast.clubId}`
+          );
+        }
+
+        const leadEmails = await userService.getUserEmailsInTransaction(leadUserIds, tx);
+        if (leadEmails.length === 0) {
+          throw new Error(`No lead emails found for club ${emailBlast.clubId}`);
+        }
+
+        const memberships = await tx.membership.findMany({
+          where: {
+            membershipTier: { clubId: emailBlast.clubId },
+            status: "ACTIVE"
+          },
+          select: {
+            id: true,
+            userId: true
+          }
+        });
+
+        const template = {
+          subject: emailBlast.subject,
+          htmlContent: emailBlast.htmlContent,
+          textContent: emailBlast.textContent
+        };
+
+        for (const membership of memberships) {
+          const memberEmail = await userService.getUserEmailInTransaction(membership.userId, tx);
+          
+          const variables = await getEmailVariables(membership.id, tx);
+          
+          await emailClient.sendInterpolatedEmail(template, variables, memberEmail, leadEmails);
+        }
+
+        await setEmailBlastStatus(id, "SENT");
+
+        logger.info(
+          `sent email blast with id ${id} to ${memberships.length} members with interpolation`
         );
+      } catch (e) {
+        logger.error(e, `failed to send email blast with id ${id}`);
+        throw e;
       }
-
-      const leadEmails = await userService.getUserEmails(leadUserIds);
-      if (leadEmails.length === 0) {
-        throw new Error(`No lead emails found for club ${emailBlast.clubId}`);
-      }
-
-      const memberships = await prisma.membership.findMany({
-        where: {
-          membershipTier: { clubId: emailBlast.clubId },
-          status: "ACTIVE"
-        },
-        select: {
-          userId: true
-        }
-      });
-
-      const memberUserIds = memberships.map((membership) => membership.userId);
-      const recipients = await userService.getUserEmails(memberUserIds);
-
-      await emailClient.sendEmailBlast({
-        subject: emailBlast.subject,
-        htmlContent: emailBlast.htmlContent,
-        textContent: emailBlast.textContent,
-        replyTo: leadEmails,
-        recipients
-      });
-
-      await setEmailBlastStatus(id, "SENT");
-
-      logger.info(
-        `sent email blast with id ${id} to ${recipients.length} members`
-      );
-    } catch (e) {
-      logger.error(e, `failed to send email blast with id ${id}`);
-      throw e;
-    }
+    });
   }
 
   return {

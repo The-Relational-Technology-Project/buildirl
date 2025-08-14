@@ -2,17 +2,14 @@
 // NOTE: Added above line to prevent this file throwing type-errors.
 import {
   EmailClient,
-  SendEmailBlastInput,
   SendEmailForMembershipApplicationSubmittedInput,
-  SendEmailForMembershipApprovedInput,
-  SendEmailForMembershipDeactivatedByMemberToMemberInput,
   SendEmailForMembershipDeactivatedByMemberToLeadInput,
   SendEmailForMembershipDeactivatedByLeadInput,
-  SendEmailForMembershipDeclinedInput,
   SendEmailForApplicationWithdrawnByMemberToLeadInput,
   Emails
 } from "~/server/email/client/types";
 import { Email } from "~/server/utils/types";
+import { EmailContent, EmailVariables } from "~/utils/email";
 
 export function createDummyEmailClient(): EmailClient {
   async function sendCustomEmail(
@@ -25,9 +22,15 @@ export function createDummyEmailClient(): EmailClient {
     return;
   }
 
-  async function sendEmailBlast(_: SendEmailBlastInput): Promise<void> {
+  async function sendInterpolatedEmail(
+    _: EmailContent,
+    __: EmailVariables,
+    ___: Emails,
+    ____: Emails
+  ): Promise<void> {
     return;
   }
+
 
   async function sendEmailForMembershipApplicationSubmitted(
     _: SendEmailForMembershipApplicationSubmittedInput,
@@ -36,33 +39,9 @@ export function createDummyEmailClient(): EmailClient {
     return;
   }
 
-  async function sendEmailForMembershipApproved(
-    _: SendEmailForMembershipApprovedInput,
-    __: Email,
-    ___: Email
-  ): Promise<void> {
-    return;
-  }
-
-  async function sendEmailForMembershipDeclined(
-    _: SendEmailForMembershipDeclinedInput,
-    __: Email,
-    ___: Email
-  ): Promise<void> {
-    return;
-  }
-
   async function sendEmailForMembershipDeactivatedByMemberToLead(
     _: SendEmailForMembershipDeactivatedByMemberToLeadInput,
     __: Email
-  ): Promise<void> {
-    return;
-  }
-
-  async function sendEmailForMembershipDeactivatedByMemberToMember(
-    _: SendEmailForMembershipDeactivatedByMemberToMemberInput,
-    __: Email,
-    ___: Email
   ): Promise<void> {
     return;
   }
@@ -83,13 +62,10 @@ export function createDummyEmailClient(): EmailClient {
 
   return {
     sendCustomEmail,
-    sendEmailBlast,
+    sendInterpolatedEmail,
     sendEmailForMembershipApplicationSubmitted,
-    sendEmailForMembershipApproved,
-    sendEmailForMembershipDeclined,
     sendEmailForMembershipDeactivatedByLead,
     sendEmailForMembershipDeactivatedByMemberToLead,
-    sendEmailForMembershipDeactivatedByMemberToMember,
     sendEmailForApplicationWithdrawnByMemberToLead
   };
 }

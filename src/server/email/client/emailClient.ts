@@ -1,17 +1,18 @@
 import { Transporter } from "nodemailer";
 import {
   EmailClient,
-  SendEmailBlastInput,
   SendEmailForMembershipApplicationSubmittedInput,
-  SendEmailForMembershipApprovedInput,
-  SendEmailForMembershipDeclinedInput,
   SendEmailForMembershipDeactivatedByMemberToLeadInput,
-  SendEmailForMembershipDeactivatedByMemberToMemberInput,
   SendEmailForMembershipDeactivatedByLeadInput,
   SendEmailForApplicationWithdrawnByMemberToLeadInput,
   Emails
 } from "./types";
 import { rootLogger } from "~/logger";
+import { 
+  interpolateEmail,
+  EmailVariables,
+  EmailContent
+} from "~/utils/email";
 
 const logger = rootLogger.child({ module: "emailClient" });
 
@@ -46,32 +47,23 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
     }
   }
 
-  async function sendEmailBlast(input: SendEmailBlastInput): Promise<void> {
-    const { recipients, replyTo, subject, htmlContent, textContent } = input;
-    let successCount = 0;
+  async function sendInterpolatedEmail(
+    template: EmailContent,
+    variables: EmailVariables,
+    sendTo: Emails,
+    replyTo: Emails
+  ): Promise<void> {
+    const interpolatedTemplate = interpolateEmail(template, variables);
     
-    const recipientArray = Array.isArray(recipients) ? recipients : [recipients];
-    
-    // send individual email to avoid Postmark's 50-recipient limit
-    for (const recipient of recipientArray) {
-      try {
-        await sendCustomEmail(
-          recipient,        
-          replyTo,
-          subject,
-          htmlContent,
-          textContent
-        );
-        successCount++;
-      } catch (error) {
-        logger.error(error, `Failed to send email blast to ${recipient}`);
-      }
-    }
-    
-    logger.info(
-      `Email blast completed: sent to ${successCount}/${recipientArray.length} recipients with subject "${subject}"`
+    await sendCustomEmail(
+      sendTo,
+      replyTo,
+      interpolatedTemplate.subject,
+      interpolatedTemplate.htmlContent,
+      interpolatedTemplate.textContent
     );
   }
+
 
   async function sendEmailForMembershipApplicationSubmitted(
     input: SendEmailForMembershipApplicationSubmittedInput,
@@ -100,76 +92,6 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       logger.error(
         error,
         `failed to send membership application submitted email to club lead at ${sendTo} for membership with id ${input.membershipId}`
-      );
-    }
-  }
-
-  async function sendEmailForMembershipApproved(
-    input: SendEmailForMembershipApprovedInput,
-    sendTo: Emails,
-    replyTo: Emails
-  ): Promise<void> {
-    try {
-      const joinPageUrl = `${process.env.NEXT_PUBLIC_APPLICATION_URL}/join/${input.clubPublicId}`;
-
-      await mailTransport.sendMail({
-        from: FROM_EMAIL,
-        to: sendTo,
-        replyTo: replyTo,
-        subject: `You're in! Welcome to ${input.clubName}! 🎉`,
-        text: `Hey ${input.memberFirstName} — amazing news: you're officially a member of ${input.clubName}! 🎉\n\n
-        We're hyped to have you! 🥳\n\n
-        👉 Click here to see more! ${joinPageUrl}`,
-        html: `
-          <div>
-            <p>Hey <strong>${input.memberFirstName}</strong> — amazing news: you're officially a member of <strong>${input.clubName}</strong>! 🎉</p>
-            <p>We're hyped to have you! 🥳</p>
-            <p>👉 <a href="${joinPageUrl}">Click here to see more!</a></p>
-          </div>
-        `
-      });
-
-      logger.info(
-        `sent membership accepted email to ${sendTo} for membership with id ${input.membershipId}`
-      );
-    } catch (error) {
-      logger.error(
-        error,
-        `failed to send membership accepted email to ${sendTo} for membership with id ${input.membershipId}`
-      );
-    }
-  }
-
-  async function sendEmailForMembershipDeclined(
-    input: SendEmailForMembershipDeclinedInput,
-    sendTo: Emails,
-    replyTo: Emails
-  ): Promise<void> {
-    try {
-      await mailTransport.sendMail({
-        from: FROM_EMAIL,
-        to: sendTo,
-        replyTo: replyTo,
-        subject: `Sorry, your application was not accepted this time`,
-        text: `Hey ${input.memberFirstName} — thanks for applying to the ${input.clubName}. 
-        We couldn't accept your application this time. 💌 Plenty more clubs to explore — go find your people.
-        P.S. If you shared payment info, no worries — you won't be charged.`,
-        html: `
-          <div>
-            <p>Hey <strong>${input.memberFirstName}</strong> — thanks for applying to the <strong>${input.clubName}</strong>.</p>
-            <p>We couldn't accept your application this time. 💌 Plenty more clubs to explore — go find your people.</p>
-            <p>P.S. If you shared payment info, no worries — you won't be charged.</p>
-          </div>
-        `
-      });
-
-      logger.info(
-        `sent membership declined email to ${sendTo} for membership with id ${input.membershipId}`
-      );
-    } catch (error) {
-      logger.error(
-        error,
-        `failed to send membership declined email to ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
@@ -203,38 +125,6 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
       logger.error(
         error,
         `failed to send membership deactivated by member email to club lead at ${sendTo} for membership with id ${input.membershipId}`
-      );
-    }
-  }
-
-  async function sendEmailForMembershipDeactivatedByMemberToMember(
-    input: SendEmailForMembershipDeactivatedByMemberToMemberInput,
-    sendTo: Emails,
-    replyTo: Emails
-  ): Promise<void> {
-    try {
-      await mailTransport.sendMail({
-        from: FROM_EMAIL,
-        to: sendTo,
-        replyTo: replyTo,
-        subject: "Sorry to see you go! 👋",
-        text: `The ${input.clubName} will miss you, ${input.memberFirstName} ${input.memberLastName}! 
-        Thank-you for being a contributing member! 🙏`,
-        html: `
-          <div>
-            <p>The <strong>${input.clubName}</strong> will miss you, ${input.memberFirstName} ${input.memberLastName}!</p>
-            <p>Thank-you for being a contributing member! 🙏</p>
-          </div>
-        `
-      });
-
-      logger.info(
-        `sent membership deactivated email by member to member at ${sendTo} for membership with id ${input.membershipId}`
-      );
-    } catch (error) {
-      logger.error(
-        error,
-        `failed to send membership deactivated email by member to member at ${sendTo} for membership with id ${input.membershipId}`
       );
     }
   }
@@ -303,12 +193,9 @@ export function createEmailClient(mailTransport: Transporter): EmailClient {
 
   return {
     sendCustomEmail,
-    sendEmailBlast,
+    sendInterpolatedEmail,
     sendEmailForMembershipApplicationSubmitted,
-    sendEmailForMembershipApproved,
-    sendEmailForMembershipDeclined,
     sendEmailForMembershipDeactivatedByMemberToLead,
-    sendEmailForMembershipDeactivatedByMemberToMember,
     sendEmailForMembershipDeactivatedByLead,
     sendEmailForApplicationWithdrawnByMemberToLead
   };
