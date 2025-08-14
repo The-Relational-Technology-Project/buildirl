@@ -107,7 +107,7 @@ export type CreateCustomerPortalSessionResult = {
 
 export type CreateSubscriptionForMembershipInput = {
   membershipId: bigint;
-  idempotencyKey: Maybe<string>;
+  idempotencyKey: string;
 };
 
 export type CreateProductAndPricesForMembershipTierInput = {

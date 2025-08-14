@@ -653,7 +653,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         },
         {
           stripeAccount: byAccountId,
-          idempotencyKey: input.idempotencyKey ?? undefined
+          idempotencyKey: input.idempotencyKey
         }
       );
 
