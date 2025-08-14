@@ -73,16 +73,10 @@ export type SendEmailForMembershipApplicationSubmittedInput = {
 
 export type SendEmailForMembershipApprovedInput = {
   membershipId: bigint;
-  clubId: number;
-  clubLeadUserIds: number[];
-  memberUserId: number;
 };
 
 export type SendEmailForMembershipDeclinedInput = {
   membershipId: bigint;
-  clubId: number;
-  clubLeadUserIds: number[];
-  memberUserId: number;
 };
 
 export type SendEmailForMembershipDeactivatedByMemberToLeadInput = {
@@ -94,9 +88,6 @@ export type SendEmailForMembershipDeactivatedByMemberToLeadInput = {
 
 export type SendEmailForMembershipDeactivatedByMemberToMemberInput = {
   membershipId: bigint;
-  clubId: number;
-  clubLeadUserIds: number[];
-  memberUserId: number;
 };
 
 export type SendEmailForMembershipDeactivatedByLeadInput = {
