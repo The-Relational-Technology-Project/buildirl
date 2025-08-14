@@ -5,6 +5,18 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  // TODO! remove once the irlbuildersclub campaign is over
+  async redirects() {
+    return [
+      // Basic redirect
+      {
+        source: "/campaign/irlbuildersclub/72",
+        destination: "/campaign/irlbuildersclub",
+        permanent: true
+      }
+    ];
+  }
+};
 
 export default config;

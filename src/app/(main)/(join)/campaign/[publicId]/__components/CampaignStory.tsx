@@ -18,11 +18,7 @@ import {
   IconUsers,
   IconCalendar,
   IconCoffee,
-  IconHeart,
-  IconBulb,
-  IconBolt,
-  IconHandStop,
-  IconMoodSmile
+  IconHeart
 } from "@tabler/icons-react";
 import SectionHeader from "./SectionHeader";
 import SectionCard from "./SectionCard";
@@ -31,72 +27,29 @@ import EventCard from "./EventCard";
 import ExpandableText from "./ExpandableText";
 import { Club } from "~/server/club/types";
 import { useRouter } from "next/navigation";
+import { CampaignConfiguration } from "~/app/(main)/(join)/campaign/[publicId]/config";
 
 interface CampaignStoryProps {
   club: Club;
   membershipTierId: number;
+  campaignConfiguration: CampaignConfiguration;
 }
 
 export default function CampaignStory({
   club,
-  membershipTierId
+  membershipTierId,
+  campaignConfiguration
 }: CampaignStoryProps) {
   const router = useRouter();
 
   const handleJoin = () => {
     router.push(`/apply/${club.publicId}?membershipTierId=${membershipTierId}`);
   };
-  const photoGallery = [
-    {
-      src: "https://images.squarespace-cdn.com/content/v1/65e40100471cd325b28cb39f/4916135d-e91c-41c4-8f1f-a4a1d25f4e84/PXL_20240628_033612718.MP.jpg?format=1500w",
-      alt: "BuildIRL Cohort 1"
-    },
-    {
-      src: "https://zepmgttkkbjigvvvbbce.supabase.co/storage/v1/object/public/images/club/77/display/PXL_20250309_015210568.jpg",
-      alt: "BuildIRL Fun"
-    },
-    {
-      src: "https://images.squarespace-cdn.com/content/v1/65e40100471cd325b28cb39f/9f50ef2b-02e8-46ec-9834-e18338327dd3/20240608_102853.jpg?format=1500w",
-      alt: "BuildIRL Commons"
-    },
-    {
-      src: "https://media.licdn.com/dms/image/v2/D5622AQHEzlugNXNCgQ/feedshare-shrink_2048_1536/B56ZahjCrRGkAw-/0/1746467042433?e=1756339200&v=beta&t=Xpv2A5Gd7xa-6whB86oIhxduKTP248ywIKd-EJxd9B4",
-      alt: "BuildIRL Cohort 2"
-    }
-  ];
 
-  const values = [
-    {
-      icon: IconBulb,
-      title: "Co-create",
-      desc: "No spectators — we build this together",
-      color: "lilac"
-    },
-    {
-      icon: IconBolt,
-      title: "Be Real",
-      desc: "Be you. Share wild ideas, fails & wins",
-      color: "yellow"
-    },
-    {
-      icon: IconHeart,
-      title: "Mutual Respect",
-      desc: "Make all feel safe & heard. Above all, be kind️",
-      color: "orange"
-    },
-    {
-      icon: IconHandStop,
-      title: "Show Up",
-      desc: "Be present & lift each other up",
-      color: "green"
-    },
-    {
-      icon: IconMoodSmile,
-      title: "Choose Fun",
-      desc: "Start a game, crack a joke, it's all fair",
-      color: "yellow"
-    }
-  ];
+  const whyJoinUs = campaignConfiguration.whyJoinUs;
+  const midIndex = Math.ceil(whyJoinUs.length / 2);
+  const leftWhyJoinUs = whyJoinUs.slice(0, midIndex);
+  const rightWhyJoinUs = whyJoinUs.slice(midIndex);
 
   return (
     <Container size="lg" py={{ base: 16, md: 32 }}>
@@ -114,14 +67,7 @@ export default function CampaignStory({
               />
 
               <ExpandableText
-                text={`Building a club? Join the club! Running an IRL club is hard. Don’t do it alone.
-
-We’re a tight-knit crew of club builders who support each other at every step — launching and growing clubs, designing for belonging, and co-creating shared resources like IRL spaces, funds, and playbooks.
-
-We’ve hosted 300 person club fairs, expert workshops, epic dinner discussions and more.
-
-If you’re hosting meetups, events, or dreaming of starting something IRL in SF. Join us. Let’s build IRL together and have a blast while we do it 🥳 😝
-`}
+                text={campaignConfiguration.whoWeAre}
                 wordLimit={50}
               />
             </SectionCard>
@@ -131,7 +77,7 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
           <Grid.Col span={{ base: 12, md: 6 }}>
             <SectionCard decorative={false} style={{ height: "100%" }}>
               <Grid gutter={{ base: "sm", md: "md" }} mb="md">
-                {photoGallery.map((photo, index) => (
+                {campaignConfiguration.pictureUrls.map((photo, index) => (
                   <Grid.Col span={6} key={index}>
                     <Box
                       style={{
@@ -153,19 +99,10 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
                           "0 4px 20px rgba(0, 0, 0, 0.1)";
                       }}
                       onClick={() =>
-                        window.open(
-                          photo.src.replace("w=600", "w=1200"),
-                          "_blank"
-                        )
+                        window.open(photo.replace("w=600", "w=1200"), "_blank")
                       }
                     >
-                      <Image
-                        src={photo.src}
-                        alt={photo.alt}
-                        w="100%"
-                        h="100%"
-                        fit="cover"
-                      />
+                      <Image src={photo} w="100%" h="100%" fit="cover" />
                     </Box>
                   </Grid.Col>
                 ))}
@@ -188,11 +125,7 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
               />
 
               <Box mb={{ base: "lg", md: "xl" }}>
-                <ExpandableText
-                  text={`Our monthly member hang is a time to connect, share learnings, celebrate wins, and surface opportunities. Think music, bites, great discussion, inspiration, helpful hacks and great humans. 
-                 
-                  This club is built by members — so you can co-host our meetup, pitch in, bring your ideas or just show up 💛`}
-                />
+                <ExpandableText text={campaignConfiguration.howWeHang} />
               </Box>
 
               <Grid gutter={{ base: "md", md: "lg" }}>
@@ -217,7 +150,7 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
                         <IconCalendar size={18} color="#7A3EDA" />
                       </Box>
                       <Title order={6} fz={{ base: 12, md: 14 }}>
-                        Every month
+                        {campaignConfiguration.frequency}
                       </Title>
                     </Group>
                   </Card>
@@ -262,18 +195,18 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
                 </Title>
                 <Text fz="sm" c="dark.3">
                   Join us for our next gathering. See our full event calendar{" "}
-                  <a href={"https://lu.ma/buildirl?k=c"}>here</a>!
+                  <a href={campaignConfiguration.calendarLink}>here</a>!
                 </Text>
               </Box>
 
               <EventCard
-                title="IRL Builders Club Monthly Gathering"
-                description="A monthly hangout for the doers shaping SF’s IRL scene—club leaders, community starters, and creators of all kinds."
-                date="August 27"
-                time="6-8:00pm"
-                image="https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/event-covers/9z/f4f4be12-4a25-4e4e-86af-052c065ff230.png"
-                imageAlt="BuildIRL"
-                link={"https://lu.ma/04ncy3on"}
+                title={campaignConfiguration.calendarEvent.title}
+                description={campaignConfiguration.calendarEvent.description}
+                date={campaignConfiguration.calendarEvent.date}
+                time={campaignConfiguration.calendarEvent.time}
+                image={campaignConfiguration.calendarEvent.imageUrl}
+                imageAlt="event image"
+                link={campaignConfiguration.calendarEvent.eventLink}
               />
             </SectionCard>
           </Grid.Col>
@@ -301,48 +234,30 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
             <Grid gutter="lg">
               <Grid.Col span={{ base: 12, md: 6 }}>
                 <Stack gap="sm">
-                  <Group gap="sm" align="flex-start">
-                    <Text c="lilac" fw={600}>
-                      ✓
-                    </Text>
-                    <Text fz="sm">Monthly meetups 🎉, food & vibes 🍕</Text>
-                  </Group>
-                  <Group gap="sm" align="flex-start">
-                    <Text c="lilac" fw={600}>
-                      ✓
-                    </Text>
-                    <Text fz="sm">Build cool stuff with amazing humans</Text>
-                  </Group>
-                  <Group gap="sm" align="flex-start">
-                    <Text c="lilac" fw={600}>
-                      ✓
-                    </Text>
-                    <Text fz="sm">Member WhatsApp group & directory</Text>
-                  </Group>
+                  {leftWhyJoinUs.map((i, index) => {
+                    return (
+                      <Group gap="sm" align="flex-start" key={index}>
+                        <Text c="lilac" fw={600}>
+                          ✓
+                        </Text>
+                        <Text fz="sm">{i}</Text>
+                      </Group>
+                    );
+                  })}
                 </Stack>
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 6 }}>
                 <Stack gap="sm">
-                  <Group gap="sm" align="flex-start">
-                    <Text c="lilac" fw={600}>
-                      ✓
-                    </Text>
-                    <Text fz="sm">Playbooks, tools & best practices</Text>
-                  </Group>
-                  <Group gap="sm" align="flex-start">
-                    <Text c="lilac" fw={600}>
-                      ✓
-                    </Text>
-                    <Text fz="sm">Venue hookups & sponsor deals</Text>
-                  </Group>
-                  <Group gap="sm" align="flex-start">
-                    <Text c="lilac" fw={600}>
-                      ✓
-                    </Text>
-                    <Text fz="sm">
-                      Co-create. Co-host. Bring your ideas. 💡
-                    </Text>
-                  </Group>
+                  {rightWhyJoinUs.map((i, index) => {
+                    return (
+                      <Group gap="sm" align="flex-start" key={index}>
+                        <Text c="lilac" fw={600}>
+                          ✓
+                        </Text>
+                        <Text fz="sm">{i}</Text>
+                      </Group>
+                    );
+                  })}
                 </Stack>
               </Grid.Col>
             </Grid>
@@ -384,7 +299,7 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
             {/* Right side - Values Grid */}
             <Grid.Col span={{ base: 12, md: 8 }}>
               <Grid gutter={{ base: "sm", md: "md" }}>
-                {values.map((value, index) => (
+                {campaignConfiguration.values.map((value, index) => (
                   <Grid.Col span={{ base: 12, sm: 6, lg: 4 }} key={index}>
                     <Card
                       ta="center"
@@ -422,10 +337,10 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
                         />
                       </Box>
                       <Title order={6} fz="sm" mb={4}>
-                        {value.title}
+                        {value.heading}
                       </Title>
                       <Text fz="xs" c="dark.3">
-                        {value.desc}
+                        {value.description}
                       </Text>
                     </Card>
                   </Grid.Col>

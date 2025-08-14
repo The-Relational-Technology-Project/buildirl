@@ -2,12 +2,21 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, Suspense } from "react";
-import { Stack, Title, Text, Paper } from "@mantine/core";
+import { Stack, Title, Text, Paper, Button, Flex } from "@mantine/core";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { api } from "~/trpc/react";
 import { strictParseInt } from "~/utils";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
-import EmailEditor from "~/client/components/EmailEditor";
+import EmailEditorInput from "~/client/components/EmailEditorInput";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { Link } from "@mantine/tiptap";
+import { Underline } from "@tiptap/extension-underline";
+import { Superscript } from "@tiptap/extension-superscript";
+import { TextAlign } from "@tiptap/extension-text-align";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Highlight } from "@tiptap/extension-highlight";
+import { IconDeviceFloppy } from "@tabler/icons-react";
 
 function CreateEmailBlastContent() {
   const { clubId } = useParams<{ clubId: string }>();
@@ -17,6 +26,23 @@ function CreateEmailBlastContent() {
   const [subject, setSubject] = useState("");
   const [htmlContent, setHtmlContent] = useState("");
   const [textContent, setTextContent] = useState("");
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      Link,
+      Superscript,
+      Subscript,
+      Highlight,
+      TextAlign.configure({ types: ["heading", "paragraph"] })
+    ],
+    content: htmlContent,
+    onUpdate: ({ editor }) => {
+      setHtmlContent(editor.getHTML());
+      setTextContent(editor.getText());
+    }
+  });
 
   const utils = api.useUtils();
   const createEmailBlast = api.email.createEmailBlast.useMutation({
@@ -63,17 +89,24 @@ function CreateEmailBlastContent() {
       </Text>
 
       <Paper withBorder p="xl">
-        <EmailEditor
+        <EmailEditorInput
+          editor={editor!}
           subject={subject}
           htmlContent={htmlContent}
           onContentChange={handleContentChange}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          saveButtonLoading={createEmailBlast.isPending}
-          saveButtonText="Create Draft"
-          showDeleteButton={false}
-          showSendButton={false}
         />
+        <Flex gap="md" mt="md">
+          <Button
+            onClick={handleSave}
+            loading={createEmailBlast.isPending}
+            leftSection={<IconDeviceFloppy size={16} />}
+          >
+            Create Draft
+          </Button>
+          <Button variant="subtle" onClick={handleCancel}>
+            Cancel
+          </Button>
+        </Flex>
       </Paper>
     </Stack>
   );

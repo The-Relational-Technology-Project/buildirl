@@ -12,13 +12,22 @@ import {
   Title
 } from "@mantine/core";
 import React, { useState } from "react";
+import { IconDeviceFloppy } from "@tabler/icons-react";
 import { EmailTemplateType } from "~/server/email/types";
 import EmailBlastListPanel from "./EmailBlastListPanel";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { IconTrash } from "@tabler/icons-react";
-import EmailEditor from "~/client/components/EmailEditor";
+import EmailEditorInput from "~/client/components/EmailEditorInput";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { Link } from "@mantine/tiptap";
+import { Underline } from "@tiptap/extension-underline";
+import { Superscript } from "@tiptap/extension-superscript";
+import { TextAlign } from "@tiptap/extension-text-align";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Highlight } from "@tiptap/extension-highlight";
 
 type TabValue = EmailTemplateType | "EMAIL_BLAST";
 
@@ -91,6 +100,23 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
   const [htmlContent, setHtmlContent] = useState("");
   const [textContent, setTextContent] = useState("");
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      Link,
+      Superscript,
+      Subscript,
+      Highlight,
+      TextAlign.configure({ types: ["heading", "paragraph"] })
+    ],
+    content: htmlContent,
+    onUpdate: ({ editor }) => {
+      setHtmlContent(editor.getHTML());
+      setTextContent(editor.getText());
+    }
+  });
+
   const emailTemplate = api.email.emailTemplate.useQuery({
     clubId,
     type
@@ -127,7 +153,10 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
     setSubject(emailTemplate.data.subject);
     setHtmlContent(emailTemplate.data.htmlContent);
     setTextContent(emailTemplate.data.textContent);
-  }, [emailTemplate.data]);
+    if (editor) {
+      editor.commands.setContent(emailTemplate.data.htmlContent);
+    }
+  }, [emailTemplate.data, editor]);
 
   const handleContentChange = (
     newSubject: string,
@@ -223,16 +252,28 @@ function EmailTemplateEditor({ clubId, type }: EmailTemplateEditorProps) {
             <IconTrash size={20} />
           </ActionIcon>
         </Flex>
-        <EmailEditor
+        <EmailEditorInput
+          editor={editor!}
           subject={subject}
           htmlContent={htmlContent}
           onContentChange={handleContentChange}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          saveButtonText="Save Template"
-          saveButtonLoading={setEmailTemplate.isPending}
-          minHeight={240}
         />
+        <Flex gap="md" mt="md" justify={"space-between"}>
+          {draftState === "DRAFT" ? (
+            <Button variant="light" onClick={handleCancel}>
+              Cancel
+            </Button>
+          ) : (
+            <Box />
+          )}
+          <Button
+            onClick={handleSave}
+            loading={setEmailTemplate.isPending}
+            leftSection={<IconDeviceFloppy size={16} />}
+          >
+            Save Template
+          </Button>
+        </Flex>
       </Stack>
     </Paper>
   ) : (
