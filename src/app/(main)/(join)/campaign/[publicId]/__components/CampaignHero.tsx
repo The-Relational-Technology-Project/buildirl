@@ -27,6 +27,8 @@ import CTAButton from "./CTAButton";
 import { BillingInterval } from "~/utils/types";
 import { Membership } from "~/server/membership/types";
 import { useRouter } from "next/navigation";
+import { Club } from "~/server/club/types";
+import { CampaignConfiguration } from "~/app/(main)/(join)/campaign/[publicId]/config";
 
 interface CampaignHeroProps {
   membershipTierId: number;
@@ -35,6 +37,8 @@ interface CampaignHeroProps {
   goalAmount: number;
   supporters: Membership[];
   clubPublicId: string;
+  campaignConfiguration: CampaignConfiguration;
+  club: Club;
 }
 
 export default function CampaignHero({
@@ -43,7 +47,9 @@ export default function CampaignHero({
   supporters,
   goalAmount,
   clubPublicId,
-  membershipTierId
+  membershipTierId,
+  campaignConfiguration,
+  club
 }: CampaignHeroProps) {
   const router = useRouter();
   const supportersCount = supporters.length;
@@ -54,12 +60,23 @@ export default function CampaignHero({
   const handleJoin = () => {
     router.push(`/apply/${clubPublicId}?membershipTierId=${membershipTierId}`);
   };
-  // HARDCODED
-  const targetDate = new Date("2025-08-20 23:59:59");
+  const targetDate = campaignConfiguration.targetDate;
   const daysLeft = Math.max(
     Math.ceil((targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
     0
   );
+
+  const formattedTargetDate = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "America/Los_Angeles",
+    timeZoneName: "short"
+  }).format(targetDate);
 
   // Static emojis and colors for the first 5 visible members
   const memberStyles = [
@@ -89,7 +106,7 @@ export default function CampaignHero({
         <Box
           h={{ base: "40vh", md: "50vh" }}
           style={{
-            backgroundImage: `url(https://substackcdn.com/image/fetch/$s_!1xnT!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F391b4112-0684-42b8-9d26-816403ff7d05_6000x4000.jpeg)`,
+            backgroundImage: `url(${campaignConfiguration.coverPictureUrl})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             position: "relative",
@@ -132,7 +149,7 @@ export default function CampaignHero({
                   c="white"
                   style={{ lineHeight: 1.2 }}
                 >
-                  IRL Builders Club
+                  {club.name}
                 </Title>
 
                 <Text
@@ -142,7 +159,7 @@ export default function CampaignHero({
                   c="white"
                   style={{ opacity: 0.95, maxWidth: 800, lineHeight: 1.5 }}
                 >
-                  Calling all IRL builders, dreamers and gatherers in SF. ✨
+                  {campaignConfiguration.subheader}
                   <br />
                   <Text component="span" c={"white"} fw={600}>
                     Let&apos;s make this club come to life!
@@ -178,7 +195,7 @@ export default function CampaignHero({
               <Group gap="xs">
                 <IconMapPin size={16} color="#7A3EDA" />
                 <Text fz="sm" fw={500}>
-                  SF Commons
+                  {campaignConfiguration.location}
                 </Text>
               </Group>
             </Card>
@@ -199,7 +216,7 @@ export default function CampaignHero({
               <Group gap="xs">
                 <IconCalendar size={16} color="#FFC857" />
                 <Text fz="sm" fw={500}>
-                  Last Wed every month
+                  {campaignConfiguration.time}
                 </Text>
               </Group>
             </Card>
@@ -386,60 +403,29 @@ export default function CampaignHero({
                     </Card>
 
                     <Stack gap="sm">
-                      <Group
-                        justify="space-between"
-                        p="sm"
-                        style={{
-                          background: "rgba(122, 62, 218, 0.08)",
-                          backdropFilter: "blur(6px)",
-                          WebkitBackdropFilter: "blur(6px)",
-                          borderRadius: 12,
-                          border: "1px solid rgba(122, 62, 218, 0.15)"
-                        }}
-                      >
-                        <Text fz="sm" fw={500}>
-                          Epic venue rental 🏠
-                        </Text>
-                        <Text fw={700} c="lilac">
-                          $300
-                        </Text>
-                      </Group>
-                      <Group
-                        justify="space-between"
-                        p="sm"
-                        style={{
-                          background: "rgba(255, 200, 87, 0.08)",
-                          backdropFilter: "blur(6px)",
-                          WebkitBackdropFilter: "blur(6px)",
-                          borderRadius: 12,
-                          border: "1px solid rgba(255, 200, 87, 0.15)"
-                        }}
-                      >
-                        <Text fz="sm" fw={500}>
-                          Food & snacks 🍕️
-                        </Text>
-                        <Text fw={700} c="yellow.8">
-                          $100
-                        </Text>
-                      </Group>
-                      <Group
-                        justify="space-between"
-                        p="sm"
-                        style={{
-                          background: "rgba(255, 120, 51, 0.08)",
-                          backdropFilter: "blur(6px)",
-                          WebkitBackdropFilter: "blur(6px)",
-                          borderRadius: 12,
-                          border: "1px solid rgba(255, 120, 51, 0.15)"
-                        }}
-                      >
-                        <Text fz="sm" fw={500}>
-                          Hosting, materials & fun 💜
-                        </Text>
-                        <Text fw={700} c="orange">
-                          $40
-                        </Text>
-                      </Group>
+                      {campaignConfiguration.spendCategories.map((c, index) => {
+                        return (
+                          <Group
+                            key={index}
+                            justify="space-between"
+                            p="sm"
+                            style={{
+                              background: "rgba(122, 62, 218, 0.08)",
+                              backdropFilter: "blur(6px)",
+                              WebkitBackdropFilter: "blur(6px)",
+                              borderRadius: 12,
+                              border: "1px solid rgba(122, 62, 218, 0.15)"
+                            }}
+                          >
+                            <Text fz="sm" fw={500}>
+                              {c.description}
+                            </Text>
+                            <Text fw={700} c="lilac">
+                              {`${c.cost}`}
+                            </Text>
+                          </Group>
+                        );
+                      })}
                     </Stack>
                   </Stack>
                 )}
@@ -473,9 +459,9 @@ export default function CampaignHero({
                     </Text>
                   </Card>
 
-                  <Text size={"sm"}>
-                    {`Join this crew of IRL builders, and dreamers! ✨`}
-                  </Text>
+                  <Text
+                    size={"sm"}
+                  >{`Join this amazing crew of people ✨`}</Text>
 
                   <Grid>
                     {foundingMembers.map((member, index) => (
@@ -547,7 +533,7 @@ export default function CampaignHero({
                 style={{ textAlign: "center" }}
               >
                 💚 All-or-nothing: This club will only be launched if it reaches
-                its goal by Wednesday, August 20, 2025 11:59 PM PDT
+                its goal by {formattedTargetDate}
               </Text>
             </Stack>
 
@@ -575,11 +561,10 @@ export default function CampaignHero({
                     WebkitTextFillColor: "transparent"
                   }}
                 >
-                  Together, let&apos;s create a place to gather, learn, and
-                  belong. ✨
+                  Together, let&apos;s create a place to gather and belong. ✨
                 </Text>
                 <Text fw={600} fz={{ base: 18, md: 20 }}>
-                  — Saum, Colt, & Mike
+                  {`— ${campaignConfiguration.hostSignature}`}
                 </Text>
                 <Text fz={{ base: 12, md: 14 }} c="dark.3">
                   Your soon-to-be founding hosts ✨
