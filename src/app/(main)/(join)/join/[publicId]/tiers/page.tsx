@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Title, Text, useMatches, TitleOrder } from "@mantine/core";
+import { Stack, Title, Text, useMatches, TitleOrder, Paper, Box, Space } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -9,7 +9,6 @@ import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHe
 import { useMounted } from "@mantine/hooks";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { billingIntervalLabel } from "~/client/utils";
-import { MembershipTierCarousel } from "~/components/membership/MembershipTierCarousel";
 import { MembershipTier } from "~/server/membershipTier/types";
 import { MembershipTierCarousel } from "~/client/components/MembershipTierCarousel";
 

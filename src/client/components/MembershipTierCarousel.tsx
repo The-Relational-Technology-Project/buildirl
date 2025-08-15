@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { MembershipTier } from "~/server/membershipTier/types";
-import { formatBillingInterval } from "~/client/utils";
+import { billingIntervalLabel } from "~/client/utils";
 import PrimaryButton from "~/client/components/PrimaryButton";
 
 interface MembershipTierCarouselProps {
@@ -72,7 +72,7 @@ export function MembershipTierCarousel({
 // it is intentional to omit dollar sign here as $ sign causes anxiety for consumers
 function costDisplayText(membershipTier: MembershipTier) {
   const cost = membershipTier.costPerBillingInterval;
-  const interval = formatBillingInterval(membershipTier.billingInterval);
+  const interval = billingIntervalLabel(membershipTier.billingInterval);
   const initiationFee = membershipTier.initiationFeeCostInUSD;
 
   let text = `${cost} / ${interval}`;
