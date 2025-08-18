@@ -20,6 +20,7 @@ import { MembershipTier } from "~/server/membershipTier/types";
 import { isDefaultFreeTier, Maybe } from "~/utils/types";
 import { useState } from "react";
 import { MembershipTierCarousel } from "~/client/components/MembershipTierCarousel";
+import { handleDefaultMutationError } from "~/client/logger";
 
 export default function ChangeTierPage() {
   const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
@@ -39,14 +40,31 @@ export default function ChangeTierPage() {
   });
   const memberships = api.main.userMemberships.useQuery();
 
+  const createCheckoutSessionMutation = api.payments.createCheckoutSession.useMutation({
+    onSuccess: (r) => {
+      // Redirect to Stripe checkout for payment setup
+      window.location.href = r.redirectUrl;
+    },
+    onError: handleDefaultMutationError
+  });
+
   const updateTierMutation =
     api.main.updateMembershipTierForMembership.useMutation({
-      onSuccess: async () => {
-        await utils.main.userMemberships.invalidate();
-        await utils.main.club.invalidate({ id: parseInt(params.clubId) });
-        close();
-        router.push(`/club/${params.clubId}/manage-membership`);
-      }
+      onSuccess: async (result) => {
+        if (result.requiresCheckout) {
+          close();
+          await createCheckoutSessionMutation.mutateAsync({
+            input: { origin: window.location.origin },
+            membershipId: currentMembership!.id.toString()
+          });
+        } else {
+          await utils.main.userMemberships.invalidate();
+          await utils.main.club.invalidate({ id: parseInt(params.clubId) });
+          close();
+          router.push(`/club/${params.clubId}/manage-membership`);
+        }
+      },
+      onError: handleDefaultMutationError
     });
 
   QueryError.check({

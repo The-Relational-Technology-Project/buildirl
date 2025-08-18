@@ -8,7 +8,9 @@ import {
   MembershipService,
   MembershipStatus,
   MembershipWithClub,
-  SubmitMembershipApplicationInput
+  SubmitMembershipApplicationInput,
+  UpdateMembershipTierResult,
+  SubscriptionUpdateResult
 } from "~/server/membership/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import {
@@ -832,7 +834,7 @@ export function createMembershipService(
   async function updateMembershipTierForMembership(
     membershipId: bigint,
     newMembershipTierId: number
-  ): Promise<MutationResult> {
+  ): Promise<UpdateMembershipTierResult> {
     return prisma.$transaction(async (tx) => {
       return updateMembershipTierForMembershipInTransaction(
         membershipId,
@@ -846,7 +848,7 @@ export function createMembershipService(
     membershipId: bigint,
     newMembershipTierId: number,
     tx: Prisma.TransactionClient
-  ): Promise<MutationResult> {
+  ): Promise<UpdateMembershipTierResult> {
     try {
       await checkMembershipStatus(membershipId, "ACTIVE");
 
@@ -900,7 +902,7 @@ export function createMembershipService(
         where: { id: membershipId }
       });
 
-      await updateSubscriptionForMembershipTierChange(
+      const { requiresCheckout } = await updateSubscriptionForMembershipTierChange(
         membershipId,
         currentTier.id,
         newTier.id,
@@ -913,7 +915,10 @@ export function createMembershipService(
         `successfully updated membership ${membershipId} from tier ${currentTier.id} to tier ${newMembershipTierId}`
       );
 
-      return NO_ID_MUTATION_RESULT;
+      return {
+        createdEntityId: null,
+        requiresCheckout
+      };
     } catch (e) {
       logger.error(
         e,
@@ -930,29 +935,32 @@ export function createMembershipService(
     isCurrentTierFree: boolean,
     isNewTierFree: boolean,
     tx: Prisma.TransactionClient
-  ): Promise<void> {
+  ): Promise<SubscriptionUpdateResult> {
     if (isCurrentTierFree && isNewTierFree) {
       // free -> free, no action needed
       logger.info(
         `updated membership with id ${membershipId} from free tier ${currentTierId} to free tier ${newTierId}`
       );
+      return { requiresCheckout: false };
     } else if (isCurrentTierFree && !isNewTierFree) {
       logger.info(
-        `updated membership with id ${membershipId} from free tier ${currentTierId} to paid tier ${newTierId}, creating new subscription`
+        `updated membership with id ${membershipId} from free tier ${currentTierId} to paid tier ${newTierId}, requires checkout`
       );
       await paymentService.createCustomerForMembership(membershipId, tx);
-      // TODO! implement proper free-to-paid transition with checkout session
-      throw new Error("implemented");
+      // Return true to indicate checkout is required for free-to-paid transition
+      return { requiresCheckout: true };
     } else if (!isCurrentTierFree && isNewTierFree) {
       logger.info(
         `updated membership with id ${membershipId} from paid tier ${currentTierId} to free tier ${newTierId}, canceling subscription`
       );
       await paymentService.cancelSubscription(membershipId, tx);
+      return { requiresCheckout: false };
     } else {
       logger.info(
         `updated membership with id ${membershipId} from paid tier ${currentTierId} to paid tier ${newTierId}, updating subscription`
       );
       await paymentService.updateSubscription(membershipId, tx);
+      return { requiresCheckout: false };
     }
   }
 
