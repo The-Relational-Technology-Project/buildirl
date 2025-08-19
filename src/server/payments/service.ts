@@ -402,10 +402,9 @@ export function createPaymentService(
       });
 
       if (membership.stripeSubscriptionId) {
-        logger.info(
-          `Subscription ${membership.stripeSubscriptionId} already exists for membership ${input.membershipId}, skipping creation (idempotent)`
+        throw new Error(
+          `Subscription ${membership.stripeSubscriptionId} already exists for membership ${input.membershipId}`
         );
-        return;
       }
 
       // free tier does not need to create subscription
