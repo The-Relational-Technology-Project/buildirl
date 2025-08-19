@@ -457,8 +457,7 @@ export function createPaymentService(
             customerId: customerId,
             priceId: priceId,
             membershipId: input.membershipId,
-            initiationFeePriceId: initiationFeeStripePriceId,
-            idempotencyKey: input.idempotencyKey
+            initiationFeePriceId: initiationFeeStripePriceId
           },
           accountId
         );

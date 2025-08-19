@@ -631,6 +631,12 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         );
       }
 
+      // Generate idempotency key using 1-minute windows
+      // This protects against double-clicks while allowing retries after failures
+      const RETRY_WINDOW_MS = 60000;
+      const windowedTimestamp = Math.floor(Date.now() / RETRY_WINDOW_MS);
+      const idempotencyKey = `membership-${input.membershipId}-${windowedTimestamp}`;
+
       const subscription = await stripe.subscriptions.create(
         {
           customer: input.customerId,
@@ -653,7 +659,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         },
         {
           stripeAccount: byAccountId,
-          idempotencyKey: input.idempotencyKey
+          idempotencyKey: idempotencyKey
         }
       );
 

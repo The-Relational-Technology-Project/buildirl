@@ -183,7 +183,6 @@ export type CreateSubscriptionForMembershipInput = {
   initiationFeePriceId: Maybe<string>;
   setupIntentId: string;
   membershipId: bigint;
-  idempotencyKey: string;
 };
 
 export type CreateSubscriptionForMembershipResponse = {
