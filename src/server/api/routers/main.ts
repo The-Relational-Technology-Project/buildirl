@@ -358,6 +358,28 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.membership.setMembershipAsWelcomed(input.membershipId);
     }),
 
+  updateMembershipTierForMembership: securedProcedureWithAbilityFor("Membership")
+    .input(
+      z.object({
+        membershipId: z.bigint(),
+        newMembershipTierId: z.number()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("Membership", { id: input.membershipId })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.membership.updateMembershipTierForMembership(
+        input.membershipId,
+        input.newMembershipTierId
+      );
+    }),
+
   clubFollowers: securedProcedureWithAbilityFor("Club")
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {

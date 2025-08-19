@@ -66,6 +66,7 @@ import SendEmailBlastCommand from "./sendEmailBlastCommand";
 import SetMembershipAsLeadCommand from "./setMembershipAsLeadCommand";
 import ClearMembershipRoleCommand from "./clearMembershipRoleCommand";
 import { EMAIL_CONTENT_LIMITS } from "~/server/email/types";
+import UpdateMembershipTierForMembershipCommand from "./updateMembershipTierForMembershipCommand";
 
 export const allCommands = () => {
   return [
@@ -98,7 +99,8 @@ export const allCommands = () => {
     createEmailBlastCommands(),
     updateEmailBlastCommands(),
     deleteEmailBlastCommands(),
-    sendEmailBlastCommands()
+    sendEmailBlastCommands(),
+    updateMembershipTierForMembershipCommands()
   ];
 };
 
@@ -545,4 +547,17 @@ function clearRoleCommands() {
   return record({
     membershipIdSelector: itemSelector<bigint>()
   }).map((i) => new ClearMembershipRoleCommand(i.membershipIdSelector));
+}
+
+function updateMembershipTierForMembershipCommands() {
+  return record({
+    membershipIdSelector: itemSelector<bigint>(),
+    newMembershipTierIdSelector: itemSelector<number>()
+  }).map(
+    (i) =>
+      new UpdateMembershipTierForMembershipCommand(
+        i.membershipIdSelector,
+        i.newMembershipTierIdSelector
+      )
+  );
 }

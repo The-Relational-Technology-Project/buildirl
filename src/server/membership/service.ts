@@ -8,7 +8,9 @@ import {
   MembershipService,
   MembershipStatus,
   MembershipWithClub,
-  SubmitMembershipApplicationInput
+  SubmitMembershipApplicationInput,
+  UpdateMembershipTierResult,
+  SubscriptionUpdateResult
 } from "~/server/membership/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
 import {
@@ -829,6 +831,139 @@ export function createMembershipService(
     }
   }
 
+  async function updateMembershipTierForMembership(
+    membershipId: bigint,
+    newMembershipTierId: number
+  ): Promise<UpdateMembershipTierResult> {
+    return prisma.$transaction(async (tx) => {
+      return updateMembershipTierForMembershipInTransaction(
+        membershipId,
+        newMembershipTierId,
+        tx
+      );
+    });
+  }
+
+  async function updateMembershipTierForMembershipInTransaction(
+    membershipId: bigint,
+    newMembershipTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<UpdateMembershipTierResult> {
+    try {
+      await checkMembershipStatus(membershipId, "ACTIVE");
+
+      const membership = await tx.membership.findUniqueOrThrow({
+        select: {
+          membershipTier: {
+            select: {
+              id: true,
+              clubId: true,
+              costPerBillingInterval: true
+            }
+          }
+        },
+        where: { id: membershipId }
+      });
+
+      const currentTier = membership.membershipTier;
+      const newTier = await tx.membershipTier.findUniqueOrThrow({
+        select: {
+          id: true,
+          clubId: true,
+          status: true,
+          costPerBillingInterval: true
+        },
+        where: { id: newMembershipTierId }
+      });
+
+      if (newTier.status !== "PUBLISHED") {
+        throw new Error(
+          `cannot change to unpublished tier with id ${newMembershipTierId}`
+        );
+      }
+
+      if (newTier.clubId !== currentTier.clubId) {
+        throw new Error(
+          `new tier must belong to the same club as current membership`
+        );
+      }
+
+      if (currentTier.id === newMembershipTierId) {
+        throw new Error(`already on membership tier ${newMembershipTierId}`);
+      }
+
+      const isCurrentTierFree = isPrismaResultDefaultFreeTier(currentTier);
+      const isNewTierFree = isPrismaResultDefaultFreeTier(newTier);
+
+      // this must be first so that downstream operations in payment service
+      // can operate on the new tier
+      await tx.membership.update({
+        data: { membershipTierId: newMembershipTierId },
+        where: { id: membershipId }
+      });
+
+      const { requiresCheckout } = await updateSubscriptionForMembershipTierChange(
+        membershipId,
+        currentTier.id,
+        newTier.id,
+        isCurrentTierFree,
+        isNewTierFree,
+        tx
+      );
+
+      logger.info(
+        `successfully updated membership ${membershipId} from tier ${currentTier.id} to tier ${newMembershipTierId}`
+      );
+
+      return {
+        createdEntityId: null,
+        requiresCheckout
+      };
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update membership tier for membership ${membershipId} to tier ${newMembershipTierId}`
+      );
+      throw e;
+    }
+  }
+
+  async function updateSubscriptionForMembershipTierChange(
+    membershipId: bigint,
+    currentTierId: number,
+    newTierId: number,
+    isCurrentTierFree: boolean,
+    isNewTierFree: boolean,
+    tx: Prisma.TransactionClient
+  ): Promise<SubscriptionUpdateResult> {
+    if (isCurrentTierFree && isNewTierFree) {
+      // free -> free, no action needed
+      logger.info(
+        `updated membership with id ${membershipId} from free tier ${currentTierId} to free tier ${newTierId}`
+      );
+      return { requiresCheckout: false };
+    } else if (isCurrentTierFree && !isNewTierFree) {
+      logger.info(
+        `updated membership with id ${membershipId} from free tier ${currentTierId} to paid tier ${newTierId}, requires checkout`
+      );
+      await paymentService.createCustomerForMembership(membershipId, tx);
+      // Return true to indicate checkout is required for free-to-paid transition
+      return { requiresCheckout: true };
+    } else if (!isCurrentTierFree && isNewTierFree) {
+      logger.info(
+        `updated membership with id ${membershipId} from paid tier ${currentTierId} to free tier ${newTierId}, canceling subscription`
+      );
+      await paymentService.cancelSubscription(membershipId, tx);
+      return { requiresCheckout: false };
+    } else {
+      logger.info(
+        `updated membership with id ${membershipId} from paid tier ${currentTierId} to paid tier ${newTierId}, updating subscription`
+      );
+      await paymentService.updateSubscription(membershipId, tx);
+      return { requiresCheckout: false };
+    }
+  }
+
   return {
     getUserMemberships,
     getActiveMembershipsForClub,
@@ -839,6 +974,7 @@ export function createMembershipService(
     withdrawMembershipApplication,
     deactivateMembership,
     setMembershipAsWelcomed,
+    updateMembershipTierForMembership,
     createLeadMembership,
     notifyMembershipApplicationSubmitted,
     membershipStatus

@@ -1,6 +1,5 @@
 import { MonetaryValue, Url } from "~/server/utils/types";
-import { Maybe } from "~/utils/types";
-import { BillingInterval } from "~/utils/types";
+import { Maybe, BillingInterval, CheckoutFlowType } from "~/utils/types";
 
 export type StripeClient = {
   // connected account management
@@ -43,6 +42,10 @@ export type StripeClient = {
   ): Promise<CreateSubscriptionForMembershipResponse>;
   cancelSubscription(
     subscriptionId: string,
+    byAccountId: string
+  ): Promise<void>;
+  updateSubscription(
+    input: UpdateSubscriptionInput,
     byAccountId: string
   ): Promise<void>;
   getSubscriptionStatus(
@@ -170,6 +173,7 @@ export type CreateCheckoutSessionForMembershipInput = {
   clubPublicId: string;
   membershipId: bigint;
   customerId: string;
+  flowType: CheckoutFlowType;
 };
 
 export type CreateCheckoutSessionForMembershipResponse = {
@@ -187,6 +191,13 @@ export type CreateSubscriptionForMembershipInput = {
 
 export type CreateSubscriptionForMembershipResponse = {
   subscriptionId: string;
+};
+
+export type UpdateSubscriptionInput = {
+  subscriptionId: string;
+  newPriceId: string;
+  // null if there is no initiation fee for the new tier
+  newInitiationFeePriceId: Maybe<string>;
 };
 
 export type SubscriptionStatusResponse = {

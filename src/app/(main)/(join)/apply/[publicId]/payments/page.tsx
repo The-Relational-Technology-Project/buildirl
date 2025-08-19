@@ -5,6 +5,7 @@ import { api } from "~/trpc/react";
 import { Box, Paper, Stack, Text, Title } from "@mantine/core";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { strictParseBigInt } from "~/utils";
+import { CheckoutFlowType } from "~/utils/types";
 import React from "react";
 import { handleDefaultMutationError } from "~/client/logger";
 
@@ -45,7 +46,10 @@ export default function IntakePaymentsPage() {
             <PrimaryButton
               onClick={async () =>
                 createCheckoutSession.mutateAsync({
-                  input: { origin: window.location.origin },
+                  input: { 
+                    origin: window.location.origin, 
+                    flowType: CheckoutFlowType.APPLICATION 
+                  },
                   membershipId: membershipId.toString()
                 })
               }

@@ -64,6 +64,10 @@ type MembershipMutations = {
     input: DeactivateMembershipInput
   ): Promise<MutationResult>;
   setMembershipAsWelcomed(membershipId: bigint): Promise<MutationResult>;
+  updateMembershipTierForMembership(
+    membershipId: bigint,
+    newMembershipTierId: number
+  ): Promise<UpdateMembershipTierResult>;
   // internal
   createLeadMembership(
     membershipTierId: number,
@@ -88,3 +92,11 @@ export const DeactivateMembershipInputSchema = z.object({
 export type DeactivateMembershipInput = z.infer<
   typeof DeactivateMembershipInputSchema
 >;
+
+export type UpdateMembershipTierResult = MutationResult & {
+  requiresCheckout: boolean;
+};
+
+export type SubscriptionUpdateResult = {
+  requiresCheckout: boolean;
+};

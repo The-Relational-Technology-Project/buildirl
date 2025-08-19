@@ -1,34 +1,22 @@
 "use client";
 
-import {
-  Stack,
-  Title,
-  Text,
-  Space,
-  Box,
-  Paper,
-  useMatches,
-  useMantineColorScheme,
-  TitleOrder
-} from "@mantine/core";
+import { Stack, Title, Text, useMatches, TitleOrder, Paper, Box, Space } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { MembershipTier } from "~/server/membershipTier/types";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
-import { Carousel } from "@mantine/carousel";
 import { useMounted } from "@mantine/hooks";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { billingIntervalLabel } from "~/client/utils";
+import { MembershipTier } from "~/server/membershipTier/types";
+import { MembershipTierCarousel } from "~/client/components/MembershipTierCarousel";
 
 export default function ClubTiers() {
-  const isMobile = useMatches({ base: true, md: false });
   const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
   const titleAndCardGap = useMatches({ base: "lg", md: "xl" });
-  const withCarouselControls = useMatches({ base: false, md: true });
-  const { colorScheme } = useMantineColorScheme();
   const mounted = useMounted();
+  const router = useRouter();
 
   const params = useParams<{ publicId: string }>();
 
@@ -49,6 +37,10 @@ export default function ClubTiers() {
     (t) => t.status === "PUBLISHED"
   );
 
+  const handleTierSelect = (tier: MembershipTier) => {
+    router.push(`/apply/${params.publicId}?membershipTierId=${tier.id}`);
+  };
+
   return (
     mounted && (
       <WithLocalNavigationHeader>
@@ -60,37 +52,11 @@ export default function ClubTiers() {
             </Text>
           </Stack>
 
-          <Carousel
-            slideSize="33.333333%"
-            slideGap="md"
-            align="center"
-            withControls={withCarouselControls}
-            // we need indicators for mobile because
-            // the next and previous card are not visible
-            withIndicators={isMobile && publishedTiers.length > 1}
-            styles={
-              isMobile && publishedTiers.length > 1
-                ? {
-                    indicator: {
-                      backgroundColor: `${colorScheme === "dark" ? "white" : "black"}`,
-                      width: 8,
-                      height: 8
-                    }
-                  }
-                : undefined
-            }
-            // shifts the indicator down
-            pb={{ base: 60, md: 0 }}
-          >
-            {publishedTiers.map((t) => (
-              <Carousel.Slide key={t.id} py={4}>
-                <MembershipTierCard
-                  membershipTier={t}
-                  clubPublicId={params.publicId}
-                />
-              </Carousel.Slide>
-            ))}
-          </Carousel>
+          <MembershipTierCarousel
+            tiers={publishedTiers}
+            onTierSelect={handleTierSelect}
+            buttonText="Apply to Join"
+          />
 
           <Text
             size={"sm"}

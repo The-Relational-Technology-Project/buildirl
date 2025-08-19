@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { MonetaryValue, Url } from "~/server/utils/types";
-import { Maybe } from "~/utils/types";
+import { Maybe, BillingInterval, CheckoutFlowType } from "~/utils/types";
 import { Prisma } from "@prisma/client";
-import { BillingInterval } from "~/utils/types";
 
 export type PaymentService = PaymentMutations & PaymentQueries;
 
@@ -35,6 +34,12 @@ type PaymentMutations = {
     tx: Prisma.TransactionClient
   ): Promise<void>;
   cancelSubscription(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void>;
+  // updates the subscription with the current membership tier
+  // associated with the membership
+  updateSubscription(
     membershipId: bigint,
     tx: Prisma.TransactionClient
   ): Promise<void>;
@@ -84,7 +89,8 @@ export type CreateAccountLinkResult = {
 };
 
 export const CreateCheckoutSessionInputSchema = z.object({
-  origin: z.string().url()
+  origin: z.string().url(),
+  flowType: z.nativeEnum(CheckoutFlowType)
 });
 export type CreateCheckoutSessionInput = z.infer<
   typeof CreateCheckoutSessionInputSchema
