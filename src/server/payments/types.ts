@@ -90,7 +90,7 @@ export type CreateAccountLinkResult = {
 
 export const CreateCheckoutSessionInputSchema = z.object({
   origin: z.string().url(),
-  flowType: z.nativeEnum(CheckoutFlowType).nullable().optional()
+  flowType: z.nativeEnum(CheckoutFlowType)
 });
 export type CreateCheckoutSessionInput = z.infer<
   typeof CreateCheckoutSessionInputSchema

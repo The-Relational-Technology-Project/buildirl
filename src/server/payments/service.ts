@@ -219,7 +219,7 @@ export function createPaymentService(
             membershipId: membershipId,
             clubPublicId: membership.membershipTier.club.publicId,
             origin: input.origin,
-            flowType: input.flowType || null
+            flowType: input.flowType
           },
           accountId
         );

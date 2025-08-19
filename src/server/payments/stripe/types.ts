@@ -173,7 +173,7 @@ export type CreateCheckoutSessionForMembershipInput = {
   clubPublicId: string;
   membershipId: bigint;
   customerId: string;
-  flowType: Maybe<CheckoutFlowType>;
+  flowType: CheckoutFlowType;
 };
 
 export type CreateCheckoutSessionForMembershipResponse = {

@@ -25,7 +25,7 @@ import {
 } from "~/server/payments/stripe/types";
 import { rootLogger } from "~/logger";
 import Stripe from "stripe";
-import { Maybe, BillingInterval, CheckoutFlowType } from "~/utils/types";
+import { Maybe, BillingInterval } from "~/utils/types";
 import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "stripeClient" });
@@ -587,7 +587,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
             metadata: {
               // does not allow saving of bigint so we convert to string
               externalMembershipId: input.membershipId.toString(),
-              flow_type: input.flowType || CheckoutFlowType.APPLICATION
+              flow_type: input.flowType
             }
           },
           mode: "setup"
