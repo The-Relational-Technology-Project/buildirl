@@ -17,7 +17,7 @@ import { isLoaded } from "~/client/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { useMounted, useDisclosure } from "@mantine/hooks";
 import { MembershipTier } from "~/server/membershipTier/types";
-import { isDefaultFreeTier, Maybe } from "~/utils/types";
+import { isDefaultFreeTier, Maybe, CheckoutFlowType } from "~/utils/types";
 import { useState } from "react";
 import { MembershipTierCarousel } from "~/client/components/MembershipTierCarousel";
 import { handleDefaultMutationError } from "~/client/logger";
@@ -54,7 +54,10 @@ export default function ChangeTierPage() {
         if (result.requiresCheckout) {
           close();
           await createCheckoutSessionMutation.mutateAsync({
-            input: { origin: window.location.origin },
+            input: { 
+              origin: window.location.origin,
+              flowType: CheckoutFlowType.TIER_CHANGE
+            },
             membershipId: currentMembership!.id.toString()
           });
         } else {

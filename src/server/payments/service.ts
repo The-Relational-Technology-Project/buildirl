@@ -218,7 +218,8 @@ export function createPaymentService(
             customerId: membership.stripeCustomerId,
             membershipId: membershipId,
             clubPublicId: membership.membershipTier.club.publicId,
-            origin: input.origin
+            origin: input.origin,
+            flowType: input.flowType || null
           },
           accountId
         );

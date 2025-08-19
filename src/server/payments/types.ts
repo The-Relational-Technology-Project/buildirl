@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { MonetaryValue, Url } from "~/server/utils/types";
-import { Maybe } from "~/utils/types";
+import { Maybe, BillingInterval, CheckoutFlowType } from "~/utils/types";
 import { Prisma } from "@prisma/client";
-import { BillingInterval } from "~/utils/types";
 
 export type PaymentService = PaymentMutations & PaymentQueries;
 
@@ -90,7 +89,8 @@ export type CreateAccountLinkResult = {
 };
 
 export const CreateCheckoutSessionInputSchema = z.object({
-  origin: z.string().url()
+  origin: z.string().url(),
+  flowType: z.nativeEnum(CheckoutFlowType).nullable().optional()
 });
 export type CreateCheckoutSessionInput = z.infer<
   typeof CreateCheckoutSessionInputSchema

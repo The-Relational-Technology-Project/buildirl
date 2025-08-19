@@ -1,6 +1,5 @@
 import { MonetaryValue, Url } from "~/server/utils/types";
-import { Maybe } from "~/utils/types";
-import { BillingInterval } from "~/utils/types";
+import { Maybe, BillingInterval, CheckoutFlowType } from "~/utils/types";
 
 export type StripeClient = {
   // connected account management
@@ -174,6 +173,7 @@ export type CreateCheckoutSessionForMembershipInput = {
   clubPublicId: string;
   membershipId: bigint;
   customerId: string;
+  flowType: Maybe<CheckoutFlowType>;
 };
 
 export type CreateCheckoutSessionForMembershipResponse = {
