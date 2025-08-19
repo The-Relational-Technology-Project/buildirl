@@ -382,6 +382,7 @@ export function createPaymentService(
         select: {
           stripeSetupIntentId: true,
           stripeCustomerId: true,
+          stripeSubscriptionId: true,
           membershipTier: {
             select: {
               id: true,
@@ -399,6 +400,12 @@ export function createPaymentService(
         },
         where: { id: input.membershipId }
       });
+
+      if (membership.stripeSubscriptionId) {
+        throw new Error(
+          `Subscription ${membership.stripeSubscriptionId} already exists for membership ${input.membershipId}`
+        );
+      }
 
       // free tier does not need to create subscription
       if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
