@@ -1,14 +1,12 @@
 "use client";
 
-import { Stack, Title, Text, useMatches, TitleOrder, Paper, Box, Space } from "@mantine/core";
+import { Stack, Title, Text, useMatches, TitleOrder } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { useMounted } from "@mantine/hooks";
-import PrimaryButton from "~/client/components/PrimaryButton";
-import { billingIntervalLabel } from "~/client/utils";
 import { MembershipTier } from "~/server/membershipTier/types";
 import { MembershipTierCarousel } from "~/client/components/MembershipTierCarousel";
 
@@ -71,77 +69,3 @@ export default function ClubTiers() {
   );
 }
 
-// It is intentional to omit dollar sign here as $ sign causes anxiety for consumers
-function costDisplayText(membershipTier: MembershipTier) {
-  const cost = membershipTier.costPerBillingInterval;
-  const interval = billingIntervalLabel(membershipTier.billingInterval);
-  const initiationFee = membershipTier.initiationFeeCostInUSD;
-
-  let text = `${cost} / ${interval}`;
-  if (initiationFee !== null && initiationFee > 0) {
-    text += ` + ${initiationFee} initiation`;
-  }
-  return text;
-}
-
-type MembershipTierCardProps = {
-  clubPublicId: string;
-  membershipTier: MembershipTier;
-};
-
-function MembershipTierCard({
-  membershipTier,
-  clubPublicId
-}: MembershipTierCardProps) {
-  const router = useRouter();
-  return (
-    <Paper key={membershipTier.id} h={425} w={300} p={"lg"}>
-      <Stack h={"100%"} gap={10}>
-        <Title order={3}>{membershipTier.name}</Title>
-
-        <Stack style={{ overflowY: "auto" }}>
-          {membershipTier.benefitDescription !== "" && (
-            <Stack gap={4}>
-              <Title order={6}>Our member experience</Title>
-              <Box mih={72}>
-                <Text size="sm">{membershipTier.benefitDescription}</Text>
-              </Box>
-            </Stack>
-          )}
-
-          {membershipTier.contributionDescription !== "" && (
-            <Stack gap={4}>
-              <Title order={6}>Your contribution is key!</Title>
-              <Box mih={72}>
-                <Text size="sm">{membershipTier.contributionDescription}</Text>
-              </Box>
-            </Stack>
-          )}
-        </Stack>
-
-        <Space flex={1} />
-
-        <Stack>
-          <Text size="lg" fw={500}>
-            {costDisplayText(membershipTier)}
-          </Text>
-
-          <Box style={{ alignSelf: "center" }}>
-            <PrimaryButton
-              size={"lg"}
-              w={200}
-              color={"lilac"}
-              onClick={() =>
-                router.push(
-                  `/apply/${clubPublicId}?membershipTierId=${membershipTier.id}`
-                )
-              }
-            >
-              Apply to Join
-            </PrimaryButton>
-          </Box>
-        </Stack>
-      </Stack>
-    </Paper>
-  );
-}
