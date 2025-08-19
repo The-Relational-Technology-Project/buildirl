@@ -25,7 +25,7 @@ import {
 } from "~/server/payments/stripe/types";
 import { rootLogger } from "~/logger";
 import Stripe from "stripe";
-import { Maybe, BillingInterval } from "~/utils/types";
+import { Maybe, BillingInterval, CheckoutFlowType } from "~/utils/types";
 import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "stripeClient" });
@@ -578,10 +578,14 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     byAccountId: string
   ): Promise<CreateCheckoutSessionForMembershipResponse> {
     try {
+      const successUrl = input.flowType === CheckoutFlowType.TIER_CHANGE 
+        ? `${input.origin}/apply/${input.clubPublicId}/completed?flow=tier-change`
+        : `${input.origin}/apply/${input.clubPublicId}/completed`;
+
       const session = await stripe.checkout.sessions.create(
         {
           customer: input.customerId,
-          success_url: `${input.origin}/apply/${input.clubPublicId}/completed`,
+          success_url: successUrl,
           currency: "usd",
           setup_intent_data: {
             metadata: {
