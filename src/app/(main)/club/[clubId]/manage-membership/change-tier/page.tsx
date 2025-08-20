@@ -117,7 +117,7 @@ export default function ChangeTierPage() {
     const isCurrentFree = isDefaultFreeTier(currentTier);
     const isNewFree = isDefaultFreeTier(selectedTier);
 
-    let message = `Change from "${currentTier.name}" to "${selectedTier.name}\n\n"?`;
+    let message = `Change from "${currentTier.name}" to "${selectedTier.name}"?\n\n`;
 
     if (isCurrentFree && isNewFree) {
       message += "You will not be charged.";

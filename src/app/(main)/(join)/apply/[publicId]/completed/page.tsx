@@ -34,7 +34,7 @@ export default function ApplicationCompleted() {
   const pageContent = {
     title: isTierChange ? "TIER CHANGE SUCCESSFUL!" : "THANK YOU FOR APPLYING!",
     message: isTierChange
-      ? "Your membership tier has been updated. You'll receive an email confirmation shortly."
+      ? "Your membership tier has been updated."
       : "Your application is being reviewed. You'll receive an email with an update soon.",
     buttonText: isTierChange ? "View Membership" : "Return Home",
     buttonUrl: isTierChange 
