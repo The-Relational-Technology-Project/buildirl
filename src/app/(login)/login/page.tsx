@@ -6,6 +6,7 @@ import { createComponentClient } from "~/utils/supabase/auth/client";
 import { useRouter } from "next/navigation";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import WithDefaultColorSchemeOnManualRouteChange from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
+import posthog from "posthog-js";
 
 export default function Login() {
   const supabase = createComponentClient();
@@ -14,8 +15,11 @@ export default function Login() {
   useEffect(() => {
     const {
       data: { subscription }
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        posthog.identify(session.user.id, {
+          email: session.user.email
+        });
         router.refresh();
       }
     });

@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Stack, Title, Text, Paper, Button, Flex, Group } from "@mantine/core";
+import { Stack, Title, Text, Paper, Box, Button, Flex, Group } from "@mantine/core";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
@@ -19,6 +19,8 @@ import { TextAlign } from "@tiptap/extension-text-align";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Highlight } from "@tiptap/extension-highlight";
 import { IconDeviceFloppy, IconSend, IconTrash } from "@tabler/icons-react";
+import EmailVariableDoc from "~/client/components/EmailVariableDoc";
+import { getEmailVariableMetadata } from "~/utils/email";
 
 function EmailBlastEditorContent() {
   const params = useParams<{ clubId: string; id: string }>();
@@ -246,6 +248,16 @@ function EmailBlastEditorContent() {
           )}
         </Flex>
       </Paper>
+
+      {!isViewMode && (
+        <Box mb="md">
+          <EmailVariableDoc 
+            variables={getEmailVariableMetadata()}
+            title="Available Variables for Email Blast"
+            subtitle="Use these variables to personalize your email blast. They will be automatically replaced when the email is sent to each member."
+          />
+        </Box>
+      )}
     </Stack>
   );
 }

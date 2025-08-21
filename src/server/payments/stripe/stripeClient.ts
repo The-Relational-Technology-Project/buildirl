@@ -20,11 +20,12 @@ import {
   SubscriptionStatusResponse,
   UpdateProductAndPricesForMembershipTierInput,
   UpdateProductAndPricesForMembershipTierResponse,
+  UpdateSubscriptionInput,
   NullablePriceIdResponse
 } from "~/server/payments/stripe/types";
 import { rootLogger } from "~/logger";
 import Stripe from "stripe";
-import { Maybe, BillingInterval } from "~/utils/types";
+import { Maybe, BillingInterval, CheckoutFlowType } from "~/utils/types";
 import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "stripeClient" });
@@ -577,15 +578,20 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     byAccountId: string
   ): Promise<CreateCheckoutSessionForMembershipResponse> {
     try {
+      const successUrl = input.flowType === CheckoutFlowType.TIER_CHANGE 
+        ? `${input.origin}/apply/${input.clubPublicId}/completed?flow=tier-change`
+        : `${input.origin}/apply/${input.clubPublicId}/completed`;
+
       const session = await stripe.checkout.sessions.create(
         {
           customer: input.customerId,
-          success_url: `${input.origin}/apply/${input.clubPublicId}/completed`,
+          success_url: successUrl,
           currency: "usd",
           setup_intent_data: {
             metadata: {
               // does not allow saving of bigint so we convert to string
-              externalMembershipId: input.membershipId.toString()
+              externalMembershipId: input.membershipId.toString(),
+              flow_type: input.flowType
             }
           },
           mode: "setup"
@@ -613,6 +619,14 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
+  function generateSubscriptionIdempotencyKey(membershipId: bigint): string {
+    // Generate idempotency key using 1-minute windows
+    // This protects against double-clicks while allowing retries after failures
+    const RETRY_WINDOW_MS = 60000;
+    const windowedTimestamp = Math.floor(Date.now() / RETRY_WINDOW_MS);
+    return `membership-${membershipId}-${windowedTimestamp}`;
+  }
+
   async function createSubscriptionForMembership(
     input: CreateSubscriptionForMembershipInput,
     byAccountId: string
@@ -630,6 +644,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
           `no payment method attached to setup intent ${stringify(setupIntent)}`
         );
       }
+
+      const idempotencyKey = generateSubscriptionIdempotencyKey(input.membershipId);
 
       const subscription = await stripe.subscriptions.create(
         {
@@ -652,7 +668,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
           }
         },
         {
-          stripeAccount: byAccountId
+          stripeAccount: byAccountId,
+          idempotencyKey: idempotencyKey
         }
       );
 
@@ -708,6 +725,77 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
+  async function updateSubscription(
+    input: UpdateSubscriptionInput,
+    byAccountId: string
+  ): Promise<void> {
+    try {
+      const subscription = await stripe.subscriptions.retrieve(
+        input.subscriptionId,
+        {
+          stripeAccount: byAccountId
+        }
+      );
+
+      const subscriptionItems = subscription.items.data;
+      if (subscriptionItems.length !== 1) {
+        throw new Error(
+          `subscription ${input.subscriptionId} has ${subscriptionItems.length} subscription items, only one subscription item is expected`
+        );
+      }
+
+      const subscriptionItem = subscriptionItems[0];
+      if (!subscriptionItem) {
+        throw new Error(
+          `subscription ${input.subscriptionId} has no valid subscription item`
+        );
+      }
+
+      await stripe.subscriptions.update(
+        input.subscriptionId,
+        {
+          items: [
+            {
+              id: subscriptionItem.id,
+              price: input.newPriceId
+            }
+          ],
+          // charge for new price immediately, and calculate prorations
+          // as an immediate invoice
+          proration_behavior: "always_invoice"
+        },
+        {
+          stripeAccount: byAccountId
+        }
+      );
+
+      // if there's an initiation fee for the new tier, create an invoice item
+      if (input.newInitiationFeePriceId) {
+        await stripe.invoiceItems.create(
+          {
+            customer: subscription.customer as string,
+            price: input.newInitiationFeePriceId,
+            subscription: input.subscriptionId
+          },
+          {
+            stripeAccount: byAccountId
+          }
+        );
+      }
+
+      logger.info(
+        `updated subscription ${input.subscriptionId} with new price ${input.newPriceId}`
+      );
+      return;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update subscription with id ${input.subscriptionId}`
+      );
+      throw e;
+    }
+  }
+
   async function getSubscriptionStatus(
     subscriptionId: string,
     byAccountId: string
@@ -748,6 +836,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     createCheckoutSessionForMembership,
     createSubscriptionForMembership,
     cancelSubscription,
+    updateSubscription,
     getSubscriptionStatus
   };
 }

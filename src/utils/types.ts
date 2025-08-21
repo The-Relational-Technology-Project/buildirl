@@ -15,6 +15,11 @@ export enum BillingInterval {
   SEMI_ANNUAL = "SEMI_ANNUAL"
 }
 
+export enum CheckoutFlowType {
+  APPLICATION = "APPLICATION",
+  TIER_CHANGE = "TIER_CHANGE"
+}
+
 export const BILLING_INTERVAL_OPTIONS = [
   { value: BillingInterval.MONTHLY, label: "Monthly" },
   { value: BillingInterval.QUARTERLY, label: "Quarterly" },

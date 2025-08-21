@@ -80,6 +80,7 @@ function DeactivateMembershipSection({
 
 export default function ManageMembership() {
   const params = useParams<{ clubId: string }>();
+  const router = useRouter();
   const clubId = strictParseInt(params.clubId);
 
   const userMemberships = api.main.userMemberships.useQuery();
@@ -102,7 +103,9 @@ export default function ManageMembership() {
   }
 
   const cost = membership.membershipTier.costPerBillingInterval;
-  const interval = billingIntervalLabel(membership.membershipTier.billingInterval);
+  const interval = billingIntervalLabel(
+    membership.membershipTier.billingInterval
+  );
 
   return (
     // go back explicitly to root because we might have gone
@@ -147,9 +150,19 @@ export default function ManageMembership() {
             </Title>
             <Text size={"sm"}>{`$${cost}.00/${interval}`}</Text>
 
-            {!isDefaultFreeTier(membership.membershipTier) && (
-              <ManagePaymentsButton membershipId={membership.id} mt={"lg"} />
-            )}
+            <Group mt="lg" gap="sm">
+              <Button
+                onClick={() =>
+                  router.push(`/club/${clubId}/manage-membership/change-tier`)
+                }
+                variant="light"
+              >
+                Change Tier
+              </Button>
+              {!isDefaultFreeTier(membership.membershipTier) && (
+                <ManagePaymentsButton membershipId={membership.id} />
+              )}
+            </Group>
           </Stack>
         </Paper>
 

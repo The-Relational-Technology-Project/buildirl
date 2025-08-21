@@ -18,6 +18,7 @@ import {
 import { theme } from "~/client/theme/theme";
 import { HydrateClient } from "~/trpc/server";
 import { Notifications } from "@mantine/notifications";
+import { PostHogProvider } from "./providers";
 
 export const metadata: Metadata = {
   title: "Build IRL",
@@ -55,12 +56,14 @@ export default function RootLayout({
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
       />
       <body className={`${unbounded.className} ${workSans.className}`}>
-        <TRPCReactProvider>
-          <MantineProvider theme={theme} defaultColorScheme={"light"}>
-            <HydrateClient>{children}</HydrateClient>
-            <Notifications position={"bottom-center"} />
-          </MantineProvider>
-        </TRPCReactProvider>
+        <PostHogProvider>
+          <TRPCReactProvider>
+            <MantineProvider theme={theme} defaultColorScheme={"light"}>
+              <HydrateClient>{children}</HydrateClient>
+              <Notifications position={"bottom-center"} />
+            </MantineProvider>
+          </TRPCReactProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

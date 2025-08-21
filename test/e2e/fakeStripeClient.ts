@@ -19,7 +19,8 @@ import {
   StripeClient,
   SubscriptionStatusResponse,
   UpdateProductAndPricesForMembershipTierInput,
-  UpdateProductAndPricesForMembershipTierResponse
+  UpdateProductAndPricesForMembershipTierResponse,
+  UpdateSubscriptionInput
 } from "~/server/payments/stripe/types";
 import { Maybe } from "~/utils/types";
 
@@ -162,6 +163,13 @@ export function createFakeStripeClient(): StripeClient {
     throw new Error("not implemented");
   }
 
+  async function updateSubscription(
+    _: UpdateSubscriptionInput,
+    __: string
+  ): Promise<void> {
+    return Promise.resolve();
+  }
+
   return {
     createAccount,
     createAccountLink,
@@ -176,6 +184,7 @@ export function createFakeStripeClient(): StripeClient {
     createCheckoutSessionForMembership,
     createSubscriptionForMembership,
     cancelSubscription,
+    updateSubscription,
     getSubscriptionStatus
   };
 }

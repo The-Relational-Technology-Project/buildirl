@@ -14,7 +14,7 @@ import {
   CreateCustomerPortalSessionInput,
   CreateSubscriptionForMembershipInput,
   CreateProductAndPricesForMembershipTierInput,
-  UpdateProductAndPricesForMembershipTierInput,
+  UpdateProductAndPricesForMembershipTierInput
 } from "~/server/payments/types";
 import { stringify, asNullFilteredList } from "~/utils";
 import { Maybe } from "~/utils/types";
@@ -218,7 +218,8 @@ export function createPaymentService(
             customerId: membership.stripeCustomerId,
             membershipId: membershipId,
             clubPublicId: membership.membershipTier.club.publicId,
-            origin: input.origin
+            origin: input.origin,
+            flowType: input.flowType
           },
           accountId
         );
@@ -382,6 +383,7 @@ export function createPaymentService(
         select: {
           stripeSetupIntentId: true,
           stripeCustomerId: true,
+          stripeSubscriptionId: true,
           membershipTier: {
             select: {
               id: true,
@@ -399,6 +401,12 @@ export function createPaymentService(
         },
         where: { id: input.membershipId }
       });
+
+      if (membership.stripeSubscriptionId) {
+        throw new Error(
+          `Subscription ${membership.stripeSubscriptionId} already exists for membership ${input.membershipId}`
+        );
+      }
 
       // free tier does not need to create subscription
       if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
@@ -517,7 +525,6 @@ export function createPaymentService(
         accountId
       );
 
-
       await tx.membership.update({
         data: {
           stripeSubscriptionId: null
@@ -531,6 +538,68 @@ export function createPaymentService(
       logger.error(
         e,
         `failed to cancel stripe subscription for membership with id ${membershipId}`
+      );
+      throw e;
+    }
+  }
+
+  async function updateSubscription(
+    membershipId: bigint,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    try {
+      const membership = await tx.membership.findUniqueOrThrow({
+        select: {
+          stripeSubscriptionId: true,
+          membershipTier: {
+            select: {
+              costPerBillingInterval: true,
+              stripePriceId: true,
+              initiationFeeStripePriceId: true
+            }
+          }
+        },
+        where: { id: membershipId }
+      });
+
+      if (isPrismaResultDefaultFreeTier(membership.membershipTier)) {
+        throw new Error(
+          `cannot update subscription to free tier for membership ${membershipId}`
+        );
+      }
+
+      if (!membership.stripeSubscriptionId) {
+        throw new Error(
+          `membership with id ${membershipId} does not have stripeSubscriptionId`
+        );
+      }
+
+      if (!membership.membershipTier.stripePriceId) {
+        throw new Error(
+          `membership tier for membership ${membershipId} does not have stripePriceId`
+        );
+      }
+
+      const accountId = await accountIdResolver.fromMembership(membershipId);
+
+      await stripeClient.updateSubscription(
+        {
+          subscriptionId: membership.stripeSubscriptionId,
+          newPriceId: membership.membershipTier.stripePriceId,
+          newInitiationFeePriceId:
+            membership.membershipTier.initiationFeeStripePriceId
+        },
+        accountId
+      );
+
+      logger.info(
+        `updated stripe subscription ${membership.stripeSubscriptionId} for membership with id ${membershipId}`
+      );
+      return;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update stripe subscription for membership with id ${membershipId}`
       );
       throw e;
     }
@@ -809,6 +878,7 @@ export function createPaymentService(
     createCustomerForMembership,
     createSubscriptionForMembership,
     cancelSubscription,
+    updateSubscription,
     createProductAndPricesForMembershipTier,
     archiveProductAndPricesForMembershipTier,
     publishProductAndPricesForMembershipTier,
