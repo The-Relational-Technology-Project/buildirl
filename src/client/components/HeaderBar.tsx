@@ -22,6 +22,7 @@ import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { useMounted } from "@mantine/hooks";
 import UserAvatar from "~/client/components/UserAvatar";
+import posthog from "posthog-js";
 
 export const HEADER_BAR_HEIGHT = 50;
 export const PAGE_WIDTH = 800;
@@ -123,6 +124,7 @@ function ProfileMenu({ ...props }: BoxProps) {
             <Menu.Item
               onClick={async () => {
                 await supabase.auth.signOut();
+                posthog.reset();
                 router.refresh();
               }}
             >
