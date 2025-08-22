@@ -136,7 +136,7 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
       time: "6-8:00pm",
       imageUrl:
         "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/event-covers/9z/f4f4be12-4a25-4e4e-86af-052c065ff230.png",
-      eventLink: "https://lu.ma/04ncy3on"
+      eventLink: "https://lu.ma/rdz9hna5?tk=ZNNnNb"
     },
 
     contactUsEmail: "team@buildirl.com"
