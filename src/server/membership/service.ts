@@ -115,10 +115,7 @@ export function createMembershipService(
       });
       const memberships = await Promise.all(
         results.map(async (r) =>
-          asMembership(
-            r, 
-            await userService.getUserEmail(r.user.id)
-          )
+          asMembership(r, await userService.getUserEmail(r.user.id))
         )
       );
       logger.info(
@@ -455,9 +452,13 @@ export function createMembershipService(
   ): Promise<MutationResult> {
     await checkMembershipStatus(membershipId, "PENDING");
 
-    return prisma.$transaction(async (tx) => {
-      return approveMembershipApplicationInTransaction(membershipId, tx);
-    });
+    return prisma.$transaction(
+      async (tx) => {
+        return approveMembershipApplicationInTransaction(membershipId, tx);
+      },
+      // a longer timeout allows for Stripe operations to complete
+      { timeout: 20000 }
+    );
   }
 
   async function approveMembershipApplicationInTransaction(
@@ -902,14 +903,15 @@ export function createMembershipService(
         where: { id: membershipId }
       });
 
-      const { requiresCheckout } = await updateSubscriptionForMembershipTierChange(
-        membershipId,
-        currentTier.id,
-        newTier.id,
-        isCurrentTierFree,
-        isNewTierFree,
-        tx
-      );
+      const { requiresCheckout } =
+        await updateSubscriptionForMembershipTierChange(
+          membershipId,
+          currentTier.id,
+          newTier.id,
+          isCurrentTierFree,
+          isNewTierFree,
+          tx
+        );
 
       logger.info(
         `successfully updated membership ${membershipId} from tier ${currentTier.id} to tier ${newMembershipTierId}`
