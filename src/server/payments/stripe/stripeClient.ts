@@ -578,9 +578,10 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     byAccountId: string
   ): Promise<CreateCheckoutSessionForMembershipResponse> {
     try {
-      const successUrl = input.flowType === CheckoutFlowType.TIER_CHANGE 
-        ? `${input.origin}/apply/${input.clubPublicId}/completed?flow=tier-change`
-        : `${input.origin}/apply/${input.clubPublicId}/completed`;
+      const successUrl =
+        input.flowType === CheckoutFlowType.TIER_CHANGE
+          ? `${input.origin}/apply/${input.clubPublicId}/completed?flow=tier-change`
+          : `${input.origin}/apply/${input.clubPublicId}/completed`;
 
       const session = await stripe.checkout.sessions.create(
         {
@@ -620,11 +621,7 @@ export function createStripeClient(stripe: Stripe): StripeClient {
   }
 
   function generateSubscriptionIdempotencyKey(membershipId: bigint): string {
-    // Generate idempotency key using 1-minute windows
-    // This protects against double-clicks while allowing retries after failures
-    const RETRY_WINDOW_MS = 60000;
-    const windowedTimestamp = Math.floor(Date.now() / RETRY_WINDOW_MS);
-    return `membership-${membershipId}-${windowedTimestamp}`;
+    return `membership-${membershipId}`;
   }
 
   async function createSubscriptionForMembership(
@@ -645,7 +642,9 @@ export function createStripeClient(stripe: Stripe): StripeClient {
         );
       }
 
-      const idempotencyKey = generateSubscriptionIdempotencyKey(input.membershipId);
+      const idempotencyKey = generateSubscriptionIdempotencyKey(
+        input.membershipId
+      );
 
       const subscription = await stripe.subscriptions.create(
         {
