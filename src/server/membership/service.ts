@@ -836,13 +836,16 @@ export function createMembershipService(
     membershipId: bigint,
     newMembershipTierId: number
   ): Promise<UpdateMembershipTierResult> {
-    return prisma.$transaction(async (tx) => {
-      return updateMembershipTierForMembershipInTransaction(
-        membershipId,
-        newMembershipTierId,
-        tx
-      );
-    });
+    return prisma.$transaction(
+      async (tx) => {
+        return updateMembershipTierForMembershipInTransaction(
+          membershipId,
+          newMembershipTierId,
+          tx
+        );
+      },
+      { timeout: 20000 } // Add timeout for Stripe operations
+    );
   }
 
   async function updateMembershipTierForMembershipInTransaction(
