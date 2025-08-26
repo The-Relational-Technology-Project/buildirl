@@ -221,6 +221,7 @@ model MembershipCampaign {
   membershipTier      MembershipTier       @relation(fields: [membershipTierId], references: [id], onDelete: Cascade)
   targetPerMonthInUSD Decimal              @map("target_per_month_in_usd")
   budgetItems         CampaignBudgetItem[]
+  endDate             DateTime
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
 
