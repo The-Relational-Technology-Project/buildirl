@@ -143,6 +143,7 @@ model MembershipTier {
   memberships                Membership[]
   createdAt                  DateTime             @default(now()) @map("created_at")
   updatedAt                  DateTime             @updatedAt @map("updated_at")
+  MembershipCampaign         MembershipCampaign[]
 
   @@index([clubId])
   @@map("membership_tier")
@@ -212,6 +213,30 @@ model EmailBlast {
   @@index([clubId])
   @@index([clubId, status])
   @@map("email_blast")
+}
+
+model MembershipCampaign {
+  id                  Int                  @id @default(autoincrement())
+  membershipTierId    Int                  @map("membership_tier_id")
+  membershipTier      MembershipTier       @relation(fields: [membershipTierId], references: [id], onDelete: Cascade)
+  targetPerMonthInUSD Decimal              @map("target_per_month_in_usd")
+  budgetItems         CampaignBudgetItem[]
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+
+  @@map("membership_campaign")
+}
+
+model CampaignBudgetItem {
+  id                   Int                @id @default(autoincrement())
+  membershipCampaignId Int                @map("membership_campaign_id")
+  membershipCampaign   MembershipCampaign @relation(fields: [membershipCampaignId], references: [id], onDelete: Cascade)
+  label                String
+  costPerMonthInUSD    Decimal            @map("cost_per_month_in_usd")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  @@map("campaign_budget_item")
 }
 
 // !! PROTOTYPE
