@@ -25,7 +25,7 @@ export const MEMBERSHIP_SELECT = {
   role: true,
   isWelcomed: true,
   createdAt: true
-};
+} satisfies Prisma.MembershipSelect;
 
 export const MEMBERSHIP_WITH_CLUB_SELECT = {
   ...MEMBERSHIP_SELECT,
@@ -39,7 +39,7 @@ export const MEMBERSHIP_WITH_CLUB_SELECT = {
       }
     }
   }
-};
+} satisfies Prisma.MembershipSelect;
 
 export function asMembership(
   r: MembershipGetPayload<{ select: typeof MEMBERSHIP_SELECT }>,

@@ -1,6 +1,4 @@
-import {
-  MembershipTier
-} from "~/server/membershipTier/types";
+import { MembershipTier } from "~/server/membershipTier/types";
 import { BillingInterval } from "~/utils/types";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import { Prisma } from "@prisma/client";
@@ -14,7 +12,7 @@ export const MEMBERSHIP_TIER_SELECT = {
   costPerBillingInterval: true,
   billingInterval: true,
   initiationFeeCostInUSD: true
-};
+} satisfies Prisma.MembershipTierSelect;
 
 export function asMembershipTier(
   r: MembershipTierGetPayload<{ select: typeof MEMBERSHIP_TIER_SELECT }>
@@ -48,13 +46,32 @@ function getBillingIntervalSortPriority(interval: BillingInterval): number {
   }
 }
 
+export function getCostPerMonthInUSD(membershipTier: MembershipTier): number {
+  switch (membershipTier.billingInterval as BillingInterval) {
+    case BillingInterval.MONTHLY:
+      return membershipTier.costPerBillingInterval;
+    case BillingInterval.QUARTERLY:
+      return membershipTier.costPerBillingInterval / 3;
+    case BillingInterval.SEMI_ANNUAL:
+      return membershipTier.costPerBillingInterval / 6;
+    default:
+      throw new Error(
+        `unexpected billing interval ${membershipTier.billingInterval}`
+      );
+  }
+}
+
 export function orderedByPricing(
   membershipTiers: MembershipTier[]
 ): MembershipTier[] {
   return membershipTiers
-    .sort((a, b) => a.id - b.id) 
+    .sort((a, b) => a.id - b.id)
     .sort((a, b) => a.costPerBillingInterval - b.costPerBillingInterval)
-    .sort((a, b) => getBillingIntervalSortPriority(a.billingInterval) - getBillingIntervalSortPriority(b.billingInterval));
+    .sort(
+      (a, b) =>
+        getBillingIntervalSortPriority(a.billingInterval) -
+        getBillingIntervalSortPriority(b.billingInterval)
+    );
 }
 
 export function isPrismaResultDefaultFreeTier(membershipTier: {
@@ -62,4 +79,3 @@ export function isPrismaResultDefaultFreeTier(membershipTier: {
 }): boolean {
   return membershipTier.costPerBillingInterval.toNumber() === 0;
 }
-

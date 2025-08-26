@@ -13,6 +13,7 @@ import { createRoleService } from "~/server/role/service";
 import { createMembershipService } from "~/server/membership/service";
 import { createClubService } from "~/server/club/service";
 import { createReferralService } from "~/server/referral/service";
+import { createMembershipCampaignService } from "~/server/membershipCampaign/service";
 
 const stripeClient = createStripeClient(stripe);
 const accountIdResolver = createAccountIdResolver(prisma);
@@ -48,9 +49,15 @@ export const membershipService = createMembershipService(
   emailService,
   paymentService
 );
+export const membershipCampaignService = createMembershipCampaignService(
+  prisma,
+  membershipService,
+  membershipTierService
+);
 export const clubService = createClubService(
   prisma,
   membershipTierService,
   membershipService
 );
+
 export const referralService = createReferralService(prisma);

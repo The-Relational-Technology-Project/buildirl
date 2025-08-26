@@ -15,6 +15,7 @@ type MembershipCampaignQueries = {
   getActiveMembershipCampaign(
     clubId: number
   ): Promise<Maybe<MembershipCampaign>>;
+  getPastMembershipCampaigns(clubId: number): Promise<MembershipCampaign[]>;
   // does club have target met for previous
   // membership campaign
   isClubLaunched(clubId: number): Promise<boolean>;
@@ -65,7 +66,6 @@ export type CreateMembershipCampaignInput = z.infer<
 >;
 
 export const UpdateMembershipCampaignInputSchema = z.object({
-  membershipTierId: z.number(),
   targetPerMonthInUSD: MonetaryValueSchema,
   endDate: z.date(),
   budgetItems: z.array(CampaignBudgetItemInput)

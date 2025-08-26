@@ -32,7 +32,7 @@ export const CLUB_SELECT = {
       ...MEMBERSHIP_TIER_SELECT
     }
   }
-};
+} satisfies Prisma.ClubSelect;
 
 export function asClub(
   r: ClubGetPayload<{ select: typeof CLUB_SELECT }>
