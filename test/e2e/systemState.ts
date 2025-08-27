@@ -37,8 +37,21 @@ import {
   MembershipTier,
   UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
-import { CreateUserInput, UpdateUserInput, UpdateUserSocialsInput, UpdateUserSocialsInputSchema, User, UserSocials } from "~/server/user/types";
+import {
+  CreateUserInput,
+  UpdateUserInput,
+  UpdateUserSocialsInput,
+  UpdateUserSocialsInputSchema,
+  User,
+  UserSocials
+} from "~/server/user/types";
 import { stringify } from "~/utils";
+import {
+  CreateMembershipCampaignInput,
+  MembershipCampaign,
+  UpdateMembershipCampaignInput,
+  CampaignBudgetItem
+} from "~/server/membershipCampaign/types";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -79,6 +92,7 @@ type MembershipState = {
   applicationResponses: FormResponses;
   isWelcomed: boolean;
   role: Role;
+  createdAt: Date;
 };
 
 type UserState = {
@@ -89,6 +103,15 @@ type UserState = {
   socials: Maybe<UserSocials>;
   // settings
   email: Maybe<string>;
+};
+
+type MembershipCampaignState = {
+  id: number;
+  membershipTierId: number;
+  targetPerMonthInUSD: number;
+  budgetItems: CampaignBudgetItem[];
+  createdAt: Date;
+  endDate: Date;
 };
 
 export class SystemState {
@@ -104,6 +127,7 @@ export class SystemState {
     Map<EmailTemplateType, EmailTemplate>
   >;
   private readonly emailBlasts: Map<bigint, EmailBlastState>;
+  private readonly membershipCampaigns: Map<number, MembershipCampaignState>;
 
   constructor() {
     this.users = new Map();
@@ -113,6 +137,7 @@ export class SystemState {
     this.clubFollowing = new Map();
     this.emailTemplates = new Map();
     this.emailBlasts = new Map();
+    this.membershipCampaigns = new Map();
   }
 
   // use this only for internal operations as it also contains
@@ -171,7 +196,7 @@ export class SystemState {
   public updateUserSocials(id: number, input: UpdateUserSocialsInput) {
     const user = this.getUserState(id);
     const validatedInput = UpdateUserSocialsInputSchema.parse(input);
-    
+
     const socials: UserSocials = {
       twitter: validatedInput.twitter,
       instagram: validatedInput.instagram,
@@ -179,7 +204,7 @@ export class SystemState {
       linkedin: validatedInput.linkedin,
       website: validatedInput.website
     };
-    
+
     this.users.set(id, {
       ...user,
       socials: socials
@@ -356,7 +381,9 @@ export class SystemState {
       status: "ACTIVE",
       applicationResponses: { responses: [] },
       isWelcomed: true,
-      role: "LEAD"
+      role: "LEAD",
+      // now
+      createdAt: new Date()
     });
   }
 
@@ -536,6 +563,11 @@ export class SystemState {
 
   public getMembershipTierIds(): number[] {
     return Array.from(this.membershipTiers.values()).map((t) => t.id);
+  }
+
+  public getMembershipTierIdsForClub(clubId: number): number[] {
+    const club = this.getClubState(clubId);
+    return club.membershipTierIds;
   }
 
   public hasPublishedMembershipTiers(): boolean {
@@ -739,7 +771,9 @@ export class SystemState {
       status: "PENDING",
       applicationResponses: input.applicationResponses,
       isWelcomed: false,
-      role: "MEMBER"
+      role: "MEMBER",
+      // now
+      createdAt: new Date()
     });
   }
 
@@ -1116,5 +1150,195 @@ export class SystemState {
       ...membershipState,
       role: "MEMBER"
     });
+  }
+
+  public createMembershipCampaign(
+    id: number,
+    membershipTierId: number,
+    input: CreateMembershipCampaignInput
+  ) {
+    this.membershipCampaigns.set(id, {
+      id,
+      membershipTierId: membershipTierId,
+      targetPerMonthInUSD: input.targetPerMonthInUSD,
+      budgetItems: input.budgetItems,
+      // now
+      createdAt: new Date(),
+      endDate: input.endDate
+    });
+  }
+
+  public updateMembershipCampaign(
+    id: number,
+    input: UpdateMembershipCampaignInput
+  ) {
+    const campaign = this.getMembershipCampaignState(id);
+    this.membershipCampaigns.set(id, {
+      ...campaign,
+      targetPerMonthInUSD: input.targetPerMonthInUSD,
+      budgetItems: input.budgetItems,
+      endDate: input.endDate
+    });
+  }
+
+  public deleteMembershipCampaign(id: number) {
+    if (!this.membershipCampaigns.has(id)) {
+      throw new Error(`membership campaign with id ${id} not found`);
+    }
+    this.membershipCampaigns.delete(id);
+  }
+
+  private getMembershipCampaignState(id: number): MembershipCampaignState {
+    const campaign = this.membershipCampaigns.get(id);
+    if (!campaign) {
+      throw new Error(`Membership campaign with id ${id} was expected`);
+    }
+    return campaign;
+  }
+
+  public getMembershipCampaignFromState(campaign: MembershipCampaignState) {
+    const membershipTier = this.getMembershipTier(campaign.membershipTierId);
+
+    const committedPerMonthInUSD = this.calculateCommittedPerMonthInUSD(
+      campaign.membershipTierId,
+      campaign.createdAt,
+      campaign.endDate
+    );
+    const isTargetMet = committedPerMonthInUSD >= campaign.targetPerMonthInUSD;
+
+    return this.membershipCampaignStateToMembershipCampaign(
+      campaign,
+      membershipTier,
+      committedPerMonthInUSD,
+      isTargetMet
+    );
+  }
+
+  public getMembershipCampaign(id: number): MembershipCampaign {
+    const campaign = this.getMembershipCampaignState(id);
+    return this.getMembershipCampaignFromState(campaign);
+  }
+
+  private membershipCampaignStateToMembershipCampaign(
+    state: MembershipCampaignState,
+    membershipTier: MembershipTier,
+    committedPerMonthInUSD: number,
+    isTargetMet: boolean
+  ): MembershipCampaign {
+    return {
+      id: state.id,
+      membershipTier,
+      targetPerMonthInUSD: state.targetPerMonthInUSD,
+      budgetItems: state.budgetItems,
+      endDate: state.endDate,
+      createdAt: state.createdAt,
+      committedPerMonthInUSD,
+      isTargetMet
+    };
+  }
+
+  public getActiveMembershipCampaign(
+    clubId: number
+  ): Maybe<MembershipCampaign> {
+    const now = new Date();
+    const campaigns = Array.from(this.membershipCampaigns.values())
+      .filter((c) => {
+        const tierClubId = this.getClubIdForMembershipTier(c.membershipTierId);
+        return tierClubId === clubId && c.createdAt < now && c.endDate >= now;
+      })
+      .sort((a, b) => b.id - a.id);
+
+    if (campaigns.length === 0) {
+      return null;
+    }
+
+    if (campaigns.length > 1) {
+      throw new Error("unexpected to have more than 1 active campaign");
+    }
+
+    return this.getMembershipCampaignFromState(campaigns[0]!);
+  }
+
+  public getPastMembershipCampaigns(clubId: number): MembershipCampaign[] {
+    const now = new Date();
+    return Array.from(this.membershipCampaigns.values())
+      .filter((c) => {
+        const tierClubId = this.getClubIdForMembershipTier(c.membershipTierId);
+        return tierClubId === clubId && c.endDate < now;
+      })
+      .map((c) => this.getMembershipCampaignFromState(c));
+  }
+
+  public isClubLaunched(clubId: number): boolean {
+    const pastCampaigns = this.getPastMembershipCampaigns(clubId);
+    return pastCampaigns.some((c) => c.isTargetMet);
+  }
+
+  public hasActiveMembershipCampaign(clubId: number): boolean {
+    return this.getActiveMembershipCampaign(clubId) !== null;
+  }
+
+  public getMembershipCampaignIds(): number[] {
+    return Array.from(this.membershipCampaigns.keys());
+  }
+
+  public getPaidMembershipTierIds() {
+    const paidMembershipTierIds: number[] = [];
+    for (const clubId of this.clubs.keys()) {
+      const tierIds = this.getMembershipTierIdsForClub(clubId);
+      for (const tierId of tierIds) {
+        const tier = this.getMembershipTier(tierId);
+        // paid
+        if (tier.costPerBillingInterval > 0) {
+          paidMembershipTierIds.push(tierId);
+        }
+      }
+    }
+    return paidMembershipTierIds;
+  }
+
+  public getPaidMembershipTierIdsFromClubsWithoutActiveCampaigns(): number[] {
+    // Get clubs with stripe accounts that don't have active campaigns
+    const paidMembershipTierIds = this.getPaidMembershipTierIds();
+    return paidMembershipTierIds.filter((i) => {
+      const clubId = this.getClubIdForMembershipTier(i);
+      return !this.hasActiveMembershipCampaign(clubId);
+    });
+  }
+
+  private calculateCommittedPerMonthInUSD(
+    membershipTierId: number,
+    startDate: Date,
+    endDate: Date
+  ): number {
+    const membershipTier = this.getMembershipTier(membershipTierId);
+    const costPerMonth = this.getCostPerMonthInUSD(membershipTier);
+
+    const activeOrPendingMembership = Array.from(
+      this.memberships.values()
+    ).filter(
+      (m) =>
+        m.membershipTierId === membershipTierId &&
+        (m.status === "ACTIVE" || m.status === "PENDING") &&
+        m.createdAt > startDate &&
+        m.createdAt < endDate
+    );
+
+    return activeOrPendingMembership.length * costPerMonth;
+  }
+
+  private getCostPerMonthInUSD(membershipTier: MembershipTier): number {
+    switch (membershipTier.billingInterval as BillingInterval) {
+      case BillingInterval.MONTHLY:
+        return membershipTier.costPerBillingInterval;
+      case BillingInterval.QUARTERLY:
+        return membershipTier.costPerBillingInterval / 3;
+      case BillingInterval.SEMI_ANNUAL:
+        return membershipTier.costPerBillingInterval / 6;
+      default:
+        throw new Error(
+          `unexpected billing interval ${membershipTier.billingInterval}`
+        );
+    }
   }
 }

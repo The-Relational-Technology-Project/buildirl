@@ -23,7 +23,7 @@ type MembershipCampaignQueries = {
 
 type MembershipCampaignMutations = {
   createMembershipCampaign(
-    clubId: number,
+    membershipTierId: number,
     input: CreateMembershipCampaignInput
   ): Promise<MutationResult>;
   updateMembershipCampaign(
@@ -38,6 +38,7 @@ export type MembershipCampaign = {
   membershipTier: MembershipTier;
   targetPerMonthInUSD: MonetaryValue;
   budgetItems: CampaignBudgetItem[];
+  createdAt: Date;
   endDate: Date;
   // calculated fields
   committedPerMonthInUSD: MonetaryValue;
@@ -54,11 +55,12 @@ const CampaignBudgetItemInput = z.object({
   costPerMonthInUSD: MonetaryValueSchema
 });
 
+const CampaignBudgetItemsInput = z.array(CampaignBudgetItemInput).min(1).max(5);
+
 export const CreateMembershipCampaignInputSchema = z.object({
-  membershipTierId: z.number(),
   targetPerMonthInUSD: MonetaryValueSchema,
   endDate: z.date(),
-  budgetItems: z.array(CampaignBudgetItemInput)
+  budgetItems: CampaignBudgetItemsInput
 });
 
 export type CreateMembershipCampaignInput = z.infer<
@@ -68,7 +70,7 @@ export type CreateMembershipCampaignInput = z.infer<
 export const UpdateMembershipCampaignInputSchema = z.object({
   targetPerMonthInUSD: MonetaryValueSchema,
   endDate: z.date(),
-  budgetItems: z.array(CampaignBudgetItemInput)
+  budgetItems: CampaignBudgetItemsInput
 });
 
 export type UpdateMembershipCampaignInput = z.infer<

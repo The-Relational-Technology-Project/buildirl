@@ -67,6 +67,10 @@ import SetMembershipAsLeadCommand from "./setMembershipAsLeadCommand";
 import ClearMembershipRoleCommand from "./clearMembershipRoleCommand";
 import { EMAIL_CONTENT_LIMITS } from "~/server/email/types";
 import UpdateMembershipTierForMembershipCommand from "./updateMembershipTierForMembershipCommand";
+import CreateMembershipCampaignCommand from "./createMembershipCampaignCommand";
+import UpdateMembershipCampaignCommand from "./updateMembershipCampaignCommand";
+import DeleteMembershipCampaignCommand from "./deleteMembershipCampaignCommand";
+import { CampaignBudgetItem } from "~/server/membershipCampaign/types";
 
 export const allCommands = () => {
   return [
@@ -100,7 +104,10 @@ export const allCommands = () => {
     updateEmailBlastCommands(),
     deleteEmailBlastCommands(),
     sendEmailBlastCommands(),
-    updateMembershipTierForMembershipCommands()
+    updateMembershipTierForMembershipCommands(),
+    createMembershipCampaignCommands(),
+    updateMembershipCampaignCommands(),
+    deleteMembershipCampaignCommands()
   ];
 };
 
@@ -140,7 +147,9 @@ function updateUserCommands() {
   );
 }
 
-function socialHandleArbitrary<T extends z.ZodSchema>(schema: T): Arbitrary<string> {
+function socialHandleArbitrary<T extends z.ZodSchema>(
+  schema: T
+): Arbitrary<string> {
   return string().filter((s) => isZodType(s, schema));
 }
 
@@ -148,7 +157,9 @@ function updateUserSocialsCommands() {
   return record({
     userIdSelector: itemSelector<number>(),
     twitter: option(socialHandleArbitrary(TwitterHandleSchema), { freq: 3 }),
-    instagram: option(socialHandleArbitrary(InstagramHandleSchema), { freq: 3 }),
+    instagram: option(socialHandleArbitrary(InstagramHandleSchema), {
+      freq: 3
+    }),
     facebook: option(socialHandleArbitrary(FacebookHandleSchema), { freq: 3 }),
     linkedin: option(socialHandleArbitrary(LinkedInHandleSchema), { freq: 3 }),
     website: option(webUrl(), { freq: 3 })
@@ -461,8 +472,12 @@ function setEmailTemplateCommands() {
       )
     ),
     subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
-    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
-    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
+    htmlContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH
+    }),
+    textContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH
+    })
   }).map(
     (i) =>
       new SetEmailTemplateCommand(i.clubIdSelector, i.templateType, {
@@ -487,8 +502,12 @@ function createEmailBlastCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
     subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
-    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
-    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
+    htmlContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH
+    }),
+    textContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH
+    })
   }).map(
     (i) =>
       new CreateEmailBlastCommand(
@@ -506,35 +525,32 @@ function updateEmailBlastCommands() {
   return record({
     emailBlastIdSelector: itemSelector<bigint>(),
     subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
-    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
-    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
+    htmlContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH
+    }),
+    textContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH
+    })
   }).map(
     (i) =>
-      new UpdateEmailBlastCommand(
-        i.emailBlastIdSelector,
-        {
-          subject: i.subject,
-          htmlContent: i.htmlContent,
-          textContent: i.textContent
-        }
-      )
+      new UpdateEmailBlastCommand(i.emailBlastIdSelector, {
+        subject: i.subject,
+        htmlContent: i.htmlContent,
+        textContent: i.textContent
+      })
   );
 }
 
 function deleteEmailBlastCommands() {
   return record({
     emailBlastIdSelector: itemSelector<bigint>()
-  }).map(
-    (i) => new DeleteEmailBlastCommand(i.emailBlastIdSelector)
-  );
+  }).map((i) => new DeleteEmailBlastCommand(i.emailBlastIdSelector));
 }
 
 function sendEmailBlastCommands() {
   return record({
     emailBlastIdSelector: itemSelector<bigint>()
-  }).map(
-    (i) => new SendEmailBlastCommand(i.emailBlastIdSelector)
-  );
+  }).map((i) => new SendEmailBlastCommand(i.emailBlastIdSelector));
 }
 
 function setAsLeadCommands() {
@@ -560,4 +576,64 @@ function updateMembershipTierForMembershipCommands() {
         i.newMembershipTierIdSelector
       )
   );
+}
+
+function aDayWithinTheNextTwoMonths(): Arbitrary<Date> {
+  return integer({ min: 10, max: 30 }).map(
+    (days) => new Date(Date.now() + days * 24 * 60 * 60 * 1000)
+  );
+}
+
+function budgetItems(): Arbitrary<Array<CampaignBudgetItem>> {
+  return array(
+    record({
+      label: string().filter((s) => isZodType(s, RequiredStringSchema)),
+      costPerMonthInUSD: monetaryValue()
+    }),
+    { minLength: 1, maxLength: 5 }
+  );
+}
+
+function createMembershipCampaignCommands() {
+  return record({
+    membershipTierIdSelector: itemSelector<number>(),
+    targetPerMonthInUSD: monetaryValue(),
+    budgetItems: budgetItems(),
+    endDate: aDayWithinTheNextTwoMonths()
+  }).map(
+    (i) =>
+      new CreateMembershipCampaignCommand(
+        {
+          targetPerMonthInUSD: i.targetPerMonthInUSD,
+          budgetItems: i.budgetItems,
+          endDate: i.endDate
+        },
+        i.membershipTierIdSelector
+      )
+  );
+}
+
+function updateMembershipCampaignCommands() {
+  return record({
+    membershipCampaignIdSelector: itemSelector<number>(),
+    targetPerMonthInUSD: monetaryValue(),
+    budgetItems: budgetItems(),
+    endDate: aDayWithinTheNextTwoMonths()
+  }).map(
+    (i) =>
+      new UpdateMembershipCampaignCommand(
+        {
+          targetPerMonthInUSD: i.targetPerMonthInUSD,
+          budgetItems: i.budgetItems,
+          endDate: i.endDate
+        },
+        i.membershipCampaignIdSelector
+      )
+  );
+}
+
+function deleteMembershipCampaignCommands() {
+  return record({
+    campaignIdSelector: itemSelector<number>()
+  }).map((i) => new DeleteMembershipCampaignCommand(i.campaignIdSelector));
 }

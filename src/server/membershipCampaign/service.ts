@@ -1,4 +1,3 @@
-import { stringify } from "superjson";
 import { rootLogger } from "~/logger";
 import type { PrismaClient } from "@prisma/client";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
@@ -18,6 +17,7 @@ import {
 } from "~/server/membershipTier/utils";
 import { MembershipTierService } from "~/server/membershipTier/types";
 import { Prisma } from "@prisma/client";
+import { stringify } from "~/utils";
 
 const logger = rootLogger.child({ module: "membershipCampaignService" });
 
@@ -194,20 +194,24 @@ export function createMembershipCampaignService(
   }
 
   async function createMembershipCampaign(
-    clubId: number,
+    membershipTierId: number,
     input: CreateMembershipCampaignInput
   ) {
     return prisma.$transaction(async (tx) => {
-      return createMembershipCampaignInTransaction(clubId, input, tx);
+      return createMembershipCampaignInTransaction(membershipTierId, input, tx);
     });
   }
 
   async function createMembershipCampaignInTransaction(
-    clubId: number,
+    membershipTierId: number,
     input: CreateMembershipCampaignInput,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
+      const clubId =
+        await membershipTierService.getClubIdFromMembershipTierId(
+          membershipTierId
+        );
       const activeMembershipCampaign =
         await getActiveMembershipCampaign(clubId);
 
@@ -219,19 +223,19 @@ export function createMembershipCampaignService(
 
       const membershipTier = await tx.membershipTier.findFirst({
         where: {
-          id: input.membershipTierId,
-          clubId
+          id: membershipTierId,
+          clubId: clubId
         }
       });
       if (membershipTier === null) {
         throw new Error(
-          `membership tier with id ${input.membershipTierId} was not found to belong to club with id ${clubId}`
+          `membership tier with id ${membershipTierId} was not found to belong to club with id ${clubId}`
         );
       }
 
       const campaign = await tx.membershipCampaign.create({
         data: {
-          membershipTierId: input.membershipTierId,
+          membershipTierId: membershipTierId,
           targetPerMonthInUSD: input.targetPerMonthInUSD,
           endDate: input.endDate
         },
@@ -260,7 +264,7 @@ export function createMembershipCampaignService(
     } catch (e) {
       logger.error(
         e,
-        `failed to create membership campaign for club with id ${clubId} with input ${stringify(input)}`
+        `failed to create membership campaign for membership tier with id ${membershipTierId} with input ${stringify(input)}`
       );
       throw e;
     }

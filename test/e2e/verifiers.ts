@@ -10,6 +10,8 @@ import {
 import { User } from "~/server/user/types";
 import { Club } from "~/server/club/types";
 import { Services } from "./system.test";
+import { MembershipCampaign } from "~/server/membershipCampaign/types";
+import { Maybe } from "~/utils/types";
 
 function createVerifiers() {
   function userWithoutCreatedAt(
@@ -208,6 +210,58 @@ function createVerifiers() {
     ).toEqual(orderByBigIntId(m.getEmailBlasts(clubId)));
   }
 
+  function maybeMembershipCampaignWithoutDates(
+    campaign: Maybe<MembershipCampaign>
+  ): Maybe<OmitRecursively<MembershipCampaign, "createdAt">> {
+    if (null === campaign) {
+      return null;
+    }
+    return membershipCampaignWithoutDates(campaign);
+  }
+
+  function membershipCampaignWithoutDates(
+    campaign: MembershipCampaign
+  ): OmitRecursively<MembershipCampaign, "createdAt"> {
+    return {
+      id: campaign.id,
+      membershipTier: campaign.membershipTier,
+      targetPerMonthInUSD: campaign.targetPerMonthInUSD,
+      budgetItems: campaign.budgetItems,
+      endDate: campaign.endDate,
+      committedPerMonthInUSD: campaign.committedPerMonthInUSD,
+      isTargetMet: campaign.isTargetMet
+    };
+  }
+
+  async function verifyMembershipCampaigns(
+    clubId: number,
+    r: Services,
+    m: SystemState
+  ) {
+    const expectedActive = m.getActiveMembershipCampaign(clubId);
+    const actualActive =
+      await r.membershipCampaign.getActiveMembershipCampaign(clubId);
+
+    expect(maybeMembershipCampaignWithoutDates(actualActive)).toEqual(
+      maybeMembershipCampaignWithoutDates(expectedActive)
+    );
+
+    const expectedPast = m.getPastMembershipCampaigns(clubId);
+    const actualPast =
+      await r.membershipCampaign.getPastMembershipCampaigns(clubId);
+    expect(
+      actualPast.map(membershipCampaignWithoutDates).sort((a, b) => a.id - b.id)
+    ).toEqual(
+      expectedPast
+        .map(membershipCampaignWithoutDates)
+        .sort((a, b) => a.id - b.id)
+    );
+
+    const expectedLaunched = m.isClubLaunched(clubId);
+    const actualLaunched = await r.membershipCampaign.isClubLaunched(clubId);
+    expect(actualLaunched).toEqual(expectedLaunched);
+  }
+
   return {
     verifyUser,
     verifyClub,
@@ -216,7 +270,8 @@ function createVerifiers() {
     verifyClubFollowers,
     verifyUserFollowedClubs,
     verifyEmailTemplate,
-    verifyEmailBlasts
+    verifyEmailBlasts,
+    verifyMembershipCampaigns
   };
 }
 
