@@ -836,13 +836,16 @@ export function createMembershipService(
     membershipId: bigint,
     newMembershipTierId: number
   ): Promise<UpdateMembershipTierResult> {
-    return prisma.$transaction(async (tx) => {
-      return updateMembershipTierForMembershipInTransaction(
-        membershipId,
-        newMembershipTierId,
-        tx
-      );
-    });
+    return prisma.$transaction(
+      async (tx) => {
+        return updateMembershipTierForMembershipInTransaction(
+          membershipId,
+          newMembershipTierId,
+          tx
+        );
+      },
+      { timeout: 20000 } // Add timeout for Stripe operations
+    );
   }
 
   async function updateMembershipTierForMembershipInTransaction(
@@ -896,15 +899,8 @@ export function createMembershipService(
       const isCurrentTierFree = isPrismaResultDefaultFreeTier(currentTier);
       const isNewTierFree = isPrismaResultDefaultFreeTier(newTier);
 
-      // this must be first so that downstream operations in payment service
-      // can operate on the new tier
-      await tx.membership.update({
-        data: { membershipTierId: newMembershipTierId },
-        where: { id: membershipId }
-      });
-
       const { requiresCheckout } =
-        await updateSubscriptionForMembershipTierChange(
+        await updateMembershipTierIdAndSubscriptionForMembershipTierChange(
           membershipId,
           currentTier.id,
           newTier.id,
@@ -930,7 +926,18 @@ export function createMembershipService(
     }
   }
 
-  async function updateSubscriptionForMembershipTierChange(
+  async function updateMembershipTierId(
+    membershipId: bigint,
+    newTierId: number,
+    tx: Prisma.TransactionClient
+  ): Promise<void> {
+    await tx.membership.update({
+      data: { membershipTierId: newTierId },
+      where: { id: membershipId }
+    });
+  }
+
+  async function updateMembershipTierIdAndSubscriptionForMembershipTierChange(
     membershipId: bigint,
     currentTierId: number,
     newTierId: number,
@@ -939,12 +946,15 @@ export function createMembershipService(
     tx: Prisma.TransactionClient
   ): Promise<SubscriptionUpdateResult> {
     if (isCurrentTierFree && isNewTierFree) {
-      // free -> free, no action needed
+      await updateMembershipTierId(membershipId, newTierId, tx);
+      // free -> free, no action for subscription needed
       logger.info(
         `updated membership with id ${membershipId} from free tier ${currentTierId} to free tier ${newTierId}`
       );
       return { requiresCheckout: false };
     } else if (isCurrentTierFree && !isNewTierFree) {
+      // before subscription changes so because create logic needs to be on new tier
+      await updateMembershipTierId(membershipId, newTierId, tx);
       logger.info(
         `updated membership with id ${membershipId} from free tier ${currentTierId} to paid tier ${newTierId}, requires checkout`
       );
@@ -956,8 +966,12 @@ export function createMembershipService(
         `updated membership with id ${membershipId} from paid tier ${currentTierId} to free tier ${newTierId}, canceling subscription`
       );
       await paymentService.cancelSubscription(membershipId, tx);
+      // after subscription changes so because cancel logic needs to be on old tier
+      await updateMembershipTierId(membershipId, newTierId, tx);
       return { requiresCheckout: false };
     } else {
+      // before subscription changes so because update logic needs to be on new tier
+      await updateMembershipTierId(membershipId, newTierId, tx);
       logger.info(
         `updated membership with id ${membershipId} from paid tier ${currentTierId} to paid tier ${newTierId}, updating subscription`
       );
