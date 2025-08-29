@@ -1,7 +1,7 @@
 import { SubmitMembershipApplicationInput } from "~/server/membership/types";
 import { SystemState } from "../systemState";
 import { Command } from "fast-check";
-import { idAsBigInt, Maybe } from "~/utils/types";
+import { CheckoutFlowType, idAsBigInt, Maybe } from "~/utils/types";
 import { ItemSelector } from "../utils/itemSelector";
 import { verifiers } from "../verifiers";
 import { stringify } from "~/utils";
@@ -67,7 +67,11 @@ export default class SubmitMembershipApplicationCommand
       await r.paymentEvents.onSetupIntentSuccess(
         // we don't care what the setup intent id is just that it is unique
         // since we aren't verifying or driving any logic of its exact value
-        setupIntent(uniqueSetupIntentId(), membershipId.toString())
+        setupIntent(
+          uniqueSetupIntentId(),
+          membershipId.toString(),
+          CheckoutFlowType.APPLICATION
+        )
       );
     }
 

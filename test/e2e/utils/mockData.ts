@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { CheckoutFlowType } from "~/utils/types";
 
 export function uniqueSetupIntentId(): string {
   return `setup:intent:id:${crypto.randomUUID()}`;
@@ -6,14 +7,16 @@ export function uniqueSetupIntentId(): string {
 
 export function setupIntent(
   setupIntentId: string,
-  membershipId: string
+  membershipId: string,
+  checkoutFlowType: CheckoutFlowType
 ): Stripe.SetupIntent {
   return {
     // the id and the metadata of the setup intent is the only part of the
     // payload that actually matters
     id: setupIntentId,
     metadata: {
-      externalMembershipId: membershipId
+      externalMembershipId: membershipId,
+      flow_type: checkoutFlowType
     },
     object: "setup_intent",
     application: null,
