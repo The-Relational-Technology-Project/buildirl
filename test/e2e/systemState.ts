@@ -1244,7 +1244,7 @@ export class SystemState {
     const campaigns = Array.from(this.membershipCampaigns.values())
       .filter((c) => {
         const tierClubId = this.getClubIdForMembershipTier(c.membershipTierId);
-        return tierClubId === clubId && c.createdAt < now && c.endDate >= now;
+        return tierClubId === clubId && c.endDate >= now;
       })
       .sort((a, b) => b.id - a.id);
 
