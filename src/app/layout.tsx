@@ -26,8 +26,17 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }]
 };
 
-const unbounded = Unbounded({ subsets: ["latin"] });
-const workSans = Work_Sans({ subsets: ["latin"] });
+const unbounded = Unbounded({ 
+  subsets: ["latin"],
+  variable: '--font-heading',
+  display: 'swap'
+});
+
+const workSans = Work_Sans({ 
+  subsets: ["latin"],
+  variable: '--font-body',
+  display: 'swap'
+});
 
 export default function RootLayout({
   children
@@ -55,7 +64,7 @@ export default function RootLayout({
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
       />
-      <body className={`${unbounded.className} ${workSans.className}`}>
+      <body className={`${unbounded.variable} ${workSans.variable}`}>
         <PostHogProvider>
           <TRPCReactProvider>
             <MantineProvider theme={theme} defaultColorScheme={"light"}>
