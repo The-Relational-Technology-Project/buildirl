@@ -468,6 +468,7 @@ export class SystemState {
 
   public deleteMembershipTier(id: number) {
     this.deleteMembershipsForMembershipTier(id);
+    this.deleteMembershipCampaignsForMembershipTier(id);
     this.deleteMembershipTierFromClub(id);
     this.membershipTiers.delete(id);
   }
@@ -1186,6 +1187,17 @@ export class SystemState {
       throw new Error(`membership campaign with id ${id} not found`);
     }
     this.membershipCampaigns.delete(id);
+  }
+
+  private deleteMembershipCampaignsForMembershipTier(membershipTierId: number) {
+    const campaignIds = Array.from(this.membershipCampaigns.values())
+      .filter((c) => {
+        return c.membershipTierId === membershipTierId;
+      })
+      .map((c) => c.id);
+    for (const campaignId of campaignIds) {
+      this.deleteMembershipCampaign(campaignId);
+    }
   }
 
   private getMembershipCampaignState(id: number): MembershipCampaignState {
