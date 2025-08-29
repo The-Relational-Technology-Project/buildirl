@@ -490,6 +490,7 @@ export function createPaymentService(
         select: {
           membershipTier: {
             select: {
+              id: true,
               costPerBillingInterval: true
             }
           },
