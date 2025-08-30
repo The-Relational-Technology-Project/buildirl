@@ -9,6 +9,8 @@ of local community builders!
 - [Supabase](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce)
 - [Stripe](https://dashboard.stripe.com/dashboard)
 - [GCP](https://console.cloud.google.com/home/dashboard?invt=AbuU6A&project=buildirl-456321) (for SSO)
+- [Posthog](https://us.posthog.com/project/210175)
+- [Postmark](https://postmarkapp.com/)
 
 ## Technologies
 
@@ -83,7 +85,7 @@ for storage objects.
 **It is important to immediately enable RLS to it as close to possible as the migration is applied in version control (`prisma.rls.sql`), locally (via supabase studio @ `localhost:54323`),
 [test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).**
 2. RBAC/ABAC authorization on protected entities are defined via CASL abilities and applied as checks in the trpc layer. Every addition
-or change to an API must be audited to see if there are any necessary RBAC/ABAC authorization needed. By default our endpoints are open
+or change to an API should be audited to see if there are any necessary RBAC/ABAC authorization needed. By default our endpoints are open
 to all authenticated users (secured procedures), the public (public procedures), unless explicitly secured.
 
 ### Storage
@@ -91,7 +93,7 @@ Supabase RLS is the source-of-truth for storage authorization. **When new folder
 RLS rules version controlled in (`prisma/rls.sql`) and apply the changes manually via the supabase management console locally 
 (via supabase studio @ `localhost:54323`), [test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and
 [prod](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies).**
-NOTE: For first-time setup, you must create the 'images' bucket, set to Public and add the policies mentioned above. 
+NOTE: For first-time setup, you should create the 'images' bucket, set to Public and add the policies mentioned above. 
 
 ## Integration
 
@@ -138,9 +140,9 @@ Some use cases which it performs well in are:
 
 ### Caveats
 
-We use AI as a tool to empower human-in-the-loop development not to replace it. Above all we must follow good code development 
+We use AI as a tool to empower human-in-the-loop development not to replace it. Above all we should follow good code development 
 practices. Code should be reviewed and understood by the committer and held to the same code quality 
-and standards as human written code. In addition, your understanding of the code must be maintained. Not doing so adds to technical 
+and standards as human written code. In addition, your understanding of the code should be maintained. Not doing so adds to technical 
 and knowledge debt which will slow down development in the long-term.
 
 #### Key Files
