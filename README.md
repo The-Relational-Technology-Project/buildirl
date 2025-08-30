@@ -123,33 +123,34 @@ Other optional readings that help inform the development practices are:
 ## AI Development Workflow
 
 We encourage leveraging AI tools in our development practices. It is a way we can achieve scale as a lean team.
-We use cursor as code co-pilot. A list of cursor rules is in the code base in .cursor/rules. Adding to it 
-also as a way to document code practices for our team.
+We use both cursor as copilot and Claude Code in agent mode.
 
 ### Tips
 
-Getting the best results from AI tool use requires a combination of good prompts, managing context, and understanding the 
-optimal level at which to iterate with the AI ([guide video](https://www.youtube.com/watch?v=uwA3MMYBfAQ)), and trial
-and error. 
+Getting the best results from AI tool use requires a combination of specific prompts, managing context, and understanding the 
+optimal level (feature) at which to iterate with the AI. We should use trial and error and learn best practices as a team. 
 
 Some use cases which it performs well in are:
 - design brainstorming
-- initial template setup (e.g., especially for UI design)
-- implementing feature when there are many good examples in the codebase already 
-- debugging if you are able to effectively manage the context
+- initial first-pass feature implementation
+- rapid prototypes for short-lived experimental features (we do not care about long-term code quality)
+- full implementation when there are many good examples in the codebase already (e.g. implement auth layer, implement this API)
 
 ### Caveats
 
 We use AI as a tool to empower human-in-the-loop development not to replace it. Above all we must follow good code development 
-practices as described above sections. All code must be reviewed and understood by the committer and held to the same code quality 
+practices. Code should be reviewed and understood by the committer and held to the same code quality 
 and standards as human written code. In addition, your understanding of the code must be maintained. Not doing so adds to technical 
 and knowledge debt which will slow down development in the long-term.
 
 #### Key Files
 
-- The `.cursor/rules/` directory contains AI-facing documentation that **automatically guides AI assistants** working on this project.
+- The `.cursor/rules/` directory contains AI-facing documentation for Cursor copilot.
+- The `CLAUDE.md`  contains AI-facing documentation for Claude Code agentic mode.
 - `docs/ai-reference/software_principles.md` - Software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
 - `docs/ai-reference/team-software_principles.md` - Team specific software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
+
+The `docs/ai-reference/team-software_principles.md` also serves as a documentation for team best practices.
 
 ## Deployments
 
