@@ -158,3 +158,10 @@ this document prior to development to understand some team coding principles.
 ## Deployments
 
 We use Vercel for deployment which can be followed using this [guide](https://create.t3.gg/en/deployment/vercel).
+
+## Experimentation and Prototypes
+
+To get faster feedback, we're shifting toward experimental development practices (operating in "prototype mode" rather than "production mode"). 
+This approach emphasizes rapid hypothesis testing — prioritizing quick validation over long-term maintainability. We assume prototype code 
+is temporary and will be discarded or rebuilt once testing is complete. Use prototype mode for high-risk, non-core features. When adding experimental code 
+to the main application, mark it with `!! PROTOTYPE` to ensure proper cleanup or refactoring post-test.
