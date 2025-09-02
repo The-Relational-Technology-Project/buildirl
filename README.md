@@ -82,8 +82,8 @@ for storage objects.
 
 ### API
 1. When a table is added via prisma migration, it is by default not secured via RLS. This means supabase UI clients can access them freely.
-**It is important to immediately enable RLS to it as close to possible as the migration is applied in version control (`prisma.rls.sql`), locally (via supabase studio @ `localhost:54323`),
-[test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).**
+**It is important to immediately enable RLS to it as close to possible as the migration is applied in version control** (`prisma.rls.sql`), locally (via supabase studio @ `localhost:54323`),
+[test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).
 2. RBAC/ABAC authorization on protected entities are defined via CASL abilities and applied as checks in the trpc layer. Every addition
 or change to an API should be audited to see if there are any necessary RBAC/ABAC authorization needed. By default our endpoints are open
 to all authenticated users (secured procedures), the public (public procedures), unless explicitly secured.
@@ -99,12 +99,12 @@ NOTE: For first-time setup, you should create the 'images' bucket, set to Public
 
 We use [trunk-based development](https://www.atlassian.com/continuous-delivery/continuous-integration/trunk-based-development) as our integration strategy. In conjunction with
 TDD and smaller commits, this allows for increased iteration speed. We emphasize taking smaller faster steps and reducing
-the time your code is divergent from main.
+the time your code is diverging from the trunk (testing).
 
 ### CI Workflow
 1. Run PBT in `system.test.ts` on any backend changes locally before deployment
 2. Merge and push code into `testing` branch which is deployed automatically to the [testing environment](https://clubs-test.buildirl.com/)
-3. To deploy prod, run `just deploy-prod` which merges `origin/testing` into `origin/main`. Updates to the `main` branch is automatically 
+3. To deploy prod, create a PR from `origin/testing` into `origin/main`. Updates to the `main` branch is automatically 
 deployed to the [production environment](https://clubs.buildirl.com/).
 
 ### DB Migrations
@@ -124,8 +124,8 @@ Other optional readings that help inform the development practices are:
 
 ## AI Development Workflow
 
-We encourage leveraging AI tools in our development practices. It is a way we can achieve scale as a lean team.
-We use both cursor as copilot and Claude Code in agent mode.
+We encourage leveraging AI tools in our development practices. It is a way we can achieve scale as a lean team and keep up skill
+development as engineers. The team has used a combination Claude Code (in agent mode) and prior usage of Cursor copilot.
 
 ### Tips
 
@@ -142,17 +142,18 @@ Some use cases which it performs well in are:
 
 We use AI as a tool to empower human-in-the-loop development not to replace it. Above all we should follow good code development 
 practices. Code should be reviewed and understood by the committer and held to the same code quality 
-and standards as human written code. In addition, your understanding of the code should be maintained. Not doing so adds to technical 
-and knowledge debt which will slow down development in the long-term.
+and standards as human written code. In addition, you should continue to maintain your full understanding of the code. 
+Not doing so adds to technical and knowledge debt which will be a risk in the long-term.
 
 #### Key Files
 
-- The `.cursor/rules/` directory contains AI-facing documentation for Cursor copilot.
 - The `CLAUDE.md`  contains AI-facing documentation for Claude Code agentic mode.
+- The `.cursor/rules/` directory contains AI-facing documentation for Cursor copilot.
 - `docs/ai-reference/software_principles.md` - Software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
 - `docs/ai-reference/team-software_principles.md` - Team specific software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
 
-The `docs/ai-reference/team-software_principles.md` also serves as a documentation for team best practices.
+The [docs/ai-reference/team_software_principles.md](docs/ai-reference/team_software_principles.md) also serves as a documentation for team best practices. It is encouraged you read
+this document prior to development to understand some team coding principles.
 
 ## Deployments
 
