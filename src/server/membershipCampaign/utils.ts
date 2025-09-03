@@ -41,6 +41,7 @@ export function asMembershipCampaign(
       costPerMonthInUSD: item.costPerMonthInUSD.toNumber()
     })),
     endDate: campaign.endDate,
+    createdAt: campaign.createdAt,
     committedPerMonthInUSD: committedPerMonthInUSD,
     isTargetMet: isTargetMet
   };

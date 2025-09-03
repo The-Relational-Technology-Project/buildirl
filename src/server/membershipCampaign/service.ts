@@ -317,6 +317,21 @@ export function createMembershipCampaignService(
     }
   }
 
+  async function checkIfCampaignIsNotActive(id: number): Promise<void> {
+    const campaign = await prisma.membershipCampaign.findUniqueOrThrow({
+      where: { id },
+      select: {
+        endDate: true
+      }
+    });
+    const now = new Date();
+    if (campaign.endDate < now) {
+      throw new Error(
+        `cannot update past membership campaign with id ${id}. Campaign ended on ${campaign.endDate.toISOString()}`
+      );
+    }
+  }
+
   async function updateMembershipCampaign(
     id: number,
     input: UpdateMembershipCampaignInput
@@ -332,6 +347,8 @@ export function createMembershipCampaignService(
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
+      await checkIfCampaignIsNotActive(id);
+
       await tx.membershipCampaign.update({
         where: { id },
         data: {
@@ -370,6 +387,8 @@ export function createMembershipCampaignService(
 
   async function deleteMembershipCampaign(id: number): Promise<MutationResult> {
     try {
+      await checkIfCampaignIsNotActive(id);
+
       await prisma.membershipCampaign.delete({
         where: { id }
       });

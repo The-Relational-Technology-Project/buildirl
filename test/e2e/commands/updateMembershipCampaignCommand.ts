@@ -23,12 +23,12 @@ export default class UpdateMembershipCampaignCommand
   }
 
   check(m: Readonly<SystemState>): boolean {
-    return m.getMembershipCampaignIds().length > 0;
+    return m.getActiveMembershipCampaignIds().length > 0;
   }
 
   async run(m: SystemState, r: Services): Promise<void> {
     this.membershipCampaignId = this.membershipCampaignIdSelector.select(
-      m.getMembershipCampaignIds()
+      m.getActiveMembershipCampaignIds()
     );
 
     const campaign = m.getMembershipCampaign(this.membershipCampaignId);

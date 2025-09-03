@@ -1290,8 +1290,11 @@ export class SystemState {
     return this.getActiveMembershipCampaign(clubId) !== null;
   }
 
-  public getMembershipCampaignIds(): number[] {
-    return Array.from(this.membershipCampaigns.keys());
+  public getActiveMembershipCampaignIds(): number[] {
+    const now = new Date();
+    return Array.from(this.membershipCampaigns.values())
+      .filter((c) => c.endDate >= now)
+      .map((c) => c.id);
   }
 
   public getPaidMembershipTierIds() {
