@@ -78,11 +78,11 @@ coverage on:
 
 ## Authorization
 The source of truth for RBAC/ABAC authorization rules is in CASL abilities applied at trpc layer for API access and Postgres RLS rules
-for storage objects.
+for storage objects. The RLS policies are listed in `prisma.rls.sql`.
 
 ### API
 1. When a table is added via prisma migration, it is by default not secured via RLS. This means supabase UI clients can access them freely.
-**It is important to immediately enable RLS to it as close to possible as the migration is applied in version control** (`prisma.rls.sql`), locally (via supabase studio @ `localhost:54323`),
+**It is important to immediately enable RLS to it as close to possible as the migration is applied in version control** in the following areas:`prisma.rls.sql`, locally (via supabase studio @ `localhost:54323`),
 [test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).
 2. RBAC/ABAC authorization on protected entities are defined via CASL abilities and applied as checks in the trpc layer. Every addition
 or change to an API should be audited to see if there are any necessary RBAC/ABAC authorization needed. By default our endpoints are open
@@ -99,10 +99,10 @@ NOTE: For first-time setup, you should create the 'images' bucket, set to Public
 
 We use [trunk-based development](https://www.atlassian.com/continuous-delivery/continuous-integration/trunk-based-development) as our integration strategy. In conjunction with
 TDD and smaller commits, this allows for increased iteration speed. We emphasize taking smaller faster steps and reducing
-the time your code is diverging from the trunk (testing).
+the time your code is diverging from the trunk (testing). For larger commits, a PR should be created and reviewed by others. For small commits, it's okay to get merge into testing. Commits are tracked in the `dev` slack channel.
 
 ### CI Workflow
-1. Run PBT in `system.test.ts` on any backend changes locally before deployment
+1. Run PBT in `system.test.ts` on any backend changes locally before deployment. Use `yarn run test` to run tests.
 2. Merge and push code into `testing` branch which is deployed automatically to the [testing environment](https://clubs-test.buildirl.com/)
 3. To deploy prod, create a PR from `origin/testing` into `origin/main`. Updates to the `main` branch is automatically 
 deployed to the [production environment](https://clubs.buildirl.com/).
