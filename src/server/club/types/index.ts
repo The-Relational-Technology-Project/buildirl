@@ -19,6 +19,7 @@ type ClubQueries = {
   getClubByPublicId(publicId: string): Promise<Club>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   getClub(id: number): Promise<Club>;
+  getClubRhythm(clubId: number): Promise<Maybe<Rhythm>>;
 };
 
 export type Club = {
@@ -109,12 +110,22 @@ export const FAQsSchema = z.object({
 
 export type FAQs = z.infer<typeof FAQsSchema>;
 
+export const RhythmSchema = z.object({
+  id: z.number().optional(),
+  frequency: z.string(),
+  dayOfWeek: z.string(),
+  clubId: z.number().optional()
+});
+
+export type Rhythm = z.infer<typeof RhythmSchema>;
+
 export const UpdateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
   location: CitySchema,
+  rhythm: RhythmSchema,
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable(),

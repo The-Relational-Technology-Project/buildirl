@@ -1,4 +1,4 @@
-import { Prisma, type PrismaClient } from "@prisma/client";
+import { Prisma, Rhythm, type PrismaClient } from "@prisma/client";
 import { rootLogger } from "~/logger";
 import { stringify } from "~/utils";
 import { DEFAULT_APPLICATION_QUESTIONS } from "~/server/utils/defaults";
@@ -84,6 +84,24 @@ export function createClubService(
     }
   }
 
+  async function getClubRhythm(clubId: number): Promise<Rhythm | null> {
+    try {
+      const result = await prisma.rhythm.findUnique({
+        where: { clubId: clubId }
+      });
+      logger.info(
+        `queried club rhythm for club with clubId ${clubId} with result ${stringify(result)}`
+      );
+      return result;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query club rhythm for club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
   async function createClub(
     input: CreateClubInput,
     userId: number
@@ -140,22 +158,39 @@ export function createClubService(
     id: number,
     input: UpdateClubInput
   ): Promise<MutationResult> {
+    const { rhythm, ...clubData } = input;
+
     try {
       await prisma.club.update({
         data: {
-          ...input,
-          theme: input.theme ?? Prisma.DbNull
+          ...clubData,
+          theme: clubData.theme ?? Prisma.DbNull
         },
         where: {
           id: id
         }
       });
       logger.info(`updated club with id ${id} from input ${stringify(input)}`);
+      if (rhythm) {
+        await prisma.rhythm.upsert({
+          where: { clubId: id },
+          update: rhythm,
+          create: {
+            frequency: rhythm.frequency,
+            dayOfWeek: rhythm.dayOfWeek,
+            clubId: id
+          }
+        });
+      }
+      logger.info(
+        `updated rhythm for club with id ${id} to ${stringify(rhythm)}`
+      );
+
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(
         e,
-        `failed to update club with id ${id} from input ${stringify(input)}`
+        `failed to update club with id ${id} from input ${stringify(input)} and rhythm ${stringify(rhythm)}`
       );
       throw e;
     }
@@ -258,6 +293,7 @@ export function createClubService(
     getClubByPublicId,
     getClubStatistics,
     getClub,
+    getClubRhythm,
     createClub,
     updateClub,
     deleteClub,
