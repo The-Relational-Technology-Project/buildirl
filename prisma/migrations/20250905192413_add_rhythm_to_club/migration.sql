@@ -1,8 +1,8 @@
 -- CreateTable
 CREATE TABLE "rhythm" (
     "id" SERIAL NOT NULL,
-    "frequency" TEXT,
-    "day_of_week" TEXT,
+    "frequency" TEXT NOT NULL,
+    "day_of_week" TEXT NOT NULL,
     "clubId" INTEGER NOT NULL,
 
     CONSTRAINT "rhythm_pkey" PRIMARY KEY ("id")
