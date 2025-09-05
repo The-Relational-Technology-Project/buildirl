@@ -2,6 +2,7 @@
 
 import {
   Club,
+  Rhythm,
   UpdateClubInput,
   UpdateClubInputSchema
 } from "~/server/club/types";
@@ -13,7 +14,9 @@ import {
   TextInput,
   Title,
   Box,
-  useMatches
+  useMatches,
+  Select,
+  Group
 } from "@mantine/core";
 import EditableClubImage from "~/client/components/EditableClubImage";
 import React from "react";
@@ -27,7 +30,12 @@ import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_compone
 import FontSelector from "~/app/(main)/club/[clubId]/manage/update/_components/FontSelector";
 import FAQsSection from "~/app/(main)/club/[clubId]/manage/update/_components/FAQsSection";
 import { IconDeviceFloppy } from "@tabler/icons-react";
-import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import {
+  useForm,
+  FormProvider,
+  useFormContext,
+  Controller
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PrefixedInput from "~/client/components/PrefixedInput";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
@@ -84,6 +92,56 @@ function LocationSection() {
         }}
         error={errors.location?.message}
       />
+    </Stack>
+  );
+}
+
+function RhythmSection() {
+  const {
+    control,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
+
+  return (
+    <Stack gap={8}>
+      <Title order={6}>Club Rhythm</Title>
+      <Group gap={8} grow>
+        <Controller
+          name="rhythm.dayOfWeek"
+          control={control}
+          render={({ field }) => (
+            <Select
+              placeholder="Day of Week"
+              data={[
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+              ]}
+              {...field}
+            />
+          )}
+        />
+        <Controller
+          name="rhythm.frequency"
+          control={control}
+          render={({ field }) => (
+            <Select
+              placeholder="Frequency"
+              data={["Weekly", "Biweekly", "Monthly"]}
+              {...field}
+            />
+          )}
+        />
+      </Group>
+      {(errors.rhythm?.dayOfWeek || errors.rhythm?.frequency) && (
+        <div style={{ minHeight: 20, color: "red", fontSize: 12 }}>
+          Club rhythm is required
+        </div>
+      )}
     </Stack>
   );
 }
@@ -187,9 +245,10 @@ function ShowcaseImagesSection({ club }: ShowcaseImagesSectionProps) {
 
 interface UpdateClubFormProps {
   club: Club;
+  rhythm?: Rhythm;
 }
 
-function UpdateClubForm({ club }: UpdateClubFormProps) {
+function UpdateClubForm({ club, rhythm }: UpdateClubFormProps) {
   const clubImageSize = useMatches({ base: 240, md: 360 });
   const utils = api.useUtils();
   const router = useRouter();
@@ -222,6 +281,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
+      rhythm: rhythm,
       // TODO this casting can be removed once location field is made non-nullable
       // we cast here because the value can be null for older clubs the null value will fail at
       // validation time, forcing the user to back-populated their location to a non-null value
@@ -273,6 +333,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
           <BasicInfoSection />
           <LocationSection />
+          <RhythmSection />
 
           <LinksSection />
           <ShareLinkSection />
@@ -306,6 +367,7 @@ export default function UpdateClub() {
   const clubId = strictParseInt(params.clubId);
 
   const club = api.main.club.useQuery({ id: clubId });
+  const rhythm = api.main.clubRhythm.useQuery({ clubId: clubId });
 
   QueryError.check({
     result: club,
@@ -316,7 +378,7 @@ export default function UpdateClub() {
     isLoaded(club) && (
       <WithLocalNavigationHeader>
         <Stack px={{ base: 20, sm: 150 }} mb={"md"}>
-          <UpdateClubForm club={club.data!} />
+          <UpdateClubForm club={club.data!} rhythm={rhythm.data ?? undefined} />
         </Stack>
       </WithLocalNavigationHeader>
     )
