@@ -100,6 +100,7 @@ model Club {
   name                                String
   tagLine                             String           @map("tag_line")
   description                         String
+  rhythm                              Rhythm?
   // TODO make this non-nullable after all values have been backpopulated
   // city and state (e.g., San Francisco, CA)
   location                            String?
@@ -123,6 +124,16 @@ model Club {
 
   @@index([publicId])
   @@map("club")
+}
+
+model Rhythm {
+  id          Int         @id @default(autoincrement())
+  frequency   String?
+  dayOfWeek   String?     @map("day_of_week")
+  club        Club        @relation(fields: [clubId], references: [id])
+  clubId      Int         @unique
+
+  @@map("rhythm")
 }
 
 model MembershipTier {
