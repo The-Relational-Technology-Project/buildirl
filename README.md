@@ -161,7 +161,9 @@ We use Vercel for deployment which can be followed using this [guide](https://cr
 
 ## Experimentation and Prototypes
 
-To get faster feedback, we're shifting toward experimental development practices (operating in "prototype mode" rather than "production mode"). 
-This approach emphasizes rapid hypothesis testing — prioritizing quick validation over long-term maintainability. We assume prototype code 
-is temporary and will be discarded or rebuilt once testing is complete. Use prototype mode for high-risk, non-core features. When adding experimental code 
-to the main application, mark it with `!! PROTOTYPE` to ensure proper cleanup or refactoring post-test.
+To get faster feedback, we often need to have experimental development practices (operating in "prototype mode" rather than "production mode"). 
+This approach emphasizes rapid hypothesis testing — prioritizing quick speed doing what ever is fastest and easiest to test a specific hypothesis - 
+over long-term maintainability. 
+
+When adding prototype code to the main application, mark it with `!! PROTOTYPE` to ensure proper cleanup or refactoring post-test. This [document](https://docs.google.com/document/d/1I8Dq7xzS3dNXgUY9VJZ-Rjt7r8fMBvrMpGmv3VNEUFw/)
+provides context on the decision between prototype or production.
