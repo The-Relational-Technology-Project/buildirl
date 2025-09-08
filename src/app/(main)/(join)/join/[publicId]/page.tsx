@@ -10,12 +10,7 @@ import {
   Box,
   useMatches
 } from "@mantine/core";
-import {
-  IconBrandInstagram,
-  IconWorld,
-  IconMapPin,
-  IconCalendar
-} from "@tabler/icons-react";
+import { IconBrandInstagram, IconWorld, IconMapPin } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
@@ -116,11 +111,6 @@ export default function ClubJoin() {
     fieldName: "isUserAuthenticated"
   });
 
-  const rhythm = api.main.clubRhythm.useQuery(
-    { clubId: club.data?.id ?? 0 },
-    { enabled: !!club.data }
-  );
-
   return (
     mounted &&
     isAllLoaded([club, isUserAuthenticated]) && (
@@ -189,15 +179,6 @@ export default function ClubJoin() {
                 <Group gap={6}>
                   <IconMapPin size={18} stroke={1.5} />
                   <Text size="sm">{club.data!.location}</Text>
-                </Group>
-              )}
-
-              {rhythm.data && (
-                <Group gap={6}>
-                  <IconCalendar size={18} stroke={1.5} />
-                  <Text size="sm">
-                    {rhythm.data.frequency} on {rhythm.data.dayOfWeek}
-                  </Text>
                 </Group>
               )}
             </Stack>
