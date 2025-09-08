@@ -19,7 +19,6 @@ type ClubQueries = {
   getClubByPublicId(publicId: string): Promise<Club>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   getClub(id: number): Promise<Club>;
-  getClubRhythm(clubId: number): Promise<Maybe<Rhythm>>;
 };
 
 export type Club = {
@@ -31,6 +30,9 @@ export type Club = {
   //  made non-nullable after values are back-populated
   // this is nullable for backwards compatibility purposes
   location: Maybe<City>;
+  startDate: Maybe<Date>;
+  startTime: Maybe<string>;
+  frequency: Maybe<RhythmFrequency>;
   description: string;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
@@ -110,14 +112,9 @@ export const FAQsSchema = z.object({
 
 export type FAQs = z.infer<typeof FAQsSchema>;
 
-export const RhythmSchema = z.object({
-  id: z.number().optional(),
-  frequency: z.string(),
-  dayOfWeek: z.string(),
-  clubId: z.number().optional()
-});
+export const RhythmFrequencySchema = z.enum(["Weekly", "Biweekly", "Monthly"]);
 
-export type Rhythm = z.infer<typeof RhythmSchema>;
+export type RhythmFrequency = z.infer<typeof RhythmFrequencySchema>;
 
 export const UpdateClubInputSchema = z.object({
   name: ClubNameSchema,
@@ -125,7 +122,9 @@ export const UpdateClubInputSchema = z.object({
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
   location: CitySchema,
-  rhythm: RhythmSchema,
+  startDate: z.date().nullable(),
+  startTime: z.string().nullable(),
+  frequency: RhythmFrequencySchema.nullable(),
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable(),

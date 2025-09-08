@@ -104,12 +104,6 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.club.getClub(input.id);
     }),
 
-  clubRhythm: publicProcedure
-    .input(z.object({ clubId: z.number() }))
-    .query(({ ctx, input }) => {
-      return ctx.service.club.getClubRhythm(input.clubId);
-    }),
-
   createUser: securedProcedure
     .input(CreateUserInputSchema)
     .mutation(({ ctx, input }) => {
