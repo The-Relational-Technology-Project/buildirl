@@ -122,31 +122,23 @@ function RhythmSection() {
         <Controller
           name="startDate"
           control={control}
-          render={({ field }) => (
-            <DateInput
-              value={field.value ? new Date(field.value) : null}
-              onChange={(date) => {
-                if (typeof date === "string" && date.length >= 10) {
-                  const [year, month, day] = date.slice(0, 10).split("-");
-                  const formattedDate = new Date(
-                    Number(year),
-                    Number(month) - 1,
-                    Number(day)
-                  );
-                  field.onChange(formattedDate);
-                } else {
-                  field.onChange(null);
-                }
-              }}
-              placeholder="Start Date"
-              styles={{
-                input: {
-                  border: "1px solid black",
-                  borderRadius: 0
-                }
-              }}
-            />
-          )}
+          render={({ field }) => {
+            return (
+              <DateInput
+                value={field.value ?? null}
+                onChange={(date) => {
+                  field.onChange(date);
+                }}
+                placeholder="Start Date"
+                styles={{
+                  input: {
+                    border: "1px solid black",
+                    borderRadius: 0
+                  }
+                }}
+              />
+            );
+          }}
         />
         <Controller
           name="startTime"
