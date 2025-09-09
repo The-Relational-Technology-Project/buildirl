@@ -2,7 +2,6 @@
 
 import {
   Club,
-  Rhythm,
   UpdateClubInput,
   UpdateClubInputSchema
 } from "~/server/club/types";
@@ -15,11 +14,13 @@ import {
   Title,
   Box,
   useMatches,
+  Group,
   Select,
-  Group
+  ActionIcon
 } from "@mantine/core";
+import { DateInput, TimeInput } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
-import React from "react";
+import React, { useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -29,7 +30,7 @@ import ThemeSelector from "~/app/(main)/club/[clubId]/manage/update/_components/
 import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_components/ClubDisplayImageUpload";
 import FontSelector from "~/app/(main)/club/[clubId]/manage/update/_components/FontSelector";
 import FAQsSection from "~/app/(main)/club/[clubId]/manage/update/_components/FAQsSection";
-import { IconDeviceFloppy } from "@tabler/icons-react";
+import { IconClock, IconDeviceFloppy } from "@tabler/icons-react";
 import {
   useForm,
   FormProvider,
@@ -102,31 +103,74 @@ function RhythmSection() {
     formState: { errors }
   } = useFormContext<UpdateClubInput>();
 
+  const ref = useRef<HTMLInputElement>(null);
+
+  const pickerControl = (
+    <ActionIcon
+      variant="subtle"
+      color="gray"
+      onClick={() => ref.current?.showPicker()}
+    >
+      <IconClock size={16} stroke={1.5} />
+    </ActionIcon>
+  );
+
   return (
     <Stack gap={8}>
       <Title order={6}>Club Rhythm</Title>
       <Group gap={8} grow>
         <Controller
-          name="rhythm.dayOfWeek"
+          name="startDate"
           control={control}
           render={({ field }) => (
-            <Select
-              placeholder="Day of Week"
-              data={[
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-              ]}
-              {...field}
+            <DateInput
+              value={field.value ? new Date(field.value) : null}
+              onChange={(date) => {
+                if (typeof date === "string" && date.length >= 10) {
+                  const [year, month, day] = date.slice(0, 10).split("-");
+                  const formattedDate = new Date(
+                    Number(year),
+                    Number(month) - 1,
+                    Number(day)
+                  );
+                  field.onChange(formattedDate);
+                } else {
+                  field.onChange(null);
+                }
+              }}
+              placeholder="Start Date"
+              styles={{
+                input: {
+                  border: "1px solid black",
+                  borderRadius: 0
+                }
+              }}
             />
           )}
         />
         <Controller
-          name="rhythm.frequency"
+          name="startTime"
+          control={control}
+          render={({ field }) => (
+            <TimeInput
+              value={field.value ?? ""}
+              onChange={(value) => {
+                field.onChange(value);
+              }}
+              placeholder="Start Time"
+              ref={ref}
+              rightSection={pickerControl}
+              styles={{
+                input: {
+                  border: "1px solid black",
+                  borderRadius: 0
+                }
+              }}
+            />
+          )}
+        />
+        <Controller
+          name="frequency"
           control={control}
           render={({ field }) => (
             <Select
@@ -137,9 +181,9 @@ function RhythmSection() {
           )}
         />
       </Group>
-      {(errors.rhythm?.dayOfWeek || errors.rhythm?.frequency) && (
+      {(errors.frequency || errors.startDate || errors.startTime) && (
         <div style={{ minHeight: 20, color: "red", fontSize: 12 }}>
-          Club rhythm is required
+          Club rhythm is required.
         </div>
       )}
     </Stack>
@@ -245,10 +289,9 @@ function ShowcaseImagesSection({ club }: ShowcaseImagesSectionProps) {
 
 interface UpdateClubFormProps {
   club: Club;
-  rhythm?: Rhythm;
 }
 
-function UpdateClubForm({ club, rhythm }: UpdateClubFormProps) {
+function UpdateClubForm({ club }: UpdateClubFormProps) {
   const clubImageSize = useMatches({ base: 240, md: 360 });
   const utils = api.useUtils();
   const router = useRouter();
@@ -281,7 +324,9 @@ function UpdateClubForm({ club, rhythm }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
-      rhythm: rhythm,
+      startDate: club.startDate ?? undefined,
+      startTime: club.startTime ?? undefined,
+      frequency: club.frequency ?? undefined,
       // TODO this casting can be removed once location field is made non-nullable
       // we cast here because the value can be null for older clubs the null value will fail at
       // validation time, forcing the user to back-populated their location to a non-null value
@@ -367,7 +412,6 @@ export default function UpdateClub() {
   const clubId = strictParseInt(params.clubId);
 
   const club = api.main.club.useQuery({ id: clubId });
-  const rhythm = api.main.clubRhythm.useQuery({ clubId: clubId });
 
   QueryError.check({
     result: club,
@@ -378,7 +422,7 @@ export default function UpdateClub() {
     isLoaded(club) && (
       <WithLocalNavigationHeader>
         <Stack px={{ base: 20, sm: 150 }} mb={"md"}>
-          <UpdateClubForm club={club.data!} rhythm={rhythm.data ?? undefined} />
+          <UpdateClubForm club={club.data!} />
         </Stack>
       </WithLocalNavigationHeader>
     )

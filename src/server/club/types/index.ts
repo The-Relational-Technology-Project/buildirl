@@ -32,7 +32,7 @@ export type Club = {
   location: Maybe<City>;
   startDate: Maybe<Date>;
   startTime: Maybe<string>;
-  frequency: Maybe<RhythmFrequency>;
+  frequency: Maybe<string>;
   description: string;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
@@ -122,9 +122,9 @@ export const UpdateClubInputSchema = z.object({
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
   location: CitySchema,
-  startDate: z.date().nullable(),
-  startTime: z.string().nullable(),
-  frequency: RhythmFrequencySchema.nullable(),
+  startDate: z.date(),
+  startTime: z.string(),
+  frequency: z.string(),
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable(),
