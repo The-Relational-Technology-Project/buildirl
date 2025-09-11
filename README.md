@@ -9,6 +9,8 @@ of local community builders!
 - [Supabase](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce)
 - [Stripe](https://dashboard.stripe.com/dashboard)
 - [GCP](https://console.cloud.google.com/home/dashboard?invt=AbuU6A&project=buildirl-456321) (for SSO)
+- [Posthog](https://us.posthog.com/project/210175)
+- [Postmark](https://postmarkapp.com/)
 
 ## Technologies
 
@@ -76,14 +78,14 @@ coverage on:
 
 ## Authorization
 The source of truth for RBAC/ABAC authorization rules is in CASL abilities applied at trpc layer for API access and Postgres RLS rules
-for storage objects.
+for storage objects. The RLS policies are listed in `prisma.rls.sql`.
 
 ### API
 1. When a table is added via prisma migration, it is by default not secured via RLS. This means supabase UI clients can access them freely.
-**It is important to immediately enable RLS to it as close to possible as the migration is applied in version control (`prisma.rls.sql`), locally (via supabase studio @ `localhost:54323`),
-[test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).**
+**It is important to immediately enable RLS to it as close to possible as the migration is applied in version control** in the following areas:`prisma.rls.sql`, locally (via supabase studio @ `localhost:54323`),
+[test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).
 2. RBAC/ABAC authorization on protected entities are defined via CASL abilities and applied as checks in the trpc layer. Every addition
-or change to an API must be audited to see if there are any necessary RBAC/ABAC authorization needed. By default our endpoints are open
+or change to an API should be audited to see if there are any necessary RBAC/ABAC authorization needed. By default our endpoints are open
 to all authenticated users (secured procedures), the public (public procedures), unless explicitly secured.
 
 ### Storage
@@ -91,18 +93,18 @@ Supabase RLS is the source-of-truth for storage authorization. **When new folder
 RLS rules version controlled in (`prisma/rls.sql`) and apply the changes manually via the supabase management console locally 
 (via supabase studio @ `localhost:54323`), [test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and
 [prod](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies).**
-NOTE: For first-time setup, you must create the 'images' bucket, set to Public and add the policies mentioned above. 
+NOTE: For first-time setup, you should create the 'images' bucket, set to Public and add the policies mentioned above. 
 
 ## Integration
 
 We use [trunk-based development](https://www.atlassian.com/continuous-delivery/continuous-integration/trunk-based-development) as our integration strategy. In conjunction with
 TDD and smaller commits, this allows for increased iteration speed. We emphasize taking smaller faster steps and reducing
-the time your code is divergent from main.
+the time your code is diverging from the trunk (testing). For larger commits, a PR should be created and reviewed by others. For small commits, it's okay to get merge into testing. Commits are tracked in the `dev` slack channel.
 
 ### CI Workflow
-1. Run PBT in `system.test.ts` on any backend changes locally before deployment
+1. Run PBT in `system.test.ts` on any backend changes locally before deployment. Use `yarn run test` to run tests.
 2. Merge and push code into `testing` branch which is deployed automatically to the [testing environment](https://clubs-test.buildirl.com/)
-3. To deploy prod, run `just deploy-prod` which merges `origin/testing` into `origin/main`. Updates to the `main` branch is automatically 
+3. To deploy prod, create a PR from `origin/testing` into `origin/main`. Updates to the `main` branch is automatically 
 deployed to the [production environment](https://clubs.buildirl.com/).
 
 ### DB Migrations
@@ -122,35 +124,46 @@ Other optional readings that help inform the development practices are:
 
 ## AI Development Workflow
 
-We encourage leveraging AI tools in our development practices. It is a way we can achieve scale as a lean team.
-We use cursor as code co-pilot. A list of cursor rules is in the code base in .cursor/rules. Adding to it 
-also as a way to document code practices for our team.
+We encourage leveraging AI tools in our development practices. It is a way we can achieve scale as a lean team and keep up skill
+development as engineers. The team has used a combination Claude Code (in agent mode) and prior usage of Cursor copilot.
 
 ### Tips
 
-Getting the best results from AI tool use requires a combination of good prompts, managing context, and understanding the 
-optimal level at which to iterate with the AI ([guide video](https://www.youtube.com/watch?v=uwA3MMYBfAQ)), and trial
-and error. 
+Getting the best results from AI tool use requires a combination of specific prompts, managing context, and understanding the 
+optimal level (feature) at which to iterate with the AI. We should use trial and error and learn best practices as a team. 
 
 Some use cases which it performs well in are:
 - design brainstorming
-- initial template setup (e.g., especially for UI design)
-- implementing feature when there are many good examples in the codebase already 
-- debugging if you are able to effectively manage the context
+- initial first-pass feature implementation
+- rapid prototypes for short-lived experimental features (we do not care about long-term code quality)
+- full implementation when there are many good examples in the codebase already (e.g. implement auth layer, implement this API)
 
 ### Caveats
 
-We use AI as a tool to empower human-in-the-loop development not to replace it. Above all we must follow good code development 
-practices as described above sections. All code must be reviewed and understood by the committer and held to the same code quality 
-and standards as human written code. In addition, your understanding of the code must be maintained. Not doing so adds to technical 
-and knowledge debt which will slow down development in the long-term.
+We use AI as a tool to empower human-in-the-loop development not to replace it. Above all we should follow good code development 
+practices. Code should be reviewed and understood by the committer and held to the same code quality 
+and standards as human written code. In addition, you should continue to maintain your full understanding of the code. 
+Not doing so adds to technical and knowledge debt which will be a risk in the long-term.
 
 #### Key Files
 
-- The `.cursor/rules/` directory contains AI-facing documentation that **automatically guides AI assistants** working on this project.
+- The `CLAUDE.md`  contains AI-facing documentation for Claude Code agentic mode.
+- The `.cursor/rules/` directory contains AI-facing documentation for Cursor copilot.
 - `docs/ai-reference/software_principles.md` - Software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
 - `docs/ai-reference/team-software_principles.md` - Team specific software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
+
+The [docs/ai-reference/team_software_principles.md](docs/ai-reference/team_software_principles.md) also serves as a documentation for team best practices. It is encouraged you read
+this document prior to development to understand some team coding principles.
 
 ## Deployments
 
 We use Vercel for deployment which can be followed using this [guide](https://create.t3.gg/en/deployment/vercel).
+
+## Experimentation and Prototypes
+
+To get faster feedback, we often need to have experimental development practices (operating in "prototype mode" rather than "production mode"). 
+This approach emphasizes rapid hypothesis testing — prioritizing quick speed doing what ever is fastest and easiest to test a specific hypothesis - 
+over long-term maintainability. 
+
+When adding prototype code to the main application, mark it with `!! PROTOTYPE` to ensure proper cleanup or refactoring post-test. This [document](https://docs.google.com/document/d/1I8Dq7xzS3dNXgUY9VJZ-Rjt7r8fMBvrMpGmv3VNEUFw/)
+provides context on the decision between prototype or production.
