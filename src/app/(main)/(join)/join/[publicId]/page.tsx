@@ -10,7 +10,12 @@ import {
   Box,
   useMatches
 } from "@mantine/core";
-import { IconBrandInstagram, IconWorld, IconMapPin } from "@tabler/icons-react";
+import {
+  IconBrandInstagram,
+  IconWorld,
+  IconMapPin,
+  IconCalendar
+} from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
@@ -181,6 +186,26 @@ export default function ClubJoin() {
                   <Text size="sm">{club.data!.location}</Text>
                 </Group>
               )}
+
+              {club.data!.frequency &&
+                club.data!.startDate &&
+                club.data!.startTime && (
+                  <Group gap={6}>
+                    <IconCalendar size={18} stroke={1.5} />
+                    <Text size="sm">
+                      {club.data!.frequency} on{" "}
+                      {club.data!.startDate.toLocaleDateString("en-US", {
+                        weekday: "long"
+                      })}
+                      s @{" "}
+                      {club.data!.startTime.toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true
+                      })}
+                    </Text>
+                  </Group>
+                )}
             </Stack>
           </Stack>
 
