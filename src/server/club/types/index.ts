@@ -30,8 +30,8 @@ export type Club = {
   //  made non-nullable after values are back-populated
   // this is nullable for backwards compatibility purposes
   location: Maybe<City>;
-  startDate: Maybe<string>;
-  startTime: Maybe<string>;
+  startDate: Maybe<Date>;
+  startTime: Maybe<Date>;
   frequency: Maybe<string>;
   description: string;
   websiteUrl: Maybe<Url>;
@@ -122,8 +122,8 @@ export const UpdateClubInputSchema = z.object({
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
   location: CitySchema,
-  startDate: z.string(),
-  startTime: z.string(),
+  startDate: z.string().min(1, "Date is required"),
+  startTime: z.string().min(1, "Time is required"),
   frequency: z.string(),
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),

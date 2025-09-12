@@ -100,8 +100,8 @@ model Club {
   name                                String
   tagLine                             String           @map("tag_line")
   description                         String
-  startDate                           String?          @map("start_date")
-  startTime                           String?          @map("start_time")
+  startDate                           DateTime?        @map("start_date") @db.Date
+  startTime                           DateTime?        @map("start_time") @db.Time
   frequency                           String?          @map("frequency")
   // TODO make this non-nullable after all values have been backpopulated
   // city and state (e.g., San Francisco, CA)

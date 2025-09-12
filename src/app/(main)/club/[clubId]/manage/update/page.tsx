@@ -146,9 +146,7 @@ function RhythmSection() {
           render={({ field }) => (
             <TimeInput
               value={field.value ?? ""}
-              onChange={(value) => {
-                field.onChange(value);
-              }}
+              onChange={(value) => field.onChange(value)}
               placeholder="Start Time"
               ref={ref}
               rightSection={pickerControl}
@@ -316,8 +314,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
-      startDate: club.startDate ?? undefined,
-      startTime: club.startTime ?? undefined,
+      startDate: club.startDate?.toISOString().slice(0, 10) ?? undefined,
+      startTime: club.startTime?.toISOString().slice(11, 16) ?? undefined,
       frequency: club.frequency ?? undefined,
       // TODO this casting can be removed once location field is made non-nullable
       // we cast here because the value can be null for older clubs the null value will fail at
