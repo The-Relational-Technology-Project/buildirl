@@ -143,6 +143,7 @@ model MembershipTier {
   memberships                Membership[]
   createdAt                  DateTime             @default(now()) @map("created_at")
   updatedAt                  DateTime             @updatedAt @map("updated_at")
+  MembershipCampaign         MembershipCampaign[]
 
   @@index([clubId])
   @@map("membership_tier")
@@ -214,26 +215,29 @@ model EmailBlast {
   @@map("email_blast")
 }
 
-model ClubResource {
-  clubId      Int          @id @default(autoincrement())
-  budgetItems BudgetItem[]
-  targetDate  DateTime?    @map("target_date")
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+model MembershipCampaign {
+  id                  Int                  @id @default(autoincrement())
+  membershipTierId    Int                  @map("membership_tier_id")
+  membershipTier      MembershipTier       @relation(fields: [membershipTierId], references: [id], onDelete: Cascade)
+  targetPerMonthInUSD Decimal              @map("target_per_month_in_usd")
+  budgetItems         CampaignBudgetItem[]
+  endDate             DateTime
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
 
-  @@map("club_resource")
+  @@map("membership_campaign")
 }
 
-model BudgetItem {
-  id                Int          @id @default(autoincrement())
-  label             String
-  costPerMonthInUSD Decimal      @map("cost_per_month_in_usd")
-  clubResource      ClubResource @relation(fields: [clubId], references: [clubId])
-  clubId            Int          @map("club_id")
-  createdAt         DateTime     @default(now()) @map("created_at")
-  updatedAt         DateTime     @updatedAt @map("updated_at")
+model CampaignBudgetItem {
+  id                   Int                @id @default(autoincrement())
+  membershipCampaignId Int                @map("membership_campaign_id")
+  membershipCampaign   MembershipCampaign @relation(fields: [membershipCampaignId], references: [id], onDelete: Cascade)
+  label                String
+  costPerMonthInUSD    Decimal            @map("cost_per_month_in_usd")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
 
-  @@map("budget_item")
+  @@map("campaign_budget_item")
 }
 
 // !! PROTOTYPE
