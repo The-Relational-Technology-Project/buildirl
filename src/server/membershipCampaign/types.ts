@@ -6,7 +6,6 @@ import {
   RequiredStringSchema
 } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
-import { MembershipTier } from "~/server/membershipTier/types";
 
 export type MembershipCampaignService = MembershipCampaignQueries &
   MembershipCampaignMutations;
@@ -15,10 +14,9 @@ type MembershipCampaignQueries = {
   getActiveMembershipCampaign(
     clubId: number
   ): Promise<Maybe<MembershipCampaign>>;
-  getPastMembershipCampaigns(clubId: number): Promise<MembershipCampaign[]>;
-  // does club have target met for previous
-  // membership campaign
-  isClubLaunched(clubId: number): Promise<boolean>;
+  getActiveMembershipCampaignProgress(
+    clubId: number
+  ): Promise<ActiveMembershipCampaignProgress>;
 };
 
 type MembershipCampaignMutations = {
@@ -35,14 +33,17 @@ type MembershipCampaignMutations = {
 
 export type MembershipCampaign = {
   id: number;
-  membershipTier: MembershipTier;
-  targetPerMonthInUSD: MonetaryValue;
   budgetItems: CampaignBudgetItem[];
-  createdAt: Date;
-  endDate: Date;
+  targetDate: Date;
   // calculated fields
+  targetPerMonthInUSD: MonetaryValue;
+};
+
+// this is global and current progress for active campaign
+export type ActiveMembershipCampaignProgress = {
+  // total amount committed across active and pending
+  // applications
   committedPerMonthInUSD: MonetaryValue;
-  isTargetMet: boolean;
 };
 
 export type CampaignBudgetItem = {
@@ -58,9 +59,8 @@ const CampaignBudgetItemInput = z.object({
 const CampaignBudgetItemsInput = z.array(CampaignBudgetItemInput).min(1).max(5);
 
 export const CreateMembershipCampaignInputSchema = z.object({
-  targetPerMonthInUSD: MonetaryValueSchema,
-  endDate: z.date(),
-  budgetItems: CampaignBudgetItemsInput
+  budgetItems: CampaignBudgetItemsInput,
+  targetDate: z.date()
 });
 
 export type CreateMembershipCampaignInput = z.infer<
@@ -68,9 +68,8 @@ export type CreateMembershipCampaignInput = z.infer<
 >;
 
 export const UpdateMembershipCampaignInputSchema = z.object({
-  targetPerMonthInUSD: MonetaryValueSchema,
-  endDate: z.date(),
-  budgetItems: CampaignBudgetItemsInput
+  budgetItems: CampaignBudgetItemsInput,
+  targetDate: z.date()
 });
 
 export type UpdateMembershipCampaignInput = z.infer<

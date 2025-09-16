@@ -1,30 +1,23 @@
 import { rootLogger } from "~/logger";
 import type { PrismaClient } from "@prisma/client";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
-import type { MembershipService } from "~/server/membership/types";
 import { Maybe } from "~/utils/types";
 import type {
+  ActiveMembershipCampaignProgress,
   CreateMembershipCampaignInput,
   MembershipCampaign,
   MembershipCampaignService,
   UpdateMembershipCampaignInput
 } from "./types";
 import { asMembershipCampaign, MEMBERSHIP_CAMPAIGN_SELECT } from "./utils";
-import {
-  asMembershipTier,
-  getCostPerMonthInUSD,
-  MEMBERSHIP_TIER_SELECT
-} from "~/server/membershipTier/utils";
-import { MembershipTierService } from "~/server/membershipTier/types";
-import { Prisma } from "@prisma/client";
+import { $Enums, Prisma } from "@prisma/client";
 import { stringify } from "~/utils";
+import Decimal = Prisma.Decimal;
 
 const logger = rootLogger.child({ module: "membershipCampaignService" });
 
 export function createMembershipCampaignService(
-  prisma: PrismaClient,
-  membershipService: MembershipService,
-  membershipTierService: MembershipTierService
+  prisma: PrismaClient
 ): MembershipCampaignService {
   async function getActiveMembershipCampaign(
     clubId: number
@@ -33,11 +26,9 @@ export function createMembershipCampaignService(
       const now = new Date();
       const result = await prisma.membershipCampaign.findFirst({
         where: {
-          membershipTier: {
-            clubId
-          },
-          // active campaign is any whose end date is > now
-          endDate: {
+          clubId: clubId,
+          // active campaign is any whose target date is > now
+          targetDate: {
             gte: now
           }
         },
@@ -54,20 +45,7 @@ export function createMembershipCampaignService(
         return null;
       }
 
-      const committedPerMonthInUSD = await getCommittedPerMonthInUSD(
-        result.membershipTierId,
-        result.createdAt,
-        result.endDate
-      );
-
-      const isTargetMet =
-        committedPerMonthInUSD >= result.targetPerMonthInUSD.toNumber();
-
-      const membershipCampaign = asMembershipCampaign(
-        result,
-        committedPerMonthInUSD,
-        isTargetMet
-      );
+      const membershipCampaign = asMembershipCampaign(result);
 
       logger.info(
         `querying active membership campaign for club with id ${clubId} with result ${stringify(result)}`
@@ -82,114 +60,71 @@ export function createMembershipCampaignService(
     }
   }
 
-  async function getCommittedPerMonthInUSD(
-    membershipTierId: number,
-    startDate: Date,
-    endDate: Date
+  async function getActiveMembershipCampaignProgress(
+    clubId: number
+  ): Promise<ActiveMembershipCampaignProgress> {
+    const committedPerMonthInUSD =
+      await getCommittedPerMonthInUSDForAllPendingOrActiveMemberships(clubId);
+    return { committedPerMonthInUSD: committedPerMonthInUSD };
+  }
+
+  async function getCommittedPerMonthInUSDForAllPendingOrActiveMemberships(
+    clubId: number
   ): Promise<number> {
     try {
-      const result = await prisma.membershipTier.findUniqueOrThrow({
-        where: { id: membershipTierId },
-        select: MEMBERSHIP_TIER_SELECT
+      const memberships = await prisma.membership.findMany({
+        where: {
+          membershipTier: {
+            clubId: clubId
+          },
+          status: {
+            in: ["ACTIVE", "PENDING"]
+          }
+        },
+        select: {
+          membershipTier: {
+            select: {
+              costPerBillingInterval: true,
+              billingInterval: true
+            }
+          }
+        }
       });
 
-      const membershipTier = asMembershipTier(result);
-      const costPerMonthInUSD = getCostPerMonthInUSD(membershipTier);
+      let committedPerMonthInUSD = 0;
+      for (const membership of memberships) {
+        committedPerMonthInUSD += monthlyRate(membership.membershipTier);
+      }
 
-      const commitmentCount =
-        await getMembershipApplicationCountToMembershipTierBetweenDates(
-          membershipTierId,
-          startDate,
-          endDate
-        );
-
-      return commitmentCount * costPerMonthInUSD;
+      logger.info(
+        `calculate total committed per month for club with id ${clubId} with result ${committedPerMonthInUSD}`
+      );
+      // round to 2 decimal places
+      return Number(committedPerMonthInUSD.toFixed(2));
     } catch (e) {
       logger.error(
         e,
-        `failed to calculate committed per month for membership tier with id ${membershipTierId}`
+        `failed to calculate total committed per month for club with id ${clubId}`
       );
       throw e;
     }
   }
 
-  async function getMembershipApplicationCountToMembershipTierBetweenDates(
-    membershipTierId: number,
-    startDate: Date,
-    endDate: Date
-  ): Promise<number> {
-    const clubId =
-      await membershipTierService.getClubIdFromMembershipTierId(
-        membershipTierId
-      );
-
-    // both applications and approved memberships are considered committed
-    const allActiveMemberships =
-      await membershipService.getActiveMembershipsForClub(clubId, false);
-    const allMembershipApplications =
-      await membershipService.getMembershipApplicationsForClub(clubId);
-
-    const tierMemberships = allActiveMemberships
-      .concat(allMembershipApplications)
-      .filter(
-        (membership) =>
-          membership.membershipTier.id === membershipTierId &&
-          membership.createdAt > startDate &&
-          membership.createdAt < endDate
-      );
-
-    return tierMemberships.length;
-  }
-
-  async function isClubLaunched(clubId: number): Promise<boolean> {
-    try {
-      const now = new Date();
-      const pastCampaigns = await prisma.membershipCampaign.findMany({
-        where: {
-          membershipTier: {
-            clubId
-          },
-          endDate: {
-            lt: now
-          }
-        },
-        select: MEMBERSHIP_CAMPAIGN_SELECT,
-        orderBy: {
-          endDate: "desc"
-        }
-      });
-
-      if (pastCampaigns.length === 0) {
-        logger.info(
-          `queried if club with id ${clubId} is launched with result no prior campaign found`
-        );
-        return false;
-      }
-
-      for (const campaign of pastCampaigns) {
-        const committedPerMonthInUSD = await getCommittedPerMonthInUSD(
-          campaign.membershipTierId,
-          campaign.createdAt,
-          campaign.endDate
-        );
-        if (committedPerMonthInUSD >= campaign.targetPerMonthInUSD.toNumber()) {
-          logger.info(
-            `queried if club with id ${clubId} is launched with result successful campaign found ${stringify(campaign)}`
-          );
-          return true;
-        }
-      }
-
-      logger.info(
-        `queried if club with id ${clubId} is launched with result no successful campaign found`
-      );
-      return false;
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to query if club is launched for club with id ${clubId}`
-      );
-      throw e;
+  function monthlyRate(membershipTier: {
+    costPerBillingInterval: Decimal;
+    billingInterval: $Enums.BillingInterval;
+  }): number {
+    const { costPerBillingInterval, billingInterval } = membershipTier;
+    const cost = costPerBillingInterval.toNumber();
+    switch (billingInterval) {
+      case "MONTHLY":
+        return cost;
+      case "QUARTERLY":
+        return cost / 3;
+      case "SEMI_ANNUAL":
+        return cost / 6;
+      default:
+        throw Error("");
     }
   }
 
@@ -203,41 +138,23 @@ export function createMembershipCampaignService(
   }
 
   async function createMembershipCampaignInTransaction(
-    membershipTierId: number,
+    clubId: number,
     input: CreateMembershipCampaignInput,
     tx: Prisma.TransactionClient
   ): Promise<MutationResult> {
     try {
-      const clubId =
-        await membershipTierService.getClubIdFromMembershipTierId(
-          membershipTierId
-        );
       const activeMembershipCampaign =
         await getActiveMembershipCampaign(clubId);
-
       if (activeMembershipCampaign !== null) {
         throw new Error(
           `cannot create membership campaign if there already exists an existing campaign ${activeMembershipCampaign}`
         );
       }
 
-      const membershipTier = await tx.membershipTier.findFirst({
-        where: {
-          id: membershipTierId,
-          clubId: clubId
-        }
-      });
-      if (membershipTier === null) {
-        throw new Error(
-          `membership tier with id ${membershipTierId} was not found to belong to club with id ${clubId}`
-        );
-      }
-
       const campaign = await tx.membershipCampaign.create({
         data: {
-          membershipTierId: membershipTierId,
-          targetPerMonthInUSD: input.targetPerMonthInUSD,
-          endDate: input.endDate
+          clubId: clubId,
+          targetDate: input.targetDate
         },
         select: {
           id: true
@@ -246,10 +163,10 @@ export function createMembershipCampaignService(
 
       if (input.budgetItems.length > 0) {
         await tx.campaignBudgetItem.createMany({
-          data: input.budgetItems.map((item) => ({
+          data: input.budgetItems.map((i) => ({
             membershipCampaignId: campaign.id,
-            label: item.label,
-            costPerMonthInUSD: item.costPerMonthInUSD
+            label: i.label,
+            costPerMonthInUSD: i.costPerMonthInUSD
           }))
         });
       }
@@ -264,55 +181,8 @@ export function createMembershipCampaignService(
     } catch (e) {
       logger.error(
         e,
-        `failed to create membership campaign for membership tier with id ${membershipTierId} with input ${stringify(input)}`
+        `failed to create membership campaign for club with id ${clubId} with input ${stringify(input)}`
       );
-      throw e;
-    }
-  }
-
-  async function getPastMembershipCampaigns(
-    clubId: number
-  ): Promise<MembershipCampaign[]> {
-    try {
-      const now = new Date();
-      const results = await prisma.membershipCampaign.findMany({
-        select: MEMBERSHIP_CAMPAIGN_SELECT,
-        where: {
-          membershipTier: {
-            clubId
-          },
-          endDate: {
-            lt: now
-          }
-        }
-      });
-
-      const campaigns: MembershipCampaign[] = [];
-      for (const result of results) {
-        const committedPerMonthInUSD = await getCommittedPerMonthInUSD(
-          result.membershipTierId,
-          result.createdAt,
-          result.endDate
-        );
-
-        const isTargetMet =
-          committedPerMonthInUSD >= result.targetPerMonthInUSD.toNumber();
-
-        const campaign = asMembershipCampaign(
-          result,
-          committedPerMonthInUSD,
-          isTargetMet
-        );
-
-        campaigns.push(campaign);
-      }
-
-      logger.info(
-        `queried all past membership campaigns with result ${stringify(campaigns)}`
-      );
-      return campaigns;
-    } catch (e) {
-      logger.error(e, `failed to query all past membership campaigns`);
       throw e;
     }
   }
@@ -321,13 +191,13 @@ export function createMembershipCampaignService(
     const campaign = await prisma.membershipCampaign.findUniqueOrThrow({
       where: { id },
       select: {
-        endDate: true
+        targetDate: true
       }
     });
     const now = new Date();
-    if (campaign.endDate < now) {
+    if (campaign.targetDate < now) {
       throw new Error(
-        `cannot update past membership campaign with id ${id}. Campaign ended on ${campaign.endDate.toISOString()}`
+        `cannot update past membership campaign with id ${id}. Campaign ended on ${campaign.targetDate.toISOString()}`
       );
     }
   }
@@ -352,8 +222,7 @@ export function createMembershipCampaignService(
       await tx.membershipCampaign.update({
         where: { id },
         data: {
-          targetPerMonthInUSD: input.targetPerMonthInUSD,
-          endDate: input.endDate
+          targetDate: input.targetDate
         }
       });
 
@@ -404,8 +273,7 @@ export function createMembershipCampaignService(
 
   return {
     getActiveMembershipCampaign,
-    getPastMembershipCampaigns,
-    isClubLaunched,
+    getActiveMembershipCampaignProgress,
     createMembershipCampaign,
     updateMembershipCampaign,
     deleteMembershipCampaign
