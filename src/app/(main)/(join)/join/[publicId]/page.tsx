@@ -194,11 +194,16 @@ export default function ClubJoin() {
                     <IconCalendar size={18} stroke={1.5} />
                     <Text size="sm">
                       {club.data!.frequency} on{" "}
-                      {club.data!.startDate.toLocaleDateString("en-US", {
-                        weekday: "long"
-                      })}
+                      {new Date(club.data!.startDate).toLocaleDateString(
+                        "en-US",
+                        {
+                          weekday: "long"
+                        }
+                      )}
                       s @{" "}
-                      {club.data!.startTime.toLocaleTimeString("en-US", {
+                      {new Date(
+                        `1970-01-01T${club.data!.startTime}`
+                      ).toLocaleTimeString("en-US", {
                         hour: "numeric",
                         minute: "2-digit",
                         hour12: true
