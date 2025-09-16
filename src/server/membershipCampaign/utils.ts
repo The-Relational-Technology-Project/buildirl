@@ -5,14 +5,11 @@ export const MEMBERSHIP_CAMPAIGN_SELECT = {
   id: true,
   clubId: true,
   targetDate: true,
-  createdAt: true,
   budgetItems: {
     select: {
       id: true,
       label: true,
-      costPerMonthInUSD: true,
-      createdAt: true,
-      updatedAt: true
+      costPerMonthInUSD: true
     }
   }
 } satisfies Prisma.MembershipCampaignSelect;

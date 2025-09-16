@@ -461,21 +461,12 @@ export const mainRouter = createTRPCRouter({
       );
     }),
 
-  getPastMembershipCampaigns: securedProcedureWithAbilityFor("Club")
+  getActiveMembershipCampaignProgress: publicProcedure
     .input(z.object({ clubId: z.number() }))
     .query(({ ctx, input }) => {
-      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
-      return ctx.service.membershipCampaign.getPastMembershipCampaigns(
+      return ctx.service.membershipCampaign.getActiveMembershipCampaignProgress(
         input.clubId
       );
-    }),
-
-  isClubLaunched: publicProcedure
-    .input(z.object({ clubId: z.number() }))
-    .query(({ ctx, input }) => {
-      return ctx.service.membershipCampaign.isClubLaunched(input.clubId);
     }),
 
   createMembershipCampaign: securedProcedureWithAbilityFor("Club")

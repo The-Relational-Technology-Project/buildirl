@@ -596,19 +596,17 @@ function budgetItems(): Arbitrary<Array<CampaignBudgetItem>> {
 
 function createMembershipCampaignCommands() {
   return record({
-    membershipTierIdSelector: itemSelector<number>(),
-    targetPerMonthInUSD: monetaryValue(),
+    clubIdSelector: itemSelector<number>(),
     budgetItems: budgetItems(),
-    endDate: aDayWithinTheNextTwoMonths()
+    targetDate: aDayWithinTheNextTwoMonths()
   }).map(
     (i) =>
       new CreateMembershipCampaignCommand(
         {
-          targetPerMonthInUSD: i.targetPerMonthInUSD,
           budgetItems: i.budgetItems,
-          endDate: i.endDate
+          targetDate: i.targetDate
         },
-        i.membershipTierIdSelector
+        i.clubIdSelector
       )
   );
 }
@@ -616,16 +614,14 @@ function createMembershipCampaignCommands() {
 function updateMembershipCampaignCommands() {
   return record({
     membershipCampaignIdSelector: itemSelector<number>(),
-    targetPerMonthInUSD: monetaryValue(),
     budgetItems: budgetItems(),
-    endDate: aDayWithinTheNextTwoMonths()
+    targetDate: aDayWithinTheNextTwoMonths()
   }).map(
     (i) =>
       new UpdateMembershipCampaignCommand(
         {
-          targetPerMonthInUSD: i.targetPerMonthInUSD,
           budgetItems: i.budgetItems,
-          endDate: i.endDate
+          targetDate: i.targetDate
         },
         i.membershipCampaignIdSelector
       )

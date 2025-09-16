@@ -129,11 +129,11 @@ export function createMembershipCampaignService(
   }
 
   async function createMembershipCampaign(
-    membershipTierId: number,
+    clubId: number,
     input: CreateMembershipCampaignInput
   ) {
     return prisma.$transaction(async (tx) => {
-      return createMembershipCampaignInTransaction(membershipTierId, input, tx);
+      return createMembershipCampaignInTransaction(clubId, input, tx);
     });
   }
 

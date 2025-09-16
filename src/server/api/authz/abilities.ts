@@ -191,9 +191,7 @@ async function getMembershipCampaignIdsForClubsLedByUser(
   const ledClubIds = await getUserLedClubIds(prisma, userId);
   const membershipCampaigns = await prisma.membershipCampaign.findMany({
     where: { 
-      membershipTier: {
-        clubId: { in: ledClubIds }
-      }
+      clubId: { in: ledClubIds }
     },
     select: { id: true }
   });

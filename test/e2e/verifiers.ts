@@ -212,7 +212,7 @@ function createVerifiers() {
 
   function maybeMembershipCampaignWithoutDates(
     campaign: Maybe<MembershipCampaign>
-  ): Maybe<OmitRecursively<MembershipCampaign, "createdAt">> {
+  ): Maybe<MembershipCampaign> {
     if (null === campaign) {
       return null;
     }
@@ -221,15 +221,12 @@ function createVerifiers() {
 
   function membershipCampaignWithoutDates(
     campaign: MembershipCampaign
-  ): OmitRecursively<MembershipCampaign, "createdAt"> {
+  ): MembershipCampaign {
     return {
       id: campaign.id,
-      membershipTier: campaign.membershipTier,
       targetPerMonthInUSD: campaign.targetPerMonthInUSD,
       budgetItems: campaign.budgetItems,
-      endDate: campaign.endDate,
-      committedPerMonthInUSD: campaign.committedPerMonthInUSD,
-      isTargetMet: campaign.isTargetMet
+      targetDate: campaign.targetDate
     };
   }
 
@@ -245,21 +242,6 @@ function createVerifiers() {
     expect(maybeMembershipCampaignWithoutDates(actualActive)).toEqual(
       maybeMembershipCampaignWithoutDates(expectedActive)
     );
-
-    const expectedPast = m.getPastMembershipCampaigns(clubId);
-    const actualPast =
-      await r.membershipCampaign.getPastMembershipCampaigns(clubId);
-    expect(
-      actualPast.map(membershipCampaignWithoutDates).sort((a, b) => a.id - b.id)
-    ).toEqual(
-      expectedPast
-        .map(membershipCampaignWithoutDates)
-        .sort((a, b) => a.id - b.id)
-    );
-
-    const expectedLaunched = m.isClubLaunched(clubId);
-    const actualLaunched = await r.membershipCampaign.isClubLaunched(clubId);
-    expect(actualLaunched).toEqual(expectedLaunched);
   }
 
   return {

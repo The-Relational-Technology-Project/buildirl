@@ -31,14 +31,13 @@ export default class UpdateMembershipCampaignCommand
       m.getActiveMembershipCampaignIds()
     );
 
-    const campaign = m.getMembershipCampaign(this.membershipCampaignId);
     await r.membershipCampaign.updateMembershipCampaign(
       this.membershipCampaignId,
       this.input
     );
     m.updateMembershipCampaign(this.membershipCampaignId, this.input);
 
-    const clubId = m.getClubIdForMembershipTier(campaign.membershipTier.id);
+    const clubId = m.getClubIdForMembershipCampaign(this.membershipCampaignId);
     await verifiers.verifyMembershipCampaigns(clubId, r, m);
   }
 

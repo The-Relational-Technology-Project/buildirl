@@ -25,13 +25,12 @@ export default class DeleteMembershipCampaignCommand
       m.getActiveMembershipCampaignIds()
     );
 
-    const campaign = m.getMembershipCampaign(this.membershipCampaignId);
     await r.membershipCampaign.deleteMembershipCampaign(
       this.membershipCampaignId
     );
     m.deleteMembershipCampaign(this.membershipCampaignId);
 
-    const clubId = m.getClubIdForMembershipTier(campaign.membershipTier.id);
+    const clubId = m.getClubIdForMembershipCampaign(this.membershipCampaignId);
     await verifiers.verifyMembershipCampaigns(clubId, r, m);
   }
 

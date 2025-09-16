@@ -50,9 +50,7 @@ export const membershipService = createMembershipService(
   paymentService
 );
 export const membershipCampaignService = createMembershipCampaignService(
-  prisma,
-  membershipService,
-  membershipTierService
+  prisma
 );
 export const clubService = createClubService(
   prisma,

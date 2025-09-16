@@ -115,9 +115,7 @@ describe("service", () => {
       paymentService
     );
     membershipCampaignService = createMembershipCampaignService(
-      prisma,
-      membershipService,
-      membershipTierService
+      prisma
     );
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull

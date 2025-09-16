@@ -11,50 +11,46 @@ export default class CreateMembershipCampaignCommand
   implements Command<SystemState, Services>
 {
   private readonly input: CreateMembershipCampaignInput;
-  private readonly membershipTierIdSelector: ItemSelector<number>;
-  private membershipTierId: Maybe<number> = null;
+  private readonly clubIdSelector: ItemSelector<number>;
+  private clubId: Maybe<number> = null;
 
   constructor(
     input: CreateMembershipCampaignInput,
-    membershipTierIdSelector: ItemSelector<number>
+    clubIdSelector: ItemSelector<number>
   ) {
     this.input = input;
-    this.membershipTierIdSelector = membershipTierIdSelector;
+    this.clubIdSelector = clubIdSelector;
   }
 
   check(m: Readonly<SystemState>): boolean {
-    const availablePaidTiers =
-      m.getPaidMembershipTierIdsFromClubsWithoutActiveCampaigns();
-    return availablePaidTiers.length > 0;
+    const availableClubs = m.getClubIdsWithoutActiveCampaigns();
+    return availableClubs.length > 0;
   }
 
   async run(m: SystemState, r: Services): Promise<void> {
-    const availablePaidTiers =
-      m.getPaidMembershipTierIdsFromClubsWithoutActiveCampaigns();
+    const availableClubs = m.getClubIdsWithoutActiveCampaigns();
 
-    this.membershipTierId =
-      this.membershipTierIdSelector.select(availablePaidTiers);
+    this.clubId = this.clubIdSelector.select(availableClubs);
 
     const result = await r.membershipCampaign.createMembershipCampaign(
-      this.membershipTierId,
+      this.clubId,
       this.input
     );
     const membershipCampaignId = idAsNumber(result.createdEntityId);
     m.createMembershipCampaign(
       membershipCampaignId,
-      this.membershipTierId,
+      this.clubId,
       this.input
     );
 
-    const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
-    await verifiers.verifyMembershipCampaigns(clubId, r, m);
+    await verifiers.verifyMembershipCampaigns(this.clubId, r, m);
   }
 
   toString() {
     return stringify({
       CreateMembershipCampaignCommand: {
         input: this.input,
-        membershipTierId: this.membershipTierId
+        clubId: this.clubId
       }
     });
   }
