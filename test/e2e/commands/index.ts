@@ -185,7 +185,10 @@ function locationArbitrary() {
 function createClubCommands() {
   return record({
     name: string(),
-    publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
+    // make it length 10 to avoid collisions across runs
+    publicId: string({ minLength: 10 }).filter((s) =>
+      isZodType(s, ClubPublicIdSchema)
+    ),
     location: locationArbitrary(),
     tagLine: string(),
     description: string(),
@@ -225,7 +228,10 @@ function updateClubCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
     name: string().filter((s) => isZodType(s, ClubNameSchema)),
-    publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
+    // make it length 10 to avoid collisions across runs
+    publicId: string({ minLength: 10 }).filter((s) =>
+      isZodType(s, ClubPublicIdSchema)
+    ),
     tagLine: string(),
     description: string(),
     location: locationArbitrary(),
