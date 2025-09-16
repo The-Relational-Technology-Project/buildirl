@@ -45,6 +45,10 @@ export default class DeactivateMembershipCommand
     await verifiers.verifyClubMemberships(clubId, r, m);
     const userId = m.getUserIdForMembership(this.membershipId);
     await verifiers.verifyUserMemberships(userId, r, m);
+
+    if (m.hasActiveMembershipCampaign(clubId)) {
+      await verifiers.verifyMembershipCampaignProgress(clubId, r, m);
+    }
   }
 
   toString() {

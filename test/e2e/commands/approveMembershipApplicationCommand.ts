@@ -33,6 +33,10 @@ export default class ApproveMembershipApplicationCommand
     const userId = m.getUserIdForMembership(this.membershipId);
     await verifiers.verifyUserMemberships(userId, r, m);
     await verifiers.verifyUserFollowedClubs(userId, r, m);
+
+    if (m.hasActiveMembershipCampaign(clubId)) {
+      await verifiers.verifyMembershipCampaignProgress(clubId, r, m);
+    }
   }
 
   toString() {

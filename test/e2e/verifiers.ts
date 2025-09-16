@@ -244,6 +244,18 @@ function createVerifiers() {
     );
   }
 
+  async function verifyMembershipCampaignProgress(
+    clubId: number,
+    r: Services,
+    m: SystemState
+  ) {
+    const actualProgress =
+      await r.membershipCampaign.getActiveMembershipCampaignProgress(clubId);
+    const expectedProgress = m.getActiveMembershipCampaignProgress(clubId);
+
+    expect(actualProgress).toEqual(expectedProgress);
+  }
+
   return {
     verifyUser,
     verifyClub,
@@ -253,7 +265,8 @@ function createVerifiers() {
     verifyUserFollowedClubs,
     verifyEmailTemplate,
     verifyEmailBlasts,
-    verifyMembershipCampaigns
+    verifyMembershipCampaigns,
+    verifyMembershipCampaignProgress
   };
 }
 
