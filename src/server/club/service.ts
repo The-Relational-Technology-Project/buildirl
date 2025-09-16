@@ -147,6 +147,7 @@ export function createClubService(
         data: {
           ...clubData,
           theme: clubData.theme ?? Prisma.DbNull,
+          // Convert to Date objects to satisfy Prisma DateTime type
           startDate: clubData.startDate ? new Date(clubData.startDate) : null,
           startTime: clubData.startTime
             ? new Date(`1970-01-01T${clubData.startTime}:00Z`)

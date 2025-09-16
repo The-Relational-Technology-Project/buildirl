@@ -47,8 +47,9 @@ export function asClub(
     tagLine: r.tagLine,
     description: r.description,
     frequency: r.frequency,
-    startDate: r.startDate,
-    startTime: r.startTime,
+    // Convert startDate and startTime to strings from Prisma DateTime objects
+    startDate: r.startDate ? r.startDate.toISOString().slice(0, 10) : "",
+    startTime: r.startTime ? r.startTime.toISOString().slice(11, 16) : "",
     location: r.location,
     websiteUrl: parseAsZodType(r.websiteUrl, UrlSchema.nullable()),
     instagramHandle: parseAsZodType(
