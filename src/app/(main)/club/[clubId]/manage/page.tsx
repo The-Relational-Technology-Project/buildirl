@@ -22,6 +22,7 @@ import { useMounted } from "@mantine/hooks";
 import StripeConnectPanel from "~/app/(main)/club/[clubId]/manage/_components/StripeConnectPanel";
 import { ManagePeoplePanel } from "~/app/(main)/club/[clubId]/manage/_components/ManagePeoplePanel";
 import CommunicationOverviewPanel from "~/app/(main)/club/[clubId]/manage/_components/CommunicationOverviewPanel";
+import ManageCampaignPanel from "~/app/(main)/club/[clubId]/manage/_components/ManageCampaignPanel";
 
 export default function ManageClub() {
   const { colorScheme } = useMantineColorScheme();
@@ -60,6 +61,7 @@ export default function ManageClub() {
             <Tabs.Tab value={"overview"}>Club Overview</Tabs.Tab>
             <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>
             <Tabs.Tab value={"intake"}>Intake Form</Tabs.Tab>
+            <Tabs.Tab value={"campaign"}>Campaign</Tabs.Tab>
             <Tabs.Tab value={"people"}>People</Tabs.Tab>
             <Tabs.Tab value={"email"}>Communication</Tabs.Tab>
             <Tabs.Tab value={"stripe-connect"}>Stripe Connect</Tabs.Tab>
@@ -76,6 +78,9 @@ export default function ManageClub() {
           </Tabs.Panel>
           <Tabs.Panel value={"intake"}>
             <ManageIntakePanel club={club.data!} />
+          </Tabs.Panel>
+          <Tabs.Panel value={"campaign"}>
+            <ManageCampaignPanel club={club.data!} />
           </Tabs.Panel>
           <Tabs.Panel value={"people"}>
             <ManagePeoplePanel clubId={club.data!.id} />

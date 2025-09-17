@@ -21,7 +21,7 @@ type MembershipCampaignQueries = {
 
 type MembershipCampaignMutations = {
   createMembershipCampaign(
-    membershipTierId: number,
+    clubId: number,
     input: CreateMembershipCampaignInput
   ): Promise<MutationResult>;
   updateMembershipCampaign(
