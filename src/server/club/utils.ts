@@ -1,4 +1,4 @@
-import { Club, FAQsSchema } from "~/server/club/types";
+import { Club, DateString, FAQsSchema, TimeString } from "~/server/club/types";
 import { parseAsZodType } from "~/utils/zod";
 import { InstagramHandleSchema, UrlSchema } from "~/server/utils/types";
 import { FormQuestionsSchema } from "~/server/club/types/form";
@@ -47,9 +47,9 @@ export function asClub(
     tagLine: r.tagLine,
     description: r.description,
     frequency: r.frequency,
-    // Convert startDate and startTime to strings from Prisma DateTime objects
-    startDate: r.startDate ? r.startDate.toISOString().slice(0, 10) : "",
-    startTime: r.startTime ? r.startTime.toISOString().slice(11, 16) : "",
+    // convert from Prisma DateTime to our TimeString and DateString types
+    startDate: toDateStringFromDate(r.startDate),
+    startTime: toTimeStringFromDate(r.startTime),
     location: r.location,
     websiteUrl: parseAsZodType(r.websiteUrl, UrlSchema.nullable()),
     instagramHandle: parseAsZodType(
@@ -69,4 +69,20 @@ export function asClub(
       r.membershipTiers.map((t) => asMembershipTier(t))
     )
   };
+}
+
+export function toDateStringFromDate(date: Date | null): DateString | null {
+  return date ? date.toISOString().slice(0, 10) : null;
+}
+
+export function toTimeStringFromDate(time: Date | null): TimeString | null {
+  return time ? time.toISOString().slice(11, 16) : null;
+}
+
+export function toDateFromDateString(dateString: DateString): Date | null {
+  return dateString ? new Date(dateString) : null;
+}
+
+export function toDateFromTimeString(timeString: TimeString): Date | null {
+  return timeString ? new Date(`1970-01-01T${timeString}:00Z`) : null;
 }

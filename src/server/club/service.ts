@@ -12,7 +12,12 @@ import {
   UpdateClubInput
 } from "~/server/club/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
-import { asClub, CLUB_SELECT } from "~/server/club/utils";
+import {
+  asClub,
+  CLUB_SELECT,
+  toDateFromDateString,
+  toDateFromTimeString
+} from "~/server/club/utils";
 import { MembershipTierService } from "~/server/membershipTier/types";
 import { idAsNumber } from "~/utils/types";
 import { MembershipService } from "~/server/membership/types";
@@ -148,10 +153,8 @@ export function createClubService(
           ...clubData,
           theme: clubData.theme ?? Prisma.DbNull,
           // Convert to Date objects to satisfy Prisma DateTime type
-          startDate: clubData.startDate ? new Date(clubData.startDate) : null,
-          startTime: clubData.startTime
-            ? new Date(`1970-01-01T${clubData.startTime}:00Z`)
-            : null
+          startDate: toDateFromDateString(clubData.startDate),
+          startTime: toDateFromTimeString(clubData.startTime)
         },
         where: {
           id: id

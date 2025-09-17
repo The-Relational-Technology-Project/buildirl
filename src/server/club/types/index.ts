@@ -30,8 +30,8 @@ export type Club = {
   //  made non-nullable after values are back-populated
   // this is nullable for backwards compatibility purposes
   location: Maybe<City>;
-  startDate: Maybe<RhythmStartDate>;
-  startTime: Maybe<RhythmStartTime>;
+  startDate: Maybe<DateString>;
+  startTime: Maybe<TimeString>;
   frequency: Maybe<string>;
   description: string;
   websiteUrl: Maybe<Url>;
@@ -112,13 +112,13 @@ export const FAQsSchema = z.object({
 
 export type FAQs = z.infer<typeof FAQsSchema>;
 
-export const RhythmStartDateSchema = z.string().date();
+export const DateStringSchema = z.string().date();
 
-export type RhythmStartDate = z.infer<typeof RhythmStartDateSchema>;
+export type DateString = z.infer<typeof DateStringSchema>;
 
-export const RhythmStartTimeSchema = z.string().time();
+export const TimeStringSchema = z.string().time();
 
-export type RhythmStartTime = z.infer<typeof RhythmStartTimeSchema>;
+export type TimeString = z.infer<typeof TimeStringSchema>;
 
 export const UpdateClubInputSchema = z.object({
   name: ClubNameSchema,
@@ -126,8 +126,8 @@ export const UpdateClubInputSchema = z.object({
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
   location: CitySchema,
-  startDate: RhythmStartDateSchema,
-  startTime: RhythmStartTimeSchema,
+  startDate: DateStringSchema,
+  startTime: TimeStringSchema,
   frequency: z.string(),
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
