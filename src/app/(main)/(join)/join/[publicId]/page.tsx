@@ -38,6 +38,7 @@ import ShareIconButton from "./_components/ShareIconButton";
 import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
 import { InstagramHandle, Url } from "~/server/utils/types";
 import { Club } from "~/server/club/types";
+import { getRhythmDescription } from "./utils";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -191,21 +192,7 @@ export default function ClubJoin() {
                 <Group gap={6}>
                   <IconCalendar size={18} stroke={1.5} />
                   <Text size="sm">
-                    {club.data!.rhythm.frequency} on{" "}
-                    {new Date(club.data!.rhythm.startDate).toLocaleDateString(
-                      "en-US",
-                      {
-                        weekday: "long"
-                      }
-                    )}
-                    s @{" "}
-                    {new Date(
-                      `1970-01-01T${club.data!.rhythm.startTime}`
-                    ).toLocaleTimeString("en-US", {
-                      hour: "numeric",
-                      minute: "2-digit",
-                      hour12: true
-                    })}
+                    {getRhythmDescription(club.data.rhythm)}
                   </Text>
                 </Group>
               )}
