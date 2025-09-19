@@ -120,7 +120,7 @@ function RhythmSection() {
       <Title order={6}>Club Rhythm</Title>
       <Group gap={8} grow>
         <Controller
-          name="startDate"
+          name="rhythm.startDate"
           control={control}
           render={({ field }) => {
             return (
@@ -141,7 +141,7 @@ function RhythmSection() {
           }}
         />
         <Controller
-          name="startTime"
+          name="rhythm.startTime"
           control={control}
           render={({ field }) => (
             <TimeInput
@@ -160,7 +160,7 @@ function RhythmSection() {
           )}
         />
         <Controller
-          name="frequency"
+          name="rhythm.frequency"
           control={control}
           render={({ field }) => (
             <Select
@@ -171,7 +171,7 @@ function RhythmSection() {
           )}
         />
       </Group>
-      {(errors.frequency || errors.startDate || errors.startTime) && (
+      {errors.rhythm && (
         <div style={{ minHeight: 20, color: "red", fontSize: 12 }}>
           Club rhythm is required.
         </div>
@@ -314,9 +314,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
-      startDate: club.startDate ?? undefined,
-      startTime: club.startTime ?? undefined,
-      frequency: club.frequency ?? undefined,
+      rhythm: club.rhythm ?? undefined,
       // TODO this casting can be removed once location field is made non-nullable
       // we cast here because the value can be null for older clubs the null value will fail at
       // validation time, forcing the user to back-populated their location to a non-null value

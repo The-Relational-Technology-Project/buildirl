@@ -145,7 +145,7 @@ export function createClubService(
     id: number,
     input: UpdateClubInput
   ): Promise<MutationResult> {
-    const { ...clubData } = input;
+    const { rhythm, ...clubData } = input;
 
     try {
       await prisma.club.update({
@@ -153,8 +153,9 @@ export function createClubService(
           ...clubData,
           theme: clubData.theme ?? Prisma.DbNull,
           // Convert to Date objects to satisfy Prisma DateTime type
-          startDate: toDateFromDateString(clubData.startDate),
-          startTime: toDateFromTimeString(clubData.startTime)
+          startDate: toDateFromDateString(rhythm.startDate),
+          startTime: toDateFromTimeString(rhythm.startTime),
+          frequency: rhythm.frequency
         },
         where: {
           id: id

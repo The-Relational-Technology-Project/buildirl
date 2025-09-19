@@ -187,30 +187,28 @@ export default function ClubJoin() {
                 </Group>
               )}
 
-              {club.data!.frequency &&
-                club.data!.startDate &&
-                club.data!.startTime && (
-                  <Group gap={6}>
-                    <IconCalendar size={18} stroke={1.5} />
-                    <Text size="sm">
-                      {club.data!.frequency} on{" "}
-                      {new Date(club.data!.startDate).toLocaleDateString(
-                        "en-US",
-                        {
-                          weekday: "long"
-                        }
-                      )}
-                      s @{" "}
-                      {new Date(
-                        `1970-01-01T${club.data!.startTime}`
-                      ).toLocaleTimeString("en-US", {
-                        hour: "numeric",
-                        minute: "2-digit",
-                        hour12: true
-                      })}
-                    </Text>
-                  </Group>
-                )}
+              {club.data?.rhythm && (
+                <Group gap={6}>
+                  <IconCalendar size={18} stroke={1.5} />
+                  <Text size="sm">
+                    {club.data!.rhythm.frequency} on{" "}
+                    {new Date(club.data!.rhythm.startDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        weekday: "long"
+                      }
+                    )}
+                    s @{" "}
+                    {new Date(
+                      `1970-01-01T${club.data!.rhythm.startTime}`
+                    ).toLocaleTimeString("en-US", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true
+                    })}
+                  </Text>
+                </Group>
+              )}
             </Stack>
           </Stack>
 
