@@ -21,6 +21,7 @@ import {
   ClubStatistics,
   CreateClubInput,
   FAQs,
+  Rhythm,
   UpdateClubApplicationQuestionsInput,
   UpdateClubDisplayImageUrlsInput,
   UpdateClubInput
@@ -37,7 +38,14 @@ import {
   MembershipTier,
   UpdateMembershipTierInput
 } from "~/server/membershipTier/types";
-import { CreateUserInput, UpdateUserInput, UpdateUserSocialsInput, UpdateUserSocialsInputSchema, User, UserSocials } from "~/server/user/types";
+import {
+  CreateUserInput,
+  UpdateUserInput,
+  UpdateUserSocialsInput,
+  UpdateUserSocialsInputSchema,
+  User,
+  UserSocials
+} from "~/server/user/types";
 import { stringify } from "~/utils";
 
 // this entities differ from api ones mostly in that nested entities
@@ -49,6 +57,7 @@ type ClubState = {
   tagLine: string;
   description: string;
   location: string;
+  rhythm: Maybe<Rhythm>;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
   eventCalendarUrl: Maybe<Url>;
@@ -171,7 +180,7 @@ export class SystemState {
   public updateUserSocials(id: number, input: UpdateUserSocialsInput) {
     const user = this.getUserState(id);
     const validatedInput = UpdateUserSocialsInputSchema.parse(input);
-    
+
     const socials: UserSocials = {
       twitter: validatedInput.twitter,
       instagram: validatedInput.instagram,
@@ -179,7 +188,7 @@ export class SystemState {
       linkedin: validatedInput.linkedin,
       website: validatedInput.website
     };
-    
+
     this.users.set(id, {
       ...user,
       socials: socials
@@ -243,6 +252,7 @@ export class SystemState {
       tagLine: clubState.tagLine,
       description: clubState.description,
       location: clubState.location,
+      rhythm: clubState.rhythm,
       websiteUrl: clubState.websiteUrl,
       instagramHandle: clubState.instagramHandle,
       eventCalendarUrl: clubState.eventCalendarUrl,
@@ -310,6 +320,7 @@ export class SystemState {
       // defaults
       tagLine: "",
       description: "",
+      rhythm: null,
       websiteUrl: null,
       instagramHandle: null,
       eventCalendarUrl: null,

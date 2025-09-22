@@ -1,4 +1,5 @@
 import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/carousel/styles.css";
 import "src/client/styles/globals.css";
@@ -26,16 +27,16 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }]
 };
 
-const unbounded = Unbounded({ 
+const unbounded = Unbounded({
   subsets: ["latin"],
-  variable: '--font-heading',
-  display: 'swap'
+  variable: "--font-heading",
+  display: "swap"
 });
 
-const workSans = Work_Sans({ 
+const workSans = Work_Sans({
   subsets: ["latin"],
-  variable: '--font-body',
-  display: 'swap'
+  variable: "--font-body",
+  display: "swap"
 });
 
 export default function RootLayout({

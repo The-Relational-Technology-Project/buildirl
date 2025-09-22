@@ -13,10 +13,14 @@ import {
   TextInput,
   Title,
   Box,
-  useMatches
+  useMatches,
+  Group,
+  Select,
+  ActionIcon
 } from "@mantine/core";
+import { DateInput, TimeInput } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
-import React from "react";
+import React, { useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -26,8 +30,13 @@ import ThemeSelector from "~/app/(main)/club/[clubId]/manage/update/_components/
 import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_components/ClubDisplayImageUpload";
 import FontSelector from "~/app/(main)/club/[clubId]/manage/update/_components/FontSelector";
 import FAQsSection from "~/app/(main)/club/[clubId]/manage/update/_components/FAQsSection";
-import { IconDeviceFloppy } from "@tabler/icons-react";
-import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import { IconClock, IconDeviceFloppy } from "@tabler/icons-react";
+import {
+  useForm,
+  FormProvider,
+  useFormContext,
+  Controller
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PrefixedInput from "~/client/components/PrefixedInput";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
@@ -84,6 +93,89 @@ function LocationSection() {
         }}
         error={errors.location?.message}
       />
+    </Stack>
+  );
+}
+
+function RhythmSection() {
+  const {
+    control,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
+
+  const ref = useRef<HTMLInputElement>(null);
+
+  const pickerControl = (
+    <ActionIcon
+      variant="subtle"
+      color="gray"
+      onClick={() => ref.current?.showPicker()}
+    >
+      <IconClock size={16} stroke={1.5} />
+    </ActionIcon>
+  );
+
+  return (
+    <Stack gap={8}>
+      <Title order={6}>Club Rhythm</Title>
+      <Group gap={8} grow>
+        <Controller
+          name="rhythm.startDate"
+          control={control}
+          render={({ field }) => {
+            return (
+              <DateInput
+                value={field.value ?? null}
+                onChange={(date) => {
+                  field.onChange(date);
+                }}
+                placeholder="Start Date"
+                styles={{
+                  input: {
+                    border: "1px solid black",
+                    borderRadius: 0
+                  }
+                }}
+              />
+            );
+          }}
+        />
+        <Controller
+          name="rhythm.startTime"
+          control={control}
+          render={({ field }) => (
+            <TimeInput
+              value={field.value ?? ""}
+              onChange={(value) => field.onChange(value)}
+              placeholder="Start Time"
+              ref={ref}
+              rightSection={pickerControl}
+              styles={{
+                input: {
+                  border: "1px solid black",
+                  borderRadius: 0
+                }
+              }}
+            />
+          )}
+        />
+        <Controller
+          name="rhythm.frequency"
+          control={control}
+          render={({ field }) => (
+            <Select
+              placeholder="Frequency"
+              data={["Weekly", "Biweekly", "Monthly"]}
+              {...field}
+            />
+          )}
+        />
+      </Group>
+      {errors.rhythm && (
+        <div style={{ minHeight: 20, color: "red", fontSize: 12 }}>
+          Club rhythm is required.
+        </div>
+      )}
     </Stack>
   );
 }
@@ -222,6 +314,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
+      rhythm: club.rhythm ?? undefined,
       // TODO this casting can be removed once location field is made non-nullable
       // we cast here because the value can be null for older clubs the null value will fail at
       // validation time, forcing the user to back-populated their location to a non-null value
@@ -273,6 +366,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
           <BasicInfoSection />
           <LocationSection />
+          <RhythmSection />
 
           <LinksSection />
           <ShareLinkSection />
