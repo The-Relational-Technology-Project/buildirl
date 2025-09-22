@@ -16,8 +16,10 @@ import CreateUserCommand from "./createUserCommand";
 import {
   ClubNameSchema,
   ClubPublicIdSchema,
+  DateStringSchema,
   FAQAnswerSchema,
-  FAQQuestionSchema
+  FAQQuestionSchema,
+  TimeStringSchema
 } from "~/server/club/types";
 import {
   InstagramHandleSchema,
@@ -67,6 +69,7 @@ import SetMembershipAsLeadCommand from "./setMembershipAsLeadCommand";
 import ClearMembershipRoleCommand from "./clearMembershipRoleCommand";
 import { EMAIL_CONTENT_LIMITS } from "~/server/email/types";
 import UpdateMembershipTierForMembershipCommand from "./updateMembershipTierForMembershipCommand";
+import { dateStringArbitrary, timeStringArbitrary } from "../utils/clubUtils";
 
 export const allCommands = () => {
   return [
@@ -140,7 +143,9 @@ function updateUserCommands() {
   );
 }
 
-function socialHandleArbitrary<T extends z.ZodSchema>(schema: T): Arbitrary<string> {
+function socialHandleArbitrary<T extends z.ZodSchema>(
+  schema: T
+): Arbitrary<string> {
   return string().filter((s) => isZodType(s, schema));
 }
 
@@ -148,7 +153,9 @@ function updateUserSocialsCommands() {
   return record({
     userIdSelector: itemSelector<number>(),
     twitter: option(socialHandleArbitrary(TwitterHandleSchema), { freq: 3 }),
-    instagram: option(socialHandleArbitrary(InstagramHandleSchema), { freq: 3 }),
+    instagram: option(socialHandleArbitrary(InstagramHandleSchema), {
+      freq: 3
+    }),
     facebook: option(socialHandleArbitrary(FacebookHandleSchema), { freq: 3 }),
     linkedin: option(socialHandleArbitrary(LinkedInHandleSchema), { freq: 3 }),
     website: option(webUrl(), { freq: 3 })
@@ -169,6 +176,10 @@ function updateUserSocialsCommands() {
 
 function locationArbitrary() {
   return oneof(...Array.from(CitySchema.options).map(constant));
+}
+
+function frequencyArbitrary() {
+  return oneof(constant("WEEKLY"), constant("BIWEEKLY"), constant("MONTHLY"));
 }
 
 function createClubCommands() {
@@ -218,6 +229,15 @@ function updateClubCommands() {
     tagLine: string(),
     description: string(),
     location: locationArbitrary(),
+    rhythm: record({
+      startDate: dateStringArbitrary.filter((s) =>
+        isZodType(s, DateStringSchema)
+      ),
+      startTime: timeStringArbitrary.filter((s) =>
+        isZodType(s, TimeStringSchema)
+      ),
+      frequency: frequencyArbitrary()
+    }),
     websiteUrl: option(webUrl(), { freq: 4 }),
     instagramHandle: option(
       string().filter((s) => isZodType(s, InstagramHandleSchema)),
@@ -241,6 +261,7 @@ function updateClubCommands() {
           tagLine: i.tagLine,
           description: i.description,
           location: i.location,
+          rhythm: i.rhythm,
           websiteUrl: i.websiteUrl,
           instagramHandle: i.instagramHandle,
           eventCalendarUrl: i.eventCalendarUrl,
@@ -461,8 +482,12 @@ function setEmailTemplateCommands() {
       )
     ),
     subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
-    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
-    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
+    htmlContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH
+    }),
+    textContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH
+    })
   }).map(
     (i) =>
       new SetEmailTemplateCommand(i.clubIdSelector, i.templateType, {
@@ -487,8 +512,12 @@ function createEmailBlastCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
     subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
-    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
-    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
+    htmlContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH
+    }),
+    textContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH
+    })
   }).map(
     (i) =>
       new CreateEmailBlastCommand(
@@ -506,35 +535,32 @@ function updateEmailBlastCommands() {
   return record({
     emailBlastIdSelector: itemSelector<bigint>(),
     subject: string({ maxLength: EMAIL_CONTENT_LIMITS.SUBJECT_MAX_LENGTH }),
-    htmlContent: string({ maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH }),
-    textContent: string({ maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH })
+    htmlContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.HTML_CONTENT_MAX_LENGTH
+    }),
+    textContent: string({
+      maxLength: EMAIL_CONTENT_LIMITS.TEXT_CONTENT_MAX_LENGTH
+    })
   }).map(
     (i) =>
-      new UpdateEmailBlastCommand(
-        i.emailBlastIdSelector,
-        {
-          subject: i.subject,
-          htmlContent: i.htmlContent,
-          textContent: i.textContent
-        }
-      )
+      new UpdateEmailBlastCommand(i.emailBlastIdSelector, {
+        subject: i.subject,
+        htmlContent: i.htmlContent,
+        textContent: i.textContent
+      })
   );
 }
 
 function deleteEmailBlastCommands() {
   return record({
     emailBlastIdSelector: itemSelector<bigint>()
-  }).map(
-    (i) => new DeleteEmailBlastCommand(i.emailBlastIdSelector)
-  );
+  }).map((i) => new DeleteEmailBlastCommand(i.emailBlastIdSelector));
 }
 
 function sendEmailBlastCommands() {
   return record({
     emailBlastIdSelector: itemSelector<bigint>()
-  }).map(
-    (i) => new SendEmailBlastCommand(i.emailBlastIdSelector)
-  );
+  }).map((i) => new SendEmailBlastCommand(i.emailBlastIdSelector));
 }
 
 function setAsLeadCommands() {
