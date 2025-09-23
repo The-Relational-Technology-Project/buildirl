@@ -14,9 +14,9 @@ import {
   Title,
   Box,
   useMatches,
-  Group,
   Select,
-  ActionIcon
+  ActionIcon,
+  Group
 } from "@mantine/core";
 import { DateInput, TimeInput } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
@@ -42,6 +42,21 @@ import PrefixedInput from "~/client/components/PrefixedInput";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import LocationSelect from "~/client/components/LocationSelect";
 import { City } from "~/server/club/types/location";
+
+const errorStyles = {
+  input: {
+    border: "1px solid red",
+    color: "red",
+    borderRadius: 0
+  }
+};
+
+const inputStyles = {
+  input: {
+    border: "1px solid black",
+    borderRadius: 0
+  }
+};
 
 function BasicInfoSection() {
   const {
@@ -92,6 +107,7 @@ function LocationSection() {
           await trigger("location");
         }}
         error={errors.location?.message}
+        styles={errors.location ? errorStyles : inputStyles}
       />
     </Stack>
   );
@@ -118,27 +134,29 @@ function RhythmSection() {
   return (
     <Stack gap={8}>
       <Title order={6}>Club Rhythm</Title>
-      <Group gap={8} grow>
+      <Group
+        gap={8}
+        grow
+        style={{
+          flexDirection: "row",
+          flexWrap: "nowrap",
+          "@media (maxWidth: 600px)": {
+            flexDirection: "column",
+            flexWrap: "wrap"
+          }
+        }}
+      >
         <Controller
           name="rhythm.startDate"
           control={control}
-          render={({ field }) => {
-            return (
-              <DateInput
-                value={field.value ?? null}
-                onChange={(date) => {
-                  field.onChange(date);
-                }}
-                placeholder="Start Date"
-                styles={{
-                  input: {
-                    border: "1px solid black",
-                    borderRadius: 0
-                  }
-                }}
-              />
-            );
-          }}
+          render={({ field }) => (
+            <DateInput
+              value={field.value ?? null}
+              onChange={field.onChange}
+              placeholder="Start Date"
+              styles={errors.rhythm?.startDate ? errorStyles : inputStyles}
+            />
+          )}
         />
         <Controller
           name="rhythm.startTime"
@@ -146,16 +164,11 @@ function RhythmSection() {
           render={({ field }) => (
             <TimeInput
               value={field.value ?? ""}
-              onChange={(value) => field.onChange(value)}
+              onChange={field.onChange}
               placeholder="Start Time"
               ref={ref}
               rightSection={pickerControl}
-              styles={{
-                input: {
-                  border: "1px solid black",
-                  borderRadius: 0
-                }
-              }}
+              styles={errors.rhythm?.startTime ? errorStyles : inputStyles}
             />
           )}
         />
@@ -167,6 +180,7 @@ function RhythmSection() {
               placeholder="Frequency"
               data={["Weekly", "Biweekly", "Monthly"]}
               {...field}
+              styles={errors.rhythm?.frequency ? errorStyles : inputStyles}
             />
           )}
         />
@@ -229,6 +243,7 @@ function ShareLinkSection() {
         required
         {...register("publicId")}
         error={errors.publicId?.message}
+        styles={errors.publicId ? errorStyles : inputStyles}
       />
     </Stack>
   );
@@ -378,7 +393,20 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
           <FAQsSection />
 
-          <Box mt={32} style={{ display: "flex", justifyContent: "center" }}>
+          <Box
+            mt={32}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            {Object.keys(errors).length > 0 && (
+              <p style={{ fontSize: "12px", color: "red" }}>
+                Please review required fields above.
+              </p>
+            )}
             <Button
               w={100}
               type="submit"
