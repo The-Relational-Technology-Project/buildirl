@@ -10,7 +10,12 @@ import {
   Box,
   useMatches
 } from "@mantine/core";
-import { IconBrandInstagram, IconWorld, IconMapPin } from "@tabler/icons-react";
+import {
+  IconBrandInstagram,
+  IconWorld,
+  IconMapPin,
+  IconCalendar
+} from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
@@ -33,6 +38,7 @@ import ShareIconButton from "./_components/ShareIconButton";
 import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
 import { InstagramHandle, Url } from "~/server/utils/types";
 import { Club } from "~/server/club/types";
+import { getRhythmDescription } from "./utils";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -99,6 +105,7 @@ export default function ClubJoin() {
   const club = api.main.clubByPublicId.useQuery({
     publicId
   });
+
   const isUserAuthenticated = api.main.isUserAuthenticated.useQuery();
 
   QueryError.check({
@@ -178,6 +185,15 @@ export default function ClubJoin() {
                 <Group gap={6}>
                   <IconMapPin size={18} stroke={1.5} />
                   <Text size="sm">{club.data!.location}</Text>
+                </Group>
+              )}
+
+              {club.data?.rhythm && (
+                <Group gap={6}>
+                  <IconCalendar size={18} stroke={1.5} />
+                  <Text size="sm">
+                    {getRhythmDescription(club.data.rhythm)}
+                  </Text>
                 </Group>
               )}
             </Stack>

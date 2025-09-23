@@ -30,6 +30,7 @@ export type Club = {
   //  made non-nullable after values are back-populated
   // this is nullable for backwards compatibility purposes
   location: Maybe<City>;
+  rhythm: Maybe<Rhythm>;
   description: string;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
@@ -109,12 +110,29 @@ export const FAQsSchema = z.object({
 
 export type FAQs = z.infer<typeof FAQsSchema>;
 
+export const DateStringSchema = z.string().date();
+
+export type DateString = z.infer<typeof DateStringSchema>;
+
+export const TimeStringSchema = z.string().time();
+
+export type TimeString = z.infer<typeof TimeStringSchema>;
+
+export const RhythmSchema = z.object({
+  startDate: DateStringSchema,
+  startTime: TimeStringSchema,
+  frequency: z.string()
+});
+
+export type Rhythm = z.infer<typeof RhythmSchema>;
+
 export const UpdateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
   location: CitySchema,
+  rhythm: RhythmSchema,
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable(),

@@ -358,7 +358,9 @@ export const mainRouter = createTRPCRouter({
       return ctx.service.membership.setMembershipAsWelcomed(input.membershipId);
     }),
 
-  updateMembershipTierForMembership: securedProcedureWithAbilityFor("Membership")
+  updateMembershipTierForMembership: securedProcedureWithAbilityFor(
+    "Membership"
+  )
     .input(
       z.object({
         membershipId: z.bigint(),
