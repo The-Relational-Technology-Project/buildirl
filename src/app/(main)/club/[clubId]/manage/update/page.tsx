@@ -16,7 +16,7 @@ import {
   useMatches,
   Select,
   ActionIcon,
-  Group
+  Flex
 } from "@mantine/core";
 import { DateInput, TimeInput } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
@@ -134,57 +134,63 @@ function RhythmSection() {
   return (
     <Stack gap={8}>
       <Title order={6}>Club Rhythm</Title>
-      <Group
+
+      <Flex
         gap={8}
-        grow
-        style={{
-          flexDirection: "row",
-          flexWrap: "nowrap",
-          "@media (maxWidth: 600px)": {
-            flexDirection: "column",
-            flexWrap: "wrap"
-          }
-        }}
+        direction={{ base: "column", sm: "row" }}
+        wrap={{ base: "wrap", sm: "nowrap" }}
       >
-        <Controller
-          name="rhythm.startDate"
-          control={control}
-          render={({ field }) => (
-            <DateInput
-              value={field.value ?? null}
-              onChange={field.onChange}
-              placeholder="Start Date"
-              styles={errors.rhythm?.startDate ? errorStyles : inputStyles}
-            />
-          )}
-        />
-        <Controller
-          name="rhythm.startTime"
-          control={control}
-          render={({ field }) => (
-            <TimeInput
-              value={field.value ?? ""}
-              onChange={field.onChange}
-              placeholder="Start Time"
-              ref={ref}
-              rightSection={pickerControl}
-              styles={errors.rhythm?.startTime ? errorStyles : inputStyles}
-            />
-          )}
-        />
-        <Controller
-          name="rhythm.frequency"
-          control={control}
-          render={({ field }) => (
-            <Select
-              placeholder="Frequency"
-              data={["Weekly", "Biweekly", "Monthly"]}
-              {...field}
-              styles={errors.rhythm?.frequency ? errorStyles : inputStyles}
-            />
-          )}
-        />
-      </Group>
+        <Box flex={1} w="100%">
+          <Controller
+            name="rhythm.startDate"
+            control={control}
+            render={({ field }) => (
+              <DateInput
+                value={field.value ?? null}
+                onChange={field.onChange}
+                placeholder="Start Date"
+                w="100%"
+                styles={errors.rhythm?.startDate ? errorStyles : inputStyles}
+              />
+            )}
+          />
+        </Box>
+
+        <Box flex={1} w="100%">
+          <Controller
+            name="rhythm.startTime"
+            control={control}
+            render={({ field }) => (
+              <TimeInput
+                value={field.value ?? ""}
+                onChange={field.onChange}
+                placeholder="Start Time"
+                ref={ref}
+                rightSection={pickerControl}
+                w="100%"
+                styles={errors.rhythm?.startTime ? errorStyles : inputStyles}
+              />
+            )}
+          />
+        </Box>
+
+        <Box flex={1} w="100%">
+          <Controller
+            name="rhythm.frequency"
+            control={control}
+            render={({ field }) => (
+              <Select
+                placeholder="Frequency"
+                data={["Weekly", "Biweekly", "Monthly"]}
+                {...field}
+                w="100%"
+                styles={errors.rhythm?.frequency ? errorStyles : inputStyles}
+              />
+            )}
+          />
+        </Box>
+      </Flex>
+
       {errors.rhythm && (
         <div style={{ minHeight: 20, color: "red", fontSize: 12 }}>
           Club rhythm is required.
