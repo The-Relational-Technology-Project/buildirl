@@ -18,9 +18,9 @@ import {
   ActionIcon,
   Flex
 } from "@mantine/core";
-import { DateInput, TimeInput } from "@mantine/dates";
+import { DateInput, TimePicker } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -119,17 +119,7 @@ function RhythmSection() {
     formState: { errors }
   } = useFormContext<UpdateClubInput>();
 
-  const ref = useRef<HTMLInputElement>(null);
-
-  const pickerControl = (
-    <ActionIcon
-      variant="subtle"
-      color="gray"
-      onClick={() => ref.current?.showPicker()}
-    >
-      <IconClock size={16} stroke={1.5} />
-    </ActionIcon>
-  );
+  const [timeDropdownOpened, setDropdownOpened] = useState(false);
 
   return (
     <Stack gap={8}>
@@ -161,13 +151,26 @@ function RhythmSection() {
             name="rhythm.startTime"
             control={control}
             render={({ field }) => (
-              <TimeInput
+              <TimePicker
+                withDropdown
+                rightSection={
+                  <ActionIcon
+                    onClick={() => setDropdownOpened(true)}
+                    variant="default"
+                  >
+                    <IconClock size={18} stroke={1.5} />
+                  </ActionIcon>
+                }
+                format="12h"
                 value={field.value ?? ""}
-                onChange={field.onChange}
-                placeholder="Start Time"
-                ref={ref}
-                rightSection={pickerControl}
-                w="100%"
+                onChange={(val) => {
+                  field.onChange(val);
+                }}
+                popoverProps={{
+                  opened: timeDropdownOpened,
+                  onChange: (_opened) => !_opened && setDropdownOpened(false)
+                }}
+                minutesStep={15}
                 styles={errors.rhythm?.startTime ? errorStyles : inputStyles}
               />
             )}
