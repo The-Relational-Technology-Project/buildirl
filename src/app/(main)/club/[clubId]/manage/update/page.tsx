@@ -42,6 +42,7 @@ import PrefixedInput from "~/client/components/PrefixedInput";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import LocationSelect from "~/client/components/LocationSelect";
 import { City } from "~/server/club/types/location";
+import { ClubValueDisplay } from "./_components/ClubValueDisplay";
 
 const errorStyles = {
   input: {
@@ -285,6 +286,15 @@ function FontSection() {
   );
 }
 
+function ClubValuesSection({ club }: { club: Club }) {
+  return (
+    <Stack gap={8}>
+      <Title order={6}>Club Values</Title>
+      <ClubValueDisplay club={club} />
+    </Stack>
+  );
+}
+
 interface ShowcaseImagesSectionProps {
   club: Club;
 }
@@ -394,6 +404,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
           <ThemeSection />
           <FontSection />
+
+          <ClubValuesSection club={club} />
 
           <ShowcaseImagesSection club={club} />
 
