@@ -75,17 +75,17 @@ export function asClub(
   };
 }
 
-export function toDateStringFromDate(date: Date | null): DateString | null {
+export function toDateStringFromDate(date: Maybe<Date>): Maybe<DateString> {
   return date ? date.toISOString().slice(0, 10) : null;
 }
 
-export function toTimeStringFromDate(time: Date | null): TimeString | null {
+export function toTimeStringFromDate(time: Maybe<Date>): Maybe<TimeString> {
   return time ? time.toISOString().slice(11, 16) : null;
 }
 
 export function toDateFromDateString(
-  startDate: DateString | null
-): Date | null {
+  startDate: Maybe<DateString>
+): Maybe<Date> {
   if (!startDate) {
     return null;
   }
@@ -93,8 +93,8 @@ export function toDateFromDateString(
 }
 
 export function toDateFromTimeString(
-  startTime: TimeString | null
-): Date | null {
+  startTime: Maybe<TimeString>
+): Maybe<Date> {
   if (!startTime) {
     return null;
   }
@@ -102,9 +102,9 @@ export function toDateFromTimeString(
 }
 
 export function toRhythm(
-  startDate: Date | null,
-  startTime: Date | null,
-  frequency: string | null
+  startDate: Maybe<Date>,
+  startTime: Maybe<Date>,
+  frequency: Maybe<string>
 ): Maybe<Rhythm> {
   const dateString = toDateStringFromDate(startDate);
   const timeString = toTimeStringFromDate(startTime);
