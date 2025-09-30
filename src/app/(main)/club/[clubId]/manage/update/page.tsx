@@ -16,7 +16,8 @@ import {
   useMatches,
   Select,
   ActionIcon,
-  Flex
+  Flex,
+  Text
 } from "@mantine/core";
 import { DateInput, TimePicker } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
@@ -117,14 +118,22 @@ function RhythmSection() {
   const {
     control,
     formState: { errors },
-    trigger
+    trigger,
+    setValue,
+    watch
   } = useFormContext<UpdateClubInput>();
 
   const [timeDropdownOpened, setDropdownOpened] = useState(false);
   const rhythmError = errors.rhythm?.message;
+  const rhythm = watch("rhythm");
+  const hasAnyRhythmField = !!(
+    rhythm?.startDate ||
+    rhythm?.startTime ||
+    rhythm?.frequency
+  );
 
   return (
-    <Stack gap={8}>
+    <Stack gap={8} align="center">
       <Title order={6}>Club Rhythm</Title>
       <Flex
         gap={8}
@@ -204,6 +213,23 @@ function RhythmSection() {
         <div style={{ minHeight: 20, color: "red", fontSize: 12 }}>
           {rhythmError}
         </div>
+      )}
+      {hasAnyRhythmField && (
+        <Button
+          onClick={() => {
+            setValue("rhythm", {
+              startDate: null,
+              startTime: null,
+              frequency: null
+            });
+            trigger("rhythm");
+          }}
+          style={{ backgroundColor: "transparent", width: "fit-content" }}
+        >
+          <Text size="sm" c="black" td="underline">
+            Clear all rhythm fields
+          </Text>
+        </Button>
       )}
     </Stack>
   );

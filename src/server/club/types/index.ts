@@ -120,9 +120,9 @@ export type TimeString = z.infer<typeof TimeStringSchema>;
 
 export const RhythmSchema = z
   .object({
-    startDate: DateStringSchema.optional(),
-    startTime: TimeStringSchema.optional(),
-    frequency: z.string().optional()
+    startDate: DateStringSchema.nullable(),
+    startTime: TimeStringSchema.nullable(),
+    frequency: z.string().nullable()
   })
   .refine(
     (obj) => {

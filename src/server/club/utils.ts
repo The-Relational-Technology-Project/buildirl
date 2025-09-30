@@ -84,7 +84,7 @@ export function toTimeStringFromDate(time: Date | null): TimeString | null {
 }
 
 export function toDateFromDateString(
-  startDate: DateString | undefined
+  startDate: DateString | null
 ): Date | null {
   if (!startDate) {
     return null;
@@ -93,7 +93,7 @@ export function toDateFromDateString(
 }
 
 export function toDateFromTimeString(
-  startTime: TimeString | undefined
+  startTime: TimeString | null
 ): Date | null {
   if (!startTime) {
     return null;
