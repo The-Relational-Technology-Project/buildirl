@@ -133,7 +133,7 @@ function RhythmSection() {
   );
 
   return (
-    <Stack gap={8} align="center">
+    <Stack gap={8}>
       <Title order={6}>Club Rhythm</Title>
       <Flex
         gap={8}
@@ -215,21 +215,23 @@ function RhythmSection() {
         </div>
       )}
       {hasAnyRhythmField && (
-        <Button
-          onClick={() => {
-            setValue("rhythm", {
-              startDate: null,
-              startTime: null,
-              frequency: null
-            });
-            trigger("rhythm");
-          }}
-          style={{ backgroundColor: "transparent", width: "fit-content" }}
-        >
-          <Text size="sm" c="black" td="underline">
-            Clear all rhythm fields
-          </Text>
-        </Button>
+        <Box display="flex" w="100%" style={{ justifyContent: "center" }}>
+          <Button
+            onClick={() => {
+              setValue("rhythm", {
+                startDate: null,
+                startTime: null,
+                frequency: null
+              });
+              trigger("rhythm");
+            }}
+            style={{ backgroundColor: "transparent", width: "fit-content" }}
+          >
+            <Text size="sm" c="black" td="underline">
+              Clear all rhythm fields
+            </Text>
+          </Button>
+        </Box>
       )}
     </Stack>
   );
