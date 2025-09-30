@@ -372,7 +372,11 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
-      rhythm: club.rhythm ?? undefined,
+      rhythm: club.rhythm ?? {
+        startDate: null,
+        startTime: null,
+        frequency: null
+      },
       // TODO this casting can be removed once location field is made non-nullable
       // we cast here because the value can be null for older clubs the null value will fail at
       // validation time, forcing the user to back-populated their location to a non-null value
@@ -437,7 +441,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           <FAQsSection />
 
           <Box
-            mt={32}
+            mb={32}
             style={{
               display: "flex",
               flexDirection: "column",
@@ -451,13 +455,13 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
               </p>
             )}
             <Button
-              w={100}
+              w={250}
               type="submit"
               disabled={Object.keys(errors).length > 0}
               loading={updateClub.isPending}
               leftSection={<IconDeviceFloppy size={16} />}
             >
-              Save
+              Save Club
             </Button>
           </Box>
         </Stack>
