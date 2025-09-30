@@ -16,7 +16,8 @@ import {
   useMatches,
   Select,
   ActionIcon,
-  Flex
+  Flex,
+  Text
 } from "@mantine/core";
 import { DateInput, TimePicker } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
@@ -116,15 +117,24 @@ function LocationSection() {
 function RhythmSection() {
   const {
     control,
-    formState: { errors }
+    formState: { errors },
+    trigger,
+    setValue,
+    watch
   } = useFormContext<UpdateClubInput>();
 
   const [timeDropdownOpened, setDropdownOpened] = useState(false);
+  const rhythmError = errors.rhythm?.message;
+  const rhythm = watch("rhythm");
+  const hasAnyRhythmField = !!(
+    rhythm?.startDate ||
+    rhythm?.startTime ||
+    rhythm?.frequency
+  );
 
   return (
     <Stack gap={8}>
       <Title order={6}>Club Rhythm</Title>
-
       <Flex
         gap={8}
         direction={{ base: "column", sm: "row" }}
@@ -137,15 +147,17 @@ function RhythmSection() {
             render={({ field }) => (
               <DateInput
                 value={field.value ?? null}
-                onChange={field.onChange}
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
                 placeholder="Start Date"
                 w="100%"
-                styles={errors.rhythm?.startDate ? errorStyles : inputStyles}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
               />
             )}
           />
         </Box>
-
         <Box flex={1} w="100%">
           <Controller
             name="rhythm.startTime"
@@ -165,18 +177,18 @@ function RhythmSection() {
                 value={field.value ?? ""}
                 onChange={(val) => {
                   field.onChange(val);
+                  trigger("rhythm");
                 }}
                 popoverProps={{
                   opened: timeDropdownOpened,
                   onChange: (_opened) => !_opened && setDropdownOpened(false)
                 }}
                 minutesStep={15}
-                styles={errors.rhythm?.startTime ? errorStyles : inputStyles}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
               />
             )}
           />
         </Box>
-
         <Box flex={1} w="100%">
           <Controller
             name="rhythm.frequency"
@@ -187,17 +199,39 @@ function RhythmSection() {
                 data={["Weekly", "Biweekly", "Monthly"]}
                 {...field}
                 w="100%"
-                styles={errors.rhythm?.frequency ? errorStyles : inputStyles}
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
               />
             )}
           />
         </Box>
       </Flex>
-
-      {errors.rhythm && (
+      {rhythmError && (
         <div style={{ minHeight: 20, color: "red", fontSize: 12 }}>
-          Club rhythm is required.
+          {rhythmError}
         </div>
+      )}
+      {hasAnyRhythmField && (
+        <Box display="flex" w="100%" style={{ justifyContent: "center" }}>
+          <Button
+            onClick={() => {
+              setValue("rhythm", {
+                startDate: null,
+                startTime: null,
+                frequency: null
+              });
+              trigger("rhythm");
+            }}
+            style={{ backgroundColor: "transparent", width: "fit-content" }}
+          >
+            <Text size="sm" c="black" td="underline">
+              Clear all rhythm fields
+            </Text>
+          </Button>
+        </Box>
       )}
     </Stack>
   );
