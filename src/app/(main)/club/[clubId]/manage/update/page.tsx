@@ -14,13 +14,14 @@ import {
   Title,
   Box,
   useMatches,
-  Group,
   Select,
-  ActionIcon
+  ActionIcon,
+  Flex,
+  Text
 } from "@mantine/core";
-import { DateInput, TimeInput } from "@mantine/dates";
+import { DateInput, TimePicker } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -42,6 +43,21 @@ import PrefixedInput from "~/client/components/PrefixedInput";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import LocationSelect from "~/client/components/LocationSelect";
 import { City } from "~/server/club/types/location";
+
+const errorStyles = {
+  input: {
+    border: "1px solid red",
+    color: "red",
+    borderRadius: 0
+  }
+};
+
+const inputStyles = {
+  input: {
+    border: "1px solid black",
+    borderRadius: 0
+  }
+};
 
 function BasicInfoSection() {
   const {
@@ -92,6 +108,7 @@ function LocationSection() {
           await trigger("location");
         }}
         error={errors.location?.message}
+        styles={errors.location ? errorStyles : inputStyles}
       />
     </Stack>
   );
@@ -100,81 +117,121 @@ function LocationSection() {
 function RhythmSection() {
   const {
     control,
-    formState: { errors }
+    formState: { errors },
+    trigger,
+    setValue,
+    watch
   } = useFormContext<UpdateClubInput>();
 
-  const ref = useRef<HTMLInputElement>(null);
-
-  const pickerControl = (
-    <ActionIcon
-      variant="subtle"
-      color="gray"
-      onClick={() => ref.current?.showPicker()}
-    >
-      <IconClock size={16} stroke={1.5} />
-    </ActionIcon>
+  const [timeDropdownOpened, setDropdownOpened] = useState(false);
+  const rhythmError = errors.rhythm?.message;
+  const rhythm = watch("rhythm");
+  const hasAnyRhythmField = !!(
+    rhythm?.startDate ||
+    rhythm?.startTime ||
+    rhythm?.frequency
   );
 
   return (
     <Stack gap={8}>
       <Title order={6}>Club Rhythm</Title>
-      <Group gap={8} grow>
-        <Controller
-          name="rhythm.startDate"
-          control={control}
-          render={({ field }) => {
-            return (
+      <Flex
+        gap={8}
+        direction={{ base: "column", sm: "row" }}
+        wrap={{ base: "wrap", sm: "nowrap" }}
+      >
+        <Box flex={1} w="100%">
+          <Controller
+            name="rhythm.startDate"
+            control={control}
+            render={({ field }) => (
               <DateInput
                 value={field.value ?? null}
-                onChange={(date) => {
-                  field.onChange(date);
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
                 }}
                 placeholder="Start Date"
-                styles={{
-                  input: {
-                    border: "1px solid black",
-                    borderRadius: 0
-                  }
-                }}
+                w="100%"
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
               />
-            );
-          }}
-        />
-        <Controller
-          name="rhythm.startTime"
-          control={control}
-          render={({ field }) => (
-            <TimeInput
-              value={field.value ?? ""}
-              onChange={(value) => field.onChange(value)}
-              placeholder="Start Time"
-              ref={ref}
-              rightSection={pickerControl}
-              styles={{
-                input: {
-                  border: "1px solid black",
-                  borderRadius: 0
+            )}
+          />
+        </Box>
+        <Box flex={1} w="100%">
+          <Controller
+            name="rhythm.startTime"
+            control={control}
+            render={({ field }) => (
+              <TimePicker
+                withDropdown
+                rightSection={
+                  <ActionIcon
+                    onClick={() => setDropdownOpened(true)}
+                    variant="default"
+                  >
+                    <IconClock size={18} stroke={1.5} />
+                  </ActionIcon>
                 }
-              }}
-            />
-          )}
-        />
-        <Controller
-          name="rhythm.frequency"
-          control={control}
-          render={({ field }) => (
-            <Select
-              placeholder="Frequency"
-              data={["Weekly", "Biweekly", "Monthly"]}
-              {...field}
-            />
-          )}
-        />
-      </Group>
-      {errors.rhythm && (
+                format="12h"
+                value={field.value ?? ""}
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
+                popoverProps={{
+                  opened: timeDropdownOpened,
+                  onChange: (_opened) => !_opened && setDropdownOpened(false)
+                }}
+                minutesStep={15}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
+              />
+            )}
+          />
+        </Box>
+        <Box flex={1} w="100%">
+          <Controller
+            name="rhythm.frequency"
+            control={control}
+            render={({ field }) => (
+              <Select
+                placeholder="Frequency"
+                data={["Weekly", "Biweekly", "Monthly"]}
+                {...field}
+                w="100%"
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
+              />
+            )}
+          />
+        </Box>
+      </Flex>
+      {rhythmError && (
         <div style={{ minHeight: 20, color: "red", fontSize: 12 }}>
-          Club rhythm is required.
+          {rhythmError}
         </div>
+      )}
+      {hasAnyRhythmField && (
+        <Box display="flex" w="100%" style={{ justifyContent: "center" }}>
+          <Button
+            onClick={() => {
+              setValue("rhythm", {
+                startDate: null,
+                startTime: null,
+                frequency: null
+              });
+              trigger("rhythm");
+            }}
+            style={{ backgroundColor: "transparent", width: "fit-content" }}
+          >
+            <Text size="sm" c="black" td="underline">
+              Clear all rhythm fields
+            </Text>
+          </Button>
+        </Box>
       )}
     </Stack>
   );
@@ -229,6 +286,7 @@ function ShareLinkSection() {
         required
         {...register("publicId")}
         error={errors.publicId?.message}
+        styles={errors.publicId ? errorStyles : inputStyles}
       />
     </Stack>
   );
@@ -378,7 +436,20 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
           <FAQsSection />
 
-          <Box mt={32} style={{ display: "flex", justifyContent: "center" }}>
+          <Box
+            mt={32}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            {Object.keys(errors).length > 0 && (
+              <p style={{ fontSize: "12px", color: "red" }}>
+                Please review required fields above.
+              </p>
+            )}
             <Button
               w={100}
               type="submit"
