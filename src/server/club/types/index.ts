@@ -118,11 +118,22 @@ export const TimeStringSchema = z.string().time();
 
 export type TimeString = z.infer<typeof TimeStringSchema>;
 
-export const RhythmSchema = z.object({
-  startDate: DateStringSchema,
-  startTime: TimeStringSchema,
-  frequency: z.string()
-});
+export const RhythmSchema = z
+  .object({
+    startDate: DateStringSchema.optional(),
+    startTime: TimeStringSchema.optional(),
+    frequency: z.string().optional()
+  })
+  .refine(
+    (obj) => {
+      const allPresent = !!obj.startDate && !!obj.startTime && !!obj.frequency;
+      const allAbsent = !obj.startDate && !obj.startTime && !obj.frequency;
+      return allPresent || allAbsent;
+    },
+    {
+      message: "Either all rhythm fields must be provided, or none."
+    }
+  );
 
 export type Rhythm = z.infer<typeof RhythmSchema>;
 

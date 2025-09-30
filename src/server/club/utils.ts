@@ -83,12 +83,22 @@ export function toTimeStringFromDate(time: Date | null): TimeString | null {
   return time ? time.toISOString().slice(11, 16) : null;
 }
 
-export function toDateFromDateString(dateString: DateString): Date | null {
-  return dateString ? new Date(dateString) : null;
+export function toDateFromDateString(
+  startDate: DateString | undefined
+): Date | null {
+  if (!startDate) {
+    return null;
+  }
+  return new Date(startDate);
 }
 
-export function toDateFromTimeString(timeString: TimeString): Date | null {
-  return timeString ? new Date(`1970-01-01T${timeString}:00Z`) : null;
+export function toDateFromTimeString(
+  startTime: TimeString | undefined
+): Date | null {
+  if (!startTime) {
+    return null;
+  }
+  return new Date(`1970-01-01T${startTime}:00Z`);
 }
 
 export function toRhythm(
