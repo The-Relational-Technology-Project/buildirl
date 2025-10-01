@@ -122,7 +122,7 @@ export default function CampaignHero({
             bottom={0}
             style={{
               background:
-                "linear-gradient(to bottom right, rgba(122, 62, 218, 0.8), rgba(255, 200, 87, 0.8), rgba(255, 120, 51, 0.8))"
+                "linear-gradient(to bottom right, rgba(128, 0, 32, 0.8), rgba(72, 60, 50, 0.8))"
             }}
           />
 

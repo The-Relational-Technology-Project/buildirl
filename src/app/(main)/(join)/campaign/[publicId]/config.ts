@@ -6,7 +6,10 @@ import {
   IconBulb,
   IconHandStop,
   IconHeart,
-  IconMoodSmile
+  IconHeartHandshake,
+  IconMoodSmile,
+  IconScale,
+  IconTarget
 } from "@tabler/icons-react";
 
 export type CampaignConfiguration = {
@@ -145,10 +148,10 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
     clubPublicId: "bridges",
     membershipTierId: 79,
     coverPictureUrl:
-      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/Screenshot-2025-09-17-at-10.08.06-AM.png",
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/burgundy-solid.png",
     subheader: "Calling all the ambitious women in the Bay Area",
-    location: "Multiple Locations Across San Francisco, South Bay and East Bay",
-    time: "3x per month (Virtually, IRL, and Casually)",
+    location: "SF, East Bay, South Bay",
+    time: "3x per month",
     frequency: "3x per month",
     monthlyGoal: 400,
     spendCategories: [
@@ -172,12 +175,12 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
     howWeHang:
       "Our events consist of the following 3 types of formats:\n\nFormal Events (Think Panels, Professional Settings, Happy Hours)\nCommunity Events (Hot Girl Walks, Co-working Sessions, Hang Outs)\nLearning and Development Events ( Resume Building Workshops, Office Hours, etc)",
     whyJoinUs: [
-      "Access to the private community Slack with all members",
+      "Access to the private community Slack",
       "Online membership onboarding session",
-      'Exclusive "Ask Me Anything" sessions with industry leaders and experienced members',
+      "AMAs w/ industry leaders and members",
       "Priority access to events with limited spots",
-      "Early access to our resource hub (recorded workshops, templates, downloadable tools)",
-      "Quarterly Member Highlights in our newsletter and social media features — we love to celebrate YOU"
+      "Early access to our resource hub",
+      "Member highlight in newsletter, social media"
     ],
     pictureUrls: [
       "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1508.jpg",
@@ -187,29 +190,29 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
     ],
     values: [
       {
-        icon: IconHeart,
+        icon: IconHeartHandshake,
         heading: "Respect",
         description:
-          "We expect all members and guests to conduct themselves in a professional manner and respect the autonomy of others. In order to create a safe and courteous environment, we have a zero-tolerance policy for harassment, discrimination, or any behavior that creates a hostile environment."
+          "Treat others in professional manner and respect the autonomy of others."
       },
       {
-        icon: IconHeart,
+        icon: IconScale,
         heading: "Integrity",
         description:
-          "We make our decisions based on what benefits the network as a whole. Operating with integrity & sharing a commitment to each other is vital to participation."
+          "We make our decisions based on what benefits the network as a whole."
       },
       {
-        icon: IconHeart,
+        icon: IconTarget,
         heading: "Purpose Driven",
         description:
-          "We approach interactions with active participation and clear purpose, ensuring our contributions are meaningful and relevant. We intentionally curate events, discussions, and activities with the goals of our community in mind. To ensure everyone can meaningfully participate, we curate our events, discussions, and activities to be inclusive and broadly relevant. This allows diverse perspectives to flourish and creates a space where everyone's voice is valued."
+          "We approach interactions with active participation and clear purpose."
       }
     ],
     calendarLink: "https://luma.com/user/BridgesSF",
     calendarEvent: {
       title: "Coworking Day!",
       description:
-        "Looking for a change of scenery and some great company while you work? Join us for our Coworking Coffee Day, where community meets productivity. We'll gather at a local coffee shop to enjoy good vibes, casual conversation, and a few hours of working alongside one another. Whether you want to power through your to-do list, brainstorm ideas, or just connect with fellow professionals, this is the perfect chance to blend work and networking in a relaxed setting.",
+        "Join us for our Coworking Coffee Day. We'll gather at a local coffee shop to enjoy good vibes, casual conversation, and a few hours of working alongside one another.",
       date: "October 17th",
       time: "9am-12pm",
       imageUrl:

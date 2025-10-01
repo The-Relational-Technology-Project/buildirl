@@ -116,6 +116,10 @@ export const TEMPLATE_THEME_SELECTION = {
   BurgundySolid: {
     backgroundFileName: "burgundy-solid.png",
     isDark: true
+  },
+  TaupeSolid: {
+    backgroundFileName: "taupe-solid.png",
+    isDark: false
   }
 };
 
