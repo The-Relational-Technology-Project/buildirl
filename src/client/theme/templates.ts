@@ -112,6 +112,14 @@ export const TEMPLATE_THEME_SELECTION = {
   BuildIrlBlocks: {
     backgroundFileName: "build-irl-blocks.png",
     isDark: false
+  },
+  BurgundySolid: {
+    backgroundFileName: "burgundy-solid.png",
+    isDark: true
+  },
+  TaupeSolid: {
+    backgroundFileName: "taupe-solid.png",
+    isDark: false
   }
 };
 

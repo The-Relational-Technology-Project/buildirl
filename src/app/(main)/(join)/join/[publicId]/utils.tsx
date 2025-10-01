@@ -1,6 +1,9 @@
 import { Rhythm } from "~/server/club/types";
 
 export const getRhythmDescription = (rhythm: Rhythm) => {
+  if (!rhythm.frequency || !rhythm.startDate || !rhythm.startTime) {
+    return null;
+  }
   return (
     <>
       {rhythm.frequency} on{" "}

@@ -78,26 +78,36 @@ export function asClub(
   };
 }
 
-export function toDateStringFromDate(date: Date | null): DateString | null {
+export function toDateStringFromDate(date: Maybe<Date>): Maybe<DateString> {
   return date ? date.toISOString().slice(0, 10) : null;
 }
 
-export function toTimeStringFromDate(time: Date | null): TimeString | null {
+export function toTimeStringFromDate(time: Maybe<Date>): Maybe<TimeString> {
   return time ? time.toISOString().slice(11, 16) : null;
 }
 
-export function toDateFromDateString(dateString: DateString): Date | null {
-  return dateString ? new Date(dateString) : null;
+export function toDateFromDateString(
+  startDate: Maybe<DateString>
+): Maybe<Date> {
+  if (!startDate) {
+    return null;
+  }
+  return new Date(startDate);
 }
 
-export function toDateFromTimeString(timeString: TimeString): Date | null {
-  return timeString ? new Date(`1970-01-01T${timeString}:00Z`) : null;
+export function toDateFromTimeString(
+  startTime: Maybe<TimeString>
+): Maybe<Date> {
+  if (!startTime) {
+    return null;
+  }
+  return new Date(`1970-01-01T${startTime}:00Z`);
 }
 
 export function toRhythm(
-  startDate: Date | null,
-  startTime: Date | null,
-  frequency: string | null
+  startDate: Maybe<Date>,
+  startTime: Maybe<Date>,
+  frequency: Maybe<string>
 ): Maybe<Rhythm> {
   const dateString = toDateStringFromDate(startDate);
   const timeString = toTimeStringFromDate(startTime);

@@ -154,9 +154,9 @@ export function createClubService(
           ...clubData,
           theme: clubData.theme ?? Prisma.DbNull,
           // Convert to Date objects to satisfy Prisma DateTime type
-          startDate: toDateFromDateString(rhythm.startDate),
-          startTime: toDateFromTimeString(rhythm.startTime),
-          frequency: rhythm.frequency
+          startDate: toDateFromDateString(rhythm?.startDate),
+          startTime: toDateFromTimeString(rhythm?.startTime),
+          frequency: rhythm?.frequency ?? null
         },
         where: {
           id: id

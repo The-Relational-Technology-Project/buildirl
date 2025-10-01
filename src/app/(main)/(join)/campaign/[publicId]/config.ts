@@ -6,7 +6,10 @@ import {
   IconBulb,
   IconHandStop,
   IconHeart,
-  IconMoodSmile
+  IconHeartHandshake,
+  IconMoodSmile,
+  IconScale,
+  IconTarget
 } from "@tabler/icons-react";
 
 export type CampaignConfiguration = {
@@ -140,5 +143,82 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
     },
 
     contactUsEmail: "team@buildirl.com"
+  },
+  {
+    clubPublicId: "bridges",
+    membershipTierId: 79,
+    coverPictureUrl:
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/burgundy-solid.png",
+    subheader: "Calling all the ambitious women in the Bay Area",
+    location: "SF, East Bay, South Bay",
+    time: "3x per month",
+    frequency: "3x per month",
+    monthlyGoal: 400,
+    spendCategories: [
+      {
+        description: "Venue Space",
+        cost: 200
+      },
+      {
+        description: "Snacks and Beverages",
+        cost: 100
+      },
+      {
+        description: "Operating Costs",
+        cost: 100
+      }
+    ],
+    targetDate: new Date("2025-10-08 23:59:59"),
+    hostSignature: "Bella Malvini",
+    whoWeAre:
+      "At Bridges Social Club, we are dedicated to fostering a vibrant and inclusive community for professional women in the San Francisco Bay Area. Through thoughtfully curated events, innovative networking, and a collective dedication to empowering one another, we bridge the gap between ambition and opportunity.\n\nWe are cultivating a network where every woman feels valued, heard, and empowered to succeed. Our mission is to create meaningful connections, inspire growth, and provide a space where women can support, collaborate, and thrive—both personally and professionally.",
+    howWeHang:
+      "Our events consist of the following 3 types of formats:\n\nFormal Events (Think Panels, Professional Settings, Happy Hours)\nCommunity Events (Hot Girl Walks, Co-working Sessions, Hang Outs)\nLearning and Development Events ( Resume Building Workshops, Office Hours, etc)",
+    whyJoinUs: [
+      "Access to the private community Slack",
+      "Online membership onboarding session",
+      "AMAs w/ industry leaders and members",
+      "Priority access to limited events",
+      "Early access to our resource hub",
+      "Member highlight in newsletter, socials"
+    ],
+    pictureUrls: [
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1508.jpg",
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1584.jpg",
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1717.jpg",
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1936.jpg"
+    ],
+    values: [
+      {
+        icon: IconHeartHandshake,
+        heading: "Respect",
+        description:
+          "Treat others in professional manner and respect the autonomy of others."
+      },
+      {
+        icon: IconScale,
+        heading: "Integrity",
+        description:
+          "We make our decisions based on what benefits the network as a whole."
+      },
+      {
+        icon: IconTarget,
+        heading: "Purpose Driven",
+        description:
+          "We approach interactions with active participation and clear purpose."
+      }
+    ],
+    calendarLink: "https://luma.com/user/BridgesSF",
+    calendarEvent: {
+      title: "Coworking Day!",
+      description:
+        "Join us for our Coworking Coffee Day. We'll gather at a local coffee shop to enjoy good vibes, casual conversation, and a few hours of working alongside one another.",
+      date: "October 17th",
+      time: "9am-12pm",
+      imageUrl:
+        "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/gallery-images/jy/9ddd9608-048c-4de8-88fa-9dbbb0b449c6",
+      eventLink: "https://luma.com/4hfxjkx6"
+    },
+    contactUsEmail: "bridgessocialclubsf@gmail.com"
   }
 ];

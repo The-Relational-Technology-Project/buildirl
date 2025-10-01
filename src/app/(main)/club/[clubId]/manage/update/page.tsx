@@ -16,11 +16,12 @@ import {
   useMatches,
   Select,
   ActionIcon,
-  Flex
+  Flex,
+  Text
 } from "@mantine/core";
-import { DateInput, TimeInput } from "@mantine/dates";
+import { DateInput, TimePicker } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -117,25 +118,24 @@ function LocationSection() {
 function RhythmSection() {
   const {
     control,
-    formState: { errors }
+    formState: { errors },
+    trigger,
+    setValue,
+    watch
   } = useFormContext<UpdateClubInput>();
 
-  const ref = useRef<HTMLInputElement>(null);
-
-  const pickerControl = (
-    <ActionIcon
-      variant="subtle"
-      color="gray"
-      onClick={() => ref.current?.showPicker()}
-    >
-      <IconClock size={16} stroke={1.5} />
-    </ActionIcon>
+  const [timeDropdownOpened, setDropdownOpened] = useState(false);
+  const rhythmError = errors.rhythm?.message;
+  const rhythm = watch("rhythm");
+  const hasAnyRhythmField = !!(
+    rhythm?.startDate ||
+    rhythm?.startTime ||
+    rhythm?.frequency
   );
 
   return (
     <Stack gap={8}>
       <Title order={6}>Club Rhythm</Title>
-
       <Flex
         gap={8}
         direction={{ base: "column", sm: "row" }}
@@ -148,33 +148,48 @@ function RhythmSection() {
             render={({ field }) => (
               <DateInput
                 value={field.value ?? null}
-                onChange={field.onChange}
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
                 placeholder="Start Date"
                 w="100%"
-                styles={errors.rhythm?.startDate ? errorStyles : inputStyles}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
               />
             )}
           />
         </Box>
-
         <Box flex={1} w="100%">
           <Controller
             name="rhythm.startTime"
             control={control}
             render={({ field }) => (
-              <TimeInput
+              <TimePicker
+                withDropdown
+                rightSection={
+                  <ActionIcon
+                    onClick={() => setDropdownOpened(true)}
+                    variant="default"
+                  >
+                    <IconClock size={18} stroke={1.5} />
+                  </ActionIcon>
+                }
+                format="12h"
                 value={field.value ?? ""}
-                onChange={field.onChange}
-                placeholder="Start Time"
-                ref={ref}
-                rightSection={pickerControl}
-                w="100%"
-                styles={errors.rhythm?.startTime ? errorStyles : inputStyles}
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
+                popoverProps={{
+                  opened: timeDropdownOpened,
+                  onChange: (_opened) => !_opened && setDropdownOpened(false)
+                }}
+                minutesStep={15}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
               />
             )}
           />
         </Box>
-
         <Box flex={1} w="100%">
           <Controller
             name="rhythm.frequency"
@@ -185,17 +200,39 @@ function RhythmSection() {
                 data={["Weekly", "Biweekly", "Monthly"]}
                 {...field}
                 w="100%"
-                styles={errors.rhythm?.frequency ? errorStyles : inputStyles}
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
               />
             )}
           />
         </Box>
       </Flex>
-
-      {errors.rhythm && (
+      {rhythmError && (
         <div style={{ minHeight: 20, color: "red", fontSize: 12 }}>
-          Club rhythm is required.
+          {rhythmError}
         </div>
+      )}
+      {hasAnyRhythmField && (
+        <Box display="flex" w="100%" style={{ justifyContent: "center" }}>
+          <Button
+            onClick={() => {
+              setValue("rhythm", {
+                startDate: null,
+                startTime: null,
+                frequency: null
+              });
+              trigger("rhythm");
+            }}
+            style={{ backgroundColor: "transparent", width: "fit-content" }}
+          >
+            <Text size="sm" c="black" td="underline">
+              Clear all rhythm fields
+            </Text>
+          </Button>
+        </Box>
       )}
     </Stack>
   );
@@ -345,7 +382,11 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
-      rhythm: club.rhythm ?? undefined,
+      rhythm: club.rhythm ?? {
+        startDate: null,
+        startTime: null,
+        frequency: null
+      },
       // TODO this casting can be removed once location field is made non-nullable
       // we cast here because the value can be null for older clubs the null value will fail at
       // validation time, forcing the user to back-populated their location to a non-null value
@@ -412,7 +453,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           <FAQsSection />
 
           <Box
-            mt={32}
+            mb={32}
             style={{
               display: "flex",
               flexDirection: "column",
@@ -426,13 +467,13 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
               </p>
             )}
             <Button
-              w={100}
+              w={250}
               type="submit"
               disabled={Object.keys(errors).length > 0}
               loading={updateClub.isPending}
               leftSection={<IconDeviceFloppy size={16} />}
             >
-              Save
+              Save Club
             </Button>
           </Box>
         </Stack>
