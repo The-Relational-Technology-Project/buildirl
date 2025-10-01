@@ -140,5 +140,82 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
     },
 
     contactUsEmail: "team@buildirl.com"
+  },
+  {
+    clubPublicId: "bridges",
+    membershipTierId: 79,
+    coverPictureUrl:
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/Screenshot-2025-09-17-at-10.08.06-AM.png",
+    subheader: "Calling all the ambitious women in the Bay Area",
+    location: "Multiple Locations Across San Francisco, South Bay and East Bay",
+    time: "3x per month (Virtually, IRL, and Casually)",
+    frequency: "3x per month",
+    monthlyGoal: 400,
+    spendCategories: [
+      {
+        description: "Venue Space",
+        cost: 200
+      },
+      {
+        description: "Snacks and Beverages",
+        cost: 100
+      },
+      {
+        description: "Operating Costs",
+        cost: 100
+      }
+    ],
+    targetDate: new Date("2025-10-08 23:59:59"),
+    hostSignature: "Bella Malvini",
+    whoWeAre:
+      "At Bridges Social Club, we are dedicated to fostering a vibrant and inclusive community for professional women in the San Francisco Bay Area. Through thoughtfully curated events, innovative networking, and a collective dedication to empowering one another, we bridge the gap between ambition and opportunity.\n\nWe are cultivating a network where every woman feels valued, heard, and empowered to succeed. Our mission is to create meaningful connections, inspire growth, and provide a space where women can support, collaborate, and thrive—both personally and professionally.",
+    howWeHang:
+      "Our events consist of the following 3 types of formats:\n\nFormal Events (Think Panels, Professional Settings, Happy Hours)\nCommunity Events (Hot Girl Walks, Co-working Sessions, Hang Outs)\nLearning and Development Events ( Resume Building Workshops, Office Hours, etc)",
+    whyJoinUs: [
+      "Access to the private community Slack with all members",
+      "Online membership onboarding session",
+      'Exclusive "Ask Me Anything" sessions with industry leaders and experienced members',
+      "Priority access to events with limited spots",
+      "Early access to our resource hub (recorded workshops, templates, downloadable tools)",
+      "Quarterly Member Highlights in our newsletter and social media features — we love to celebrate YOU"
+    ],
+    pictureUrls: [
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1508.jpg",
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1584.jpg",
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1717.jpg",
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1936.jpg"
+    ],
+    values: [
+      {
+        icon: IconHeart,
+        heading: "Respect",
+        description:
+          "We expect all members and guests to conduct themselves in a professional manner and respect the autonomy of others. In order to create a safe and courteous environment, we have a zero-tolerance policy for harassment, discrimination, or any behavior that creates a hostile environment."
+      },
+      {
+        icon: IconHeart,
+        heading: "Integrity",
+        description:
+          "We make our decisions based on what benefits the network as a whole. Operating with integrity & sharing a commitment to each other is vital to participation."
+      },
+      {
+        icon: IconHeart,
+        heading: "Purpose Driven",
+        description:
+          "We approach interactions with active participation and clear purpose, ensuring our contributions are meaningful and relevant. We intentionally curate events, discussions, and activities with the goals of our community in mind. To ensure everyone can meaningfully participate, we curate our events, discussions, and activities to be inclusive and broadly relevant. This allows diverse perspectives to flourish and creates a space where everyone's voice is valued."
+      }
+    ],
+    calendarLink: "https://luma.com/user/BridgesSF",
+    calendarEvent: {
+      title: "Coworking Day!",
+      description:
+        "Looking for a change of scenery and some great company while you work? Join us for our Coworking Coffee Day, where community meets productivity. We'll gather at a local coffee shop to enjoy good vibes, casual conversation, and a few hours of working alongside one another. Whether you want to power through your to-do list, brainstorm ideas, or just connect with fellow professionals, this is the perfect chance to blend work and networking in a relaxed setting.",
+      date: "October 17th",
+      time: "9am-12pm",
+      imageUrl:
+        "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/gallery-images/jy/9ddd9608-048c-4de8-88fa-9dbbb0b449c6",
+      eventLink: "https://luma.com/4hfxjkx6"
+    },
+    contactUsEmail: "bridgessocialclubsf@gmail.com"
   }
 ];
