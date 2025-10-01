@@ -271,7 +271,7 @@ export default function CampaignHero({
                 <Flex
                   justify="center"
                   align="center"
-                  direction={{ base: "column", md: "row" }}
+                  direction={"row"}
                   gap={{ base: "xl", md: 80 }}
                   mx="auto"
                   mb={{ base: "md", md: "lg" }}
