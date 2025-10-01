@@ -178,9 +178,9 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
       "Access to the private community Slack",
       "Online membership onboarding session",
       "AMAs w/ industry leaders and members",
-      "Priority access to events with limited spots",
+      "Priority access to limited events",
       "Early access to our resource hub",
-      "Member highlight in newsletter, social media"
+      "Member highlight in newsletter, socials"
     ],
     pictureUrls: [
       "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1508.jpg",

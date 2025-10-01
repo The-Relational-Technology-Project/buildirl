@@ -177,7 +177,7 @@ export default function CampaignStory({
                         <IconCoffee size={18} color="#FFC857" />
                       </Box>
                       <Title order={6} fz={{ base: 12, md: 14 }}>
-                        Hosted at SF Commons
+                        {campaignConfiguration.location}
                       </Title>
                     </Group>
                   </Card>

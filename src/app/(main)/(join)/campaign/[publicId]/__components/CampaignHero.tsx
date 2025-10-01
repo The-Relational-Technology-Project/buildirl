@@ -12,6 +12,7 @@ import {
   Badge,
   Box,
   Grid,
+  Flex,
   Avatar,
   Center,
   Container,
@@ -261,50 +262,36 @@ export default function CampaignHero({
           <Box p={{ base: "md", md: "xl" }}>
             {/* Progress Numbers */}
             <Stack align="center" mb={{ base: "lg", md: "xl" }}>
-              <Grid
-                gutter={{ base: "sm", md: "lg" }}
+              <Flex
+                justify="center"
+                align="center"
+                direction={{ base: "column", md: "row" }}
+                gap={{ base: "xl", md: 80 }}
+                mx="auto"
                 mb={{ base: "md", md: "lg" }}
-                w="100%"
               >
-                <Grid.Col span={4}>
-                  <Stack align="center" gap={4}>
-                    <Title
-                      order={1}
-                      fz={{ base: 24, md: 36, lg: 48 }}
-                      c="lilac"
-                    >
-                      ${currentAmount}
-                    </Title>
-                    <Text fz={{ base: 11, md: 14 }} c="dark.3" ta="center">
-                      {`pledged of $${goalAmount}/month goal`}
-                    </Text>
-                  </Stack>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Stack align="center" gap={4}>
-                    <Title order={1} fz={{ base: 24, md: 36, lg: 48 }}>
-                      {supportersCount}
-                    </Title>
-                    <Text fz={{ base: 11, md: 14 }} c="dark.3" ta="center">
-                      amazing humans supporting
-                    </Text>
-                  </Stack>
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Stack align="center" gap={4}>
-                    <Title
-                      order={1}
-                      fz={{ base: 24, md: 36, lg: 48 }}
-                      c="orange"
-                    >
-                      {daysLeft}
-                    </Title>
-                    <Text fz={{ base: 11, md: 14 }} c="dark.3" ta="center">
-                      days to go
-                    </Text>
-                  </Stack>
-                </Grid.Col>
-              </Grid>
+                <Stack align="center" gap={4} w={{ base: "100%", md: 280 }}>
+                  <Title order={1} fz={{ base: 28, md: 40, lg: 56 }} fw={800} c="lilac">
+                    {supportersCount}
+                  </Title>
+                  <Text fz={{ base: 12, md: 15 }} c="dark.3" ta="center">
+                    amazing humans supporting
+                  </Text>
+                </Stack>
+                <Stack align="center" gap={4} w={{ base: "100%", md: 280 }}>
+                  <Title
+                    order={1}
+                    fz={{ base: 28, md: 40, lg: 56 }}
+                    fw={800}
+                    c="orange"
+                  >
+                    {daysLeft}
+                  </Title>
+                  <Text fz={{ base: 12, md: 15 }} c="dark.3" ta="center">
+                    days to go
+                  </Text>
+                </Stack>
+              </Flex>
 
               <Stack w="100%" gap="md">
                 <Progress
