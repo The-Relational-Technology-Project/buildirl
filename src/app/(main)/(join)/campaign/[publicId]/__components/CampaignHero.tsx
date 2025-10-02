@@ -422,7 +422,7 @@ export default function CampaignHero({
                                   {c.description}
                                 </Text>
                                 <Text fw={700} c="lilac">
-                                  {`${c.cost}`}
+                                  {`$${c.cost}`}
                                 </Text>
                               </Group>
                             );
@@ -456,8 +456,8 @@ export default function CampaignHero({
                         {billingInterval === BillingInterval.MONTHLY
                           ? "paid monthly"
                           : billingInterval === BillingInterval.QUARTERLY
-                            ? "paid quarterly"
-                            : "paid semi-annually"}
+                            ? `paid quarterly ($${membershipCostPerMonth * 3} per 3 months)`
+                            : `paid semi-annually ($${membershipCostPerMonth * 6} per 6 months)`}
                       </Text>
                     </Card>
 
