@@ -171,7 +171,7 @@ export default function CampaignHero({
                     {campaignConfiguration.subheader}
                     <br />
                     <Text component="span" c={"white"} fw={600}>
-                      Let&apos;s make this club come to life!
+                      Let&apos;s make this community come to life!
                     </Text>
                   </Text>
                 </Stack>
@@ -288,7 +288,7 @@ export default function CampaignHero({
                       {supportersCount}
                     </Title>
                     <Text fz={{ base: 12, md: 15 }} c="dark.3" ta="center">
-                      amazing humans supporting
+                      amazing members supporting
                     </Text>
                   </Stack>
                   <Stack align="center" gap={4} w={{ base: "100%", md: 280 }}>
@@ -296,7 +296,7 @@ export default function CampaignHero({
                       order={1}
                       fz={{ base: 28, md: 40, lg: 56 }}
                       fw={800}
-                      c="orange"
+                      c="lilac"
                     >
                       {daysLeft}
                     </Title>
@@ -463,7 +463,7 @@ export default function CampaignHero({
 
                     <Text
                       size={"sm"}
-                    >{`Join this amazing crew of people ✨`}</Text>
+                    >{`Join this amazing community of people ✨`}</Text>
 
                     <Grid>
                       {foundingMembers.map((member, index) => (
@@ -567,7 +567,7 @@ export default function CampaignHero({
                       WebkitTextFillColor: "transparent"
                     }}
                   >
-                    Together, let&apos;s create a place to gather and belong. ✨
+                    Together, let&apos;s make this community come to life! ✨
                   </Text>
                   <Text fw={600} fz={{ base: 18, md: 20 }}>
                     {`— ${campaignConfiguration.hostSignature}`}
