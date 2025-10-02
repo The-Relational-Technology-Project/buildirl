@@ -70,6 +70,7 @@ export default function Campaign() {
   });
 
   const goalAmount = campaignConfiguration.monthlyGoal;
+  const goalAmountDisplay = campaignConfiguration.monthlyGoalDisplay;
 
   // Get membership tier details
   const membershipTier = club.data?.membershipTiers.find(
@@ -112,6 +113,7 @@ export default function Campaign() {
         billingInterval={billingInterval}
         supporters={supporters}
         goalAmount={goalAmount}
+        goalAmountDisplay={goalAmountDisplay}
         clubPublicId={club.data!.publicId}
         campaignConfiguration={campaignConfiguration}
         club={club.data!}
@@ -124,7 +126,7 @@ export default function Campaign() {
       <ContributionInterface
         club={club.data!}
         membershipTierId={campaignConfiguration.membershipTierId}
-        goalAmount={goalAmount}
+        goalAmountDisplay={goalAmountDisplay}
       />
       <FinancialAssistance campaignConfiguration={campaignConfiguration} />
     </Box>

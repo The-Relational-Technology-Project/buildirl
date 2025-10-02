@@ -23,6 +23,7 @@ export type CampaignConfiguration = {
   frequency: string;
 
   monthlyGoal: number;
+  monthlyGoalDisplay: number;
   spendCategories: SpendCategory[];
   targetDate: Date;
 
@@ -70,6 +71,7 @@ export const CAMPAIGN_CONFIGURATIONS: CampaignConfiguration[] = [
     time: "Last Wednesday every month",
     frequency: "Every month",
     monthlyGoal: 440,
+    monthlyGoalDisplay: 440,
     spendCategories: [
       { description: "Epic venue rental 🏠", cost: 300 },
       { description: "Food & snacks 🍕️", cost: 100 },
@@ -146,14 +148,15 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
   },
   {
     clubPublicId: "bridges",
-    membershipTierId: 79,
+    membershipTierId: 169,
     coverPictureUrl:
       "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/burgundy-solid.png",
     subheader: "Calling all the ambitious women in the Bay Area",
     location: "SF, East Bay, South Bay",
     time: "3x per month",
     frequency: "3x per month",
-    monthlyGoal: 400,
+    monthlyGoal: 300,
+    monthlyGoalDisplay: 500,
     spendCategories: [
       {
         description: "Venue Space",
@@ -165,7 +168,7 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
       },
       {
         description: "Operating Costs",
-        cost: 100
+        cost: 200
       }
     ],
     targetDate: new Date("2025-10-08 23:59:59"),
