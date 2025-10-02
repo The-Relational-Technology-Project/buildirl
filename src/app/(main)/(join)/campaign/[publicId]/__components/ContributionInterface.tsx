@@ -23,13 +23,13 @@ import { useRouter } from "next/navigation";
 interface ContributionInterfaceProps {
   club: Club;
   membershipTierId: number;
-  goalAmount: number;
+  goalAmountDisplay: number;
 }
 
 export default function ContributionInterface({
   club,
   membershipTierId,
-  goalAmount
+  goalAmountDisplay
 }: ContributionInterfaceProps) {
   const router = useRouter();
 
@@ -300,7 +300,7 @@ export default function ContributionInterface({
                         WebkitTextFillColor: "transparent"
                       }}
                     >
-                      ${goalAmount}
+                      ${goalAmountDisplay}
                     </Title>
                     <Text fz="sm" c="dark.3">
                       to keep our magic alive

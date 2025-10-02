@@ -37,6 +37,7 @@ interface CampaignHeroProps {
   membershipCostPerMonth: number;
   billingInterval: BillingInterval;
   goalAmount: number;
+  goalAmountDisplay: number;
   supporters: Membership[];
   clubPublicId: string;
   campaignConfiguration: CampaignConfiguration;
@@ -48,6 +49,7 @@ export default function CampaignHero({
   billingInterval,
   supporters,
   goalAmount,
+  goalAmountDisplay,
   clubPublicId,
   membershipTierId,
   campaignConfiguration,
@@ -332,7 +334,7 @@ export default function CampaignHero({
                       mt="xs"
                     >
                       {goalCount - supportersCount > 0
-                        ? `To reach the $${goalAmount}/month sustainability goal`
+                        ? `To reach the total membership goal!`
                         : "Additional contributions will be used to make the club even better!"}
                     </Text>
                   </Text>
@@ -393,7 +395,7 @@ export default function CampaignHero({
                         }}
                       >
                         <Text ta="center" fz={24} fw={700} c="lilac">
-                          ${goalAmount}
+                          ${goalAmountDisplay}
                         </Text>
                         <Text ta="center" fz="sm" c="dark.3">
                           total monthly goal
