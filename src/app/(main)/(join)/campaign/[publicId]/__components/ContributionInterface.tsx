@@ -326,7 +326,7 @@ export default function ContributionInterface({
                 icon={IconSparkles}
                 onClick={handleContribute}
               >
-                Join the community
+                Join the club
               </CTAButton>
 
               <Text

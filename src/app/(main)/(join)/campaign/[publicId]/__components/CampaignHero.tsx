@@ -100,8 +100,8 @@ export default function CampaignHero({
   }));
 
   const headerBadgeText = useMatches({
-    base: "Club launch - Join Founding Crew!",
-    md: "New club launch. Join the Founding Crew!"
+    base: "Club launch - Join as Founding Member!",
+    md: "New club launch. Join as Founding Member!"
   });
 
   return (
@@ -323,7 +323,7 @@ export default function CampaignHero({
                     >
                       {goalCount - supportersCount > 0
                         ? `${goalCount - supportersCount} amazing
-                    humans to go!`
+                    people to go!`
                         : `Goal reached! You can still sign up.`}
                     </Text>
                     <Text
@@ -436,7 +436,7 @@ export default function CampaignHero({
                 <Grid.Col span={{ base: 12, lg: 6 }}>
                   <Stack gap="md">
                     <Title order={3} fz={17}>
-                      Future Founding Crew 👷
+                      Future Founding Members 👷
                     </Title>
 
                     <Card
@@ -521,7 +521,7 @@ export default function CampaignHero({
                     </Grid>
 
                     <Text fz={{ base: 12, md: 14 }} c="dark.3">
-                      *Amazing humans interested in joining. Final membership
+                      *Amazing people interested in joining. Final membership
                       subject to mutual fit.
                     </Text>
                   </Stack>
