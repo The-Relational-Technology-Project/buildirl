@@ -43,7 +43,7 @@ import PrefixedInput from "~/client/components/PrefixedInput";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import LocationSelect from "~/client/components/LocationSelect";
 import { City } from "~/server/club/types/location";
-import { ClubValueDisplay } from "./_components/ClubValueDisplay";
+import { ClubValueCreator } from "./_components/ClubValueCreator";
 
 const errorStyles = {
   input: {
@@ -323,11 +323,17 @@ function FontSection() {
   );
 }
 
-function ClubValuesSection({ club }: { club: Club }) {
+function ClubValuesSection() {
+  const { watch, setValue } = useFormContext<UpdateClubInput>();
+  const values = watch("values");
+
   return (
     <Stack gap={8}>
       <Title order={6}>Club Values</Title>
-      <ClubValueDisplay club={club} />
+      <ClubValueCreator
+        clubValues={values}
+        onChange={(newValues) => setValue("values", newValues)}
+      />
     </Stack>
   );
 }
@@ -396,6 +402,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       eventCalendarUrl: club.eventCalendarUrl ?? "",
       theme: club.theme,
       themeHeadingFont: club.themeHeadingFont,
+      values: club.values,
       faqs: club.faqs
     },
     resolver: (data, context, options) => {
@@ -446,7 +453,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           <ThemeSection />
           <FontSection />
 
-          <ClubValuesSection club={club} />
+          <ClubValuesSection />
 
           <ShowcaseImagesSection club={club} />
 

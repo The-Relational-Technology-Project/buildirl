@@ -1193,6 +1193,13 @@
   dependencies:
     "@tabler/icons" "3.33.0"
 
+"@tabler/icons-react@^3.34.1":
+  version "3.35.0"
+  resolved "https://registry.yarnpkg.com/@tabler/icons-react/-/icons-react-3.35.0.tgz#27f295f36b42f8dc2e7841dd651c8905d0097818"
+  integrity sha512-XG7t2DYf3DyHT5jxFNp5xyLVbL4hMJYJhiSdHADzAjLRYfL7AnjlRfiHDHeXxkb2N103rEIvTsBRazxXtAUz2g==
+  dependencies:
+    "@tabler/icons" "3.35.0"
+
 "@tabler/icons-webfont@^3.34.1":
   version "3.35.0"
   resolved "https://registry.yarnpkg.com/@tabler/icons-webfont/-/icons-webfont-3.35.0.tgz#87857f084f495bd43dc5aea07300b23e08380d86"
@@ -6344,6 +6351,13 @@ tabbable@^6.0.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/tabbable/-/tabbable-6.2.0.tgz#732fb62bc0175cfcec257330be187dcfba1f3b97"
   integrity sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==
+
+tabler-dynamic-icon@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/tabler-dynamic-icon/-/tabler-dynamic-icon-1.2.3.tgz#32197492dcad178ceddf32dbed70714e120fb40e"
+  integrity sha512-UVHNTO1thtJFcRX6fBEDIxh1Lr2b9p1TiyxtLquWdDwqQx2Aul1NLfXsGgLB9lSsLv+2n3KiOYot8VFbpl2+1Q==
+  dependencies:
+    "@tabler/icons-react" "^3.34.1"
 
 tar-fs@^3.0.7:
   version "3.0.9"
