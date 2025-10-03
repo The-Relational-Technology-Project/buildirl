@@ -38,6 +38,7 @@ export type CampaignConfiguration = {
   calendarEvent: CalendarEvent;
 
   contactUsEmail: string;
+  clubWebsite: string;
 };
 
 type SpendCategory = {
@@ -144,7 +145,8 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
       eventLink: "https://lu.ma/rdz9hna5?tk=ZNNnNb"
     },
 
-    contactUsEmail: "team@buildirl.com"
+    contactUsEmail: "team@buildirl.com",
+    clubWebsite: "https://buildirl.com"
   },
   {
     clubPublicId: "bridges",
@@ -222,6 +224,7 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
         "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/gallery-images/jy/9ddd9608-048c-4de8-88fa-9dbbb0b449c6",
       eventLink: "https://luma.com/4hfxjkx6"
     },
-    contactUsEmail: "bridgessocialclubsf@gmail.com"
+    contactUsEmail: "bridgessocialclubsf@gmail.com",
+    clubWebsite: "https://www.bridgessocialclub.com"
   }
 ];
