@@ -7,7 +7,7 @@ import {
   TextInput,
   Textarea
 } from "@mantine/core";
-import IconX from "@tabler/icons-react/dist/esm/icons/IconX";
+import { IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { ClubValues } from "~/server/club/types";
 import { IconPicker } from "mantine-icon-picker";
@@ -154,13 +154,13 @@ export function ClubValueCreator({
               onChange={(e) =>
                 setNewValue((v) => ({
                   ...v,
-                  description: e.target.value.slice(0, 100)
+                  description: e.target.value.slice(0, 80)
                 }))
               }
               minRows={2}
               maxRows={2}
               autosize
-              maxLength={100}
+              maxLength={80}
               style={{
                 width: "100%",
                 marginTop: 4,
@@ -169,7 +169,7 @@ export function ClubValueCreator({
               rightSection={
                 <Text
                   size="xs"
-                  c={newValue.description.length >= 100 ? "red" : "dimmed"}
+                  c={newValue.description.length >= 80 ? "red" : "dimmed"}
                   style={{
                     width: 75,
                     textAlign: "left",
@@ -179,7 +179,7 @@ export function ClubValueCreator({
                     overflowWrap: "anywhere"
                   }}
                 >
-                  {newValue.description.length}/ 100
+                  {newValue.description.length}/ 80
                 </Text>
               }
             />
