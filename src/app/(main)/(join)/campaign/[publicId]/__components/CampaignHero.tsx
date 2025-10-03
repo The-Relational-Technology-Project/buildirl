@@ -538,8 +538,8 @@ export default function CampaignHero({
                   c="dark.3"
                   style={{ textAlign: "center" }}
                 >
-                  💚 All-or-nothing: This club will only be launched if it
-                  reaches its goal by {formattedTargetDate}
+                  ❤️ All-or-nothing: This club will only be launched if it
+                  reaches its goal by {formattedTargetDate}.
                 </Text>
               </Stack>
 
@@ -573,7 +573,7 @@ export default function CampaignHero({
                     {`— ${campaignConfiguration.hostSignature}`}
                   </Text>
                   <Text fz={{ base: 12, md: 14 }} c="dark.3">
-                    Your soon-to-be founding hosts ✨
+                    Your soon-to-be founding host ✨
                   </Text>
                 </Stack>
               </Card>

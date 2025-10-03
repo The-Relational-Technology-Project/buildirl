@@ -154,7 +154,7 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
     subheader: "Calling all the ambitious women in the Bay Area",
     location: "SF, East Bay, South Bay",
     time: "3x per month",
-    frequency: "3x per month",
+    frequency: "3x per month minimum",
     monthlyGoal: 300,
     monthlyGoalDisplay: 500,
     spendCategories: [
@@ -174,22 +174,22 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
     targetDate: new Date("2025-10-08 23:59:59"),
     hostSignature: "Bella Malvini",
     whoWeAre:
-      "At Bridges Social Club, we are dedicated to fostering a vibrant and inclusive community for professional women in the San Francisco Bay Area. Through thoughtfully curated events, innovative networking, and a collective dedication to empowering one another, we bridge the gap between ambition and opportunity.\n\nWe are cultivating a network where every woman feels valued, heard, and empowered to succeed. Our mission is to create meaningful connections, inspire growth, and provide a space where women can support, collaborate, and thrive—both personally and professionally.",
+      "Over the past year at Bridges Social Club, we've been dedicated to fostering a vibrant and inclusive community for professional women in the San Francisco Bay Area. Through thoughtfully curated events, innovative networking, and a collective dedication to empowering one another, we bridge the gap between ambition and opportunity.\n\nWe are cultivating a network where every woman feels valued, heard, and empowered to succeed. Our mission is to create meaningful connections, inspire growth, and provide a space where women can support, collaborate, and thrive—both personally and professionally.",
     howWeHang:
-      "Our events consist of the following 3 types of formats:\n\nFormal Events (Think Panels, Professional Settings, Happy Hours)\nCommunity Events (Hot Girl Walks, Co-working Sessions, Hang Outs)\nLearning and Development Events ( Resume Building Workshops, Office Hours, etc)",
+      "Our events consist of the following 3 types of formats:\n\n• Formal Events (Executive Panels, Professional Networking, Happy Hours, Brand Collab Events, Vision Boarding Sessions, etc.)\n• Community Events (Hot Girl Walks, Co-working Sessions, Hang Outs)\n• Learning and Development Events (Resume Building Workshops, How-To-Network, Office Hours for Resume Revision Help, Interview Practice, etc.)",
     whyJoinUs: [
-      "Access to the private community Slack",
-      "Online membership onboarding session",
-      "AMAs w/ industry leaders and members",
-      "Priority access to limited events",
-      "Early access to our resource hub",
-      "Member highlight in newsletter, socials"
+      "Exclusive access to private Slack community",
+      "Personalized membership onboarding",
+      "Live AMAs with Industry Leaders",
+      "Priority invitations to intimate events",
+      "First access to professional resources",
+      "Spotlight opportunity via socials and newsletter"
     ],
     pictureUrls: [
       "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1508.jpg",
       "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1584.jpg",
       "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1717.jpg",
-      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1936.jpg"
+      "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1937.png"
     ],
     values: [
       {
