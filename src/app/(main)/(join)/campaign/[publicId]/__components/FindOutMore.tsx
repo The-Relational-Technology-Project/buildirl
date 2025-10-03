@@ -2,16 +2,7 @@
 
 "use client";
 
-import {
-  Container,
-  Stack,
-  Title,
-  Text,
-  Button,
-  Group,
-  ThemeIcon
-} from "@mantine/core";
-import { IconInfoCircle } from "@tabler/icons-react";
+import { Container, Stack, Title, Button, Group } from "@mantine/core";
 import SectionCard from "./SectionCard";
 import { CampaignConfiguration } from "~/app/(main)/(join)/campaign/[publicId]/config";
 
