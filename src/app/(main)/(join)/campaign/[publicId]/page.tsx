@@ -12,6 +12,7 @@ import CampaignHero from "./__components/CampaignHero";
 import CampaignStory from "./__components/CampaignStory";
 import ContributionInterface from "./__components/ContributionInterface";
 import FinancialAssistance from "./__components/FinancialAssistance";
+import FindOutMore from "./__components/FindOutMore";
 import { CAMPAIGN_CONFIGURATIONS } from "~/app/(main)/(join)/campaign/[publicId]/config";
 
 function getMembershipCostPerMonth(
@@ -129,6 +130,7 @@ export default function Campaign() {
         goalAmountDisplay={goalAmountDisplay}
       />
       <FinancialAssistance campaignConfiguration={campaignConfiguration} />
+      <FindOutMore campaignConfiguration={campaignConfiguration} />
     </Box>
   );
 }
