@@ -8,7 +8,7 @@ interface ClubValueDisplayProps {
 
 export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
   const containerHeight = useMatches({ base: 200, md: 200 });
-  const containerWidth = useMatches({ base: 160, md: 160 });
+  const containerWidth = useMatches({ base: 150, md: 160 });
   const gridCols = useMatches({ base: 6, md: 4 });
   const clubValues: ClubValue[] = club.values?.items || [];
 
