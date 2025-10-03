@@ -238,10 +238,10 @@ export default function CampaignStory({
                   {leftWhyJoinUs.map((i, index) => {
                     return (
                       <Group gap="sm" align="flex-start" key={index}>
-                        <Text c="lilac" fw={600}>
+                        <Text fz={{ base: "xs", md: "sm" }} c="lilac" fw={600}>
                           ✓
                         </Text>
-                        <Text fz="sm">{i}</Text>
+                        <Text fz={{ base: "xs", md: "sm" }}>{i}</Text>
                       </Group>
                     );
                   })}
@@ -252,10 +252,10 @@ export default function CampaignStory({
                   {rightWhyJoinUs.map((i, index) => {
                     return (
                       <Group gap="sm" align="flex-start" key={index}>
-                        <Text c="lilac" fw={600}>
+                        <Text fz={{ base: "xs", md: "sm" }} c="lilac" fw={600}>
                           ✓
                         </Text>
-                        <Text fz="sm">{i}</Text>
+                        <Text fz={{ base: "xs", md: "sm" }}>{i}</Text>
                       </Group>
                     );
                   })}

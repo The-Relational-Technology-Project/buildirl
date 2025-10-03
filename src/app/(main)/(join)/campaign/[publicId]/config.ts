@@ -182,8 +182,8 @@ If you’re hosting meetups, events, or dreaming of starting something IRL in SF
       "Personalized membership onboarding",
       "Live AMAs with Industry Leaders",
       "Priority invitations to intimate events",
-      "First access to professional resources",
-      "Spotlight opportunity via socials and newsletter"
+      "Access to member-only professional resources",
+      "Spotlight opportunity via socials, newsletter"
     ],
     pictureUrls: [
       "https://login.buildirl.com/storage/v1/object/public/images/campaigns/bridges/_MG_1508.jpg",
