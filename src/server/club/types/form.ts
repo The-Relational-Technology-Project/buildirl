@@ -77,7 +77,7 @@ export const FormResponseSchema = z.discriminatedUnion("type", [
     response: z
       .string()
       .min(3, "Length must be >= 3")
-      .max(2000, "Length must be <= 2000")
+      .max(20000, "Length must be <= 20000")
   }),
   MultiSelectQuestionSchema.extend({
     // no validation that the selection is one of the choices
