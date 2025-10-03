@@ -226,7 +226,8 @@ export default function CampaignStory({
                 </Title>
               </Group>
               <Text fz="sm" c="dark.3" mb="lg">
-                All the good stuff that comes with being a founding member ✨
+                All the valuable opportunities that comes with being a Founding
+                Member ✨
               </Text>
             </Box>
 

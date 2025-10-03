@@ -27,7 +27,11 @@ export default function ExpandableText({
       : words.slice(0, wordLimit).join(" ") + "...";
 
   if (!shouldTruncate) {
-    return <Text className={className}>{text}</Text>;
+    return (
+      <Text style={{ whiteSpace: "pre-line" }} className={className}>
+        {text}
+      </Text>
+    );
   }
 
   return (

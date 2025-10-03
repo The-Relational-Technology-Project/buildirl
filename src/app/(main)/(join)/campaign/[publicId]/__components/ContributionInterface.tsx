@@ -118,11 +118,11 @@ export default function ContributionInterface({
                   </Center>
                   <Stack gap={8} align="center">
                     <Text fw={600} fz="sm">
-                      All-or-Nothing Magic 💚
+                      All-or-Nothing Magic ❤️
                     </Text>
                     <Text fz="sm" c="dark.3" ta="center">
                       You&apos;re only charged if we reach our full monthly goal
-                      by the deadline
+                      by the deadline.
                     </Text>
                   </Stack>
                 </Stack>
@@ -149,7 +149,7 @@ export default function ContributionInterface({
                     </Text>
                     <Text fz="sm" c="dark.3" ta="center">
                       If successful, your contribution keeps our magic alive
-                      every month
+                      every month.
                     </Text>
                   </Stack>
                 </Stack>
@@ -268,9 +268,14 @@ export default function ContributionInterface({
 
               <Stack align="center" gap="lg">
                 <Text fz={{ base: 16, md: 18 }} c="dark.3" ta="center" fw={500}>
-                  Become a founding member! You&apos;re not just funding —
+                  Become a Founding Member! You&apos;re not just funding —
                   you&apos;re{" "}
-                  <Text component="span" fw={700} c="lilac">
+                  <Text
+                    fz={{ base: 16, md: 18 }}
+                    component="span"
+                    fw={700}
+                    c="lilac"
+                  >
                     co-creating
                   </Text>{" "}
                   our shared future.
@@ -338,7 +343,7 @@ export default function ContributionInterface({
               >
                 By backing this project, you&apos;re joining our founding
                 community! Remember: you&apos;re only charged if we hit our goal
-                by the deadline. 💚
+                by the deadline. ❤️
               </Text>
             </Stack>
           </Card>
