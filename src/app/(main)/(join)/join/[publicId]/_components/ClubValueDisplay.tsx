@@ -1,4 +1,4 @@
-import { useMatches, Title, Box, Grid } from "@mantine/core";
+import { useMatches, Title, Box, Grid, Stack } from "@mantine/core";
 import { Club, ClubValue } from "~/server/club/types";
 import { ClubValueCard } from "./ClubValueCard";
 
@@ -17,7 +17,7 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
       <Title order={2} pb={16} style={{ textAlign: "center" }}>
         Our Values
       </Title>
-      <Grid>
+      <Grid justify="center" w={"100%"} px={16} py={8}>
         {clubValues.map((value, index) => {
           if (value) {
             return (
