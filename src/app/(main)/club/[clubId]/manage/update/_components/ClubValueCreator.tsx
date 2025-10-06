@@ -126,7 +126,7 @@ export function ClubValueCreator({
                 boxShadow: "2px 2px 0px",
                 cursor: "pointer",
                 backgroundColor: "white",
-                opacity: isAdding ? 0.7 : 1
+                opacity: isAdding ? 0.6 : 1
               }}
             >
               <IconPlus size={28} color={"#7240d2"} />
@@ -151,9 +151,9 @@ export function ClubValueCreator({
             }}
           >
             <Stack gap={6} style={{ flex: 1, minWidth: 0 }}>
-              <Group>
+              <Group gap={8}>
                 <Text size="xs" style={{ whiteSpace: "nowrap" }}>
-                  {"Choose an icon:"}
+                  {"*Choose an icon:"}
                 </Text>
                 <IconPicker
                   key={newValue.icon || "empty"}
@@ -163,6 +163,7 @@ export function ClubValueCreator({
                   }
                   iconSize={24}
                   searchPlaceholder="Pick icon"
+                  color="#7240d2"
                 />
               </Group>
               <TextInput
@@ -180,7 +181,11 @@ export function ClubValueCreator({
                   <Text
                     size="xs"
                     c={newValue.title.length >= 15 ? "red" : "dimmed"}
-                    style={{ width: 32, textAlign: "right", paddingRight: 4 }}
+                    style={{
+                      width: 32,
+                      textAlign: "right",
+                      paddingRight: 4
+                    }}
                   >
                     {newValue.title.length}/15
                   </Text>
@@ -221,20 +226,29 @@ export function ClubValueCreator({
                   </Text>
                 }
               />
-              <Button
-                type="button"
-                size="xs"
-                mt={8}
-                onClick={handleAdd}
-                disabled={
-                  !newValue.icon ||
+
+              <Stack align="center" style={{ width: "100%" }} gap={8} mt="sm">
+                {(!newValue.icon ||
                   !newValue.title.trim() ||
-                  !newValue.description.trim()
-                }
-                style={{ alignSelf: "center", width: "50%" }}
-              >
-                Add Value
-              </Button>
+                  !newValue.description.trim()) && (
+                  <Text size="xs" c="red">
+                    All fields must be filled to add a value.
+                  </Text>
+                )}
+                <Button
+                  type="button"
+                  size="xs"
+                  onClick={handleAdd}
+                  disabled={
+                    !newValue.icon ||
+                    !newValue.title.trim() ||
+                    !newValue.description.trim()
+                  }
+                  style={{ alignSelf: "center", width: "50%" }}
+                >
+                  Add Value
+                </Button>
+              </Stack>
             </Stack>
           </Group>
         </Stack>
