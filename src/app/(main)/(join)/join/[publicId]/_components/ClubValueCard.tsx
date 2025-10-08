@@ -26,7 +26,7 @@ export function ClubValueCard({
         "&:hover": {
           border: "2px solid black"
         },
-        paddingTop: "1rem",
+        paddingTop: "0.75rem",
         boxShadow: "2px 2px 0px",
         cursor: "pointer",
         backgroundColor: "white"
@@ -39,12 +39,12 @@ export function ClubValueCard({
           justify="center"
           gap={8}
           style={{
-            padding: "14px"
+            padding: "12px"
           }}
         >
           {/* Use the 'cls' prop for Icon returned from mantine-icon-picker and as required by tabler-dynamic-icon */}
-          <Icon cls={value.icon as any} size={36} color={"#7240d2"} />
-          <Text size={titleTextSize} tt="uppercase" fw={600}>
+          <Icon cls={value.icon as any} size={32} color={"#7240d2"} />
+          <Text size={titleTextSize} tt="uppercase" fw={600} pt={4}>
             {value.title}
           </Text>
           <Text size={descriptionTextSize} ta="center">

@@ -1,4 +1,4 @@
-import { useMatches, Title, Box, Grid, Stack } from "@mantine/core";
+import { useMatches, Title, Box, Grid } from "@mantine/core";
 import { Club, ClubValue } from "~/server/club/types";
 import { ClubValueCard } from "./ClubValueCard";
 
@@ -7,8 +7,8 @@ interface ClubValueDisplayProps {
 }
 
 export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
-  const containerHeight = useMatches({ base: 200, md: 200 });
-  const containerWidth = useMatches({ base: 150, md: 160 });
+  const containerHeight = useMatches({ base: 190, md: 190 });
+  const containerWidth = useMatches({ base: 150, md: 150 });
   const gridCols = useMatches({ base: 6, md: 4 });
   const clubValues: ClubValue[] = club.values?.items || [];
 
@@ -17,7 +17,7 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
       <Title order={2} pb={16} style={{ textAlign: "center" }}>
         Our Values
       </Title>
-      <Grid justify="center" w={"100%"} px={16} py={8}>
+      <Grid justify="center" w={"100%"} px={16} py={8} gutter="sm">
         {clubValues.map((value, index) => {
           if (value) {
             return (
