@@ -39,6 +39,7 @@ import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/Follow
 import { InstagramHandle, Url } from "~/server/utils/types";
 import { Club } from "~/server/club/types";
 import { getRhythmDescription } from "./utils";
+import { ClubValueDisplay } from "~/app/(main)/(join)/join/[publicId]/_components/ClubValueDisplay";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -222,6 +223,8 @@ export default function ClubJoin() {
           <ContributingMembersLink club={club.data!} />
 
           <MemberCarousel clubId={club.data!.id} />
+
+          <ClubValueDisplay club={club.data!} />
 
           <FAQs
             faqs={club.data!.faqs}
