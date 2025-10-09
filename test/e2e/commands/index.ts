@@ -16,6 +16,7 @@ import CreateUserCommand from "./createUserCommand";
 import {
   ClubNameSchema,
   ClubPublicIdSchema,
+  ClubValueSchema,
   DateStringSchema,
   FAQAnswerSchema,
   FAQQuestionSchema,
@@ -251,6 +252,22 @@ function updateClubCommands() {
     themeHeadingFont: option(oneof(...FONT_SELECTION.map(constant)), {
       freq: 4
     }),
+    values: record({
+      items: array(
+        record({
+          icon: string().filter((s) =>
+            isZodType(s, ClubValueSchema.shape.icon)
+          ),
+          title: string()
+            .filter((s) => isZodType(s, ClubValueSchema.shape.title))
+            .filter((s) => s.length <= 30),
+          description: string()
+            .filter((s) => isZodType(s, ClubValueSchema.shape.description))
+            .filter((s) => s.length <= 160)
+        }),
+        { maxLength: 5 }
+      )
+    }),
     faqs: faqsArbitrary()
   }).map(
     (i) =>
@@ -267,6 +284,7 @@ function updateClubCommands() {
           eventCalendarUrl: i.eventCalendarUrl,
           theme: i.theme,
           themeHeadingFont: i.themeHeadingFont,
+          values: i.values,
           faqs: i.faqs
         },
         i.clubIdSelector
