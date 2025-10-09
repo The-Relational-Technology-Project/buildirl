@@ -75,7 +75,7 @@ export const ClubPublicIdSchema = z
 export const ClubNameSchema = z
   .string()
   .min(3, "Length must be >= 3 characters")
-  .max(64, "Length must be >= 64 characters");
+  .max(15, "Length must be >= 15 characters");
 
 export const ClubTagLineSchema = z
   .string()
@@ -165,12 +165,12 @@ export const UpdateClubInputSchema = z.object({
   description: LongTextSchema,
   location: CitySchema,
   rhythm: RhythmSchema,
-  values: ClubValuesSchema,
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable(),
   theme: TemplateThemeSchema.nullable(),
   themeHeadingFont: z.string().nullable(),
+  values: ClubValuesSchema,
   faqs: FAQsSchema
 });
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;
