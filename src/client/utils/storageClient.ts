@@ -97,7 +97,8 @@ export default function createStorageClient(): StorageClient {
   }
 
   function clubDisplayImageRelativeUrl(clubId: number, fileName: string) {
-    return `club/${clubId}/display/${fileName}`;
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    return `club/${clubId}/display/${sanitizedFileName}`;
   }
 
   async function uploadClubDisplayImage(
