@@ -39,6 +39,7 @@ export type Club = {
   theme: Maybe<TemplateTheme>;
   themeHeadingFont: Maybe<string>;
   displayImageUrls: Url[];
+  values: ClubValues;
   faqs: FAQs;
   membershipTiers: MembershipTier[];
 };
@@ -74,7 +75,7 @@ export const ClubPublicIdSchema = z
 export const ClubNameSchema = z
   .string()
   .min(3, "Length must be >= 3 characters")
-  .max(64, "Length must be >= 64 characters");
+  .max(15, "Length must be >= 15 characters");
 
 export const ClubTagLineSchema = z
   .string()
@@ -137,6 +138,26 @@ export const RhythmSchema = z
 
 export type Rhythm = z.infer<typeof RhythmSchema>;
 
+export const ClubValueSchema = z.object({
+  icon: z.string().min(1, "Icon is required"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(30, "Title cannot exceed 30 characters"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(160, "Description cannot exceed 160 characters")
+});
+
+export type ClubValue = z.infer<typeof ClubValueSchema>;
+
+export const ClubValuesSchema = z.object({
+  items: z.array(ClubValueSchema)
+});
+
+export type ClubValues = z.infer<typeof ClubValuesSchema>;
+
 export const UpdateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
@@ -149,6 +170,7 @@ export const UpdateClubInputSchema = z.object({
   eventCalendarUrl: UrlSchema.nullable(),
   theme: TemplateThemeSchema.nullable(),
   themeHeadingFont: z.string().nullable(),
+  values: ClubValuesSchema,
   faqs: FAQsSchema
 });
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;

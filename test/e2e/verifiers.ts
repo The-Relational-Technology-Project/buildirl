@@ -47,6 +47,7 @@ function createVerifiers() {
       theme: club.theme,
       themeHeadingFont: club.themeHeadingFont,
       displayImageUrls: club.displayImageUrls,
+      values: club.values,
       faqs: club.faqs,
       membershipTiers: club.membershipTiers
     };

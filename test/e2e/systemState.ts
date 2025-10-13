@@ -19,6 +19,7 @@ import { InstagramHandle, Url } from "~/server/utils/types";
 import {
   Club,
   ClubStatistics,
+  ClubValues,
   CreateClubInput,
   FAQs,
   Rhythm,
@@ -67,6 +68,7 @@ type ClubState = {
   displayImageUrls: Url[];
   membershipTierIds: number[];
   hasStripeAccount: boolean;
+  values: ClubValues;
   faqs: FAQs;
 };
 
@@ -260,6 +262,7 @@ export class SystemState {
       theme: clubState.theme,
       themeHeadingFont: clubState.themeHeadingFont,
       displayImageUrls: clubState.displayImageUrls,
+      values: clubState.values,
       faqs: clubState.faqs,
       membershipTiers: this.orderByCost(
         clubState.membershipTierIds.map((id) => this.getMembershipTier(id))
@@ -328,6 +331,7 @@ export class SystemState {
       theme: null,
       themeHeadingFont: null,
       displayImageUrls: [],
+      values: { items: [] },
       faqs: { items: [] },
       membershipTierIds: [],
       hasStripeAccount: false

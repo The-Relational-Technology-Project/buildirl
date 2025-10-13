@@ -1,5 +1,6 @@
 import {
   Club,
+  ClubValuesSchema,
   DateString,
   FAQsSchema,
   Rhythm,
@@ -36,6 +37,7 @@ export const CLUB_SELECT = {
   theme: true,
   themeHeadingFont: true,
   displayImageUrls: true,
+  values: true,
   faqs: true,
   membershipTiers: {
     select: {
@@ -68,6 +70,7 @@ export function asClub(
     theme: parseAsZodType(r.theme, TemplateThemeSchema.nullable()),
     themeHeadingFont: r.themeHeadingFont,
     displayImageUrls: parseAsZodType(r.displayImageUrls, z.array(UrlSchema)),
+    values: parseAsZodType(r.values, ClubValuesSchema),
     faqs: parseAsZodType(r.faqs, FAQsSchema),
     membershipTiers: orderedByPricing(
       r.membershipTiers.map((t) => asMembershipTier(t))

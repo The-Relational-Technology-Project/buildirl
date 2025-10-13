@@ -4,6 +4,7 @@ import "@mantine/notifications/styles.css";
 import "@mantine/carousel/styles.css";
 import "src/client/styles/globals.css";
 import "@mantine/tiptap/styles.css";
+import "@tabler/icons-webfont/dist/tabler-icons.css";
 
 import { Unbounded, Work_Sans } from "next/font/google";
 

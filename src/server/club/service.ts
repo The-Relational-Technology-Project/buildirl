@@ -115,6 +115,7 @@ export function createClubService(
           eventCalendarUrl: null,
           applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
           theme: Prisma.DbNull,
+          values: { items: [] },
           faqs: { items: [] }
         },
         select: {
