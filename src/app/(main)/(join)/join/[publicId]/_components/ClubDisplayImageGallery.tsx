@@ -16,7 +16,7 @@ export default function ClubDisplayImageGallery({
   club,
   ...props
 }: ClubDisplayImageGalleryProps & GroupProps) {
-  const size = useMatches({ base: 240, md: 300 });
+  const size = useMatches({ base: 250, md: 250 });
 
   return (
     club.displayImageUrls.length !== 0 && (
