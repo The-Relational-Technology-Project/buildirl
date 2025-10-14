@@ -1,4 +1,4 @@
-import { useMatches, Title, Box, Grid } from "@mantine/core";
+import { useMatches, Title, Grid, Stack, Text } from "@mantine/core";
 import { Club, ClubValue } from "~/server/club/types";
 import { ClubValueCard } from "./ClubValueCard";
 
@@ -7,17 +7,18 @@ interface ClubValueDisplayProps {
 }
 
 export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
-  const containerHeight = useMatches({ base: 190, md: 190 });
-  const containerWidth = useMatches({ base: 150, md: 150 });
+  const cardContainerHeight = useMatches({ base: 190, md: 190 });
+  const containerWidth = useMatches({ base: "100%", md: "75%" });
   const gridCols = useMatches({ base: 6, md: 4 });
   const clubValues: ClubValue[] = club.values?.items || [];
 
   return (
-    <Box w={"100%"} mt={32} mb={64}>
-      <Title order={2} pb={16} style={{ textAlign: "center" }}>
-        Our Values
+    <Stack w={"100%"} mt={32} mb={64} align="center">
+      <Title order={2} style={{ textAlign: "center" }}>
+        Our Vibe Check ✨
       </Title>
-      <Grid justify="center" w={"100%"} px={16} py={8} gutter="sm">
+      <Text>The values that make our community special</Text>
+      <Grid px={16} py={8} w={containerWidth} gutter="sm">
         {clubValues.map((value, index) => {
           if (value) {
             return (
@@ -25,8 +26,7 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
                 <ClubValueCard
                   key={index + value.title}
                   value={value}
-                  height={containerHeight}
-                  width={containerWidth}
+                  height={cardContainerHeight}
                 />
               </Grid.Col>
             );
@@ -34,6 +34,6 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
           return null;
         })}
       </Grid>
-    </Box>
+    </Stack>
   );
 }

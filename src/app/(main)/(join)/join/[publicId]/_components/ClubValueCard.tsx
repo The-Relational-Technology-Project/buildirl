@@ -5,29 +5,24 @@ import { ClubValue } from "~/server/club/types";
 
 export function ClubValueCard({
   value,
-  height,
-  width
+  height
 }: {
   value: ClubValue;
   height: number;
-  width: number;
 }) {
   const titleTextSize = useMatches({ base: "sm", md: "sm" });
   const descriptionTextSize = useMatches({ base: "xs", md: "xs" });
 
   return (
     <Stack
-      w={width}
       h={height}
       style={{
-        marginRight: 4,
         position: "relative",
         border: "1px solid black",
         "&:hover": {
           border: "2px solid black"
         },
         paddingTop: "0.75rem",
-        boxShadow: "2px 2px 0px",
         cursor: "pointer",
         backgroundColor: "white"
       }}

@@ -40,6 +40,7 @@ import { InstagramHandle, Url } from "~/server/utils/types";
 import { Club } from "~/server/club/types";
 import { getRhythmDescription } from "./utils";
 import { ClubValueDisplay } from "~/app/(main)/(join)/join/[publicId]/_components/ClubValueDisplay";
+import { WhoWeAre } from "./_components/WhoWeAre";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -101,7 +102,6 @@ export default function ClubJoin() {
 
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
-  const router = useRouter();
 
   const club = api.main.clubByPublicId.useQuery({
     publicId
@@ -169,14 +169,6 @@ export default function ClubJoin() {
                 </Text>
               )}
 
-              <Text
-                style={{ cursor: "pointer" }}
-                onClick={() => router.push(`/join/${publicId}/about`)}
-                size={"sm"}
-              >
-                {"About >"}
-              </Text>
-
               <LinkIcons
                 websiteUrl={club.data!.websiteUrl}
                 instagramHandle={club.data!.instagramHandle}
@@ -201,6 +193,8 @@ export default function ClubJoin() {
           </Stack>
 
           <JoinButton club={club.data!} />
+
+          <WhoWeAre description={club.data!.description} />
 
           {club.data!.eventCalendarUrl && (
             <SecondaryButton

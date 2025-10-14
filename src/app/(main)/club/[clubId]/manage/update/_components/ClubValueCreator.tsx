@@ -39,7 +39,7 @@ export function ClubValueCreator({
   const values = clubValues.items || [];
   const cardHeight = useMatches({ base: 200, md: 200 });
   const cardWidth = useMatches({ base: 155, md: 160 });
-  const gridCols = useMatches({ base: 6, md: 4 });
+  const gridCols = useMatches({ base: 6, md: 3 });
 
   const handleAdd = () => {
     if (newValue.icon && newValue.title.trim() && newValue.description.trim()) {
@@ -69,7 +69,7 @@ export function ClubValueCreator({
     <Stack gap={16}>
       <Text size={"xs"} color="dimmed" pb={0}>
         {
-          "Define the core values that represent your club's mission and culture."
+          "Add up to six core values that represent your club's mission and culture."
         }
       </Text>
       <Grid gutter={{ base: 12, sm: 16 }}>
@@ -95,11 +95,7 @@ export function ClubValueCreator({
               >
                 <IconX size={16} />
               </ActionIcon>
-              <ClubValueCard
-                value={value}
-                height={cardHeight}
-                width={cardWidth}
-              />
+              <ClubValueCard value={value} height={cardHeight} />
             </Box>
           </Grid.Col>
         ))}
@@ -123,7 +119,6 @@ export function ClubValueCreator({
               style={{
                 margin: "0 auto",
                 border: "1px dashed #a6a6a6ff",
-                boxShadow: "2px 2px 0px",
                 cursor: "pointer",
                 backgroundColor: "white",
                 opacity: isAdding ? 0.6 : 1
