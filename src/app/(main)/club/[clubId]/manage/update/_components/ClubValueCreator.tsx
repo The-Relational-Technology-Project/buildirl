@@ -119,7 +119,6 @@ export function ClubValueCreator({
               style={{
                 margin: "0 auto",
                 border: "1px dashed #a6a6a6ff",
-                boxShadow: "2px 2px 0px",
                 cursor: "pointer",
                 backgroundColor: "white",
                 opacity: isAdding ? 0.6 : 1
