@@ -10,14 +10,15 @@ import type {
   UpdateMembershipCampaignInput
 } from "./types";
 import { asMembershipCampaign, MEMBERSHIP_CAMPAIGN_SELECT } from "./utils";
-import { $Enums, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { stringify } from "~/utils";
-import Decimal = Prisma.Decimal;
+import { MembershipService } from "~/server/membership/types";
 
 const logger = rootLogger.child({ module: "membershipCampaignService" });
 
 export function createMembershipCampaignService(
-  prisma: PrismaClient
+  prisma: PrismaClient,
+  membershipService: MembershipService
 ): MembershipCampaignService {
   async function getActiveMembershipCampaign(
     clubId: number
@@ -63,69 +64,19 @@ export function createMembershipCampaignService(
   async function getActiveMembershipCampaignProgress(
     clubId: number
   ): Promise<ActiveMembershipCampaignProgress> {
-    const committedPerMonthInUSD =
-      await getCommittedPerMonthInUSDForAllPendingOrActiveMemberships(clubId);
-    return { committedPerMonthInUSD: committedPerMonthInUSD };
-  }
+    const membershipApplications =
+      await membershipService.getMembershipApplicationsForClub(clubId);
+    const activeMemberships =
+      await membershipService.getActiveMembershipsForClub(clubId, false);
 
-  async function getCommittedPerMonthInUSDForAllPendingOrActiveMemberships(
-    clubId: number
-  ): Promise<number> {
-    try {
-      const memberships = await prisma.membership.findMany({
-        where: {
-          membershipTier: {
-            clubId: clubId
-          },
-          status: {
-            in: ["ACTIVE", "PENDING"]
-          }
-        },
-        select: {
-          membershipTier: {
-            select: {
-              costPerBillingInterval: true,
-              billingInterval: true
-            }
-          }
-        }
-      });
+    const committedMembers = membershipApplications
+      .concat(activeMemberships)
+      .map((m) => m.user);
 
-      let committedPerMonthInUSD = 0;
-      for (const membership of memberships) {
-        committedPerMonthInUSD += monthlyRate(membership.membershipTier);
-      }
-
-      logger.info(
-        `calculate total committed per month for club with id ${clubId} with result ${committedPerMonthInUSD}`
-      );
-      // round to 2 decimal places
-      return Number(committedPerMonthInUSD.toFixed(2));
-    } catch (e) {
-      logger.error(
-        e,
-        `failed to calculate total committed per month for club with id ${clubId}`
-      );
-      throw e;
-    }
-  }
-
-  function monthlyRate(membershipTier: {
-    costPerBillingInterval: Decimal;
-    billingInterval: $Enums.BillingInterval;
-  }): number {
-    const { costPerBillingInterval, billingInterval } = membershipTier;
-    const cost = costPerBillingInterval.toNumber();
-    switch (billingInterval) {
-      case "MONTHLY":
-        return cost;
-      case "QUARTERLY":
-        return cost / 3;
-      case "SEMI_ANNUAL":
-        return cost / 6;
-      default:
-        throw Error("invalid billing interval");
-    }
+    return {
+      committedMembers: committedMembers,
+      committedNumberOfMemberships: committedMembers.length
+    };
   }
 
   async function createMembershipCampaign(

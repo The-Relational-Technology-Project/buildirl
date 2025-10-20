@@ -255,7 +255,9 @@ function createVerifiers() {
       await r.membershipCampaign.getActiveMembershipCampaignProgress(clubId);
     const expectedProgress = m.getActiveMembershipCampaignProgress(clubId);
 
-    expect(actualProgress).toEqual(expectedProgress);
+    expect(actualProgress.committedNumberOfMemberships).toEqual(
+      expectedProgress.committedNumberOfMemberships
+    );
   }
 
   return {

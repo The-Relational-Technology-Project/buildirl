@@ -1265,43 +1265,18 @@ export class SystemState {
 
   public getActiveMembershipCampaignProgress(
     clubId: number
-  ): ActiveMembershipCampaignProgress {
-    const committedPerMonthInUSD =
-      this.getCommittedPerMonthInUSDForAllPendingOrActiveMemberships(clubId);
-    return { committedPerMonthInUSD };
-  }
+  ): OmitRecursively<ActiveMembershipCampaignProgress, "createdAt"> {
+    const members = Array.from(this.memberships.values())
+      .filter(
+        (m) =>
+          m.clubId === clubId &&
+          (m.status === "ACTIVE" || m.status === "PENDING")
+      )
+      .map((m) => this.getUser(m.userId));
 
-  private getCommittedPerMonthInUSDForAllPendingOrActiveMemberships(
-    clubId: number
-  ): number {
-    const memberships = Array.from(this.memberships.values()).filter(
-      (m) =>
-        m.clubId === clubId && (m.status === "ACTIVE" || m.status === "PENDING")
-    );
-
-    let committedPerMonthInUSD = 0;
-    for (const membership of memberships) {
-      const membershipTier = this.getMembershipTier(
-        membership.membershipTierId
-      );
-      committedPerMonthInUSD += this.monthlyRate(membershipTier);
-    }
-
-    // round to 2 decimal places
-    return Number(committedPerMonthInUSD.toFixed(2));
-  }
-
-  private monthlyRate(membershipTier: MembershipTier): number {
-    const { costPerBillingInterval, billingInterval } = membershipTier;
-    switch (billingInterval) {
-      case BillingInterval.MONTHLY:
-        return costPerBillingInterval;
-      case BillingInterval.QUARTERLY:
-        return costPerBillingInterval / 3;
-      case BillingInterval.SEMI_ANNUAL:
-        return costPerBillingInterval / 6;
-      default:
-        throw Error(`Unexpected billing interval: ${billingInterval}`);
-    }
+    return {
+      committedNumberOfMemberships: members.length,
+      committedMembers: members
+    };
   }
 }

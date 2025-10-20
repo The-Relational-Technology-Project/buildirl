@@ -6,6 +6,7 @@ import {
   RequiredStringSchema
 } from "~/server/utils/types";
 import { Maybe } from "~/utils/types";
+import { User } from "~/server/user/types";
 
 export type MembershipCampaignService = MembershipCampaignQueries &
   MembershipCampaignMutations;
@@ -42,7 +43,8 @@ export type MembershipCampaign = {
 export type ActiveMembershipCampaignProgress = {
   // total amount committed across active and pending
   // applications
-  committedPerMonthInUSD: MonetaryValue;
+  committedNumberOfMemberships: number;
+  committedMembers: Array<User>;
 };
 
 export type CampaignBudgetItem = {
