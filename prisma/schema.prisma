@@ -221,13 +221,14 @@ model EmailBlast {
 }
 
 model MembershipCampaign {
-  id          Int                  @id @default(autoincrement())
-  clubId      Int                  @map("club_id")
-  club        Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  budgetItems CampaignBudgetItem[]
-  targetDate  DateTime
-  createdAt   DateTime             @default(now()) @map("created_at")
-  updatedAt   DateTime             @updatedAt @map("updated_at")
+  id                        Int                  @id @default(autoincrement())
+  clubId                    Int                  @map("club_id")
+  club                      Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  budgetItems               CampaignBudgetItem[]
+  targetNumberOfMemberships Int
+  targetDate                DateTime
+  createdAt                 DateTime             @default(now()) @map("created_at")
+  updatedAt                 DateTime             @updatedAt @map("updated_at")
 
   @@map("membership_campaign")
 }

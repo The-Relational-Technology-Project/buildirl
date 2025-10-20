@@ -114,6 +114,7 @@ type MembershipCampaignState = {
   id: number;
   clubId: number;
   budgetItems: CampaignBudgetItem[];
+  targetNumberOfMembers: number;
   targetDate: Date;
 };
 
@@ -1166,6 +1167,7 @@ export class SystemState {
       id,
       clubId: clubId,
       budgetItems: input.budgetItems,
+      targetNumberOfMembers: input.targetNumberOfMemberships,
       targetDate: input.targetDate
     });
   }
@@ -1178,6 +1180,7 @@ export class SystemState {
     this.membershipCampaigns.set(id, {
       ...campaign,
       budgetItems: input.budgetItems,
+      targetNumberOfMembers: input.targetNumberOfMemberships,
       targetDate: input.targetDate
     });
   }
@@ -1198,14 +1201,7 @@ export class SystemState {
   }
 
   public getMembershipCampaignFromState(campaign: MembershipCampaignState) {
-    const targetPerMonthInUSD = campaign.budgetItems.reduce(
-      (sum, item) => sum + item.costPerMonthInUSD,
-      0
-    );
-    return this.membershipCampaignStateToMembershipCampaign(
-      campaign,
-      targetPerMonthInUSD
-    );
+    return this.membershipCampaignStateToMembershipCampaign(campaign);
   }
 
   public getMembershipCampaign(id: number): MembershipCampaign {
@@ -1214,14 +1210,13 @@ export class SystemState {
   }
 
   private membershipCampaignStateToMembershipCampaign(
-    state: MembershipCampaignState,
-    targetPerMonthInUSD: number
+    state: MembershipCampaignState
   ): MembershipCampaign {
     return {
       id: state.id,
       budgetItems: state.budgetItems,
-      targetDate: state.targetDate,
-      targetPerMonthInUSD
+      targetNumberOfMemberships: state.targetNumberOfMembers,
+      targetDate: state.targetDate
     };
   }
 
@@ -1281,13 +1276,14 @@ export class SystemState {
   ): number {
     const memberships = Array.from(this.memberships.values()).filter(
       (m) =>
-        m.clubId === clubId &&
-        (m.status === "ACTIVE" || m.status === "PENDING")
+        m.clubId === clubId && (m.status === "ACTIVE" || m.status === "PENDING")
     );
 
     let committedPerMonthInUSD = 0;
     for (const membership of memberships) {
-      const membershipTier = this.getMembershipTier(membership.membershipTierId);
+      const membershipTier = this.getMembershipTier(
+        membership.membershipTierId
+      );
       committedPerMonthInUSD += this.monthlyRate(membershipTier);
     }
 

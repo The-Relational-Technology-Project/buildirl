@@ -34,9 +34,8 @@ type MembershipCampaignMutations = {
 export type MembershipCampaign = {
   id: number;
   budgetItems: CampaignBudgetItem[];
+  targetNumberOfMemberships: number;
   targetDate: Date;
-  // calculated fields
-  targetPerMonthInUSD: MonetaryValue;
 };
 
 // this is global and current progress for active campaign
@@ -58,8 +57,11 @@ const CampaignBudgetItemInput = z.object({
 
 const CampaignBudgetItemsInput = z.array(CampaignBudgetItemInput).min(1).max(5);
 
+const NumberOfMembershipsSchema = z.number().min(2).max(999);
+
 export const CreateMembershipCampaignInputSchema = z.object({
   budgetItems: CampaignBudgetItemsInput,
+  targetNumberOfMemberships: NumberOfMembershipsSchema,
   targetDate: z.date()
 });
 
@@ -69,6 +71,7 @@ export type CreateMembershipCampaignInput = z.infer<
 
 export const UpdateMembershipCampaignInputSchema = z.object({
   budgetItems: CampaignBudgetItemsInput,
+  targetNumberOfMemberships: NumberOfMembershipsSchema,
   targetDate: z.date()
 });
 

@@ -639,12 +639,14 @@ function createMembershipCampaignCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
     budgetItems: budgetItems(),
+    targetNumberOfMemberships: integer({ min: 2, max: 999 }),
     targetDate: aDayWithinTheNextTwoMonths()
   }).map(
     (i) =>
       new CreateMembershipCampaignCommand(
         {
           budgetItems: i.budgetItems,
+          targetNumberOfMemberships: i.targetNumberOfMemberships,
           targetDate: i.targetDate
         },
         i.clubIdSelector
@@ -656,12 +658,14 @@ function updateMembershipCampaignCommands() {
   return record({
     membershipCampaignIdSelector: itemSelector<number>(),
     budgetItems: budgetItems(),
+    targetNumberOfMemberships: integer({ min: 2, max: 999 }),
     targetDate: aDayWithinTheNextTwoMonths()
   }).map(
     (i) =>
       new UpdateMembershipCampaignCommand(
         {
           budgetItems: i.budgetItems,
+          targetNumberOfMemberships: i.targetNumberOfMemberships,
           targetDate: i.targetDate
         },
         i.membershipCampaignIdSelector

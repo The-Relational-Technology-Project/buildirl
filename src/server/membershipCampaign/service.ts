@@ -124,7 +124,7 @@ export function createMembershipCampaignService(
       case "SEMI_ANNUAL":
         return cost / 6;
       default:
-        throw Error("");
+        throw Error("invalid billing interval");
     }
   }
 
@@ -154,6 +154,7 @@ export function createMembershipCampaignService(
       const campaign = await tx.membershipCampaign.create({
         data: {
           clubId: clubId,
+          targetNumberOfMemberships: input.targetNumberOfMemberships,
           targetDate: input.targetDate
         },
         select: {
@@ -222,7 +223,8 @@ export function createMembershipCampaignService(
       await tx.membershipCampaign.update({
         where: { id },
         data: {
-          targetDate: input.targetDate
+          targetDate: input.targetDate,
+          targetNumberOfMemberships: input.targetNumberOfMemberships
         }
       });
 

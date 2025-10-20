@@ -4,6 +4,7 @@ import type { MembershipCampaign } from "./types";
 export const MEMBERSHIP_CAMPAIGN_SELECT = {
   id: true,
   clubId: true,
+  targetNumberOfMemberships: true,
   targetDate: true,
   budgetItems: {
     select: {
@@ -21,14 +22,11 @@ export function asMembershipCampaign(
 ): MembershipCampaign {
   return {
     id: campaign.id,
-    targetPerMonthInUSD: campaign.budgetItems.reduce(
-      (acc, item) => acc + item.costPerMonthInUSD.toNumber(),
-      0
-    ),
+    targetNumberOfMemberships: campaign.targetNumberOfMemberships,
     budgetItems: campaign.budgetItems.map((item) => ({
       label: item.label,
       costPerMonthInUSD: item.costPerMonthInUSD.toNumber()
     })),
-    targetDate: campaign.targetDate,
+    targetDate: campaign.targetDate
   };
 }

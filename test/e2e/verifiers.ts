@@ -226,7 +226,7 @@ function createVerifiers() {
   ): MembershipCampaign {
     return {
       id: campaign.id,
-      targetPerMonthInUSD: campaign.targetPerMonthInUSD,
+      targetNumberOfMemberships: campaign.targetNumberOfMemberships,
       budgetItems: campaign.budgetItems,
       targetDate: campaign.targetDate
     };
