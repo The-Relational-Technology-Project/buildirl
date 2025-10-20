@@ -100,6 +100,10 @@ model Club {
   name                                String
   tagLine                             String               @map("tag_line")
   description                         String
+  // Specify native Postgres types to negate timezone from startDate and startTime
+  startDate                           DateTime?            @map("start_date") @db.Date
+  startTime                           DateTime?            @map("start_time") @db.Time
+  frequency                           String?              @map("frequency")
   // TODO make this non-nullable after all values have been backpopulated
   // city and state (e.g., San Francisco, CA)
   location                            String?
@@ -111,6 +115,7 @@ model Club {
   themeHeadingFont                    String?              @map("theme_heading_font")
   // ordered
   displayImageUrls                    String[]             @default([]) @map("display_image_urls")
+  values                              Json
   faqs                                Json                 @map("faqs")
   membershipTiers                     MembershipTier[]
   following                           ClubFollowing[]
@@ -120,7 +125,7 @@ model Club {
   stripeCustomerPortalConfigurationId String?              @unique @map("stripe_customer_portal_configuration_id")
   createdAt                           DateTime             @default(now()) @map("created_at")
   updatedAt                           DateTime             @updatedAt @map("updated_at")
-  MembershipCampaign                  MembershipCampaign[]
+  membershipCampaign                  MembershipCampaign[]
 
   @@index([publicId])
   @@map("club")

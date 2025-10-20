@@ -13,10 +13,15 @@ import {
   TextInput,
   Title,
   Box,
-  useMatches
+  useMatches,
+  Select,
+  ActionIcon,
+  Flex,
+  Text
 } from "@mantine/core";
+import { DateInput, TimePicker } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -26,13 +31,34 @@ import ThemeSelector from "~/app/(main)/club/[clubId]/manage/update/_components/
 import ClubImageUploader from "~/app/(main)/club/[clubId]/manage/update/_components/ClubDisplayImageUpload";
 import FontSelector from "~/app/(main)/club/[clubId]/manage/update/_components/FontSelector";
 import FAQsSection from "~/app/(main)/club/[clubId]/manage/update/_components/FAQsSection";
-import { IconDeviceFloppy } from "@tabler/icons-react";
-import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import { IconClock, IconDeviceFloppy } from "@tabler/icons-react";
+import {
+  useForm,
+  FormProvider,
+  useFormContext,
+  Controller
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import PrefixedInput from "~/client/components/PrefixedInput";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import LocationSelect from "~/client/components/LocationSelect";
 import { City } from "~/server/club/types/location";
+import { ClubValueCreator } from "./_components/ClubValueCreator";
+
+const errorStyles = {
+  input: {
+    border: "1px solid red",
+    color: "red",
+    borderRadius: 0
+  }
+};
+
+const inputStyles = {
+  input: {
+    border: "1px solid black",
+    borderRadius: 0
+  }
+};
 
 function BasicInfoSection() {
   const {
@@ -83,7 +109,131 @@ function LocationSection() {
           await trigger("location");
         }}
         error={errors.location?.message}
+        styles={errors.location ? errorStyles : inputStyles}
       />
+    </Stack>
+  );
+}
+
+function RhythmSection() {
+  const {
+    control,
+    formState: { errors },
+    trigger,
+    setValue,
+    watch
+  } = useFormContext<UpdateClubInput>();
+
+  const [timeDropdownOpened, setDropdownOpened] = useState(false);
+  const rhythmError = errors.rhythm?.message;
+  const rhythm = watch("rhythm");
+  const hasAnyRhythmField = !!(
+    rhythm?.startDate ||
+    rhythm?.startTime ||
+    rhythm?.frequency
+  );
+
+  return (
+    <Stack gap={8}>
+      <Title order={6}>Club Rhythm</Title>
+      <Flex
+        gap={8}
+        direction={{ base: "column", sm: "row" }}
+        wrap={{ base: "wrap", sm: "nowrap" }}
+      >
+        <Box flex={1} w="100%">
+          <Controller
+            name="rhythm.startDate"
+            control={control}
+            render={({ field }) => (
+              <DateInput
+                value={field.value ?? null}
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
+                placeholder="Start Date"
+                w="100%"
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
+              />
+            )}
+          />
+        </Box>
+        <Box flex={1} w="100%">
+          <Controller
+            name="rhythm.startTime"
+            control={control}
+            render={({ field }) => (
+              <TimePicker
+                withDropdown
+                rightSection={
+                  <ActionIcon
+                    onClick={() => setDropdownOpened(true)}
+                    variant="default"
+                  >
+                    <IconClock size={18} stroke={1.5} />
+                  </ActionIcon>
+                }
+                format="12h"
+                value={field.value ?? ""}
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
+                popoverProps={{
+                  opened: timeDropdownOpened,
+                  onChange: (_opened) => !_opened && setDropdownOpened(false)
+                }}
+                minutesStep={15}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
+              />
+            )}
+          />
+        </Box>
+        <Box flex={1} w="100%">
+          <Controller
+            name="rhythm.frequency"
+            control={control}
+            render={({ field }) => (
+              <Select
+                placeholder="Frequency"
+                data={["Weekly", "Biweekly", "Monthly"]}
+                {...field}
+                w="100%"
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
+              />
+            )}
+          />
+        </Box>
+      </Flex>
+      {rhythmError && (
+        <div style={{ minHeight: 20, color: "red", fontSize: 12 }}>
+          {rhythmError}
+        </div>
+      )}
+      {hasAnyRhythmField && (
+        <Box display="flex" w="100%" style={{ justifyContent: "center" }}>
+          <Button
+            onClick={() => {
+              setValue("rhythm", {
+                startDate: null,
+                startTime: null,
+                frequency: null
+              });
+              trigger("rhythm");
+            }}
+            style={{ backgroundColor: "transparent", width: "fit-content" }}
+          >
+            <Text size="sm" c="black" td="underline">
+              Clear all rhythm fields
+            </Text>
+          </Button>
+        </Box>
+      )}
     </Stack>
   );
 }
@@ -137,6 +287,7 @@ function ShareLinkSection() {
         required
         {...register("publicId")}
         error={errors.publicId?.message}
+        styles={errors.publicId ? errorStyles : inputStyles}
       />
     </Stack>
   );
@@ -167,6 +318,21 @@ function FontSection() {
       <FontSelector
         value={font}
         onChange={(newFont) => setValue("themeHeadingFont", newFont)}
+      />
+    </Stack>
+  );
+}
+
+function ClubValuesSection() {
+  const { watch, setValue } = useFormContext<UpdateClubInput>();
+  const values = watch("values");
+
+  return (
+    <Stack gap={8}>
+      <Title order={6}>Club Values</Title>
+      <ClubValueCreator
+        clubValues={values}
+        onChange={(newValues) => setValue("values", newValues)}
       />
     </Stack>
   );
@@ -222,6 +388,11 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
+      rhythm: club.rhythm ?? {
+        startDate: null,
+        startTime: null,
+        frequency: null
+      },
       // TODO this casting can be removed once location field is made non-nullable
       // we cast here because the value can be null for older clubs the null value will fail at
       // validation time, forcing the user to back-populated their location to a non-null value
@@ -231,6 +402,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       eventCalendarUrl: club.eventCalendarUrl ?? "",
       theme: club.theme,
       themeHeadingFont: club.themeHeadingFont,
+      values: club.values,
       faqs: club.faqs
     },
     resolver: (data, context, options) => {
@@ -273,6 +445,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
 
           <BasicInfoSection />
           <LocationSection />
+          <RhythmSection />
 
           <LinksSection />
           <ShareLinkSection />
@@ -280,19 +453,34 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           <ThemeSection />
           <FontSection />
 
+          <ClubValuesSection />
+
           <ShowcaseImagesSection club={club} />
 
           <FAQsSection />
 
-          <Box mt={32} style={{ display: "flex", justifyContent: "center" }}>
+          <Box
+            mb={32}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            {Object.keys(errors).length > 0 && (
+              <p style={{ fontSize: "12px", color: "red" }}>
+                Please review required fields above.
+              </p>
+            )}
             <Button
-              w={100}
+              w={250}
               type="submit"
               disabled={Object.keys(errors).length > 0}
               loading={updateClub.isPending}
               leftSection={<IconDeviceFloppy size={16} />}
             >
-              Save
+              Save Club
             </Button>
           </Box>
         </Stack>

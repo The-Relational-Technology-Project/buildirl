@@ -9,7 +9,8 @@ type LocationSelectProps = {
 export default function LocationSelect({
   value,
   onChange,
-  error
+  error,
+  styles
 }: LocationSelectProps & SelectProps) {
   return (
     <Stack gap={0}>
@@ -20,6 +21,7 @@ export default function LocationSelect({
         placeholder="Select or search for a location"
         value={value}
         onChange={onChange}
+        styles={styles}
       />
       {error && (
         <Text c="red" size="xs" mt={5}>

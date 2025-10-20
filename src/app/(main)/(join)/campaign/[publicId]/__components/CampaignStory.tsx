@@ -177,7 +177,7 @@ export default function CampaignStory({
                         <IconCoffee size={18} color="#FFC857" />
                       </Box>
                       <Title order={6} fz={{ base: 12, md: 14 }}>
-                        Hosted at SF Commons
+                        {campaignConfiguration.location}
                       </Title>
                     </Group>
                   </Card>
@@ -226,7 +226,8 @@ export default function CampaignStory({
                 </Title>
               </Group>
               <Text fz="sm" c="dark.3" mb="lg">
-                All the good stuff that comes with being a founding member ✨
+                All the valuable opportunities that comes with being a Founding
+                Member ✨
               </Text>
             </Box>
 
@@ -237,10 +238,10 @@ export default function CampaignStory({
                   {leftWhyJoinUs.map((i, index) => {
                     return (
                       <Group gap="sm" align="flex-start" key={index}>
-                        <Text c="lilac" fw={600}>
+                        <Text fz={{ base: "xs", md: "sm" }} c="lilac" fw={600}>
                           ✓
                         </Text>
-                        <Text fz="sm">{i}</Text>
+                        <Text fz={{ base: "xs", md: "sm" }}>{i}</Text>
                       </Group>
                     );
                   })}
@@ -251,10 +252,10 @@ export default function CampaignStory({
                   {rightWhyJoinUs.map((i, index) => {
                     return (
                       <Group gap="sm" align="flex-start" key={index}>
-                        <Text c="lilac" fw={600}>
+                        <Text fz={{ base: "xs", md: "sm" }} c="lilac" fw={600}>
                           ✓
                         </Text>
-                        <Text fz="sm">{i}</Text>
+                        <Text fz={{ base: "xs", md: "sm" }}>{i}</Text>
                       </Group>
                     );
                   })}

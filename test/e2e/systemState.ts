@@ -19,8 +19,10 @@ import { InstagramHandle, Url } from "~/server/utils/types";
 import {
   Club,
   ClubStatistics,
+  ClubValues,
   CreateClubInput,
   FAQs,
+  Rhythm,
   UpdateClubApplicationQuestionsInput,
   UpdateClubDisplayImageUrlsInput,
   UpdateClubInput
@@ -63,6 +65,7 @@ type ClubState = {
   tagLine: string;
   description: string;
   location: string;
+  rhythm: Maybe<Rhythm>;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
   eventCalendarUrl: Maybe<Url>;
@@ -72,6 +75,7 @@ type ClubState = {
   displayImageUrls: Url[];
   membershipTierIds: number[];
   hasStripeAccount: boolean;
+  values: ClubValues;
   faqs: FAQs;
 };
 
@@ -267,6 +271,7 @@ export class SystemState {
       tagLine: clubState.tagLine,
       description: clubState.description,
       location: clubState.location,
+      rhythm: clubState.rhythm,
       websiteUrl: clubState.websiteUrl,
       instagramHandle: clubState.instagramHandle,
       eventCalendarUrl: clubState.eventCalendarUrl,
@@ -274,6 +279,7 @@ export class SystemState {
       theme: clubState.theme,
       themeHeadingFont: clubState.themeHeadingFont,
       displayImageUrls: clubState.displayImageUrls,
+      values: clubState.values,
       faqs: clubState.faqs,
       membershipTiers: this.orderByCost(
         clubState.membershipTierIds.map((id) => this.getMembershipTier(id))
@@ -332,6 +338,7 @@ export class SystemState {
       // defaults
       tagLine: "",
       description: "",
+      rhythm: null,
       websiteUrl: null,
       instagramHandle: null,
       eventCalendarUrl: null,
@@ -339,6 +346,7 @@ export class SystemState {
       theme: null,
       themeHeadingFont: null,
       displayImageUrls: [],
+      values: { items: [] },
       faqs: { items: [] },
       membershipTierIds: [],
       hasStripeAccount: false

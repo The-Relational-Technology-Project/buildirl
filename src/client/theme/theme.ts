@@ -39,8 +39,8 @@ export const theme = createTheme({
       "#442a8f"
     ]
   },
-  fontFamily: "Work Sans",
-  headings: { fontFamily: "Unbounded" },
+  fontFamily: 'var(--font-body)',
+  headings: { fontFamily: 'var(--font-heading)' },
   components: {
     Button: {
       defaultProps: {

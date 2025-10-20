@@ -41,8 +41,15 @@ export function MembershipTierCarousel({
       // the next and previous card are not visible
       withControls={withCarouselControls}
       withIndicators={isMobile && tiers.length > 1}
-      styles={
-        isMobile && tiers.length > 1
+      withKeyboardEvents={true}
+      styles={{
+        // TODO! there is a bug with default control color in the deployed environments
+        //  change the control color to make it visible
+        control: {
+          backgroundColor: `${colorScheme === "dark" ? "white" : "grey"}`,
+          color: `${colorScheme === "dark" ? "black" : "white"}`
+        },
+        ...(isMobile && tiers.length > 1
           ? {
               indicator: {
                 backgroundColor: `${colorScheme === "dark" ? "white" : "black"}`,
@@ -50,8 +57,8 @@ export function MembershipTierCarousel({
                 height: 8
               }
             }
-          : undefined
-      }
+          : {})
+      }}
       // shifts the indicator down
       pb={{ base: 60, md: 0 }}
     >

@@ -16,8 +16,11 @@ import CreateUserCommand from "./createUserCommand";
 import {
   ClubNameSchema,
   ClubPublicIdSchema,
+  ClubValueSchema,
+  DateStringSchema,
   FAQAnswerSchema,
-  FAQQuestionSchema
+  FAQQuestionSchema,
+  TimeStringSchema
 } from "~/server/club/types";
 import {
   InstagramHandleSchema,
@@ -71,6 +74,7 @@ import CreateMembershipCampaignCommand from "./createMembershipCampaignCommand";
 import UpdateMembershipCampaignCommand from "./updateMembershipCampaignCommand";
 import DeleteMembershipCampaignCommand from "./deleteMembershipCampaignCommand";
 import { CampaignBudgetItem } from "~/server/membershipCampaign/types";
+import { dateStringArbitrary, timeStringArbitrary } from "../utils/clubUtils";
 
 export const allCommands = () => {
   return [
@@ -182,6 +186,10 @@ function locationArbitrary() {
   return oneof(...Array.from(CitySchema.options).map(constant));
 }
 
+function frequencyArbitrary() {
+  return oneof(constant("WEEKLY"), constant("BIWEEKLY"), constant("MONTHLY"));
+}
+
 function createClubCommands() {
   return record({
     name: string(),
@@ -235,6 +243,15 @@ function updateClubCommands() {
     tagLine: string(),
     description: string(),
     location: locationArbitrary(),
+    rhythm: record({
+      startDate: dateStringArbitrary.filter((s) =>
+        isZodType(s, DateStringSchema)
+      ),
+      startTime: timeStringArbitrary.filter((s) =>
+        isZodType(s, TimeStringSchema)
+      ),
+      frequency: frequencyArbitrary()
+    }),
     websiteUrl: option(webUrl(), { freq: 4 }),
     instagramHandle: option(
       string().filter((s) => isZodType(s, InstagramHandleSchema)),
@@ -248,6 +265,22 @@ function updateClubCommands() {
     themeHeadingFont: option(oneof(...FONT_SELECTION.map(constant)), {
       freq: 4
     }),
+    values: record({
+      items: array(
+        record({
+          icon: string().filter((s) =>
+            isZodType(s, ClubValueSchema.shape.icon)
+          ),
+          title: string()
+            .filter((s) => isZodType(s, ClubValueSchema.shape.title))
+            .filter((s) => s.length <= 30),
+          description: string()
+            .filter((s) => isZodType(s, ClubValueSchema.shape.description))
+            .filter((s) => s.length <= 160)
+        }),
+        { maxLength: 5 }
+      )
+    }),
     faqs: faqsArbitrary()
   }).map(
     (i) =>
@@ -258,11 +291,13 @@ function updateClubCommands() {
           tagLine: i.tagLine,
           description: i.description,
           location: i.location,
+          rhythm: i.rhythm,
           websiteUrl: i.websiteUrl,
           instagramHandle: i.instagramHandle,
           eventCalendarUrl: i.eventCalendarUrl,
           theme: i.theme,
           themeHeadingFont: i.themeHeadingFont,
+          values: i.values,
           faqs: i.faqs
         },
         i.clubIdSelector

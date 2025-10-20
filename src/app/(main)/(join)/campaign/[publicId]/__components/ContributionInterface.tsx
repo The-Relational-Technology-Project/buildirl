@@ -23,13 +23,13 @@ import { useRouter } from "next/navigation";
 interface ContributionInterfaceProps {
   club: Club;
   membershipTierId: number;
-  goalAmount: number;
+  goalAmountDisplay: number;
 }
 
 export default function ContributionInterface({
   club,
   membershipTierId,
-  goalAmount
+  goalAmountDisplay
 }: ContributionInterfaceProps) {
   const router = useRouter();
 
@@ -118,11 +118,11 @@ export default function ContributionInterface({
                   </Center>
                   <Stack gap={8} align="center">
                     <Text fw={600} fz="sm">
-                      All-or-Nothing Magic 💚
+                      All-or-Nothing Magic ❤️
                     </Text>
                     <Text fz="sm" c="dark.3" ta="center">
                       You&apos;re only charged if we reach our full monthly goal
-                      by the deadline
+                      by the deadline.
                     </Text>
                   </Stack>
                 </Stack>
@@ -149,7 +149,7 @@ export default function ContributionInterface({
                     </Text>
                     <Text fz="sm" c="dark.3" ta="center">
                       If successful, your contribution keeps our magic alive
-                      every month
+                      every month.
                     </Text>
                   </Stack>
                 </Stack>
@@ -249,7 +249,7 @@ export default function ContributionInterface({
                   animation: "pulse 2s ease-in-out infinite"
                 }}
               >
-                Join the founding crew
+                Join the founding community
               </Badge>
 
               <Title
@@ -268,9 +268,14 @@ export default function ContributionInterface({
 
               <Stack align="center" gap="lg">
                 <Text fz={{ base: 16, md: 18 }} c="dark.3" ta="center" fw={500}>
-                  Become a founding member! You&apos;re not just funding —
+                  Become a Founding Member! You&apos;re not just funding —
                   you&apos;re{" "}
-                  <Text component="span" fw={700} c="lilac">
+                  <Text
+                    fz={{ base: 16, md: 18 }}
+                    component="span"
+                    fw={700}
+                    c="lilac"
+                  >
                     co-creating
                   </Text>{" "}
                   our shared future.
@@ -300,7 +305,7 @@ export default function ContributionInterface({
                         WebkitTextFillColor: "transparent"
                       }}
                     >
-                      ${goalAmount}
+                      ${goalAmountDisplay}
                     </Title>
                     <Text fz="sm" c="dark.3">
                       to keep our magic alive
@@ -326,7 +331,7 @@ export default function ContributionInterface({
                 icon={IconSparkles}
                 onClick={handleContribute}
               >
-                Join the crew
+                Join the club
               </CTAButton>
 
               <Text
@@ -336,9 +341,9 @@ export default function ContributionInterface({
                 maw={600}
                 style={{ lineHeight: 1.6 }}
               >
-                By backing this project, you&apos;re joining our founding crew!
-                Remember: you&apos;re only charged if we hit our goal by the
-                deadline. 💚
+                By backing this project, you&apos;re joining our founding
+                community! Remember: you&apos;re only charged if we hit our goal
+                by the deadline. ❤️
               </Text>
             </Stack>
           </Card>

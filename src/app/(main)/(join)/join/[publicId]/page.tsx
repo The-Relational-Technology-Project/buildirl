@@ -10,7 +10,12 @@ import {
   Box,
   useMatches
 } from "@mantine/core";
-import { IconBrandInstagram, IconWorld, IconMapPin } from "@tabler/icons-react";
+import {
+  IconBrandInstagram,
+  IconWorld,
+  IconMapPin,
+  IconCalendar
+} from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded, isLoaded } from "~/client/utils";
@@ -33,6 +38,9 @@ import ShareIconButton from "./_components/ShareIconButton";
 import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
 import { InstagramHandle, Url } from "~/server/utils/types";
 import { Club } from "~/server/club/types";
+import { getRhythmDescription } from "./utils";
+import { ClubValueDisplay } from "~/app/(main)/(join)/join/[publicId]/_components/ClubValueDisplay";
+import { WhoWeAre } from "./_components/WhoWeAre";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -94,11 +102,11 @@ export default function ClubJoin() {
 
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
-  const router = useRouter();
 
   const club = api.main.clubByPublicId.useQuery({
     publicId
   });
+
   const isUserAuthenticated = api.main.isUserAuthenticated.useQuery();
 
   QueryError.check({
@@ -161,14 +169,6 @@ export default function ClubJoin() {
                 </Text>
               )}
 
-              <Text
-                style={{ cursor: "pointer" }}
-                onClick={() => router.push(`/join/${publicId}/about`)}
-                size={"sm"}
-              >
-                {"About >"}
-              </Text>
-
               <LinkIcons
                 websiteUrl={club.data!.websiteUrl}
                 instagramHandle={club.data!.instagramHandle}
@@ -180,10 +180,21 @@ export default function ClubJoin() {
                   <Text size="sm">{club.data!.location}</Text>
                 </Group>
               )}
+
+              {club.data?.rhythm && (
+                <Group gap={6}>
+                  <IconCalendar size={18} stroke={1.5} />
+                  <Text size="sm">
+                    {getRhythmDescription(club.data.rhythm)}
+                  </Text>
+                </Group>
+              )}
             </Stack>
           </Stack>
 
           <JoinButton club={club.data!} />
+
+          <WhoWeAre description={club.data!.description} />
 
           {club.data!.eventCalendarUrl && (
             <SecondaryButton
@@ -206,6 +217,8 @@ export default function ClubJoin() {
           <ContributingMembersLink club={club.data!} />
 
           <MemberCarousel clubId={club.data!.id} />
+
+          <ClubValueDisplay club={club.data!} />
 
           <FAQs
             faqs={club.data!.faqs}

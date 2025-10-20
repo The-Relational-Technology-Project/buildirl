@@ -30,6 +30,7 @@ export type Club = {
   //  made non-nullable after values are back-populated
   // this is nullable for backwards compatibility purposes
   location: Maybe<City>;
+  rhythm: Maybe<Rhythm>;
   description: string;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
@@ -38,6 +39,7 @@ export type Club = {
   theme: Maybe<TemplateTheme>;
   themeHeadingFont: Maybe<string>;
   displayImageUrls: Url[];
+  values: ClubValues;
   faqs: FAQs;
   membershipTiers: MembershipTier[];
 };
@@ -73,7 +75,7 @@ export const ClubPublicIdSchema = z
 export const ClubNameSchema = z
   .string()
   .min(3, "Length must be >= 3 characters")
-  .max(64, "Length must be >= 64 characters");
+  .max(15, "Length must be >= 15 characters");
 
 export const ClubTagLineSchema = z
   .string()
@@ -109,17 +111,66 @@ export const FAQsSchema = z.object({
 
 export type FAQs = z.infer<typeof FAQsSchema>;
 
+export const DateStringSchema = z.string().date();
+
+export type DateString = z.infer<typeof DateStringSchema>;
+
+export const TimeStringSchema = z.string().time();
+
+export type TimeString = z.infer<typeof TimeStringSchema>;
+
+export const RhythmSchema = z
+  .object({
+    startDate: DateStringSchema.nullable(),
+    startTime: TimeStringSchema.nullable(),
+    frequency: z.string().nullable()
+  })
+  .refine(
+    (obj) => {
+      const allPresent = !!obj.startDate && !!obj.startTime && !!obj.frequency;
+      const allAbsent = !obj.startDate && !obj.startTime && !obj.frequency;
+      return allPresent || allAbsent;
+    },
+    {
+      message: "Either all rhythm fields must be provided, or none."
+    }
+  );
+
+export type Rhythm = z.infer<typeof RhythmSchema>;
+
+export const ClubValueSchema = z.object({
+  icon: z.string().min(1, "Icon is required"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(30, "Title cannot exceed 30 characters"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(160, "Description cannot exceed 160 characters")
+});
+
+export type ClubValue = z.infer<typeof ClubValueSchema>;
+
+export const ClubValuesSchema = z.object({
+  items: z.array(ClubValueSchema)
+});
+
+export type ClubValues = z.infer<typeof ClubValuesSchema>;
+
 export const UpdateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
   location: CitySchema,
+  rhythm: RhythmSchema,
   websiteUrl: UrlSchema.nullable(),
   instagramHandle: InstagramHandleSchema.nullable(),
   eventCalendarUrl: UrlSchema.nullable(),
   theme: TemplateThemeSchema.nullable(),
   themeHeadingFont: z.string().nullable(),
+  values: ClubValuesSchema,
   faqs: FAQsSchema
 });
 export type UpdateClubInput = z.infer<typeof UpdateClubInputSchema>;

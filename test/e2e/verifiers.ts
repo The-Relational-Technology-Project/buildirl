@@ -40,6 +40,7 @@ function createVerifiers() {
       name: club.name,
       tagLine: club.tagLine,
       location: club.location,
+      rhythm: club.rhythm,
       description: club.description,
       websiteUrl: club.websiteUrl,
       instagramHandle: club.instagramHandle,
@@ -48,6 +49,7 @@ function createVerifiers() {
       theme: club.theme,
       themeHeadingFont: club.themeHeadingFont,
       displayImageUrls: club.displayImageUrls,
+      values: club.values,
       faqs: club.faqs,
       membershipTiers: club.membershipTiers
     };

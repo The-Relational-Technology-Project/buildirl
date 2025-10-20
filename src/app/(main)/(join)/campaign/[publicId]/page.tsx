@@ -12,6 +12,7 @@ import CampaignHero from "./__components/CampaignHero";
 import CampaignStory from "./__components/CampaignStory";
 import ContributionInterface from "./__components/ContributionInterface";
 import FinancialAssistance from "./__components/FinancialAssistance";
+import FindOutMore from "./__components/FindOutMore";
 import { CAMPAIGN_CONFIGURATIONS } from "~/app/(main)/(join)/campaign/[publicId]/config";
 
 function getMembershipCostPerMonth(
@@ -70,6 +71,7 @@ export default function Campaign() {
   });
 
   const goalAmount = campaignConfiguration.monthlyGoal;
+  const goalAmountDisplay = campaignConfiguration.monthlyGoalDisplay;
 
   // Get membership tier details
   const membershipTier = club.data?.membershipTiers.find(
@@ -112,6 +114,7 @@ export default function Campaign() {
         billingInterval={billingInterval}
         supporters={supporters}
         goalAmount={goalAmount}
+        goalAmountDisplay={goalAmountDisplay}
         clubPublicId={club.data!.publicId}
         campaignConfiguration={campaignConfiguration}
         club={club.data!}
@@ -124,9 +127,10 @@ export default function Campaign() {
       <ContributionInterface
         club={club.data!}
         membershipTierId={campaignConfiguration.membershipTierId}
-        goalAmount={goalAmount}
+        goalAmountDisplay={goalAmountDisplay}
       />
       <FinancialAssistance campaignConfiguration={campaignConfiguration} />
+      <FindOutMore campaignConfiguration={campaignConfiguration} />
     </Box>
   );
 }

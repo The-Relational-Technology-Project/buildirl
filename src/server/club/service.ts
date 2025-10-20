@@ -12,7 +12,12 @@ import {
   UpdateClubInput
 } from "~/server/club/types";
 import { MutationResult, NO_ID_MUTATION_RESULT } from "~/server/utils/types";
-import { asClub, CLUB_SELECT } from "~/server/club/utils";
+import {
+  asClub,
+  CLUB_SELECT,
+  toDateFromDateString,
+  toDateFromTimeString
+} from "~/server/club/utils";
 import { MembershipTierService } from "~/server/membershipTier/types";
 import { idAsNumber } from "~/utils/types";
 import { MembershipService } from "~/server/membership/types";
@@ -110,6 +115,7 @@ export function createClubService(
           eventCalendarUrl: null,
           applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
           theme: Prisma.DbNull,
+          values: { items: [] },
           faqs: { items: [] }
         },
         select: {
@@ -140,11 +146,17 @@ export function createClubService(
     id: number,
     input: UpdateClubInput
   ): Promise<MutationResult> {
+    const { rhythm, ...clubData } = input;
+
     try {
       await prisma.club.update({
         data: {
-          ...input,
-          theme: input.theme ?? Prisma.DbNull
+          ...clubData,
+          theme: clubData.theme ?? Prisma.DbNull,
+          // Convert to Date objects to satisfy Prisma DateTime type
+          startDate: toDateFromDateString(rhythm?.startDate),
+          startTime: toDateFromTimeString(rhythm?.startTime),
+          frequency: rhythm?.frequency ?? null
         },
         where: {
           id: id
