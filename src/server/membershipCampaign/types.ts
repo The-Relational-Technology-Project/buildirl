@@ -64,7 +64,11 @@ const NumberOfMembershipsSchema = z.number().min(2).max(999);
 export const CreateMembershipCampaignInputSchema = z.object({
   budgetItems: CampaignBudgetItemsInput,
   targetNumberOfMemberships: NumberOfMembershipsSchema,
-  targetDate: z.date()
+  targetDate: z.preprocess((val) => {
+    if (val instanceof Date) return val;
+    if (typeof val === "string") return new Date(val);
+    return val;
+  }, z.date())
 });
 
 export type CreateMembershipCampaignInput = z.infer<
@@ -74,7 +78,11 @@ export type CreateMembershipCampaignInput = z.infer<
 export const UpdateMembershipCampaignInputSchema = z.object({
   budgetItems: CampaignBudgetItemsInput,
   targetNumberOfMemberships: NumberOfMembershipsSchema,
-  targetDate: z.date()
+  targetDate: z.preprocess((val) => {
+    if (val instanceof Date) return val;
+    if (typeof val === "string") return new Date(val);
+    return val;
+  }, z.date())
 });
 
 export type UpdateMembershipCampaignInput = z.infer<

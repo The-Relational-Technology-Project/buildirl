@@ -1,6 +1,7 @@
+// noinspection DuplicatedCode
+
 import React from "react";
 import {
-  Card,
   Stack,
   TextInput,
   NumberInput,
@@ -8,23 +9,24 @@ import {
   Group,
   Title,
   Text,
-  Box
+  Box,
+  Paper
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  IconPlus,
-  IconX,
-  IconDeviceFloppy,
-  IconArrowLeft
-} from "@tabler/icons-react";
-import { z } from "zod";
+import { IconPlus, IconX, IconDeviceFloppy } from "@tabler/icons-react";
 import { Club } from "~/server/club/types";
 import { api } from "~/trpc/react";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
-import type { MembershipCampaign } from "~/server/membershipCampaign/types";
+import {
+  MembershipCampaign,
+  CreateMembershipCampaignInputSchema,
+  CreateMembershipCampaignInput,
+  UpdateMembershipCampaignInputSchema,
+  UpdateMembershipCampaignInput
+} from "~/server/membershipCampaign/types";
 import { Maybe } from "~/utils/types";
 
 type CampaignFormProps = {
@@ -34,60 +36,25 @@ type CampaignFormProps = {
   onSuccess: () => void;
 };
 
-// Form schema matches the input schemas
-const FormSchema = z.object({
-  targetNumberOfMemberships: z
-    .number()
-    .min(2, "Minimum 2 members required")
-    .max(999, "Maximum 999 members allowed"),
-  budgetItems: z
-    .array(
-      z.object({
-        label: z.string().min(1, "Required"),
-        costPerMonthInUSD: z.number().min(1).max(999)
-      })
-    )
-    .min(1, "At least one budget item is required")
-    .max(5, "Maximum 5 budget items allowed"),
-  targetDate: z.preprocess(
-    (val) => {
-      // Handle various input types
-      if (val instanceof Date) return val;
-      if (typeof val === "string" && val) return new Date(val);
-      return val;
-    },
-    z
-      .date({
-        required_error: "Target date is required",
-        invalid_type_error: "Invalid date format"
-      })
-      .refine(
-        (date) => {
-          const today = new Date();
-          const minDate = new Date(today);
-          minDate.setDate(today.getDate() + 14);
-          const maxDate = new Date(today);
-          maxDate.setDate(today.getDate() + 60);
+type CreateCampaignFormProps = {
+  club: Club;
+  onCancel: () => void;
+  onSuccess: () => void;
+};
 
-          return date >= minDate && date <= maxDate;
-        },
-        {
-          message: "Target date must be between 14 and 60 days from today"
-        }
-      )
-  )
-});
+function tomorrow(): Date {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  return tomorrow;
+}
 
-type FormData = z.infer<typeof FormSchema>;
-
-export default function CampaignForm({
+function CreateCampaignForm({
   club,
-  campaign,
   onCancel,
   onSuccess
-}: CampaignFormProps) {
+}: CreateCampaignFormProps) {
   const utils = api.useUtils();
-  const isEditing = !!campaign;
 
   const createCampaign = api.main.createMembershipCampaign.useMutation({
     onSuccess: () => {
@@ -103,6 +70,212 @@ export default function CampaignForm({
     },
     onError: handleDefaultMutationError
   });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    watch
+  } = useForm<CreateMembershipCampaignInput>({
+    resolver: zodResolver(CreateMembershipCampaignInputSchema),
+    defaultValues: {
+      targetNumberOfMemberships: 10,
+      budgetItems: [{ label: "", costPerMonthInUSD: 0 }],
+      targetDate: undefined
+    },
+    mode: "onSubmit"
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "budgetItems"
+  });
+
+  const onSubmit = async (data: CreateMembershipCampaignInput) => {
+    await createCampaign.mutateAsync({
+      clubId: club.id,
+      input: data
+    });
+  };
+
+  // calculate total
+  const budgetItems = watch("budgetItems");
+  const total = budgetItems.reduce(
+    (sum, item) => sum + (item.costPerMonthInUSD || 0),
+    0
+  );
+
+  return (
+    <Paper p={"lg"}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Stack gap={20}>
+          <Title order={3}>Create Campaign</Title>
+
+          <Group grow align="flex-start">
+            <Stack gap={8}>
+              <Title order={5}>Target Members</Title>
+              <Controller
+                name="targetNumberOfMemberships"
+                control={control}
+                render={({ field }) => (
+                  <NumberInput
+                    {...field}
+                    placeholder="10"
+                    min={2}
+                    max={999}
+                    error={errors.targetNumberOfMemberships?.message}
+                    required
+                  />
+                )}
+              />
+            </Stack>
+
+            <Stack gap={8}>
+              <Title order={5}>Target Date</Title>
+              <Controller
+                name="targetDate"
+                control={control}
+                render={({ field }) => (
+                  <DateInput
+                    placeholder="Select target date"
+                    value={field.value || null}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    minDate={tomorrow()}
+                    error={errors.targetDate?.message}
+                    weekendDays={[]}
+                    required
+                    clearable={false}
+                  />
+                )}
+              />
+            </Stack>
+          </Group>
+
+          <Stack gap={8}>
+            <Group justify="space-between">
+              <Title order={5}>Budget Items</Title>
+              <Button
+                variant="subtle"
+                size="sm"
+                leftSection={<IconPlus size={14} />}
+                onClick={() => append({ label: "", costPerMonthInUSD: 0 })}
+                disabled={fields.length >= 5}
+              >
+                Add Item
+              </Button>
+            </Group>
+
+            <Stack gap="sm">
+              {fields.map((field, index) => (
+                <Group key={field.id} gap="sm" align="flex-start">
+                  <Controller
+                    name={`budgetItems.${index}.label`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextInput
+                        {...field}
+                        placeholder="Budget item description"
+                        error={errors.budgetItems?.[index]?.label?.message}
+                        style={{ flex: 1 }}
+                      />
+                    )}
+                  />
+                  <Controller
+                    name={`budgetItems.${index}.costPerMonthInUSD`}
+                    control={control}
+                    render={({ field }) => (
+                      <NumberInput
+                        {...field}
+                        placeholder="0"
+                        prefix="$"
+                        suffix="/month"
+                        decimalScale={0}
+                        fixedDecimalScale
+                        min={1}
+                        max={99999}
+                        error={
+                          errors.budgetItems?.[index]?.costPerMonthInUSD
+                            ?.message
+                        }
+                        w={150}
+                      />
+                    )}
+                  />
+                  <ColorSchemeAwareActionIcon
+                    mt={4}
+                    onClick={() => remove(index)}
+                    disabled={fields.length <= 1}
+                  >
+                    <IconX size={16} />
+                  </ColorSchemeAwareActionIcon>
+                </Group>
+              ))}
+              {errors.budgetItems?.message && (
+                <Text c="red" size="sm">
+                  {errors.budgetItems.message}
+                </Text>
+              )}
+            </Stack>
+
+            <Group justify="flex-end">
+              <Text size="sm" fw={500}>
+                Total: ${total}/month
+              </Text>
+            </Group>
+          </Stack>
+
+          <Box
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            {Object.keys(errors).length > 0 && (
+              <Text style={{ fontSize: "12px", color: "red" }} mb="sm">
+                Please review required fields above.
+              </Text>
+            )}
+            <Group>
+              <Button
+                variant="default"
+                onClick={onCancel}
+                disabled={createCampaign.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                loading={createCampaign.isPending}
+                disabled={Object.keys(errors).length > 0}
+                leftSection={<IconDeviceFloppy size={16} />}
+              >
+                Create Campaign
+              </Button>
+            </Group>
+          </Box>
+        </Stack>
+      </form>
+    </Paper>
+  );
+}
+
+type EditCampaignFormProps = {
+  club: Club;
+  campaign: MembershipCampaign;
+  onCancel: () => void;
+  onSuccess: () => void;
+};
+
+function EditCampaignForm({
+  club,
+  campaign,
+  onCancel,
+  onSuccess
+}: EditCampaignFormProps) {
+  const utils = api.useUtils();
 
   const updateCampaign = api.main.updateMembershipCampaign.useMutation({
     onSuccess: () => {
@@ -122,16 +295,16 @@ export default function CampaignForm({
   const {
     control,
     handleSubmit,
-    formState: { errors }
-  } = useForm<FormData>({
-    resolver: zodResolver(FormSchema),
+    formState: { errors },
+    watch
+  } = useForm<UpdateMembershipCampaignInput>({
+    resolver: zodResolver(UpdateMembershipCampaignInputSchema),
     defaultValues: {
-      targetNumberOfMemberships: campaign?.targetNumberOfMemberships || 10,
-      budgetItems: campaign?.budgetItems || [
-        { label: "", costPerMonthInUSD: 0 }
-      ],
-      targetDate: campaign ? new Date(campaign.targetDate) : undefined
-    }
+      targetNumberOfMemberships: campaign.targetNumberOfMemberships,
+      budgetItems: campaign.budgetItems,
+      targetDate: campaign.targetDate
+    },
+    mode: "onSubmit"
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -139,103 +312,73 @@ export default function CampaignForm({
     name: "budgetItems"
   });
 
-  const onSubmit = async (data: FormData) => {
-    if (isEditing && campaign) {
-      await updateCampaign.mutateAsync({
-        id: campaign.id,
-        input: data
-      });
-    } else {
-      await createCampaign.mutateAsync({
-        clubId: club.id,
-        input: data
-      });
-    }
+  const onSubmit = async (data: UpdateMembershipCampaignInput) => {
+    await updateCampaign.mutateAsync({
+      id: campaign.id,
+      input: data
+    });
   };
 
-  const isLoading = createCampaign.isPending || updateCampaign.isPending;
-
-  // Calculate total
-  const budgetItems = fields as Array<{
-    label: string;
-    costPerMonthInUSD: number;
-  }>;
+  // calculate total
+  const budgetItems = watch("budgetItems");
   const total = budgetItems.reduce(
     (sum, item) => sum + (item.costPerMonthInUSD || 0),
     0
   );
 
   return (
-    <Card p="lg">
+    <Paper p={"lg"}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack gap="lg">
-          <Group justify="space-between">
-            <Title order={3}>
-              {isEditing ? "Edit Campaign" : "Create Campaign"}
-            </Title>
-            <ColorSchemeAwareActionIcon onClick={onCancel}>
-              <IconArrowLeft size={16} />
-            </ColorSchemeAwareActionIcon>
+        <Stack gap={20}>
+          <Title order={3}>Edit Campaign</Title>
+
+          <Group grow align="flex-start">
+            <Stack gap={8}>
+              <Title order={5}>Target Members</Title>
+              <Controller
+                name="targetNumberOfMemberships"
+                control={control}
+                render={({ field }) => (
+                  <NumberInput
+                    {...field}
+                    placeholder="10"
+                    min={2}
+                    max={999}
+                    error={errors.targetNumberOfMemberships?.message}
+                    required
+                  />
+                )}
+              />
+            </Stack>
+
+            <Stack gap={8}>
+              <Title order={5}>Target Date</Title>
+              <Controller
+                name="targetDate"
+                control={control}
+                render={({ field }) => (
+                  <DateInput
+                    placeholder="Select target date"
+                    value={field.value || null}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    minDate={tomorrow()}
+                    error={errors.targetDate?.message}
+                    weekendDays={[]}
+                    required
+                    clearable={false}
+                  />
+                )}
+              />
+            </Stack>
           </Group>
 
-          <Controller
-            name="targetNumberOfMemberships"
-            control={control}
-            render={({ field }) => (
-              <NumberInput
-                {...field}
-                label="Target Number of Members"
-                placeholder="10"
-                description="Number of members you want to reach (2-999)"
-                min={2}
-                max={999}
-                error={errors.targetNumberOfMemberships?.message}
-                required
-              />
-            )}
-          />
-
-          <Controller
-            name="targetDate"
-            control={control}
-            render={({ field }) => {
-              // Calculate date constraints: 14-60 days from today
-              const today = new Date();
-              const minDate = new Date(today);
-              minDate.setDate(today.getDate() + 14); // 14 days from now
-              const maxDate = new Date(today);
-              maxDate.setDate(today.getDate() + 60); // 60 days from now
-
-              return (
-                <DateInput
-                  label="Target Date"
-                  placeholder="Select target date"
-                  value={field.value || null}
-                  onChange={(value) => {
-                    // DateInput returns null when cleared, Date when selected
-                    field.onChange(value);
-                  }}
-                  onBlur={field.onBlur}
-                  minDate={minDate}
-                  maxDate={maxDate}
-                  error={errors.targetDate?.message}
-                  description="Select a date between 14 and 60 days from today"
-                  weekendDays={[]} // This removes the special weekend styling
-                  required
-                  clearable={false} // Prevent clearing the date once selected
-                />
-              );
-            }}
-          />
-
-          <Box>
-            <Group justify="space-between" mb="sm">
-              <Box>
-                <Text fw={500}>Budget Items</Text>
-              </Box>
+          <Stack gap={8}>
+            <Group justify="space-between">
+              <Title order={5}>Budget Items</Title>
               <Button
                 variant="subtle"
-                size="xs"
+                size="sm"
                 leftSection={<IconPlus size={14} />}
                 onClick={() => append({ label: "", costPerMonthInUSD: 0 })}
                 disabled={fields.length >= 5}
@@ -246,49 +389,48 @@ export default function CampaignForm({
 
             <Stack gap="sm">
               {fields.map((field, index) => (
-                <Card key={field.id} p="sm" withBorder>
-                  <Group gap="sm" align="flex-start">
-                    <Controller
-                      name={`budgetItems.${index}.label`}
-                      control={control}
-                      render={({ field }) => (
-                        <TextInput
-                          {...field}
-                          placeholder="Budget item description"
-                          error={errors.budgetItems?.[index]?.label?.message}
-                          style={{ flex: 1 }}
-                        />
-                      )}
-                    />
-                    <Controller
-                      name={`budgetItems.${index}.costPerMonthInUSD`}
-                      control={control}
-                      render={({ field }) => (
-                        <NumberInput
-                          {...field}
-                          placeholder="0.00"
-                          prefix="$"
-                          suffix="/month"
-                          decimalScale={2}
-                          fixedDecimalScale
-                          min={1}
-                          max={999}
-                          error={
-                            errors.budgetItems?.[index]?.costPerMonthInUSD
-                              ?.message
-                          }
-                          w={150}
-                        />
-                      )}
-                    />
-                    <ColorSchemeAwareActionIcon
-                      onClick={() => remove(index)}
-                      disabled={fields.length <= 1}
-                    >
-                      <IconX size={16} />
-                    </ColorSchemeAwareActionIcon>
-                  </Group>
-                </Card>
+                <Group key={field.id} gap="sm" align="flex-start">
+                  <Controller
+                    name={`budgetItems.${index}.label`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextInput
+                        {...field}
+                        placeholder="Budget item description"
+                        error={errors.budgetItems?.[index]?.label?.message}
+                        style={{ flex: 1 }}
+                      />
+                    )}
+                  />
+                  <Controller
+                    name={`budgetItems.${index}.costPerMonthInUSD`}
+                    control={control}
+                    render={({ field }) => (
+                      <NumberInput
+                        {...field}
+                        placeholder="0"
+                        prefix="$"
+                        suffix="/month"
+                        decimalScale={0}
+                        fixedDecimalScale
+                        min={1}
+                        max={99999}
+                        error={
+                          errors.budgetItems?.[index]?.costPerMonthInUSD
+                            ?.message
+                        }
+                        w={150}
+                      />
+                    )}
+                  />
+                  <ColorSchemeAwareActionIcon
+                    mt={4}
+                    onClick={() => remove(index)}
+                    disabled={fields.length <= 1}
+                  >
+                    <IconX size={16} />
+                  </ColorSchemeAwareActionIcon>
+                </Group>
               ))}
               {errors.budgetItems?.message && (
                 <Text c="red" size="sm">
@@ -297,27 +439,68 @@ export default function CampaignForm({
               )}
             </Stack>
 
-            <Group justify="flex-end" mt="md">
+            <Group justify="flex-end">
               <Text size="sm" fw={500}>
-                Total: ${total.toFixed(2)}/month
+                Total: ${total}/month
               </Text>
             </Group>
-          </Box>
+          </Stack>
 
-          <Group justify="center" gap="sm">
-            <Button variant="default" onClick={onCancel} disabled={isLoading}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              loading={isLoading}
-              leftSection={<IconDeviceFloppy size={16} />}
-            >
-              {isEditing ? "Update Campaign" : "Create Campaign"}
-            </Button>
-          </Group>
+          <Box
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            {Object.keys(errors).length > 0 && (
+              <Text style={{ fontSize: "12px", color: "red" }} mb="sm">
+                Please review required fields above.
+              </Text>
+            )}
+            <Group>
+              <Button
+                variant="default"
+                onClick={onCancel}
+                disabled={updateCampaign.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                loading={updateCampaign.isPending}
+                disabled={Object.keys(errors).length > 0}
+                leftSection={<IconDeviceFloppy size={16} />}
+              >
+                Update Campaign
+              </Button>
+            </Group>
+          </Box>
         </Stack>
       </form>
-    </Card>
+    </Paper>
+  );
+}
+
+export default function CampaignForm({
+  club,
+  campaign,
+  onCancel,
+  onSuccess
+}: CampaignFormProps) {
+  if (campaign) {
+    return (
+      <EditCampaignForm
+        club={club}
+        campaign={campaign}
+        onCancel={onCancel}
+        onSuccess={onSuccess}
+      />
+    );
+  }
+
+  return (
+    <CreateCampaignForm club={club} onCancel={onCancel} onSuccess={onSuccess} />
   );
 }
