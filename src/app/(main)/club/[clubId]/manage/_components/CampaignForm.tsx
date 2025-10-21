@@ -36,6 +36,10 @@ type CampaignFormProps = {
 
 // Form schema matches the input schemas
 const FormSchema = z.object({
+  targetNumberOfMemberships: z
+    .number()
+    .min(2, "Minimum 2 members required")
+    .max(999, "Maximum 999 members allowed"),
   budgetItems: z
     .array(
       z.object({
@@ -122,6 +126,7 @@ export default function CampaignForm({
   } = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
+      targetNumberOfMemberships: campaign?.targetNumberOfMemberships || 10,
       budgetItems: campaign?.budgetItems || [
         { label: "", costPerMonthInUSD: 0 }
       ],
@@ -174,6 +179,23 @@ export default function CampaignForm({
           </Group>
 
           <Controller
+            name="targetNumberOfMemberships"
+            control={control}
+            render={({ field }) => (
+              <NumberInput
+                {...field}
+                label="Target Number of Members"
+                placeholder="10"
+                description="Number of members you want to reach (2-999)"
+                min={2}
+                max={999}
+                error={errors.targetNumberOfMemberships?.message}
+                required
+              />
+            )}
+          />
+
+          <Controller
             name="targetDate"
             control={control}
             render={({ field }) => {
@@ -208,7 +230,9 @@ export default function CampaignForm({
 
           <Box>
             <Group justify="space-between" mb="sm">
-              <Text fw={500}>Budget Items</Text>
+              <Box>
+                <Text fw={500}>Budget Items</Text>
+              </Box>
               <Button
                 variant="subtle"
                 size="xs"

@@ -16,7 +16,8 @@ import {
   IconEdit,
   IconTrash,
   IconTargetArrow,
-  IconCurrencyDollar
+  IconCurrencyDollar,
+  IconUsers
 } from "@tabler/icons-react";
 import { Club } from "~/server/club/types";
 import { api } from "~/trpc/react";
@@ -41,8 +42,8 @@ const CreateMembershipCampaignCard = ({
         <IconTargetArrow size={32} />
         <Title order={3}>No Active Campaign</Title>
         <Text ta="center">
-          Create a membership campaign to set fundraising goals and track
-          progress towards club budget items.
+          Create a membership campaign to set member targets and track
+          progress towards your growth goals.
         </Text>
         <Button
           leftSection={<IconPlus size={16} />}
@@ -111,8 +112,8 @@ const ActiveMembershipCampaignCard = ({
 
   const progressPercentage = Math.min(
     100,
-    (activeMembershipCampaignProgress.data!.committedPerMonthInUSD /
-      activeMembershipCampaign.data!.targetPerMonthInUSD) *
+    (activeMembershipCampaignProgress.data!.committedNumberOfMemberships /
+      activeMembershipCampaign.data!.targetNumberOfMemberships) *
       100
   );
 
@@ -152,19 +153,15 @@ const ActiveMembershipCampaignCard = ({
         <Box>
           <Group justify="space-between" mb="xs">
             <Text size="sm" fw={500}>
-              Campaign Progress
+              Member Progress
             </Text>
-            <Badge size="lg" variant="light">
-              ${" "}
-              {activeMembershipCampaignProgress.data!.committedPerMonthInUSD.toFixed(
-                2
-              ) || "0.00"}{" "}
-              / ${activeMembershipCampaign.data!.targetPerMonthInUSD.toFixed(2)}
+            <Badge size="lg" variant="light" leftSection={<IconUsers size={14} />}>
+              {activeMembershipCampaignProgress.data!.committedNumberOfMemberships} / {activeMembershipCampaign.data!.targetNumberOfMemberships} members
             </Badge>
           </Group>
           <Progress value={progressPercentage} size="lg" radius="md" />
           <Text size="xs" c="dimmed" mt="xs">
-            {progressPercentage.toFixed(0)}% of monthly target achieved
+            {progressPercentage.toFixed(0)}% of target members achieved
           </Text>
         </Box>
 
@@ -192,13 +189,6 @@ const ActiveMembershipCampaignCard = ({
               </Group>
             ))}
           </Stack>
-          <Group justify="flex-end" mt="sm">
-            <Text size="sm" fw={500}>
-              Total: $
-              {activeMembershipCampaign.data!.targetPerMonthInUSD.toFixed(2)}
-              /month
-            </Text>
-          </Group>
         </Box>
       </Stack>
     </Card>
