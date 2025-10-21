@@ -7,23 +7,21 @@ import {
   Text,
   Button,
   Group,
-  Badge,
   Progress,
-  Divider
+  ActionIcon
 } from "@mantine/core";
 import {
   IconPlus,
   IconEdit,
   IconTrash,
-  IconTargetArrow,
-  IconCurrencyDollar,
-  IconUsers
+  IconTargetArrow
 } from "@tabler/icons-react";
 import { Club } from "~/server/club/types";
 import { api } from "~/trpc/react";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import CampaignForm from "./CampaignForm";
 import { isAllLoaded, toDisplayDate } from "~/client/utils";
+import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
 type ManageCampaignPanelProps = {
   club: Club;
@@ -42,8 +40,8 @@ const CreateMembershipCampaignCard = ({
         <IconTargetArrow size={32} />
         <Title order={3}>No Active Campaign</Title>
         <Text ta="center">
-          Create a membership campaign to set member targets and track
-          progress towards your growth goals.
+          Create a membership campaign to set member targets and track progress
+          towards your growth goals.
         </Text>
         <Button
           leftSection={<IconPlus size={16} />}
@@ -106,10 +104,6 @@ const ActiveMembershipCampaignCard = ({
     return null;
   }
 
-  if (!activeMembershipCampaign.data) {
-    return null;
-  }
-
   const progressPercentage = Math.min(
     100,
     (activeMembershipCampaignProgress.data!.committedNumberOfMemberships /
@@ -119,55 +113,38 @@ const ActiveMembershipCampaignCard = ({
 
   return (
     <Card p="lg">
-      <Stack gap="lg">
+      <Stack gap="md">
         <Group justify="space-between" align="flex-start">
-          <Box>
-            <Title order={3}>Active Campaign</Title>
-            <Text size="sm" c="dimmed">
-              {`Target Date: ${toDisplayDate(
-                new Date(activeMembershipCampaign.data!.targetDate)
-              )}`}
-            </Text>
-          </Box>
-          <Group gap="sm">
-            <Button
-              variant="light"
-              leftSection={<IconEdit size={16} />}
-              onClick={onEditClick}
-              size="sm"
-            >
-              Edit
-            </Button>
-            <Button
-              variant="light"
-              color="red"
-              leftSection={<IconTrash size={16} />}
-              onClick={handleDelete}
-              size="sm"
-            >
-              Delete
-            </Button>
+          <Title order={3}>Active Campaign</Title>
+          <Group gap="xs">
+            <ColorSchemeAwareActionIcon onClick={onEditClick}>
+              <IconEdit size={20} />
+            </ColorSchemeAwareActionIcon>
+            <ActionIcon onClick={handleDelete} color={"red"}>
+              <IconTrash size={20} />
+            </ActionIcon>
           </Group>
         </Group>
 
-        <Box>
-          <Group justify="space-between" mb="xs">
-            <Text size="sm" fw={500}>
-              Member Progress
-            </Text>
-            <Badge size="lg" variant="light" leftSection={<IconUsers size={14} />}>
-              {activeMembershipCampaignProgress.data!.committedNumberOfMemberships} / {activeMembershipCampaign.data!.targetNumberOfMemberships} members
-            </Badge>
-          </Group>
-          <Progress value={progressPercentage} size="lg" radius="md" />
-          <Text size="xs" c="dimmed" mt="xs">
-            {progressPercentage.toFixed(0)}% of target members achieved
+        <Stack gap={"sm"}>
+          <Title order={5}>Target Date</Title>
+          <Text>
+            {toDisplayDate(new Date(activeMembershipCampaign.data!.targetDate))}
           </Text>
-        </Box>
+        </Stack>
 
-        <Divider />
+        <Stack gap={"sm"}>
+          <Title order={5}>Member Progress</Title>
+          <Progress value={progressPercentage} size={20} color={"lilac"} />
+          <Text size="md" style={{ alignSelf: "center" }}>
+            {`${
+              activeMembershipCampaignProgress.data!
+                .committedNumberOfMemberships
+            } committed out of ${activeMembershipCampaign.data!.targetNumberOfMemberships} target members`}
+          </Text>
+        </Stack>
 
-        <Box>
+        <Stack gap={"sm"}>
           <Title order={5} mb="sm">
             Budget Items
           </Title>
@@ -177,19 +154,16 @@ const ActiveMembershipCampaignCard = ({
                 key={index}
                 justify="space-between"
                 p="xs"
-                style={{
-                  backgroundColor: "var(--mantine-color-gray-light)"
-                }}
+                style={{ border: "1px solid" }}
               >
                 <Text size="sm">{item.label}</Text>
-                <Badge variant="dot" size="sm">
-                  <IconCurrencyDollar size={14} style={{ marginRight: 4 }} />$
-                  {item.costPerMonthInUSD.toFixed(2)}/month
-                </Badge>
+                <Text size="sm" fw={500}>
+                  ${item.costPerMonthInUSD}/month
+                </Text>
               </Group>
             ))}
           </Stack>
-        </Box>
+        </Stack>
       </Stack>
     </Card>
   );
