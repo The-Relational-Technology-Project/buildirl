@@ -22,36 +22,64 @@ import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import CampaignForm from "./CampaignForm";
 import { isAllLoaded, toDisplayDate } from "~/client/utils";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
+import PaidMembershipTierRequiredModal from "./PaidMembershipTierRequiredModal";
+import { useDisclosure } from "@mantine/hooks";
 
 type ManageCampaignPanelProps = {
   club: Club;
 };
 
 type CreateMembershipCampaignCardProps = {
+  club: Club;
   onCreateClick: () => void;
 };
 
 const CreateMembershipCampaignCard = ({
+  club,
   onCreateClick
 }: CreateMembershipCampaignCardProps) => {
+  const [modalOpened, { open: openModal, close: closeModal }] =
+    useDisclosure(false);
+
+  // check if there's at least one published paid tier
+  const hasPaidTier = club.membershipTiers.some(
+    (tier) => tier.status === "PUBLISHED" && tier.costPerBillingInterval > 0
+  );
+
+  const handleCreateClick = () => {
+    if (!hasPaidTier) {
+      openModal();
+      return;
+    }
+    onCreateClick();
+  };
+
   return (
-    <Card p="xl">
-      <Stack align="center" gap="md">
-        <IconTargetArrow size={32} />
-        <Title order={3}>No Active Campaign</Title>
-        <Text ta="center">
-          Create a membership campaign to set member targets and track progress
-          towards your growth goals.
-        </Text>
-        <Button
-          leftSection={<IconPlus size={16} />}
-          onClick={onCreateClick}
-          size="md"
-        >
-          Create Campaign
-        </Button>
-      </Stack>
-    </Card>
+    <>
+      <Card p="xl">
+        <Stack align="center" gap="md">
+          <IconTargetArrow size={32} />
+          <Title order={3}>No Active Campaign</Title>
+          <Text ta="center">
+            Create a membership campaign to set member targets and track
+            progress towards your growth goals.
+          </Text>
+          <Button
+            leftSection={<IconPlus size={16} />}
+            onClick={handleCreateClick}
+            size="md"
+          >
+            Create Campaign
+          </Button>
+        </Stack>
+      </Card>
+
+      <PaidMembershipTierRequiredModal
+        clubId={club.id}
+        opened={modalOpened}
+        handleClose={closeModal}
+      />
+    </>
   );
 };
 
@@ -215,6 +243,7 @@ export default function ManageCampaignPanel({
         />
       ) : null === activeMembershipCampaign.data ? (
         <CreateMembershipCampaignCard
+          club={club}
           onCreateClick={() => setIsEditing(true)}
         />
       ) : (
