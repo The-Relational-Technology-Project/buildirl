@@ -28,7 +28,6 @@ import {
 import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 import ClubImage from "~/client/components/ClubImage";
-import SecondaryButton from "~/client/components/SecondaryButton";
 import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/MemberCarousel";
 import React, { useEffect } from "react";
 import PrimaryButton from "~/client/components/PrimaryButton";
@@ -41,6 +40,7 @@ import { Club } from "~/server/club/types";
 import { getRhythmDescription } from "./utils";
 import { ClubValueDisplay } from "~/app/(main)/(join)/join/[publicId]/_components/ClubValueDisplay";
 import { WhoWeAre } from "./_components/WhoWeAre";
+import { HowWeHang } from "./_components/HowWeHang";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -196,15 +196,7 @@ export default function ClubJoin() {
 
           <WhoWeAre description={club.data!.description} />
 
-          {club.data!.eventCalendarUrl && (
-            <SecondaryButton
-              includeIcon
-              onClick={() => window.open(club.data!.eventCalendarUrl!)}
-              mt={"sm"}
-            >
-              Come to an event
-            </SecondaryButton>
-          )}
+          <HowWeHang club={club.data!} />
 
           <FollowToggle
             clubId={club.data!.id}
