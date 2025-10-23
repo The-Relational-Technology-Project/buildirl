@@ -193,6 +193,25 @@ function RhythmSection() {
       >
         <Box flex={1} w="100%">
           <Controller
+            name="rhythm.frequency"
+            control={control}
+            render={({ field }) => (
+              <Select
+                placeholder="Frequency"
+                data={["Weekly", "Biweekly", "Monthly"]}
+                {...field}
+                w="100%"
+                onChange={(val) => {
+                  field.onChange(val);
+                  trigger("rhythm");
+                }}
+                styles={rhythmError && !field.value ? errorStyles : inputStyles}
+              />
+            )}
+          />
+        </Box>
+        <Box flex={1} w="100%">
+          <Controller
             name="rhythm.startDate"
             control={control}
             render={({ field }) => (
@@ -235,25 +254,6 @@ function RhythmSection() {
                   onChange: (_opened) => !_opened && setDropdownOpened(false)
                 }}
                 minutesStep={15}
-                styles={rhythmError && !field.value ? errorStyles : inputStyles}
-              />
-            )}
-          />
-        </Box>
-        <Box flex={1} w="100%">
-          <Controller
-            name="rhythm.frequency"
-            control={control}
-            render={({ field }) => (
-              <Select
-                placeholder="Frequency"
-                data={["Weekly", "Biweekly", "Monthly"]}
-                {...field}
-                w="100%"
-                onChange={(val) => {
-                  field.onChange(val);
-                  trigger("rhythm");
-                }}
                 styles={rhythmError && !field.value ? errorStyles : inputStyles}
               />
             )}
