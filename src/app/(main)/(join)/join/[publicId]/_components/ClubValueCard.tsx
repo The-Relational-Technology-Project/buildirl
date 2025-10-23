@@ -39,10 +39,17 @@ export function ClubValueCard({
         >
           {/* Use the 'cls' prop for Icon returned from mantine-icon-picker and as required by tabler-dynamic-icon */}
           <Icon cls={value.icon as any} size={32} color={"#7240d2"} />
-          <Text size={titleTextSize} tt="uppercase" fw={600} pt={4}>
+          <Text
+            size={titleTextSize}
+            tt="uppercase"
+            fw={600}
+            pt={4}
+            ff={"work sans"}
+            ta={"center"}
+          >
             {value.title}
           </Text>
-          <Text size={descriptionTextSize} ta="center">
+          <Text size={descriptionTextSize} ta="center" ff={"work sans"}>
             {value.description}
           </Text>
         </Stack>
