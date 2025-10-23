@@ -2,7 +2,7 @@ import { Stack, Title, Text } from "@mantine/core";
 import SecondaryButton from "~/client/components/SecondaryButton";
 import { Club } from "~/server/club/types";
 import InfoChip from "./InfoChip";
-import { getRhythmDescription } from "../utils";
+import { getRhythmString } from "../utils";
 import { IconCalendar } from "@tabler/icons-react";
 
 type HowWeHangProps = {
@@ -30,8 +30,7 @@ export function HowWeHang({ club }: HowWeHangProps) {
         tt="uppercase"
         ta="center"
         style={{
-          fontFamily: "'Unbounded', sans-serif",
-          letterSpacing: "0.5px"
+          fontFamily: club.themeHeadingFont ?? "inherit"
         }}
       >
         How We Hang
@@ -39,9 +38,9 @@ export function HowWeHang({ club }: HowWeHangProps) {
       <Text size="sm" mb={{ base: "xs", md: "sm" }}>
         Join us for our next gathering. Check out our full event calendar.
       </Text>
-      <InfoChip>
-        <IconCalendar size={20}></IconCalendar>
-        <Text size={"s"}>{getRhythmDescription(club.rhythm)}</Text>
+      <InfoChip backgroundColor={"#7241d2"}>
+        <IconCalendar size={20} stroke={1}></IconCalendar>
+        <Text size={"s"}>{getRhythmString(club.rhythm)}</Text>
       </InfoChip>
       {club.eventCalendarUrl && (
         <SecondaryButton

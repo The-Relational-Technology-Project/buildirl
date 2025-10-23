@@ -2,12 +2,13 @@ import { Group } from "@mantine/core";
 
 type InfoChipProps = {
   children: React.ReactNode;
+  backgroundColor?: string;
 };
 
-export default function InfoChip({ children }: InfoChipProps) {
+export default function InfoChip({ children, backgroundColor }: InfoChipProps) {
   return (
     <Group
-      bg={"#7241d2"}
+      bg={backgroundColor ?? "#000000"}
       c={"white"}
       px={24}
       py={8}
