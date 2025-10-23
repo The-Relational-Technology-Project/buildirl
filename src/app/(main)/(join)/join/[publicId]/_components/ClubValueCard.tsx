@@ -5,29 +5,24 @@ import { ClubValue } from "~/server/club/types";
 
 export function ClubValueCard({
   value,
-  height,
-  width
+  height
 }: {
   value: ClubValue;
   height: number;
-  width: number;
 }) {
   const titleTextSize = useMatches({ base: "sm", md: "sm" });
   const descriptionTextSize = useMatches({ base: "xs", md: "xs" });
 
   return (
     <Stack
-      w={width}
       h={height}
       style={{
-        marginRight: 4,
         position: "relative",
         border: "1px solid black",
         "&:hover": {
           border: "2px solid black"
         },
         paddingTop: "0.75rem",
-        boxShadow: "2px 2px 0px",
         cursor: "pointer",
         backgroundColor: "white"
       }}
@@ -44,10 +39,17 @@ export function ClubValueCard({
         >
           {/* Use the 'cls' prop for Icon returned from mantine-icon-picker and as required by tabler-dynamic-icon */}
           <Icon cls={value.icon as any} size={32} color={"#7240d2"} />
-          <Text size={titleTextSize} tt="uppercase" fw={600} pt={4}>
+          <Text
+            size={titleTextSize}
+            tt="uppercase"
+            fw={600}
+            pt={4}
+            ff={"work sans"}
+            ta={"center"}
+          >
             {value.title}
           </Text>
-          <Text size={descriptionTextSize} ta="center">
+          <Text size={descriptionTextSize} ta="center" ff={"work sans"}>
             {value.description}
           </Text>
         </Stack>

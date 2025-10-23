@@ -14,7 +14,8 @@ import {
   IconBrandInstagram,
   IconWorld,
   IconMapPin,
-  IconCalendar
+  IconCalendar,
+  IconUserCircle
 } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -28,7 +29,6 @@ import {
 import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 import ClubImage from "~/client/components/ClubImage";
-import SecondaryButton from "~/client/components/SecondaryButton";
 import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/MemberCarousel";
 import React, { useEffect } from "react";
 import PrimaryButton from "~/client/components/PrimaryButton";
@@ -37,9 +37,11 @@ import { useMounted } from "@mantine/hooks";
 import ShareIconButton from "./_components/ShareIconButton";
 import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
 import { InstagramHandle, Url } from "~/server/utils/types";
-import { Club } from "~/server/club/types";
-import { getRhythmDescription } from "./utils";
+import { Club, ClubStatistics } from "~/server/club/types";
 import { ClubValueDisplay } from "~/app/(main)/(join)/join/[publicId]/_components/ClubValueDisplay";
+import { WhoWeAre } from "./_components/WhoWeAre";
+import { HowWeHang } from "./_components/HowWeHang";
+import InfoChip from "./_components/InfoChip";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -101,13 +103,25 @@ export default function ClubJoin() {
 
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
-  const router = useRouter();
 
   const club = api.main.clubByPublicId.useQuery({
     publicId
   });
 
   const isUserAuthenticated = api.main.isUserAuthenticated.useQuery();
+
+  const clubId = club.data?.id;
+  const clubStatistics = api.main.clubStatistics.useQuery(
+    { clubId: clubId ?? -1 },
+    { enabled: !!clubId }
+  );
+  const shouldShowClubMemberInfo =
+    !!clubStatistics.data?.memberCount && clubStatistics.data?.memberCount > 5;
+
+  QueryError.check({ result: club, fieldName: "clubByPublicId" });
+  if (clubId) {
+    QueryError.check({ result: clubStatistics, fieldName: "clubStatistics" });
+  }
 
   QueryError.check({
     result: club,
@@ -169,48 +183,40 @@ export default function ClubJoin() {
                 </Text>
               )}
 
-              <Text
-                style={{ cursor: "pointer" }}
-                onClick={() => router.push(`/join/${publicId}/about`)}
-                size={"sm"}
-              >
-                {"About >"}
-              </Text>
-
               <LinkIcons
                 websiteUrl={club.data!.websiteUrl}
                 instagramHandle={club.data!.instagramHandle}
               />
 
-              {club.data!.location && (
-                <Group gap={6}>
-                  <IconMapPin size={18} stroke={1.5} />
+              <Group>
+                <InfoChip>
+                  <IconMapPin size={18} stroke={1} />
                   <Text size="sm">{club.data!.location}</Text>
-                </Group>
-              )}
-
-              {club.data?.rhythm && (
-                <Group gap={6}>
-                  <IconCalendar size={18} stroke={1.5} />
-                  <Text size="sm">
-                    {getRhythmDescription(club.data.rhythm)}
-                  </Text>
-                </Group>
-              )}
+                </InfoChip>
+                {club.data?.rhythm && (
+                  <InfoChip>
+                    <IconCalendar size={18} stroke={1} />
+                    <Text size="sm">{club.data.rhythm.frequency}</Text>
+                  </InfoChip>
+                )}
+                {shouldShowClubMemberInfo && (
+                  <InfoChip>
+                    <IconUserCircle size={18} stroke={1} />
+                    <Text size="sm">
+                      {clubStatistics.data?.memberCount} members
+                    </Text>
+                  </InfoChip>
+                )}
+              </Group>
             </Stack>
           </Stack>
 
           <JoinButton club={club.data!} />
+          <ClubDisplayImageGallery club={club.data!} mt={"xs"} />
 
-          {club.data!.eventCalendarUrl && (
-            <SecondaryButton
-              includeIcon
-              onClick={() => window.open(club.data!.eventCalendarUrl!)}
-              mt={"sm"}
-            >
-              Come to an event
-            </SecondaryButton>
-          )}
+          <WhoWeAre club={club.data!} />
+
+          <HowWeHang club={club.data!} />
 
           <FollowToggle
             clubId={club.data!.id}
@@ -218,13 +224,18 @@ export default function ClubJoin() {
             redirectTo={`/join/${publicId}`}
           />
 
-          <ClubDisplayImageGallery club={club.data!} mt={"xs"} />
-
-          <ContributingMembersLink club={club.data!} />
-
-          <MemberCarousel clubId={club.data!.id} />
-
           <ClubValueDisplay club={club.data!} />
+
+          {shouldShowClubMemberInfo && (
+            <ContributingMembersLink
+              club={club.data!}
+              clubStatistics={clubStatistics.data!}
+            />
+          )}
+
+          {shouldShowClubMemberInfo && (
+            <MemberCarousel clubId={club.data!.id} />
+          )}
 
           <FAQs
             faqs={club.data!.faqs}
@@ -274,37 +285,34 @@ function LinkIcons({ websiteUrl, instagramHandle }: LinkIconProps) {
 
 type ContributingMembersLinkProps = {
   club: Club;
+  clubStatistics: ClubStatistics;
 };
 
 function ContributingMembersLink({
-  club
+  club,
+  clubStatistics
 }: ContributingMembersLinkProps & GroupProps) {
   const router = useRouter();
-  const clubStatistics = api.main.clubStatistics.useQuery({ clubId: club.id });
-
-  QueryError.check({
-    result: clubStatistics,
-    fieldName: "clubStatistics"
-  });
 
   return (
-    isLoaded(clubStatistics) && (
+    clubStatistics && (
       <Stack align={"center"} gap={4}>
         <Title
           order={1}
+          tt="uppercase"
           style={{
             fontFamily: club.themeHeadingFont ?? "inherit",
             textAlign: "center"
           }}
         >
-          We are the club
+          Meet the team
         </Title>
         <Text
           style={{ cursor: "pointer" }}
           onClick={() => router.push(`/join/${club.publicId}/members`)}
           size={"md"}
         >
-          {`${clubStatistics.data!.memberCount} contributing member${clubStatistics.data!.memberCount > 1 ? "s" : ""} >`}
+          {`${clubStatistics.memberCount} contributing member${clubStatistics.memberCount > 1 ? "s" : ""} >`}
         </Text>
       </Stack>
     )

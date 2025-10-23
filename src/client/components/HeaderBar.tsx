@@ -25,7 +25,7 @@ import UserAvatar from "~/client/components/UserAvatar";
 import posthog from "posthog-js";
 
 export const HEADER_BAR_HEIGHT = 50;
-export const PAGE_WIDTH = 800;
+export const PAGE_WIDTH = 1000;
 
 type NavigationLinkProps = {
   label: string;
