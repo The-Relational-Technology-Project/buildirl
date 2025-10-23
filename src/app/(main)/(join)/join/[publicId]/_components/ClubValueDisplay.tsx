@@ -13,41 +13,29 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
   const clubValues: ClubValue[] = club.values?.items || [];
 
   return (
-    <Stack
-      w={"100%"}
-      m={16}
-      align="center"
-      style={{
-        border: "1.5px solid #000000",
-        borderRadius: 4,
-        paddingLeft: "8px",
-        paddingRight: "8px",
-        paddingTop: "16px",
-        paddingBottom: "16px",
-        alignItems: "center",
-        fontFamily: club.themeHeadingFont ?? "inherit"
-      }}
-    >
-      <Title order={2} tt={"uppercase"} style={{ textAlign: "center" }}>
-        Our Vibe Check ✨
-      </Title>
-      <Text>The values that make our community special</Text>
-      <Grid px={16} py={8} w={containerWidth} gutter="sm">
-        {clubValues.map((value, index) => {
-          if (value) {
-            return (
-              <Grid.Col span={gridCols} key={index + value.title}>
-                <ClubValueCard
-                  key={index + value.title}
-                  value={value}
-                  height={cardContainerHeight}
-                />
-              </Grid.Col>
-            );
-          }
-          return null;
-        })}
-      </Grid>
-    </Stack>
+    clubValues.length > 0 && (
+      <Stack w={"100%"} mt={32} mb={64} align="center">
+        <Title order={2} style={{ textAlign: "center" }}>
+          Our Vibe Check ✨
+        </Title>
+        <Text>The values that make our community special</Text>
+        <Grid px={16} py={8} w={containerWidth} gutter="sm">
+          {clubValues.map((value, index) => {
+            if (value) {
+              return (
+                <Grid.Col span={gridCols} key={index + value.title}>
+                  <ClubValueCard
+                    key={index + value.title}
+                    value={value}
+                    height={cardContainerHeight}
+                  />
+                </Grid.Col>
+              );
+            }
+            return null;
+          })}
+        </Grid>
+      </Stack>
+    )
   );
 }
