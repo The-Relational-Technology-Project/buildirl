@@ -79,12 +79,60 @@ function BasicInfoSection() {
         {...register("tagLine")}
         error={errors.tagLine?.message}
       />
+    </Stack>
+  );
+}
+
+function WhoWeAreSection() {
+  const {
+    register,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
+
+  return (
+    <Stack gap={16}>
+      <Stack gap={4}>
+        <Title order={2}>Who You Gather</Title>
+        <Text c="gray" size={"sm"}>
+          Introduce your club to the people you want in it. Tell them who you
+          are and who you gather.
+        </Text>
+      </Stack>
       <Textarea
         placeholder="About your club"
         {...register("description")}
         rows={6}
         error={errors.description?.message}
       />
+    </Stack>
+  );
+}
+
+function HowWeHangSection() {
+  const {
+    register,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
+
+  return (
+    <Stack gap={16}>
+      <Stack gap={4}>
+        <Title order={2}>What You Do Together</Title>
+        <Text size="sm" c="gray">
+          Great clubs meet regularly. How does yours get together?
+        </Text>
+      </Stack>
+      <RhythmSection />
+      <Stack gap={4} mt={6}>
+        <Title order={6}>
+          {"Link to club’s event calendar or next event "}
+        </Title>
+        <TextInput
+          placeholder="Event calendar or next gathering, (e.g. Luma, Partiful, etc.)"
+          {...register("eventCalendarUrl")}
+          error={errors.eventCalendarUrl?.message}
+        />
+      </Stack>
     </Stack>
   );
 }
@@ -135,7 +183,9 @@ function RhythmSection() {
 
   return (
     <Stack gap={8}>
-      <Title order={6}>Club Rhythm</Title>
+      <Title
+        order={6}
+      >{`Club’s Regular Meetup Schedule (If you have one)`}</Title>
       <Flex
         gap={8}
         direction={{ base: "column", sm: "row" }}
@@ -260,14 +310,6 @@ function LinksSection() {
           error={errors.instagramHandle?.message}
         />
       </Stack>
-      <Stack gap={4} mt={6}>
-        <Title order={6}>{"Share Your Club's Events"}</Title>
-        <TextInput
-          placeholder="Event calendar or next gathering, (e.g. Luma, Partiful, etc.)"
-          {...register("eventCalendarUrl")}
-          error={errors.eventCalendarUrl?.message}
-        />
-      </Stack>
     </Stack>
   );
 }
@@ -328,8 +370,14 @@ function ClubValuesSection() {
   const values = watch("values");
 
   return (
-    <Stack gap={8}>
-      <Title order={6}>Club Values</Title>
+    <Stack>
+      <Stack gap={4}>
+        <Title order={2}>Your Vibe</Title>
+        <Text size="sm" c="gray">
+          Share your club’s vibe and values - it helps bring the right people
+          in.
+        </Text>
+      </Stack>
       <ClubValueCreator
         clubValues={values}
         onChange={(newValues) => setValue("values", newValues)}
@@ -433,7 +481,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           return methods.handleSubmit(onSubmit)(e);
         }}
       >
-        <Stack gap={22}>
+        <Stack gap={42}>
           <EditableClubImage
             club={club}
             size={clubImageSize}
@@ -442,22 +490,33 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
               position: "relative"
             }}
           />
+          <Stack>
+            <Title order={2}>Club Basics</Title>
+            <BasicInfoSection />
+            <ShareLinkSection />
+            <LocationSection />
+            <LinksSection />
+          </Stack>
 
-          <BasicInfoSection />
-          <LocationSection />
-          <RhythmSection />
+          <WhoWeAreSection />
 
-          <LinksSection />
-          <ShareLinkSection />
-
-          <ThemeSection />
-          <FontSection />
+          <HowWeHangSection />
 
           <ClubValuesSection />
 
-          <ShowcaseImagesSection club={club} />
-
-          <FAQsSection />
+          <Stack gap={16}>
+            <Stack gap={4}>
+              <Title order={2}>Show off your club! </Title>
+              <Text size="sm" c="gray">
+                Add a background, font, photos and FAQs to make your club page
+                pop.
+              </Text>
+            </Stack>
+            <ThemeSection />
+            <FontSection />
+            <ShowcaseImagesSection club={club} />
+            <FAQsSection />
+          </Stack>
 
           <Box
             mb={32}
@@ -476,6 +535,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
             <Button
               w={250}
               type="submit"
+              c="white"
+              bg="green"
               disabled={Object.keys(errors).length > 0}
               loading={updateClub.isPending}
               leftSection={<IconDeviceFloppy size={16} />}
