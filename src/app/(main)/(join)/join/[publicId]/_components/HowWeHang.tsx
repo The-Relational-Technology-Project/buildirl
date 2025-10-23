@@ -10,7 +10,7 @@ type HowWeHangProps = {
 };
 
 export function HowWeHang({ club }: HowWeHangProps) {
-  if (!club.rhythm?.startDate) {
+  if (!club.rhythm?.startDate && !club.eventCalendarUrl) {
     return;
   }
 
@@ -38,10 +38,12 @@ export function HowWeHang({ club }: HowWeHangProps) {
       <Text size="sm" mb={{ base: "xs", md: "sm" }}>
         Join us for our next gathering. Check out our full event calendar.
       </Text>
-      <InfoChip backgroundColor={"#7241d2"}>
-        <IconCalendar size={20} stroke={1}></IconCalendar>
-        <Text size={"s"}>{getRhythmString(club.rhythm)}</Text>
-      </InfoChip>
+      {club.rhythm?.startDate && (
+        <InfoChip backgroundColor={"#7241d2"}>
+          <IconCalendar size={20} stroke={1}></IconCalendar>
+          <Text size={"s"}>{getRhythmString(club.rhythm)}</Text>
+        </InfoChip>
+      )}
       {club.eventCalendarUrl && (
         <SecondaryButton
           includeIcon

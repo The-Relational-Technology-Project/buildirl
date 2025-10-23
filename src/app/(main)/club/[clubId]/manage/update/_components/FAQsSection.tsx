@@ -10,7 +10,12 @@ import {
   Group,
   Divider
 } from "@mantine/core";
-import { IconPlus, IconX, IconChevronUp, IconChevronDown } from "@tabler/icons-react";
+import {
+  IconPlus,
+  IconX,
+  IconChevronUp,
+  IconChevronDown
+} from "@tabler/icons-react";
 import { Club } from "~/server/club/types";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 
@@ -39,9 +44,7 @@ export default function FAQsSection() {
 
   return (
     <Stack gap={8}>
-      <Title order={6} ta="left">
-        Frequently Asked Questions
-      </Title>
+      <Title order={6}>Frequently Asked Questions</Title>
 
       {fields.length > 0 && (
         <Stack gap="md" w="100%">
@@ -50,20 +53,20 @@ export default function FAQsSection() {
               {index > 0 && <Divider my="xs" />}
               <Box>
                 <Group justify="flex-end" mb={8}>
-                  <ColorSchemeAwareActionIcon 
+                  <ColorSchemeAwareActionIcon
                     onClick={() => moveUp(index)}
                     disabled={index === 0}
                   >
                     <IconChevronUp size={16} />
                   </ColorSchemeAwareActionIcon>
-                  
-                  <ColorSchemeAwareActionIcon 
+
+                  <ColorSchemeAwareActionIcon
                     onClick={() => moveDown(index)}
                     disabled={index === fields.length - 1}
                   >
                     <IconChevronDown size={16} />
                   </ColorSchemeAwareActionIcon>
-                  
+
                   <ColorSchemeAwareActionIcon onClick={() => remove(index)}>
                     <IconX size={16} />
                   </ColorSchemeAwareActionIcon>
@@ -105,9 +108,11 @@ export default function FAQsSection() {
         onClick={() => append({ question: "", answer: "" })}
         leftSection={<IconPlus size={16} />}
         type="button"
-        mt="md"
+        variant="outline"
+        bg="white"
+        c="black"
+        mt="sm"
         w={150}
-        mx="auto"
       >
         Add FAQ
       </Button>

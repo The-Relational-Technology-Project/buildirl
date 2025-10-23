@@ -189,10 +189,12 @@ export default function ClubJoin() {
               />
 
               <Group>
-                <InfoChip>
-                  <IconMapPin size={18} stroke={1} />
-                  <Text size="sm">{club.data!.location}</Text>
-                </InfoChip>
+                {club.data?.location && (
+                  <InfoChip>
+                    <IconMapPin size={18} stroke={1} />
+                    <Text size="sm">{club.data!.location}</Text>
+                  </InfoChip>
+                )}
                 {club.data?.rhythm && (
                   <InfoChip>
                     <IconCalendar size={18} stroke={1} />
