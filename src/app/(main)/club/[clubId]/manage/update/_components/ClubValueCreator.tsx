@@ -175,7 +175,7 @@ export function ClubValueCreator({
                 rightSection={
                   <Text
                     size="xs"
-                    c={newValue.title.length >= 15 ? "red" : "dimmed"}
+                    c={newValue.title.length > 15 ? "red" : "dimmed"}
                     style={{
                       width: 32,
                       textAlign: "right",
@@ -207,7 +207,7 @@ export function ClubValueCreator({
                 rightSection={
                   <Text
                     size="xs"
-                    c={newValue.description.length >= 80 ? "red" : "dimmed"}
+                    c={newValue.description.length > 80 ? "red" : "dimmed"}
                     style={{
                       width: 75,
                       textAlign: "left",

@@ -8,13 +8,27 @@ interface ClubValueDisplayProps {
 
 export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
   const cardContainerHeight = useMatches({ base: 190, md: 190 });
-  const containerWidth = useMatches({ base: "100%", md: "75%" });
+  const containerWidth = useMatches({ base: "100%", md: "80%" });
   const gridCols = useMatches({ base: 6, md: 4 });
   const clubValues: ClubValue[] = club.values?.items || [];
 
   return (
-    <Stack w={"100%"} mt={32} mb={64} align="center">
-      <Title order={2} style={{ textAlign: "center" }}>
+    <Stack
+      w={"100%"}
+      m={16}
+      align="center"
+      style={{
+        border: "1.5px solid #000000",
+        borderRadius: 4,
+        paddingLeft: "8px",
+        paddingRight: "8px",
+        paddingTop: "16px",
+        paddingBottom: "16px",
+        alignItems: "center",
+        fontFamily: club.themeHeadingFont ?? "inherit"
+      }}
+    >
+      <Title order={2} tt={"uppercase"} style={{ textAlign: "center" }}>
         Our Vibe Check ✨
       </Title>
       <Text>The values that make our community special</Text>
