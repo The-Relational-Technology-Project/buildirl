@@ -58,9 +58,9 @@ export function ReadMoreBox({
               bottom: 0,
               left: 0,
               width: "100%",
-              height: "3em",
+              height: "2em",
               background:
-                "linear-gradient(to bottom, rgba(255,254,244,0) 0%, #fffef4 100%)"
+                "linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0.1) 65%, rgba(0, 0, 0, 0.2) 100%)"
             }}
           />
         )}

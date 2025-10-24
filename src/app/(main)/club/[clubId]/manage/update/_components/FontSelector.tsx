@@ -64,7 +64,8 @@ export default function FontSelector({ value, onChange }: FontSelectorProps) {
                 cursor: "pointer",
                 border: "1px solid",
                 position: "relative",
-                borderRadius: 180
+                borderRadius: 180,
+                background: "white"
               }}
             >
               <Title
@@ -90,7 +91,8 @@ export default function FontSelector({ value, onChange }: FontSelectorProps) {
                   cursor: "pointer",
                   border: `1px solid ${colorScheme === "dark" ? mantineTheme.colors.dark[1] : "black"}`,
                   position: "relative",
-                  borderRadius: 180
+                  borderRadius: 180,
+                  background: "white"
                 }}
               >
                 <Text
