@@ -307,7 +307,7 @@ function ContributingMembersLink({
             textAlign: "center"
           }}
         >
-          Meet the team
+          Meet the club
         </Title>
         <Text
           style={{ cursor: "pointer" }}

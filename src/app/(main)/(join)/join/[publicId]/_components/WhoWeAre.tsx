@@ -11,7 +11,7 @@ export function WhoWeAre({ club }: WhoWeAreProps) {
 
   return (
     description.length > 0 && (
-      <ReadMoreBox maxLines={10} style={{ width: "100%" }}>
+      <ReadMoreBox style={{ width: "100%" }}>
         <Title
           order={2}
           mb={{ base: "xs", md: "sm" }}
