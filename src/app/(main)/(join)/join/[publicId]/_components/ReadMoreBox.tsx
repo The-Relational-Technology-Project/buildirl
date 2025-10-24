@@ -17,6 +17,7 @@ export function ReadMoreBox({
   const [expanded, setExpanded] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const textRef = useRef<HTMLDivElement>(null);
+  const collapsed = !expanded && showButton;
 
   useLayoutEffect(() => {
     if (textRef.current) {
@@ -44,8 +45,11 @@ export function ReadMoreBox({
         ref={textRef}
         style={{
           width: "100%",
-          maxHeight: !expanded && showButton ? `${maxLines * 1.5}em` : "none",
-          overflow: !expanded && showButton ? "hidden" : "visible",
+          overflow: collapsed ? "hidden" : "visible",
+          display: collapsed ? "-webkit-box" : "block",
+          WebkitLineClamp: collapsed ? maxLines : "unset",
+          WebkitBoxOrient: collapsed ? "vertical" : "unset",
+          textOverflow: collapsed ? "ellipsis" : "unset",
           position: "relative",
           transition: "max-height 0.2s"
         }}
@@ -58,9 +62,7 @@ export function ReadMoreBox({
               bottom: 0,
               left: 0,
               width: "100%",
-              height: "2em",
-              background:
-                "linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0.1) 65%, rgba(0, 0, 0, 0.2) 100%)"
+              height: "2em"
             }}
           />
         )}
