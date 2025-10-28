@@ -14,11 +14,32 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
 
   return (
     clubValues.length > 0 && (
-      <Stack w={"100%"} mt={32} mb={64} align="center">
-        <Title order={2} style={{ textAlign: "center" }}>
+      <Stack
+        w={"100%"}
+        mt={32}
+        mb={64}
+        align="center"
+        ta={"center"}
+        style={{
+          border: "1.5px solid #000000",
+          borderRadius: 4,
+          padding: "16px",
+          alignItems: "center"
+        }}
+      >
+        <Title
+          order={2}
+          tt="uppercase"
+          ta="center"
+          style={{
+            fontFamily: club.themeHeadingFont ?? "inherit"
+          }}
+        >
           Our Vibe Check ✨
         </Title>
-        <Text>The values that make our community special</Text>
+        <Text size="sm" mb={{ base: "xs", md: "sm" }}>
+          The values that make our community special
+        </Text>
         <Grid px={16} py={8} w={containerWidth} gutter="sm">
           {clubValues.map((value, index) => {
             if (value) {
