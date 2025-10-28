@@ -17,6 +17,7 @@ export function HowWeHang({ club }: HowWeHangProps) {
   return (
     <Stack
       w={"100%"}
+      ta={"center"}
       style={{
         border: "1.5px solid #000000",
         borderRadius: 4,
