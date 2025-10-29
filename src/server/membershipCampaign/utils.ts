@@ -6,6 +6,7 @@ export const MEMBERSHIP_CAMPAIGN_SELECT = {
   clubId: true,
   targetNumberOfMemberships: true,
   targetDate: true,
+  launchDate: true,
   budgetItems: {
     select: {
       id: true,
@@ -27,6 +28,7 @@ export function asMembershipCampaign(
       label: item.label,
       costPerMonthInUSD: item.costPerMonthInUSD.toNumber()
     })),
+    launchDate: campaign.launchDate,
     targetDate: campaign.targetDate
   };
 }

@@ -99,7 +99,10 @@ const ActiveMembershipCampaignCard = ({
 
   const activeMembershipCampaignProgress =
     api.main.getActiveMembershipCampaignProgress.useQuery(
-      { clubId: club.id },
+      {
+        clubId: club.id,
+        launchDate: activeMembershipCampaign.data!.launchDate
+      },
       { enabled: !!activeMembershipCampaign.data }
     );
 

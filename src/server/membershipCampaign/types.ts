@@ -16,7 +16,8 @@ type MembershipCampaignQueries = {
     clubId: number
   ): Promise<Maybe<MembershipCampaign>>;
   getActiveMembershipCampaignProgress(
-    clubId: number
+    clubId: number,
+    launchDate: Date
   ): Promise<ActiveMembershipCampaignProgress>;
 };
 

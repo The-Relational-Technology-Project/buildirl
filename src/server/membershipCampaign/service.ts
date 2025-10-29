@@ -62,7 +62,8 @@ export function createMembershipCampaignService(
   }
 
   async function getActiveMembershipCampaignProgress(
-    clubId: number
+    clubId: number,
+    launchDate: Date
   ): Promise<ActiveMembershipCampaignProgress> {
     const membershipApplications =
       await membershipService.getMembershipApplicationsForClub(clubId);
@@ -71,6 +72,7 @@ export function createMembershipCampaignService(
 
     const committedMembers = membershipApplications
       .concat(activeMemberships)
+      .filter((m) => m.createdAt > launchDate)
       .map((m) => m.user);
 
     return {

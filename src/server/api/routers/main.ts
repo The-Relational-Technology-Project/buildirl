@@ -462,10 +462,11 @@ export const mainRouter = createTRPCRouter({
     }),
 
   getActiveMembershipCampaignProgress: publicProcedure
-    .input(z.object({ clubId: z.number() }))
+    .input(z.object({ clubId: z.number(), launchDate: z.date() }))
     .query(({ ctx, input }) => {
       return ctx.service.membershipCampaign.getActiveMembershipCampaignProgress(
-        input.clubId
+        input.clubId,
+        input.launchDate
       );
     }),
 
