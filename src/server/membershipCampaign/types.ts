@@ -36,6 +36,7 @@ export type MembershipCampaign = {
   id: number;
   budgetItems: CampaignBudgetItem[];
   targetNumberOfMemberships: number;
+  launchDate: Date;
   targetDate: Date;
 };
 
