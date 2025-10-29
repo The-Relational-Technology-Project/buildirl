@@ -106,7 +106,8 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
                 h={size}
                 style={{
                   position: "relative",
-                  border: "1px dashed grey"
+                  border: "1px dashed grey",
+                  backgroundColor: "white"
                 }}
               >
                 {url ? (

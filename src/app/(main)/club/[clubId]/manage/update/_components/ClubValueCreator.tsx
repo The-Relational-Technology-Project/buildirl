@@ -67,11 +67,6 @@ export function ClubValueCreator({
 
   return (
     <Stack gap={16}>
-      <Text size={"xs"} color="dimmed" pb={0}>
-        {
-          "Add up to six core values that represent your club's mission and culture."
-        }
-      </Text>
       <Grid gutter={{ base: 12, sm: 16 }}>
         {values.map((value, index) => (
           <Grid.Col span={gridCols} key={`${value.title}-${index}`}>
@@ -175,7 +170,7 @@ export function ClubValueCreator({
                 rightSection={
                   <Text
                     size="xs"
-                    c={newValue.title.length >= 15 ? "red" : "dimmed"}
+                    c={newValue.title.length > 15 ? "red" : "dimmed"}
                     style={{
                       width: 32,
                       textAlign: "right",
@@ -207,7 +202,7 @@ export function ClubValueCreator({
                 rightSection={
                   <Text
                     size="xs"
-                    c={newValue.description.length >= 80 ? "red" : "dimmed"}
+                    c={newValue.description.length > 80 ? "red" : "dimmed"}
                     style={{
                       width: 75,
                       textAlign: "left",
