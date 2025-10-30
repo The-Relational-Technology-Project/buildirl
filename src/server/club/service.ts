@@ -266,10 +266,28 @@ export function createClubService(
     }
   }
 
+  async function getAllClubs(): Promise<Club[]> {
+    try {
+      const results = await prisma.club.findMany({
+        select: CLUB_SELECT,
+        orderBy: {
+          createdAt: "desc"
+        }
+      });
+      const clubs = results.map((r) => asClub(r));
+      logger.info(`queried all clubs with result count ${clubs.length}`);
+      return clubs;
+    } catch (e) {
+      logger.error(e, `failed to query all clubs`);
+      throw e;
+    }
+  }
+
   return {
     getClubByPublicId,
     getClubStatistics,
     getClub,
+    getAllClubs,
     createClub,
     updateClub,
     deleteClub,

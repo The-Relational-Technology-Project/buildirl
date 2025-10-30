@@ -19,6 +19,7 @@ type ClubQueries = {
   getClubByPublicId(publicId: string): Promise<Club>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   getClub(id: number): Promise<Club>;
+  getAllClubs(): Promise<Club[]>;
 };
 
 export type Club = {
