@@ -266,16 +266,37 @@ export function createClubService(
     }
   }
 
+  async function getBlacklistedClubIds(): Promise<number[]> {
+    try {
+      const blacklist = await prisma.clubBlacklist.findMany({
+        select: { clubId: true }
+      });
+      const blacklistedIds = blacklist.map(b => b.clubId);
+      logger.info(`queried blacklisted clubs with result count ${blacklistedIds.length}`);
+      return blacklistedIds;
+    } catch (e) {
+      logger.error(e, `failed to query blacklisted clubs`);
+      throw e;
+    }
+  }
+
   async function getAllClubs(): Promise<Club[]> {
     try {
+      const blacklistedClubIds = await getBlacklistedClubIds();
+
       const results = await prisma.club.findMany({
         select: CLUB_SELECT,
+        where: {
+          id: {
+            notIn: blacklistedClubIds
+          }
+        },
         orderBy: {
           createdAt: "desc"
         }
       });
       const clubs = results.map((r) => asClub(r));
-      logger.info(`queried all clubs with result count ${clubs.length}`);
+      logger.info(`queried all clubs with result count ${clubs.length}, filtered out ${blacklistedClubIds.length} blacklisted clubs`);
       return clubs;
     } catch (e) {
       logger.error(e, `failed to query all clubs`);
