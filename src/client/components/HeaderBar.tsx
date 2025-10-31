@@ -40,39 +40,61 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
   const mounted = useMounted();
 
   const currentPath = usePathname();
+  const isActive = currentPath === navigateTo;
 
   return (
     mounted && (
       <Group mr={"xxs"}>
         <Link href={navigateTo} style={{ textDecoration: "none" }}>
-          <Group style={{ gap: 4 }}>
-            <ThemeIcon
-              size={"xs"}
-              variant={"transparent"}
-              c={
-                currentPath === navigateTo
-                  ? colorScheme === "dark"
+          <Box
+            px="sm"
+            py="xs"
+            style={{
+              borderRadius: theme.radius.sm,
+              backgroundColor: isActive
+                ? colorScheme === "dark"
+                  ? alpha(theme.colors.blue[6], 0.2)
+                  : alpha(theme.colors.blue[6], 0.1)
+                : colorScheme === "dark"
+                ? alpha(theme.colors.dark[4], 0.3)
+                : alpha(theme.colors.gray[1], 0.8),
+              transition: "all 150ms ease",
+              cursor: "pointer"
+            }}
+          >
+            <Group style={{ gap: 6 }}>
+              <ThemeIcon
+                size={"xs"}
+                variant={"transparent"}
+                c={
+                  isActive
+                    ? colorScheme === "dark"
+                      ? theme.colors.blue[4]
+                      : theme.colors.blue[6]
+                    : colorScheme === "dark"
                     ? theme.colors.dark[1]
-                    : "black"
-                  : "dimmed"
-              }
-            >
-              <Icon />
-            </ThemeIcon>
-            <Text
-              c={
-                currentPath === navigateTo
-                  ? colorScheme === "dark"
+                    : theme.colors.gray[7]
+                }
+              >
+                <Icon />
+              </ThemeIcon>
+              <Text
+                c={
+                  isActive
+                    ? colorScheme === "dark"
+                      ? theme.colors.blue[4]
+                      : theme.colors.blue[6]
+                    : colorScheme === "dark"
                     ? theme.colors.dark[1]
-                    : "black"
-                  : "dimmed"
-              }
-              size={"sm"}
-              fw={500}
-            >
-              {label}
-            </Text>
-          </Group>
+                    : theme.colors.gray[7]
+                }
+                size={"sm"}
+                fw={500}
+              >
+                {label}
+              </Text>
+            </Group>
+          </Box>
         </Link>
       </Group>
     )

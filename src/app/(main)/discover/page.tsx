@@ -98,9 +98,34 @@ export default function PublicDiscoverPage() {
             <Text size="lg" c="white" style={{ textAlign: "center" }}>
               Find your people, build meaningful connections
             </Text>
-            <PrimaryButton onClick={() => router.push("/login")}>
-              Sign Up to Join
-            </PrimaryButton>
+            <Box
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                padding: "12px 24px",
+                borderRadius: 8,
+                border: "1px solid rgba(255, 255, 255, 0.2)"
+              }}
+            >
+              <Text
+                size="xl"
+                c="dark"
+                fw={600}
+                style={{
+                  textAlign: "center",
+                  cursor: "default"
+                }}
+              >
+                Explore clubs below{" "}
+                <span
+                  style={{
+                    display: "inline-block",
+                    animation: "bounce-soft 1s infinite"
+                  }}
+                >
+                  👇
+                </span>
+              </Text>
+            </Box>
           </Stack>
         </Box>
       </BackgroundImage>
@@ -203,6 +228,20 @@ Don't see what you want? Build one!
           </PrimaryButton>
         </Stack>
       </Box>
+
+      <style jsx global>{`
+        @keyframes bounce-soft {
+          0%,
+          100% {
+            transform: translateY(0);
+            animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+          }
+          50% {
+            transform: translateY(-12px);
+            animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+          }
+        }
+      `}</style>
     </Stack>
   );
 }
