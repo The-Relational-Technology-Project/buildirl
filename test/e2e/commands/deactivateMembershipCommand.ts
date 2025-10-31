@@ -47,7 +47,13 @@ export default class DeactivateMembershipCommand
     await verifiers.verifyUserMemberships(userId, r, m);
 
     if (m.hasActiveMembershipCampaign(clubId)) {
-      await verifiers.verifyMembershipCampaignProgress(clubId, r, m);
+      const launchDate = m.getActiveMembershipCampaign(clubId)!.launchDate;
+      await verifiers.verifyMembershipCampaignProgress(
+        clubId,
+        launchDate,
+        r,
+        m
+      );
     }
   }
 

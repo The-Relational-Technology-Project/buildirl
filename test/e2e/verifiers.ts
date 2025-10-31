@@ -75,10 +75,10 @@ function createVerifiers() {
     await verifyClubStatistics(clubId, r, m);
   }
 
-  function membershipWithoutCreatedAt(
+  function membershipWithoutTimestamps(
     membership: Membership
-  ): OmitRecursively<Membership, "createdAt"> {
-    // filter out createdAt
+  ): OmitRecursively<Membership, "createdAt" | "updatedAt"> {
+    // filter out timestamps
     return {
       id: membership.id,
       user: userWithoutCreatedAt(membership.user),
@@ -91,10 +91,10 @@ function createVerifiers() {
     };
   }
 
-  function membershipWithClubWithoutCreatedAt(
+  function membershipWithClubWithoutTimestamps(
     membership: MembershipWithClub
-  ): OmitRecursively<MembershipWithClub, "createdAt"> {
-    // filter out createdAt
+  ): OmitRecursively<MembershipWithClub, "createdAt" | "updatedAt"> {
+    // filter out timestamps
     return {
       id: membership.id,
       user: userWithoutCreatedAt(membership.user),
@@ -118,7 +118,7 @@ function createVerifiers() {
       true
     );
     expect(
-      orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
+      orderByBigIntId(memberships.map((m) => membershipWithoutTimestamps(m)))
     ).toEqual(orderByBigIntId(m.getActiveMembershipsForClub(clubId, true)));
   }
 
@@ -130,7 +130,7 @@ function createVerifiers() {
     const memberships =
       await r.membership.getMembershipApplicationsForClub(clubId);
     expect(
-      orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
+      orderByBigIntId(memberships.map((m) => membershipWithoutTimestamps(m)))
     ).toEqual(orderByBigIntId(m.getMembershipApplicationsForClub(clubId)));
   }
 
@@ -151,7 +151,7 @@ function createVerifiers() {
     const memberships = await r.membership.getUserMemberships(userId);
     expect(
       orderByBigIntId(
-        memberships.map((m) => membershipWithClubWithoutCreatedAt(m))
+        memberships.map((m) => membershipWithClubWithoutTimestamps(m))
       )
     ).toEqual(orderByBigIntId(m.getUserMemberships(userId)));
   }
@@ -228,6 +228,7 @@ function createVerifiers() {
       id: campaign.id,
       targetNumberOfMemberships: campaign.targetNumberOfMemberships,
       budgetItems: campaign.budgetItems,
+      launchDate: campaign.launchDate,
       targetDate: campaign.targetDate
     };
   }
@@ -248,12 +249,19 @@ function createVerifiers() {
 
   async function verifyMembershipCampaignProgress(
     clubId: number,
+    launchDate: Date,
     r: Services,
     m: SystemState
   ) {
     const actualProgress =
-      await r.membershipCampaign.getActiveMembershipCampaignProgress(clubId);
-    const expectedProgress = m.getActiveMembershipCampaignProgress(clubId);
+      await r.membershipCampaign.getActiveMembershipCampaignProgress(
+        clubId,
+        launchDate
+      );
+    const expectedProgress = m.getActiveMembershipCampaignProgress(
+      clubId,
+      launchDate
+    );
 
     expect(actualProgress.committedNumberOfMemberships).toEqual(
       expectedProgress.committedNumberOfMemberships

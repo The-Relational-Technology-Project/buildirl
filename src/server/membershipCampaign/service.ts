@@ -72,7 +72,7 @@ export function createMembershipCampaignService(
 
     const committedMembers = membershipApplications
       .concat(activeMemberships)
-      .filter((m) => m.createdAt > launchDate)
+      .filter((m) => m.updatedAt > launchDate)
       .map((m) => m.user);
 
     return {
@@ -110,9 +110,12 @@ export function createMembershipCampaignService(
           targetNumberOfMemberships: input.targetNumberOfMemberships,
           targetDate: input.targetDate
         },
-        select: {
-          id: true
-        }
+        select: { id: true, createdAt: true }
+      });
+
+      await tx.membershipCampaign.update({
+        where: { id: campaign.id },
+        data: { launchDate: campaign.createdAt }
       });
 
       if (input.budgetItems.length > 0) {

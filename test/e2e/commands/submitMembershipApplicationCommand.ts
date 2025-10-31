@@ -87,7 +87,13 @@ export default class SubmitMembershipApplicationCommand
     await verifiers.verifyClubMemberships(clubId, r, m);
 
     if (m.hasActiveMembershipCampaign(clubId)) {
-      await verifiers.verifyMembershipCampaignProgress(clubId, r, m);
+      const launchDate = m.getActiveMembershipCampaign(clubId)!.launchDate;
+      await verifiers.verifyMembershipCampaignProgress(
+        clubId,
+        launchDate,
+        r,
+        m
+      );
     }
   }
 

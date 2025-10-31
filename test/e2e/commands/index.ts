@@ -636,11 +636,12 @@ function budgetItems(): Arbitrary<Array<CampaignBudgetItem>> {
 }
 
 function createMembershipCampaignCommands() {
+  const arbitraryDate = aDayWithinTheNextTwoMonths();
   return record({
     clubIdSelector: itemSelector<number>(),
     budgetItems: budgetItems(),
     targetNumberOfMemberships: integer({ min: 2, max: 999 }),
-    targetDate: aDayWithinTheNextTwoMonths()
+    targetDate: arbitraryDate
   }).map(
     (i) =>
       new CreateMembershipCampaignCommand(

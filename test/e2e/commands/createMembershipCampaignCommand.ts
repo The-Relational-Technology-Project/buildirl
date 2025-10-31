@@ -37,10 +37,18 @@ export default class CreateMembershipCampaignCommand
       this.input
     );
     const membershipCampaignId = idAsNumber(result.createdEntityId);
+    const createdCampaign =
+      await r.membershipCampaign.getActiveMembershipCampaign(this.clubId);
+    if (!createdCampaign) {
+      throw new Error(
+        `expected active membership campaign for club ${this.clubId} after creation`
+      );
+    }
     m.createMembershipCampaign(
       membershipCampaignId,
       this.clubId,
-      this.input
+      this.input,
+      createdCampaign.launchDate
     );
 
     await verifiers.verifyMembershipCampaigns(this.clubId, r, m);

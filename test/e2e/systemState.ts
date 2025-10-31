@@ -98,6 +98,7 @@ type MembershipState = {
   isWelcomed: boolean;
   role: Role;
   createdAt: Date;
+  updatedAt: Date;
 };
 
 type UserState = {
@@ -115,6 +116,7 @@ type MembershipCampaignState = {
   clubId: number;
   budgetItems: CampaignBudgetItem[];
   targetNumberOfMembers: number;
+  launchDate: Date;
   targetDate: Date;
 };
 
@@ -379,6 +381,7 @@ export class SystemState {
     clubId: number,
     userId: number
   ) {
+    const now = new Date();
     this.memberships.set(leadMembershipId, {
       id: leadMembershipId,
       userId: userId,
@@ -388,8 +391,8 @@ export class SystemState {
       applicationResponses: { responses: [] },
       isWelcomed: true,
       role: "LEAD",
-      // now
-      createdAt: new Date()
+      createdAt: now,
+      updatedAt: now
     });
   }
 
@@ -661,7 +664,7 @@ export class SystemState {
   public membershipStateToMembership(
     membershipState: MembershipState,
     includeEmail: boolean = false
-  ): OmitRecursively<Membership, "createdAt"> {
+  ): OmitRecursively<Membership, "createdAt" | "updatedAt"> {
     return {
       id: membershipState.id,
       user: this.getUser(membershipState.userId),
@@ -677,7 +680,7 @@ export class SystemState {
   public membershipStateToMembershipWithClub(
     membershipState: MembershipState,
     includeEmail: boolean = false
-  ): OmitRecursively<MembershipWithClub, "createdAt"> {
+  ): OmitRecursively<MembershipWithClub, "createdAt" | "updatedAt"> {
     return {
       id: membershipState.id,
       user: this.getUser(membershipState.userId),
@@ -711,7 +714,7 @@ export class SystemState {
   public getActiveMembershipsForClub(
     clubId: number,
     includeEmail: boolean
-  ): OmitRecursively<Membership, "createdAt">[] {
+  ): OmitRecursively<Membership, "createdAt" | "updatedAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.clubId === clubId)
       .filter((m) => m.status === "ACTIVE")
@@ -731,7 +734,7 @@ export class SystemState {
 
   public getMembershipApplicationsForClub(
     clubId: number
-  ): OmitRecursively<Membership, "createdAt">[] {
+  ): OmitRecursively<Membership, "createdAt" | "updatedAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.clubId === clubId)
       .filter((m) => m.status === "PENDING")
@@ -755,7 +758,7 @@ export class SystemState {
 
   public getUserMemberships(
     userId: number
-  ): OmitRecursively<MembershipWithClub, "createdAt">[] {
+  ): OmitRecursively<MembershipWithClub, "createdAt" | "updatedAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.userId === userId)
       .map((m) => this.membershipStateToMembershipWithClub(m, false));
@@ -769,6 +772,7 @@ export class SystemState {
   ) {
     const clubId = this.getClubIdForMembershipTier(membershipTierId);
     // add or update if already exists (e.g. declined or deactivated)
+    const now = new Date();
     this.memberships.set(membershipId, {
       id: membershipId,
       userId: userId,
@@ -778,8 +782,8 @@ export class SystemState {
       applicationResponses: input.applicationResponses,
       isWelcomed: false,
       role: "MEMBER",
-      // now
-      createdAt: new Date()
+      createdAt: now,
+      updatedAt: now
     });
   }
 
@@ -867,7 +871,8 @@ export class SystemState {
     this.unfollowClub(membershipState.userId, membershipState.clubId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      status: "ACTIVE"
+      status: "ACTIVE",
+      updatedAt: new Date()
     });
   }
 
@@ -875,7 +880,8 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      status: "DECLINED"
+      status: "DECLINED",
+      updatedAt: new Date()
     });
   }
 
@@ -883,7 +889,8 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      status: "INACTIVE"
+      status: "INACTIVE",
+      updatedAt: new Date()
     });
   }
 
@@ -891,7 +898,8 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      status: "WITHDRAWN"
+      status: "WITHDRAWN",
+      updatedAt: new Date()
     });
   }
 
@@ -899,7 +907,8 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      isWelcomed: true
+      isWelcomed: true,
+      updatedAt: new Date()
     });
   }
 
@@ -938,7 +947,8 @@ export class SystemState {
     const membership = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membership,
-      membershipTierId: newMembershipTierId
+      membershipTierId: newMembershipTierId,
+      updatedAt: new Date()
     });
   }
 
@@ -1146,7 +1156,8 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      role: "LEAD"
+      role: "LEAD",
+      updatedAt: new Date()
     });
   }
 
@@ -1154,20 +1165,23 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      role: "MEMBER"
+      role: "MEMBER",
+      updatedAt: new Date()
     });
   }
 
   public createMembershipCampaign(
     id: number,
     clubId: number,
-    input: CreateMembershipCampaignInput
+    input: CreateMembershipCampaignInput,
+    launchDate: Date
   ) {
     this.membershipCampaigns.set(id, {
       id,
       clubId: clubId,
       budgetItems: input.budgetItems,
       targetNumberOfMembers: input.targetNumberOfMemberships,
+      launchDate: launchDate,
       targetDate: input.targetDate
     });
   }
@@ -1216,6 +1230,7 @@ export class SystemState {
       id: state.id,
       budgetItems: state.budgetItems,
       targetNumberOfMemberships: state.targetNumberOfMembers,
+      launchDate: state.launchDate,
       targetDate: state.targetDate
     };
   }
@@ -1264,13 +1279,15 @@ export class SystemState {
   }
 
   public getActiveMembershipCampaignProgress(
-    clubId: number
+    clubId: number,
+    launchDate: Date
   ): OmitRecursively<ActiveMembershipCampaignProgress, "createdAt"> {
     const members = Array.from(this.memberships.values())
       .filter(
         (m) =>
           m.clubId === clubId &&
-          (m.status === "ACTIVE" || m.status === "PENDING")
+          (m.status === "ACTIVE" || m.status === "PENDING") &&
+          m.updatedAt > launchDate
       )
       .map((m) => this.getUser(m.userId));
 
