@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Stack, Title, Text, Button, SimpleGrid, Divider, Box, BackgroundImage } from "@mantine/core";
+import { Stack, Title, Text, Button, SimpleGrid, Divider, Box, BackgroundImage, Skeleton } from "@mantine/core";
 import { api } from "~/trpc/react";
 import DiscoverCard from "~/app/(main)/_components/DiscoverCard";
 import ClubSearchBar from "~/app/(main)/_components/ClubSearchBar";
@@ -62,7 +62,48 @@ export default function PublicDiscoverPage() {
   }, [allClubs.data, searchTerm, selectedLocation]);
 
   if (!isLoaded(allClubs)) {
-    return null;
+    return (
+      <Stack gap="xl" mb="xl">
+        <BackgroundImage
+          src="/images/commons-550-studio-event-speakers-chatting.jpeg"
+          style={{
+            minHeight: 500,
+            width: "100vw",
+            marginLeft: "calc(-50vw + 50%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          <Box
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.6)",
+              borderRadius: 8,
+              padding: "40px 60px",
+              textAlign: "center"
+            }}
+          >
+            <Stack align="center" gap="md">
+              <Title order={1} c="white" style={{ textAlign: "center" }}>
+                Discover Local Clubs
+              </Title>
+              <Text size="lg" c="white" style={{ textAlign: "center" }}>
+                Find your people, build meaningful connections
+              </Text>
+            </Stack>
+          </Box>
+        </BackgroundImage>
+
+        <Box px={{ base: 30, md: 0 }}>
+          <Divider />
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg" mt="lg">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <Skeleton key={i} height={400} radius="md" />
+            ))}
+          </SimpleGrid>
+        </Box>
+      </Stack>
+    );
   }
 
   if (allClubs.data!.length === 0) {

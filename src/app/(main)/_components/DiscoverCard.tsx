@@ -53,6 +53,7 @@ export default function DiscoverCard({ club }: DiscoverCardProps) {
             fallbackSrc="/images/good-club.png"
             width={200}
             height={150}
+            loading="lazy"
             fit="cover"
             radius="md"
             alt={club.name}
