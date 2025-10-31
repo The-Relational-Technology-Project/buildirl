@@ -46,6 +46,7 @@ export type Membership = {
   // the membership first was created (e.g., as `PENDING_INCOMPLETE`)
   // TODO refine
   createdAt: Date;
+  updatedAt: Date;
 };
 
 export type MembershipWithClub = Membership & { club: Club };

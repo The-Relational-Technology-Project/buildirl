@@ -26,18 +26,20 @@ export const USER_SELECT = {
   description: true,
   socials: true,
   createdAt: true
-};
+} satisfies Prisma.UserSelect;
 
 export function asUser(
   r: UserGetPayload<{ select: typeof USER_SELECT }>
 ): User {
-  const socials: Maybe<UserSocials> = r.socials ? {
-    twitter: r.socials.twitter,
-    instagram: r.socials.instagram,
-    facebook: r.socials.facebook,
-    linkedin: r.socials.linkedin,
-    website: r.socials.website
-  } : null;
+  const socials: Maybe<UserSocials> = r.socials
+    ? {
+        twitter: r.socials.twitter,
+        instagram: r.socials.instagram,
+        facebook: r.socials.facebook,
+        linkedin: r.socials.linkedin,
+        website: r.socials.website
+      }
+    : null;
 
   return {
     id: r.id,
@@ -58,9 +60,11 @@ export function createUserService(prisma: PrismaClient): UserService {
           id: id
         }
       });
-      
+
       const result = asUser(user);
-      logger.info(`queried user with id ${id} with result ${stringify(result)}`);
+      logger.info(
+        `queried user with id ${id} with result ${stringify(result)}`
+      );
       return result;
     } catch (e) {
       logger.error(e, `failed to query user with id ${id}`);
@@ -130,7 +134,7 @@ export function createUserService(prisma: PrismaClient): UserService {
           userId: userId
         }
       });
-      
+
       if (!userSocials) {
         logger.info(`no socials found for user with id ${userId}`);
         return null;
@@ -147,7 +151,10 @@ export function createUserService(prisma: PrismaClient): UserService {
       logger.info(`queried user socials for user with id ${userId}`);
       return result;
     } catch (e) {
-      logger.error(e, `failed to query user socials for user with id ${userId}`);
+      logger.error(
+        e,
+        `failed to query user socials for user with id ${userId}`
+      );
       throw e;
     }
   }
@@ -247,7 +254,9 @@ export function createUserService(prisma: PrismaClient): UserService {
         update: input
       });
 
-      logger.info(`updated user socials for user with id ${id} from input ${stringify(input)}`);
+      logger.info(
+        `updated user socials for user with id ${id} from input ${stringify(input)}`
+      );
       return NO_ID_MUTATION_RESULT;
     } catch (e) {
       logger.error(

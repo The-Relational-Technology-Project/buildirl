@@ -70,6 +70,10 @@ import SetMembershipAsLeadCommand from "./setMembershipAsLeadCommand";
 import ClearMembershipRoleCommand from "./clearMembershipRoleCommand";
 import { EMAIL_CONTENT_LIMITS } from "~/server/email/types";
 import UpdateMembershipTierForMembershipCommand from "./updateMembershipTierForMembershipCommand";
+import CreateMembershipCampaignCommand from "./createMembershipCampaignCommand";
+import UpdateMembershipCampaignCommand from "./updateMembershipCampaignCommand";
+import DeleteMembershipCampaignCommand from "./deleteMembershipCampaignCommand";
+import { CampaignBudgetItem } from "~/server/membershipCampaign/types";
 import { dateStringArbitrary, timeStringArbitrary } from "../utils/clubUtils";
 
 export const allCommands = () => {
@@ -104,7 +108,10 @@ export const allCommands = () => {
     updateEmailBlastCommands(),
     deleteEmailBlastCommands(),
     sendEmailBlastCommands(),
-    updateMembershipTierForMembershipCommands()
+    updateMembershipTierForMembershipCommands(),
+    createMembershipCampaignCommands(),
+    updateMembershipCampaignCommands(),
+    deleteMembershipCampaignCommands()
   ];
 };
 
@@ -186,7 +193,10 @@ function frequencyArbitrary() {
 function createClubCommands() {
   return record({
     name: string(),
-    publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
+    // make it length 10 to avoid collisions across runs
+    publicId: string({ minLength: 10 }).filter((s) =>
+      isZodType(s, ClubPublicIdSchema)
+    ),
     location: locationArbitrary(),
     tagLine: string(),
     description: string(),
@@ -226,7 +236,10 @@ function updateClubCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
     name: string().filter((s) => isZodType(s, ClubNameSchema)),
-    publicId: string().filter((s) => isZodType(s, ClubPublicIdSchema)),
+    // make it length 10 to avoid collisions across runs
+    publicId: string({ minLength: 10 }).filter((s) =>
+      isZodType(s, ClubPublicIdSchema)
+    ),
     tagLine: string(),
     description: string(),
     location: locationArbitrary(),
@@ -604,4 +617,65 @@ function updateMembershipTierForMembershipCommands() {
         i.newMembershipTierIdSelector
       )
   );
+}
+
+function aDayWithinTheNextTwoMonths(): Arbitrary<Date> {
+  return integer({ min: 10, max: 30 }).map(
+    (days) => new Date(Date.now() + days * 24 * 60 * 60 * 1000)
+  );
+}
+
+function budgetItems(): Arbitrary<Array<CampaignBudgetItem>> {
+  return array(
+    record({
+      label: string().filter((s) => isZodType(s, RequiredStringSchema)),
+      costPerMonthInUSD: monetaryValue()
+    }),
+    { minLength: 1, maxLength: 5 }
+  );
+}
+
+function createMembershipCampaignCommands() {
+  const arbitraryDate = aDayWithinTheNextTwoMonths();
+  return record({
+    clubIdSelector: itemSelector<number>(),
+    budgetItems: budgetItems(),
+    targetNumberOfMemberships: integer({ min: 2, max: 999 }),
+    targetDate: arbitraryDate
+  }).map(
+    (i) =>
+      new CreateMembershipCampaignCommand(
+        {
+          budgetItems: i.budgetItems,
+          targetNumberOfMemberships: i.targetNumberOfMemberships,
+          targetDate: i.targetDate
+        },
+        i.clubIdSelector
+      )
+  );
+}
+
+function updateMembershipCampaignCommands() {
+  return record({
+    membershipCampaignIdSelector: itemSelector<number>(),
+    budgetItems: budgetItems(),
+    targetNumberOfMemberships: integer({ min: 2, max: 999 }),
+    targetDate: aDayWithinTheNextTwoMonths()
+  }).map(
+    (i) =>
+      new UpdateMembershipCampaignCommand(
+        {
+          budgetItems: i.budgetItems,
+          targetNumberOfMemberships: i.targetNumberOfMemberships,
+          targetDate: i.targetDate
+        },
+        i.membershipCampaignIdSelector
+      )
+  );
+}
+
+function deleteMembershipCampaignCommands() {
+  return record({
+    campaignIdSelector: itemSelector<number>()
+  }).map((i) => new DeleteMembershipCampaignCommand(i.campaignIdSelector));
 }

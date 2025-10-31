@@ -29,6 +29,8 @@ import { FollowingService } from "~/server/following/types";
 import { createFollowingService } from "~/server/following/service";
 import { RoleService } from "~/server/role/types";
 import { createRoleService } from "~/server/role/service";
+import { MembershipCampaignService } from "~/server/membershipCampaign/types";
+import { createMembershipCampaignService } from "~/server/membershipCampaign/service";
 
 export type Services = {
   user: UserService;
@@ -40,6 +42,7 @@ export type Services = {
   payment: PaymentService;
   paymentEvents: PaymentEventProcessor;
   email: EmailService;
+  membershipCampaign: MembershipCampaignService;
 };
 
 function migratePrismaSchema(databaseUrl: string, pooledDatabaseUrl: string) {
@@ -62,6 +65,7 @@ describe("service", () => {
   let paymentService: PaymentService;
   let paymentEventProcessor: PaymentEventProcessor;
   let emailService: EmailService;
+  let membershipCampaignService: MembershipCampaignService;
 
   beforeAll(async () => {
     const supabaseContainer = await createSupabaseTestContainer();
@@ -110,6 +114,10 @@ describe("service", () => {
       membershipService,
       paymentService
     );
+    membershipCampaignService = createMembershipCampaignService(
+      prisma,
+      membershipService
+    );
     // container start ~15 seconds on mli's M1 Macbook;
     // first run may require <5 min for initial image pull
   }, 30000);
@@ -124,7 +132,7 @@ describe("service", () => {
   it("should run system", async () => {
     await assert(
       asyncProperty(
-        commands(allCommands(), { size: "medium" }),
+        commands(allCommands(), { size: "large" }),
         async (cmds) => {
           const s = () => ({
             model: new SystemState(),
@@ -137,7 +145,8 @@ describe("service", () => {
               role: roleService,
               payment: paymentService,
               paymentEvents: paymentEventProcessor,
-              email: emailService
+              email: emailService,
+              membershipCampaign: membershipCampaignService
             }
           });
           // TODO check that all commands were run at least once

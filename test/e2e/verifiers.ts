@@ -10,6 +10,8 @@ import {
 import { User } from "~/server/user/types";
 import { Club } from "~/server/club/types";
 import { Services } from "./system.test";
+import { MembershipCampaign } from "~/server/membershipCampaign/types";
+import { Maybe } from "~/utils/types";
 
 function createVerifiers() {
   function userWithoutCreatedAt(
@@ -73,10 +75,10 @@ function createVerifiers() {
     await verifyClubStatistics(clubId, r, m);
   }
 
-  function membershipWithoutCreatedAt(
+  function membershipWithoutTimestamps(
     membership: Membership
-  ): OmitRecursively<Membership, "createdAt"> {
-    // filter out createdAt
+  ): OmitRecursively<Membership, "createdAt" | "updatedAt"> {
+    // filter out timestamps
     return {
       id: membership.id,
       user: userWithoutCreatedAt(membership.user),
@@ -89,10 +91,10 @@ function createVerifiers() {
     };
   }
 
-  function membershipWithClubWithoutCreatedAt(
+  function membershipWithClubWithoutTimestamps(
     membership: MembershipWithClub
-  ): OmitRecursively<MembershipWithClub, "createdAt"> {
-    // filter out createdAt
+  ): OmitRecursively<MembershipWithClub, "createdAt" | "updatedAt"> {
+    // filter out timestamps
     return {
       id: membership.id,
       user: userWithoutCreatedAt(membership.user),
@@ -116,7 +118,7 @@ function createVerifiers() {
       true
     );
     expect(
-      orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
+      orderByBigIntId(memberships.map((m) => membershipWithoutTimestamps(m)))
     ).toEqual(orderByBigIntId(m.getActiveMembershipsForClub(clubId, true)));
   }
 
@@ -128,7 +130,7 @@ function createVerifiers() {
     const memberships =
       await r.membership.getMembershipApplicationsForClub(clubId);
     expect(
-      orderByBigIntId(memberships.map((m) => membershipWithoutCreatedAt(m)))
+      orderByBigIntId(memberships.map((m) => membershipWithoutTimestamps(m)))
     ).toEqual(orderByBigIntId(m.getMembershipApplicationsForClub(clubId)));
   }
 
@@ -149,7 +151,7 @@ function createVerifiers() {
     const memberships = await r.membership.getUserMemberships(userId);
     expect(
       orderByBigIntId(
-        memberships.map((m) => membershipWithClubWithoutCreatedAt(m))
+        memberships.map((m) => membershipWithClubWithoutTimestamps(m))
       )
     ).toEqual(orderByBigIntId(m.getUserMemberships(userId)));
   }
@@ -210,6 +212,62 @@ function createVerifiers() {
     ).toEqual(orderByBigIntId(m.getEmailBlasts(clubId)));
   }
 
+  function maybeMembershipCampaignWithoutDates(
+    campaign: Maybe<MembershipCampaign>
+  ): Maybe<MembershipCampaign> {
+    if (null === campaign) {
+      return null;
+    }
+    return membershipCampaignWithoutDates(campaign);
+  }
+
+  function membershipCampaignWithoutDates(
+    campaign: MembershipCampaign
+  ): MembershipCampaign {
+    return {
+      id: campaign.id,
+      targetNumberOfMemberships: campaign.targetNumberOfMemberships,
+      budgetItems: campaign.budgetItems,
+      launchDate: campaign.launchDate,
+      targetDate: campaign.targetDate
+    };
+  }
+
+  async function verifyMembershipCampaigns(
+    clubId: number,
+    r: Services,
+    m: SystemState
+  ) {
+    const expectedActive = m.getActiveMembershipCampaign(clubId);
+    const actualActive =
+      await r.membershipCampaign.getActiveMembershipCampaign(clubId);
+
+    expect(maybeMembershipCampaignWithoutDates(actualActive)).toEqual(
+      maybeMembershipCampaignWithoutDates(expectedActive)
+    );
+  }
+
+  async function verifyMembershipCampaignProgress(
+    clubId: number,
+    launchDate: Date,
+    r: Services,
+    m: SystemState
+  ) {
+    const actualProgress =
+      await r.membershipCampaign.getActiveMembershipCampaignProgress(
+        clubId,
+        launchDate
+      );
+    const expectedProgress = m.getActiveMembershipCampaignProgress(
+      clubId,
+      launchDate
+    );
+
+    expect(actualProgress.committedNumberOfMemberships).toEqual(
+      expectedProgress.committedNumberOfMemberships
+    );
+  }
+
   return {
     verifyUser,
     verifyClub,
@@ -218,7 +276,9 @@ function createVerifiers() {
     verifyClubFollowers,
     verifyUserFollowedClubs,
     verifyEmailTemplate,
-    verifyEmailBlasts
+    verifyEmailBlasts,
+    verifyMembershipCampaigns,
+    verifyMembershipCampaignProgress
   };
 }
 

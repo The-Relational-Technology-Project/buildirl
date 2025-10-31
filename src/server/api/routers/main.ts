@@ -27,6 +27,10 @@ import {
   DeactivateMembershipInputSchema,
   SubmitMembershipApplicationInputSchema
 } from "~/server/membership/types";
+import {
+  CreateMembershipCampaignInputSchema,
+  UpdateMembershipCampaignInputSchema
+} from "~/server/membershipCampaign/types";
 
 export const mainRouter = createTRPCRouter({
   user: securedProcedure.query(({ ctx }) => {
@@ -447,5 +451,75 @@ export const mainRouter = createTRPCRouter({
         ctx.user.userId,
         input.emails
       );
+    }),
+
+  getActiveMembershipCampaign: publicProcedure
+    .input(z.object({ clubId: z.number() }))
+    .query(({ ctx, input }) => {
+      return ctx.service.membershipCampaign.getActiveMembershipCampaign(
+        input.clubId
+      );
+    }),
+
+  getActiveMembershipCampaignProgress: publicProcedure
+    .input(z.object({ clubId: z.number(), launchDate: z.date() }))
+    .query(({ ctx, input }) => {
+      return ctx.service.membershipCampaign.getActiveMembershipCampaignProgress(
+        input.clubId,
+        input.launchDate
+      );
+    }),
+
+  createMembershipCampaign: securedProcedureWithAbilityFor("Club")
+    .input(
+      z.object({
+        clubId: z.number(),
+        input: CreateMembershipCampaignInputSchema
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.membershipCampaign.createMembershipCampaign(
+        input.clubId,
+        input.input
+      );
+    }),
+
+  updateMembershipCampaign: securedProcedureWithAbilityFor("MembershipCampaign")
+    .input(
+      z.object({
+        id: z.number(),
+        input: UpdateMembershipCampaignInputSchema
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("MembershipCampaign", { id: input.id })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.membershipCampaign.updateMembershipCampaign(
+        input.id,
+        input.input
+      );
+    }),
+
+  deleteMembershipCampaign: securedProcedureWithAbilityFor("MembershipCampaign")
+    .input(z.object({ id: z.number() }))
+    .mutation(({ ctx, input }) => {
+      if (
+        !ctx.ability.can(
+          "manage",
+          subject("MembershipCampaign", { id: input.id })
+        )
+      ) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.membershipCampaign.deleteMembershipCampaign(input.id);
     })
 });
