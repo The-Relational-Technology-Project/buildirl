@@ -1,17 +1,16 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Stack, Title, Text, Button, SimpleGrid, TextInput, Divider, Box, Select, BackgroundImage } from "@mantine/core";
-import { IconSearch } from "@tabler/icons-react";
+import { Stack, Title, Text, Button, SimpleGrid, Divider, Box, BackgroundImage } from "@mantine/core";
 import { api } from "~/trpc/react";
 import DiscoverCard from "~/app/(main)/_components/DiscoverCard";
+import ClubSearchBar from "~/app/(main)/_components/ClubSearchBar";
 import PrimaryButton from "~/client/components/PrimaryButton";
 import { useRouter } from "next/navigation";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
 import { WelcomeImage } from "~/client/components/Images";
 import { useMatches } from "@mantine/core";
-import { CITIES } from "~/server/club/types/location";
 
 function EmptyState() {
   const imageSize = useMatches({ base: 200, md: 300 });
@@ -134,65 +133,12 @@ export default function PublicDiscoverPage() {
         <Divider />
 
         <Stack gap="md" align="center" py="lg">
-        <Box
-          w={{ base: "100%", sm: 600, md: 800 }}
-          style={{
-            border: "1px solid #e9ecef",
-            borderRadius: 30,
-            backgroundColor: "#ffffff",
-            display: "flex",
-            alignItems: "center",
-            padding: "8px 16px",
-            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)"
-          }}
-        >
-          <Box style={{ flex: 2, display: "flex", alignItems: "center" }}>
-            <IconSearch size={18} color="#868e96" style={{ marginRight: 12 }} />
-            <TextInput
-              placeholder="Search clubs by name or description..."
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.currentTarget.value)}
-              size="lg"
-              styles={{
-                input: {
-                  border: "none",
-                  backgroundColor: "transparent",
-                  padding: 0,
-                  fontSize: "16px"
-                }
-              }}
-            />
-          </Box>
-
-          <Divider
-            orientation="vertical"
-            style={{
-              height: 40,
-              margin: "0 16px",
-              borderColor: "#dee2e6"
-            }}
-          />
-
-          <Box style={{ flex: 1 }}>
-            <Select
-              placeholder="Filter by location"
-              data={CITIES}
-              value={selectedLocation}
-              onChange={setSelectedLocation}
-              searchable
-              clearable
-              size="lg"
-              styles={{
-                input: {
-                  border: "none",
-                  backgroundColor: "transparent",
-                  padding: 0,
-                  fontSize: "16px"
-                }
-              }}
-            />
-          </Box>
-        </Box>
+        <ClubSearchBar
+          searchTerm={searchTerm}
+          onSearchTermChange={setSearchTerm}
+          selectedLocation={selectedLocation}
+          onLocationChange={setSelectedLocation}
+        />
 
         {(searchTerm || selectedLocation) && (
           <Text size="sm" c="dimmed" fw={500}>
