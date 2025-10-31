@@ -33,7 +33,6 @@ function EmptyState() {
 }
 
 export default function PublicDiscoverPage() {
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const allClubs = api.main.allClubs.useQuery();
@@ -211,7 +210,7 @@ export default function PublicDiscoverPage() {
             size="lg"
             w={{ base: 300, md: 400 }}
           >
-Don't see what you want? Build one!
+Don&apos;t see what you want? Build one!
           </PrimaryButton>
         </Stack>
       </Box>
