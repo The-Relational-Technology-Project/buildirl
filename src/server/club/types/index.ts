@@ -4,6 +4,7 @@ import { FormQuestions, FormQuestionsSchema } from "~/server/club/types/form";
 import { TemplateTheme, TemplateThemeSchema } from "~/client/theme/templates";
 import { z } from "zod";
 import { MembershipTier } from "~/server/membershipTier/types";
+import { Membership } from "~/server/membership/types";
 import {
   InstagramHandle,
   InstagramHandleSchema,
@@ -19,7 +20,7 @@ type ClubQueries = {
   getClubByPublicId(publicId: string): Promise<Club>;
   getClubStatistics(clubId: number): Promise<ClubStatistics>;
   getClub(id: number): Promise<Club>;
-  getAllClubs(): Promise<Club[]>;
+  getAllClubs(): Promise<ClubWithFirstLead[]>;
 };
 
 export type Club = {
@@ -43,6 +44,10 @@ export type Club = {
   values: ClubValues;
   faqs: FAQs;
   membershipTiers: MembershipTier[];
+};
+
+export type ClubWithFirstLead = Club & {
+  firstLead?: Membership;
 };
 
 export type ClubStatistics = {

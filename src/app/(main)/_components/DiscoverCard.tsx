@@ -12,25 +12,16 @@ import {
 import { IconMapPin, IconCalendar } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import UserAvatar from "~/client/components/UserAvatar";
-import { api } from "~/trpc/react";
-import { QueryError } from "~/client/utils/QueryError";
-import { Club } from "~/server/club/types";
+import { ClubWithFirstLead } from "~/server/club/types";
 import { storageClient } from "~/client/utils/storageClient";
 
 type DiscoverCardProps = {
-  club: Club;
+  club: ClubWithFirstLead;
 };
 
 export default function DiscoverCard({ club }: DiscoverCardProps) {
   const router = useRouter();
-  const clubLeads = api.main.clubLeads.useQuery({ clubId: club.id });
-
-  QueryError.check({
-    result: clubLeads,
-    fieldName: "clubLeads"
-  });
-
-  const firstLead = clubLeads.data?.[0];
+  const firstLead = club.firstLead;
 
   return (
     <Card
