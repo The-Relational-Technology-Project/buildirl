@@ -6,6 +6,7 @@ import {
   Club,
   ClubService,
   ClubStatistics,
+  ClubWithFirstLead,
   CreateClubInput,
   UpdateClubApplicationQuestionsInput,
   UpdateClubDisplayImageUrlsInput,
@@ -20,7 +21,8 @@ import {
 } from "~/server/club/utils";
 import { MembershipTierService } from "~/server/membershipTier/types";
 import { idAsNumber } from "~/utils/types";
-import { MembershipService } from "~/server/membership/types";
+import { Membership, MembershipService } from "~/server/membership/types";
+import { asMembership, MEMBERSHIP_SELECT } from "~/server/membership/utils";
 
 const logger = rootLogger.child({ module: "clubService" });
 
@@ -266,10 +268,86 @@ export function createClubService(
     }
   }
 
+  async function getBlacklistedClubIds(): Promise<number[]> {
+    try {
+      const blacklist = await prisma.clubBlacklist.findMany({
+        select: { clubId: true }
+      });
+      const blacklistedIds = blacklist.map(b => b.clubId);
+      logger.info(`queried blacklisted clubs with result count ${blacklistedIds.length}`);
+      return blacklistedIds;
+    } catch (e) {
+      logger.error(e, `failed to query blacklisted clubs`);
+      throw e;
+    }
+  }
+
+  async function getAllClubs(): Promise<ClubWithFirstLead[]> {
+    try {
+      const blacklistedClubIds = await getBlacklistedClubIds();
+
+      const results = await prisma.club.findMany({
+        select: CLUB_SELECT,
+        where: {
+          id: {
+            notIn: blacklistedClubIds
+          }
+        },
+        orderBy: {
+          createdAt: "desc"
+        }
+      });
+      const clubs = results.map((r) => asClub(r));
+      const clubIds = clubs.map(c => c.id);
+
+      const allLeadsResults = await prisma.membership.findMany({
+        select: {
+          ...MEMBERSHIP_SELECT,
+          membershipTier: {
+            select: {
+              ...MEMBERSHIP_SELECT.membershipTier.select,
+              clubId: true
+            }
+          }
+        },
+        where: {
+          membershipTier: {
+            clubId: { in: clubIds }
+          },
+          status: 'ACTIVE',
+          role: 'LEAD'
+        },
+        orderBy: {
+          createdAt: 'asc'
+        }
+      });
+
+      const leadsByClubId = new Map<number, Membership>();
+      for (const leadResult of allLeadsResults) {
+        const clubId = leadResult.membershipTier.clubId;
+        if (!leadsByClubId.has(clubId)) {
+          leadsByClubId.set(clubId, asMembership(leadResult));
+        }
+      }
+
+      const clubsWithLeads: ClubWithFirstLead[] = clubs.map(club => ({
+        ...club,
+        firstLead: leadsByClubId.get(club.id)
+      }));
+
+      logger.info(`queried all clubs with leads, result count ${clubsWithLeads.length}, filtered out ${blacklistedClubIds.length} blacklisted clubs`);
+      return clubsWithLeads;
+    } catch (e) {
+      logger.error(e, `failed to query all clubs with leads`);
+      throw e;
+    }
+  }
+
   return {
     getClubByPublicId,
     getClubStatistics,
     getClub,
+    getAllClubs,
     createClub,
     updateClub,
     deleteClub,

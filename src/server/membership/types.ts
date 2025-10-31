@@ -16,6 +16,7 @@ type MembershipQueries = {
     clubId: number,
     includeEmail: boolean
   ): Promise<Membership[]>;
+  getClubLeads(clubId: number): Promise<Membership[]>;
   getMembershipApplicationsForClub(clubId: number): Promise<Membership[]>;
   // internal
   membershipStatus(membershipId: bigint): Promise<MembershipStatus>;

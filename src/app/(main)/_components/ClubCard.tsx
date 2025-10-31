@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Button,
   Flex,
@@ -67,8 +68,48 @@ export default function ClubCard({ club, status }: ClubCardProps) {
 
   const router = useRouter();
 
+  const getStatusBadge = () => {
+    switch (status) {
+      case "LEAD":
+        return { color: "grape", label: "Club Lead" };
+      case "JOINED":
+        return { color: "green", label: "Member" };
+      case "APPLIED":
+        return { color: "blue", label: "Applied" };
+      case "FOLLOWING":
+        return { color: "teal", label: "Following" };
+      default:
+        return null;
+    }
+  };
+
+  const statusBadge = getStatusBadge();
+
   return (
-    <Paper p={{ base: "lg", md: "xl" }} h={{ base: 160, md: 220 }}>
+    <Paper
+      p={{ base: "lg", md: "xl" }}
+      h={{ base: 160, md: 220 }}
+      style={{
+        position: "relative",
+        transition: "all 0.3s ease",
+        cursor: "pointer"
+      }}
+    >
+      {statusBadge && (
+        <Badge
+          color={statusBadge.color}
+          variant="light"
+          size="lg"
+          style={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            zIndex: 1
+          }}
+        >
+          {statusBadge.label}
+        </Badge>
+      )}
       <Flex
         direction={"row"}
         h={"100%"}
@@ -80,7 +121,14 @@ export default function ClubCard({ club, status }: ClubCardProps) {
 
         <Stack h={"100%"} justify="space-between" ml={{ base: "lg", md: "xl" }}>
           <Stack gap={6}>
-            <Title order={titleOrder} lineClamp={1}>
+            <Title
+              order={titleOrder}
+              lineClamp={1}
+              style={{
+                fontWeight: 700,
+                fontSize: isMobile ? "1.25rem" : "1.5rem"
+              }}
+            >
               {club.name}
             </Title>
 
@@ -88,6 +136,7 @@ export default function ClubCard({ club, status }: ClubCardProps) {
               <>
                 <Text
                   size="sm"
+                  c="dimmed"
                   lineClamp={2}
                   style={{ wordWrap: "break-word" }}
                 >

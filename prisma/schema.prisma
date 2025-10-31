@@ -220,6 +220,15 @@ model EmailBlast {
   @@map("email_blast")
 }
 
+model ClubBlacklist {
+  id        Int      @id @default(autoincrement())
+  clubId    Int      @unique @map("club_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  clubName  String   @map("club_name")
+
+  @@map("club_blacklist")
+}
+
 model MembershipCampaign {
   id                        Int                  @id @default(autoincrement())
   clubId                    Int                  @map("club_id")

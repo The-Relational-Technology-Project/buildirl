@@ -100,6 +100,23 @@ export function createMembershipService(
     }
   }
 
+  async function getClubLeads(clubId: number): Promise<Membership[]> {
+    try {
+      const memberships = await getActiveMembershipsForClub(clubId, false);
+      const leads = memberships.filter(m => m.role === "LEAD");
+      logger.info(
+        `queried club leads for club with clubId ${clubId} with result count ${leads.length}`
+      );
+      return leads;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to query club leads for club with clubId ${clubId}`
+      );
+      throw e;
+    }
+  }
+
   async function getMembershipApplicationsForClub(
     clubId: number
   ): Promise<Membership[]> {
@@ -983,6 +1000,7 @@ export function createMembershipService(
   return {
     getUserMemberships,
     getActiveMembershipsForClub,
+    getClubLeads,
     getMembershipApplicationsForClub,
     submitMembershipApplication,
     approveMembershipApplication,

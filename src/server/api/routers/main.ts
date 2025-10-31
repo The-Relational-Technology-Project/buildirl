@@ -95,6 +95,16 @@ export const mainRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       return ctx.service.club.getClubStatistics(input.clubId);
     }),
+  
+  allClubs: publicProcedure.query(({ ctx }) => {
+    return ctx.service.club.getAllClubs();
+  }),
+
+  clubLeads: publicProcedure
+    .input(z.object({ clubId: z.number() }))
+    .query(({ ctx, input }) => {
+      return ctx.service.membership.getClubLeads(input.clubId);
+    }),
 
   userById: publicProcedure
     .input(z.object({ id: z.number() }))
