@@ -10,7 +10,8 @@ import {
   useMantineTheme,
   useMantineColorScheme,
   BoxProps,
-  alpha
+  alpha,
+  Image
 } from "@mantine/core";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -25,7 +26,7 @@ import UserAvatar from "~/client/components/UserAvatar";
 import posthog from "posthog-js";
 
 export const HEADER_BAR_HEIGHT = 50;
-export const PAGE_WIDTH = 1000;
+export const PAGE_WIDTH = 800;
 
 type NavigationLinkProps = {
   label: string;
@@ -137,7 +138,11 @@ function ProfileMenu({ ...props }: BoxProps) {
   );
 }
 
-export default function HeaderBar() {
+type HeaderBarProps = {
+  isAuthenticated: boolean;
+};
+
+export default function HeaderBar({ isAuthenticated }: HeaderBarProps) {
   const { colorScheme } = useMantineColorScheme();
   // this is required to avoid hydration error because the components are
   // rendered conditionally on colorScheme
@@ -160,13 +165,25 @@ export default function HeaderBar() {
               : alpha("#FFFFFF", 0.6)
         }}
       >
-        <Group justify="flex-start" w={{ base: undefined, md: PAGE_WIDTH }}>
-          <NavigationLink Icon={IconHome} label={"My Clubs"} navigateTo={"/"} />
+        <Group justify="space-between" w={{ base: "100%", md: PAGE_WIDTH }} px={{ base: "md", md: 0 }}>
+          <Link href="/" style={{ textDecoration: "none" }}>
+            <Image
+              src="/images/buildirl_full_logo.png"
+              alt="buildIRL"
+              h={{ base: 28, sm: 32 }}
+              w="auto"
+            />
+          </Link>
+          {isAuthenticated && (
+            <NavigationLink Icon={IconHome} label={"My Clubs"} navigateTo={"/"} />
+          )}
         </Group>
-        <ProfileMenu
-          pos={"fixed"}
-          style={{ position: "absolute", right: 10 }}
-        />
+        {isAuthenticated && (
+          <ProfileMenu
+            pos={"fixed"}
+            style={{ position: "absolute", right: 10 }}
+          />
+        )}
       </Flex>
     )
   );
