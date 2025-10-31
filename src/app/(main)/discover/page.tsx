@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Stack, Title, Text, Button, SimpleGrid, TextInput, Divider, Box, Group, Select } from "@mantine/core";
-import { IconSearch, IconSparkles } from "@tabler/icons-react";
+import { Stack, Title, Text, Button, SimpleGrid, TextInput, Divider, Box, Select, BackgroundImage } from "@mantine/core";
+import { IconSearch } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import DiscoverCard from "~/app/(main)/_components/DiscoverCard";
 import PrimaryButton from "~/client/components/PrimaryButton";
@@ -71,22 +71,44 @@ export default function PublicDiscoverPage() {
   }
 
   return (
-    <Stack gap="xl" my="xl">
-      <Stack align="center" gap="md" py="xl">
-        <Title order={1} style={{ textAlign: "center" }}>
-          Discover Local Clubs
-        </Title>
-        <Text size="lg" c="dimmed" style={{ textAlign: "center" }}>
-          Find your people, build meaningful connections
-        </Text>
-        <PrimaryButton onClick={() => router.push("/login")}>
-          Sign Up to Join
-        </PrimaryButton>
-      </Stack>
+    <Stack gap="xl" mb="xl">
+      <BackgroundImage
+        src="/images/commons-550-studio-event-speakers-chatting.jpeg"
+        style={{
+          minHeight: 500,
+          width: "100vw",
+          marginLeft: "calc(-50vw + 50%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+      >
+        <Box
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            borderRadius: 8,
+            padding: "40px 60px",
+            textAlign: "center"
+          }}
+        >
+          <Stack align="center" gap="md">
+            <Title order={1} c="white" style={{ textAlign: "center" }}>
+              Discover Local Clubs
+            </Title>
+            <Text size="lg" c="white" style={{ textAlign: "center" }}>
+              Find your people, build meaningful connections
+            </Text>
+            <PrimaryButton onClick={() => router.push("/login")}>
+              Sign Up to Join
+            </PrimaryButton>
+          </Stack>
+        </Box>
+      </BackgroundImage>
 
-      <Divider />
+      <Box px={{ base: 30, md: 0 }}>
+        <Divider />
 
-      <Stack gap="md" align="center" py="lg">
+        <Stack gap="md" align="center" py="lg">
         <Box
           w={{ base: "100%", sm: 600, md: 800 }}
           style={{
@@ -152,50 +174,32 @@ export default function PublicDiscoverPage() {
             {filteredClubs.length} club{filteredClubs.length === 1 ? '' : 's'} found
           </Text>
         )}
-      </Stack>
-
-      {filteredClubs.length === 0 && (searchTerm || selectedLocation) ? (
-        <Stack align="center" gap="md" py="xl">
-          <Title order={3} style={{ textAlign: "center" }}>
-            No clubs found
-          </Title>
-          <Text size="md" c="dimmed" style={{ textAlign: "center" }}>
-            Try adjusting your {searchTerm && selectedLocation ? "search or location" : searchTerm ? "search terms" : "location filter"}
-          </Text>
         </Stack>
-      ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-          {filteredClubs.map((club) => (
-            <DiscoverCard key={club.id} club={club} />
-          ))}
-        </SimpleGrid>
-      )}
 
-      <Box
-        p="xl"
-        style={{
-          backgroundColor: "#f2eeff",
-          border: "2px solid black",
-          borderRadius: 8,
-          boxShadow: "4px 4px 0px black",
-          maxWidth: 400,
-          margin: "0 auto"
-        }}
-      >
-        <Stack align="center" gap="md">
-          <Group gap="xs" justify="center">
-            <IconSparkles size={20} color="#7a63cb" />
-            <Text size="lg" fw={600} c="#563da3" style={{ textAlign: "center" }}>
-              Start Your Own Club Here
+        {filteredClubs.length === 0 && (searchTerm || selectedLocation) ? (
+          <Stack align="center" gap="md" py="xl">
+            <Title order={3} style={{ textAlign: "center" }}>
+              No clubs found
+            </Title>
+            <Text size="md" c="dimmed" style={{ textAlign: "center" }}>
+              Try adjusting your {searchTerm && selectedLocation ? "search or location" : searchTerm ? "search terms" : "location filter"}
             </Text>
-            <IconSparkles size={20} color="#7a63cb" />
-          </Group>
+          </Stack>
+        ) : (
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
+            {filteredClubs.map((club) => (
+              <DiscoverCard key={club.id} club={club} />
+            ))}
+          </SimpleGrid>
+        )}
+
+        <Stack align="center" gap="md" mt="xl" py="xl">
           <PrimaryButton
             onClick={() => window.open("https://www.buildirl.com", "_blank")}
             size="lg"
-            w={{ base: 200, md: 250 }}
+            w={{ base: 300, md: 400 }}
           >
-            Build a club
+Don't see what you want? Build one!
           </PrimaryButton>
         </Stack>
       </Box>
