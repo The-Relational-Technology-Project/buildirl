@@ -40,7 +40,7 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
         <Text size="sm" mb={{ base: "xs", md: "sm" }}>
           The values that make our community special
         </Text>
-        <Grid px={16} py={8} w={containerWidth} gutter="sm">
+        <Grid px={16} py={8} w={containerWidth} gutter="sm" justify="center">
           {clubValues.map((value, index) => {
             if (value) {
               return (

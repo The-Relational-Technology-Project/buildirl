@@ -42,6 +42,7 @@ import { ClubValueDisplay } from "~/app/(main)/(join)/join/[publicId]/_component
 import { WhoWeAre } from "./_components/WhoWeAre";
 import { HowWeHang } from "./_components/HowWeHang";
 import InfoChip from "./_components/InfoChip";
+import { CampaignModule } from "./_components/CampaignModule";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -117,6 +118,22 @@ export default function ClubJoin() {
   );
   const shouldShowClubMemberInfo =
     !!clubStatistics.data?.memberCount && clubStatistics.data?.memberCount > 5;
+
+  const activeCampaign = api.main.getActiveMembershipCampaign.useQuery(
+    {
+      clubId: club.data!.id
+    },
+    { enabled: !!club.data }
+  );
+
+  const campaignProgress =
+    api.main.getActiveMembershipCampaignProgress.useQuery(
+      {
+        clubId: clubId ?? -1,
+        launchDate: activeCampaign.data?.launchDate ?? new Date(0)
+      },
+      { enabled: !!clubId && !!activeCampaign.data?.launchDate }
+    );
 
   QueryError.check({ result: club, fieldName: "clubByPublicId" });
   if (clubId) {
@@ -212,6 +229,14 @@ export default function ClubJoin() {
               </Group>
             </Stack>
           </Stack>
+
+          {activeCampaign.data && campaignProgress?.data && (
+            <CampaignModule
+              club={club.data!}
+              activeCampaign={activeCampaign.data}
+              campaignProgress={campaignProgress.data}
+            />
+          )}
 
           <JoinButton club={club.data!} />
           <ClubDisplayImageGallery club={club.data!} mt={"xs"} />
