@@ -51,7 +51,7 @@ function MemberList({ clubId }: MemberListProps) {
   const allMembers = activeMembershipsForClub.data!.map((r) => r.user);
 
   return (
-    <Stack px={{ base: 0, md: "xl" }}>
+    <Stack px={{ base: 0, md: "xl" }} bg="ivory" bdrs={4} p={28}>
       {allMembers.map((m, i) => (
         <MemberListItem
           key={m.id}

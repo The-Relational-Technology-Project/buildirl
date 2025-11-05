@@ -17,14 +17,15 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
       <Stack
         w={"100%"}
         mt={32}
-        mb={64}
+        mb={32}
+        p={28}
         align="center"
         ta={"center"}
         style={{
-          border: "1.5px solid #000000",
           borderRadius: 4,
           padding: "16px",
-          alignItems: "center"
+          alignItems: "center",
+          backgroundColor: "ivory"
         }}
       >
         <Title
@@ -35,9 +36,9 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
             fontFamily: club.themeHeadingFont ?? "inherit"
           }}
         >
-          Our Vibe Check ✨
+          Our Vibe Check
         </Title>
-        <Text size="sm" mb={{ base: "xs", md: "sm" }}>
+        <Text size="sm" mb={{ base: "xs", md: "sm" }} fs="italic">
           The values that make our community special
         </Text>
         <Grid px={16} py={8} w={containerWidth} gutter="sm" justify="center">

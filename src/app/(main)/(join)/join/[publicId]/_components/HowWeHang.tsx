@@ -19,12 +19,12 @@ export function HowWeHang({ club }: HowWeHangProps) {
       w={"100%"}
       ta={"center"}
       style={{
-        border: "1.5px solid #000000",
+        backgroundColor: "ivory",
         borderRadius: 4,
-        padding: "16px",
-        alignItems: "center"
+        padding: "32px",
+        alignItems: "center",
+        paddingBottom: "24ppx"
       }}
-      gap={12}
     >
       <Title
         order={2}
@@ -36,7 +36,7 @@ export function HowWeHang({ club }: HowWeHangProps) {
       >
         How We Hang
       </Title>
-      <Text size="sm" mb={{ base: "xs", md: "sm" }}>
+      <Text size="sm" mb={{ base: "xs", md: "sm" }} fs="italic">
         Join us for our next gathering. Check out our full event calendar.
       </Text>
       {club.rhythm?.startDate && (

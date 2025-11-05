@@ -1,4 +1,11 @@
-import { Accordion, Box, Text, Title, Divider, BoxProps } from "@mantine/core";
+import {
+  Accordion,
+  Text,
+  Title,
+  Divider,
+  BoxProps,
+  Stack
+} from "@mantine/core";
 import { FAQs as FAQsType } from "~/server/club/types";
 import { Maybe } from "~/utils/types";
 
@@ -17,7 +24,7 @@ export default function FAQs({
   }
 
   return (
-    <Box {...props} w={{ base: "320", md: "500" }}>
+    <Stack {...props} bg={"ivory"} w={"100%"} p={28} bdrs={4}>
       <Title
         order={1}
         mb={"lg"}
@@ -42,6 +49,6 @@ export default function FAQs({
           </Accordion.Item>
         ))}
       </Accordion>
-    </Box>
+    </Stack>
   );
 }

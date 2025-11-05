@@ -35,10 +35,10 @@ export function ReadMoreBox({
       mb={{ base: "sm", md: "lg" }}
       className={className}
       style={{
-        border: "1.5px solid #000000",
         borderRadius: 4,
-        padding: "16px",
-        ...style
+        padding: "24px",
+        ...style,
+        backgroundColor: "ivory"
       }}
     >
       <div

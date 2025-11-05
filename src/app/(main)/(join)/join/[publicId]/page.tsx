@@ -164,7 +164,6 @@ export default function ClubJoin() {
           mx={-6}
           maw={PAGE_WIDTH}
           align={"center"}
-          gap={"lg"}
         >
           <Box
             style={{
@@ -238,8 +237,7 @@ export default function ClubJoin() {
             />
           )}
 
-          <JoinButton club={club.data!} />
-          <ClubDisplayImageGallery club={club.data!} mt={"xs"} />
+          <ClubDisplayImageGallery club={club.data!} mb={"sm"} />
 
           <WhoWeAre club={club.data!} />
 
@@ -267,7 +265,6 @@ export default function ClubJoin() {
           <FAQs
             faqs={club.data!.faqs}
             themeHeadingFont={club.data!.themeHeadingFont}
-            mt={"lg"}
           />
 
           <Text mt={48}>Powered by BuildIRL</Text>
@@ -350,7 +347,7 @@ type JoinButtonProps = {
   club: Club;
 };
 
-function JoinButton({ club }: JoinButtonProps) {
+export function JoinButton({ club }: JoinButtonProps) {
   const isUserAuthenticated = api.main.isUserAuthenticated.useQuery();
 
   QueryError.check({

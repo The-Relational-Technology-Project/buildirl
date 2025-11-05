@@ -28,6 +28,7 @@ export function WhoWeAre({ club }: WhoWeAreProps) {
           mb={{ base: "sm", md: "lg" }}
           style={{ whiteSpace: "pre-line" }}
           ta="center"
+          fs="italic"
         >
           ✨ Our people, our vibes, our world ✨
         </Text>

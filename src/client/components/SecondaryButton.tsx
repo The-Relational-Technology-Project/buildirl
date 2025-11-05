@@ -28,8 +28,7 @@ export default function SecondaryButton({
       w={{ base: 300, md: 400 }}
       style={{
         border: "1px solid",
-        borderRadius: 360,
-        boxShadow: "2px 2px 0px"
+        borderRadius: 360
       }}
       color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
       {...props}
