@@ -48,7 +48,7 @@ export default function MemberCarousel({
     <Stack w={"100%"} bg={"ivory"} p={28} bdrs={4} mb={32} gap={32}>
       <Stack align={"center"} gap={4}>
         <Title
-          order={1}
+          order={2}
           tt="uppercase"
           style={{
             fontFamily: club.themeHeadingFont ?? "inherit",

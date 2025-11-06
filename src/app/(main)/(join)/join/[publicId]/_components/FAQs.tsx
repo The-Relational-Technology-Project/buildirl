@@ -24,9 +24,9 @@ export default function FAQs({
   }
 
   return (
-    <Stack {...props} bg={"ivory"} w={"100%"} p={28} bdrs={4}>
+    <Stack {...props} bg={"ivory"} w={"100%"} p={28} bdrs={4} mb={16}>
       <Title
-        order={1}
+        order={2}
         mb={"lg"}
         ta="center"
         style={{

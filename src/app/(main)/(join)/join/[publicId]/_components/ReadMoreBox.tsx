@@ -71,8 +71,9 @@ export function ReadMoreBox({
         <Button
           variant="subtle"
           size="xs"
+          bg="gray.1"
           onClick={() => setExpanded((v) => !v)}
-          style={{ marginTop: 4 }}
+          style={{ marginTop: 16 }}
         >
           {expanded ? "Collapse" : "Read more"}
         </Button>

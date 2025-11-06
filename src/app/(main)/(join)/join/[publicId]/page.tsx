@@ -1,15 +1,7 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  Stack,
-  Title,
-  Text,
-  Group,
-  GroupProps,
-  Box,
-  useMatches
-} from "@mantine/core";
+import { Stack, Title, Text, Group, Box, useMatches } from "@mantine/core";
 import {
   IconBrandInstagram,
   IconWorld,
@@ -37,12 +29,13 @@ import { useMounted } from "@mantine/hooks";
 import ShareIconButton from "./_components/ShareIconButton";
 import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
 import { InstagramHandle, Url } from "~/server/utils/types";
-import { Club, ClubStatistics } from "~/server/club/types";
+import { Club } from "~/server/club/types";
 import { ClubValueDisplay } from "~/app/(main)/(join)/join/[publicId]/_components/ClubValueDisplay";
 import { WhoWeAre } from "./_components/WhoWeAre";
 import { HowWeHang } from "./_components/HowWeHang";
 import InfoChip from "./_components/InfoChip";
 import { CampaignModule } from "./_components/CampaignModule";
+import { HowCampaignWorks } from "./_components/HowCampaignWorks";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -204,7 +197,7 @@ export default function ClubJoin() {
                 instagramHandle={club.data!.instagramHandle}
               />
 
-              <Group>
+              <Group justify="center" mb={16}>
                 {club.data?.location && (
                   <InfoChip>
                     <IconMapPin size={18} stroke={1} />
@@ -237,9 +230,9 @@ export default function ClubJoin() {
             />
           )}
 
-          <ClubDisplayImageGallery club={club.data!} mb={"sm"} />
-
           <WhoWeAre club={club.data!} />
+
+          <ClubDisplayImageGallery club={club.data!} mb={"sm"} />
 
           <HowWeHang club={club.data!} />
 
@@ -252,20 +245,20 @@ export default function ClubJoin() {
           <ClubValueDisplay club={club.data!} />
 
           {shouldShowClubMemberInfo && (
-            <ContributingMembersLink
+            <MemberCarousel
               club={club.data!}
               clubStatistics={clubStatistics.data!}
             />
-          )}
-
-          {shouldShowClubMemberInfo && (
-            <MemberCarousel clubId={club.data!.id} />
           )}
 
           <FAQs
             faqs={club.data!.faqs}
             themeHeadingFont={club.data!.themeHeadingFont}
           />
+
+          {activeCampaign.data && campaignProgress?.data && (
+            <HowCampaignWorks club={club.data!} />
+          )}
 
           <Text mt={48}>Powered by BuildIRL</Text>
         </Stack>
@@ -304,42 +297,6 @@ function LinkIcons({ websiteUrl, instagramHandle }: LinkIconProps) {
         />
       )}
     </Group>
-  );
-}
-
-type ContributingMembersLinkProps = {
-  club: Club;
-  clubStatistics: ClubStatistics;
-};
-
-function ContributingMembersLink({
-  club,
-  clubStatistics
-}: ContributingMembersLinkProps & GroupProps) {
-  const router = useRouter();
-
-  return (
-    clubStatistics && (
-      <Stack align={"center"} gap={4}>
-        <Title
-          order={1}
-          tt="uppercase"
-          style={{
-            fontFamily: club.themeHeadingFont ?? "inherit",
-            textAlign: "center"
-          }}
-        >
-          Meet the club
-        </Title>
-        <Text
-          style={{ cursor: "pointer" }}
-          onClick={() => router.push(`/join/${club.publicId}/members`)}
-          size={"md"}
-        >
-          {`${clubStatistics.memberCount} contributing member${clubStatistics.memberCount > 1 ? "s" : ""} >`}
-        </Text>
-      </Stack>
-    )
   );
 }
 
@@ -426,7 +383,7 @@ function DefaultJoinButton({ club }: JoinButtonProps) {
       includeIcon
       onClick={() => router.push(`/join/${club.publicId}/tiers`)}
     >
-      Join as a member
+      Join the club
     </PrimaryButton>
   );
 }

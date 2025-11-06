@@ -16,9 +16,9 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
     clubValues.length > 0 && (
       <Stack
         w={"100%"}
-        mt={32}
-        mb={32}
-        p={28}
+        my={16}
+        px={16}
+        py={28}
         align="center"
         ta={"center"}
         style={{
@@ -27,6 +27,7 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
           alignItems: "center",
           backgroundColor: "ivory"
         }}
+        gap={4}
       >
         <Title
           order={2}

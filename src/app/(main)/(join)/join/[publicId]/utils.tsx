@@ -1,4 +1,5 @@
-import { Rhythm } from "~/server/club/types";
+import { Club, Rhythm } from "~/server/club/types";
+import { MembershipTier } from "~/server/membershipTier/types";
 
 export const getRhythmString = (rhythm: Rhythm) => {
   if (!rhythm.frequency || !rhythm.startDate || !rhythm.startTime) {
@@ -58,10 +59,10 @@ export const getAvatarEmoji = () => {
 };
 
 export const getDaysLeftColor = (daysLeft: number): string => {
-  if (daysLeft <= 3) {
-    return "orange";
-  } else if (daysLeft == 1) {
+  if (daysLeft === 1) {
     return "red";
+  } else if (daysLeft <= 3) {
+    return "orange";
   } else return "lilac";
 };
 
@@ -71,4 +72,27 @@ export const getProgressBarColor = (membersNeeded: number): string => {
   } else {
     return "green";
   }
+};
+
+export const getMonthlyPrice = (tier: MembershipTier) => {
+  if (tier.billingInterval === "MONTHLY") return tier.costPerBillingInterval;
+  if (tier.billingInterval === "QUARTERLY")
+    return tier.costPerBillingInterval / 3;
+  if (tier.billingInterval === "SEMI_ANNUAL")
+    return tier.costPerBillingInterval / 6;
+  return tier.costPerBillingInterval;
+};
+
+export const getLowestPaidMembershipTier = (club: Club) => {
+  const paidTiers = club.membershipTiers.filter(
+    (tier) => getMonthlyPrice(tier) > 0
+  );
+
+  if (paidTiers.length === 0) return 0;
+
+  const lowestTier = paidTiers.reduce((cheapest, tier) =>
+    getMonthlyPrice(tier) < getMonthlyPrice(cheapest) ? tier : cheapest
+  );
+
+  return getMonthlyPrice(lowestTier).toFixed(2);
 };
