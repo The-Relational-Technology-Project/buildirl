@@ -4,7 +4,9 @@ import {
   Title,
   Divider,
   BoxProps,
-  Stack
+  Stack,
+  useMantineColorScheme,
+  useMantineTheme
 } from "@mantine/core";
 import { FAQs as FAQsType } from "~/server/club/types";
 import { Maybe } from "~/utils/types";
@@ -19,12 +21,24 @@ export default function FAQs({
   themeHeadingFont,
   ...props
 }: FAQsProps & BoxProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   if (!faqs.items || faqs.items.length === 0) {
     return null;
   }
 
   return (
-    <Stack {...props} bg={"ivory"} w={"100%"} p={28} bdrs={4} mb={16}>
+    <Stack
+      {...props}
+      bg={
+        colorScheme === "dark" ? theme.colors.dark![3] : theme.colors.beige![1]
+      }
+      w={"100%"}
+      p={28}
+      bdrs={4}
+      mb={16}
+    >
       <Title
         order={2}
         mb={"lg"}

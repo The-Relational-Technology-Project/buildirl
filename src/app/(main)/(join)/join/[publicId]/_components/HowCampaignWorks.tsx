@@ -1,4 +1,13 @@
-import { Box, Card, Group, Stack, Text, Title } from "@mantine/core";
+import {
+  Box,
+  Card,
+  Group,
+  Stack,
+  Text,
+  Title,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { Club } from "~/server/club/types";
 
 type HowCampaignWorksProps = {
@@ -24,6 +33,9 @@ const STEPS = [
 ];
 
 export function HowCampaignWorks({ club }: HowCampaignWorksProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   return (
     <Stack
       id="how-campaign-works"
@@ -33,7 +45,10 @@ export function HowCampaignWorks({ club }: HowCampaignWorksProps) {
       p={28}
       style={{
         borderRadius: 4,
-        backgroundColor: "ivory"
+        backgroundColor:
+          colorScheme === "dark"
+            ? theme.colors.dark![3]
+            : theme.colors.beige![1]
       }}
       mb={20}
     >

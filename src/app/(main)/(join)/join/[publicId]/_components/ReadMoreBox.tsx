@@ -1,4 +1,9 @@
-import { Stack, Button } from "@mantine/core";
+import {
+  Stack,
+  Button,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { useState, useRef, useLayoutEffect, ReactNode } from "react";
 
 type ReadMoreBoxProps = {
@@ -14,6 +19,9 @@ export function ReadMoreBox({
   style,
   className
 }: ReadMoreBoxProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   const [expanded, setExpanded] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const textRef = useRef<HTMLDivElement>(null);
@@ -38,7 +46,10 @@ export function ReadMoreBox({
         borderRadius: 4,
         padding: "24px",
         ...style,
-        backgroundColor: "ivory"
+        backgroundColor:
+          colorScheme === "dark"
+            ? theme.colors.dark![3]
+            : theme.colors.beige![1]
       }}
     >
       <div

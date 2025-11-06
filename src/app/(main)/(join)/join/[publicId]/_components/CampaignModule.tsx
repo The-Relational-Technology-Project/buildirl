@@ -9,7 +9,9 @@ import {
   SemiCircleProgress,
   Stack,
   Text,
-  Title
+  Title,
+  useMantineColorScheme,
+  useMantineTheme
 } from "@mantine/core";
 import { Club } from "~/server/club/types";
 import {
@@ -35,6 +37,9 @@ export function CampaignModule({
   activeCampaign,
   campaignProgress
 }: CampaignModuleProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   const daysLeft = Math.ceil(
     (activeCampaign.targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   );
@@ -52,7 +57,7 @@ export function CampaignModule({
 
   const totalCommittedMembers = campaignProgress.committedMembers.length;
 
-  const memberSlotCount = activeCampaign.budgetItems.length * 3;
+  const memberSlotCount = activeCampaign.budgetItems.length * 4;
 
   const shouldCapCommittedMembers =
     memberSlotCount > 0 && totalCommittedMembers > memberSlotCount;
@@ -129,7 +134,10 @@ export function CampaignModule({
           borderRadius: 4,
           padding: "16px",
           paddingVertical: "28",
-          backgroundColor: "ivory",
+          backgroundColor:
+            colorScheme === "dark"
+              ? theme.colors.dark![3]
+              : theme.colors.beige![1],
           fontFamily: club.themeHeadingFont ?? "inherit"
         }}
       >
@@ -147,7 +155,7 @@ export function CampaignModule({
           <Box pos="relative" h={{ base: 280, sm: 200 }}>
             <Box
               pos="absolute"
-              left={{ base: "calc(50% - 130px)", sm: 96 }}
+              left={{ base: "calc(50% - 130px)", sm: 72 }}
               top={{ base: 40, sm: "50%" }}
               mt={{ base: 20, sm: "0" }}
               style={{
@@ -157,7 +165,7 @@ export function CampaignModule({
                 alignItems: "center",
                 justifyContent: "center"
               }}
-              bg="gray.1"
+              bg={colorScheme === "dark" ? theme.colors.dark![1] : "gray.1"}
               w={90}
               h={90}
               bdrs={50}
@@ -170,7 +178,12 @@ export function CampaignModule({
               >
                 {daysLeft}
               </Text>
-              <Text size={"xs"} c="dimmed" tt="uppercase" fw={500}>
+              <Text
+                size={"xs"}
+                c={colorScheme === "dark" ? theme.colors.dark![2] : "dimmed"}
+                tt="uppercase"
+                fw={600}
+              >
                 day{daysLeft > 1 ? "s" : ""} left
               </Text>
             </Box>
@@ -185,6 +198,9 @@ export function CampaignModule({
                 filledSegmentColor={getProgressBarColor(
                   remainingMembershipsNeeded
                 )}
+                emptySegmentColor={
+                  colorScheme === "dark" ? theme.colors.dark![2] : "gray.2"
+                }
                 label={
                   <Stack
                     component="span"
@@ -201,7 +217,7 @@ export function CampaignModule({
                     >
                       {`${remainingMembershipsNeeded} more`}
                     </Text>
-                    <Text component="span" size={"sm"}>
+                    <Text component="span" size={"sm"} fw={500}>
                       to hit {activeCampaign.targetNumberOfMemberships} member
                       goal
                     </Text>
@@ -212,7 +228,7 @@ export function CampaignModule({
 
             <Box
               pos="absolute"
-              right={{ base: "calc(50% - 130px)", sm: 96 }}
+              right={{ base: "calc(50% - 130px)", sm: 72 }}
               top={{ base: 40, sm: "50%" }}
               mt={{ base: 20, sm: "0" }}
               style={{
@@ -222,7 +238,7 @@ export function CampaignModule({
                 alignItems: "center",
                 justifyContent: "center"
               }}
-              bg="gray.1"
+              bg={colorScheme === "dark" ? theme.colors.dark![1] : "gray.1"}
               w={90}
               h={90}
               bdrs={50}
@@ -235,7 +251,7 @@ export function CampaignModule({
               >
                 {totalCommittedMembers}
               </Text>
-              <Text size={"xs"} c="dimmed" tt="uppercase" fw={500}>
+              <Text size={"xs"} c="dimmed" tt="uppercase" fw={600}>
                 backers
               </Text>
             </Box>
@@ -268,8 +284,10 @@ export function CampaignModule({
                 <Stack justify="center" gap={8}>
                   <Text size={"md"}>Total Club Expenses:</Text>
                   <Group gap={4} justify="center" align="baseline">
-                    <Text size="2rem">{`$` + totalMonthlyCosts}</Text>
-                    <Text size="sm" c="gray">
+                    <Text size="2rem" fw="600">
+                      {`$` + totalMonthlyCosts}
+                    </Text>
+                    <Text size="sm" c="gray" fw="600">
                       /month
                     </Text>
                   </Group>
@@ -306,8 +324,10 @@ export function CampaignModule({
                 <Stack justify="center" gap={8}>
                   <Text size={"md"}>Starting at:</Text>
                   <Group gap={4} justify="center" align="baseline">
-                    <Text size="2rem">{`$` + lowestMembershipPrice}</Text>
-                    <Text size="sm" c="gray">
+                    <Text size="2rem" fw="600">
+                      {`$` + lowestMembershipPrice}
+                    </Text>
+                    <Text size="sm" c="gray" fw="600">
                       /month
                     </Text>
                   </Group>
@@ -342,7 +362,7 @@ export function CampaignModule({
                   </Text>
                 )}
                 {shouldCapCommittedMembers && remainingCommittedMembers > 0 && (
-                  <Grid.Col key={"more-members"} span={4}>
+                  <Grid.Col key={"more-members"} span={3}>
                     <Stack
                       bdrs={5}
                       bd={"1px solid gray"}

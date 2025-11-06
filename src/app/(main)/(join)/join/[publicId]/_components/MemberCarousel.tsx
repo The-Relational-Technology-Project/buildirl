@@ -7,6 +7,8 @@ import {
   Text,
   ThemeIcon,
   Title,
+  useMantineColorScheme,
+  useMantineTheme,
   useMatches
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
@@ -27,6 +29,9 @@ export default function MemberCarousel({
   clubStatistics
 }: MemberCarouselProps) {
   const router = useRouter();
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   const slideWidth = useMatches({ base: 100, md: 150 });
   const clubId = club.id;
 
@@ -45,7 +50,16 @@ export default function MemberCarousel({
 
   const autoplay = Autoplay({ delay: 2000, stopOnInteraction: false });
   return (
-    <Stack w={"100%"} bg={"ivory"} p={28} bdrs={4} mb={32} gap={32}>
+    <Stack
+      w={"100%"}
+      bg={
+        colorScheme === "dark" ? theme.colors.dark![3] : theme.colors.beige![1]
+      }
+      p={28}
+      bdrs={4}
+      mb={32}
+      gap={32}
+    >
       <Stack align={"center"} gap={4}>
         <Title
           order={2}
@@ -96,7 +110,6 @@ export default function MemberCarousel({
                 onClick={() => router.push(`/user/${m.id}?back=true`)}
                 style={{
                   border: "1px solid",
-                  boxShadow: "2px 2px 0px",
                   cursor: "pointer"
                 }}
               >

@@ -1,4 +1,12 @@
-import { useMatches, Title, Grid, Stack, Text } from "@mantine/core";
+import {
+  useMatches,
+  Title,
+  Grid,
+  Stack,
+  Text,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { Club, ClubValue } from "~/server/club/types";
 import { ClubValueCard } from "./ClubValueCard";
 
@@ -7,6 +15,9 @@ interface ClubValueDisplayProps {
 }
 
 export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   const cardContainerHeight = useMatches({ base: 190, md: 190 });
   const containerWidth = useMatches({ base: "100%", md: "80%" });
   const gridCols = useMatches({ base: 6, md: 4 });
@@ -25,7 +36,10 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
           borderRadius: 4,
           padding: "16px",
           alignItems: "center",
-          backgroundColor: "ivory"
+          backgroundColor:
+            colorScheme === "dark"
+              ? theme.colors.dark![3]
+              : theme.colors.beige![1]
         }}
         gap={4}
       >

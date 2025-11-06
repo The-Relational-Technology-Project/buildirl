@@ -283,7 +283,7 @@ function LinkIcons({ websiteUrl, instagramHandle }: LinkIconProps) {
         <ActionIconBox
           onClick={() => window.open(`${websiteUrl}`)}
           icon={<IconWorld />}
-          size={"lg"}
+          size={"xl"}
         />
       )}
 
@@ -293,7 +293,7 @@ function LinkIcons({ websiteUrl, instagramHandle }: LinkIconProps) {
             window.open(`https://instagram.com/${instagramHandle}`)
           }
           icon={<IconBrandInstagram />}
-          size={"lg"}
+          size={"xl"}
         />
       )}
     </Group>
