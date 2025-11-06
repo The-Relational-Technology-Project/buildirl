@@ -186,7 +186,13 @@ export function CampaignModule({
                   remainingMembershipsNeeded
                 )}
                 label={
-                  <Stack gap={0} mx={16} align="center">
+                  <Stack
+                    component="span"
+                    gap={0}
+                    mx={16}
+                    align="center"
+                    style={{ display: "inline-flex" }}
+                  >
                     <Text
                       component="span"
                       size={"2rem"}
