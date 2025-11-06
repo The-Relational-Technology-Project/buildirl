@@ -11,25 +11,19 @@ import {
 } from "@tabler/icons-react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
-import { isAllLoaded, isLoaded } from "~/client/utils";
+import { isAllLoaded } from "~/client/utils";
 import { PAGE_WIDTH } from "~/client/components/HeaderBar";
-import {
-  activeMembershipForClub,
-  Maybe,
-  membershipForClub
-} from "~/utils/types";
+import { activeMembershipForClub, Maybe } from "~/utils/types";
 import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 import ClubImage from "~/client/components/ClubImage";
 import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/MemberCarousel";
 import React, { useEffect } from "react";
-import PrimaryButton from "~/client/components/PrimaryButton";
 import FAQs from "./_components/FAQs";
 import { useMounted } from "@mantine/hooks";
 import ShareIconButton from "./_components/ShareIconButton";
 import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
 import { InstagramHandle, Url } from "~/server/utils/types";
-import { Club } from "~/server/club/types";
 import { ClubValueDisplay } from "~/app/(main)/(join)/join/[publicId]/_components/ClubValueDisplay";
 import { WhoWeAre } from "./_components/WhoWeAre";
 import { HowWeHang } from "./_components/HowWeHang";
@@ -297,93 +291,5 @@ function LinkIcons({ websiteUrl, instagramHandle }: LinkIconProps) {
         />
       )}
     </Group>
-  );
-}
-
-type JoinButtonProps = {
-  club: Club;
-};
-
-export function JoinButton({ club }: JoinButtonProps) {
-  const isUserAuthenticated = api.main.isUserAuthenticated.useQuery();
-
-  QueryError.check({
-    result: isUserAuthenticated,
-    fieldName: "isUserAuthenticated"
-  });
-
-  if (isUserAuthenticated.data!) {
-    return <AuthenticatedJoinButton club={club} />;
-  }
-  return <DefaultJoinButton club={club} />;
-}
-
-function AuthenticatedJoinButton({ club }: JoinButtonProps) {
-  const router = useRouter();
-  const userMemberships = api.main.userMemberships.useQuery();
-
-  if (!isLoaded(userMemberships)) {
-    return null;
-  }
-
-  const membership = membershipForClub(userMemberships.data!, club.id);
-
-  switch (membership?.status) {
-    case "PENDING":
-      return (
-        <PrimaryButton
-          includeIcon
-          onClick={() => router.push(`/club/${club.id}/manage-application`)}
-        >
-          Manage Application
-        </PrimaryButton>
-      );
-    case "ACTIVE":
-      return (
-        <PrimaryButton
-          includeIcon
-          onClick={() => router.push(`/club/${club.id}/manage-membership`)}
-        >
-          Manage Membership
-        </PrimaryButton>
-      );
-    case "PENDING_INCOMPLETE":
-      return (
-        <PrimaryButton
-          includeIcon
-          onClick={() =>
-            router.push(
-              `/apply/${club.publicId}/payments?membershipId=${membership.id}`
-            )
-          }
-        >
-          Complete Application
-        </PrimaryButton>
-      );
-    case "DECLINED":
-    case "INACTIVE":
-    case "WITHDRAWN":
-    // no membership
-    default:
-      return (
-        <PrimaryButton
-          includeIcon
-          onClick={() => router.push(`/join/${club.publicId}/tiers`)}
-        >
-          Join as a member
-        </PrimaryButton>
-      );
-  }
-}
-
-function DefaultJoinButton({ club }: JoinButtonProps) {
-  const router = useRouter();
-  return (
-    <PrimaryButton
-      includeIcon
-      onClick={() => router.push(`/join/${club.publicId}/tiers`)}
-    >
-      Join the club
-    </PrimaryButton>
   );
 }

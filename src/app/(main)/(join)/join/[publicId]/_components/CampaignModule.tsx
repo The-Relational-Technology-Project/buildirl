@@ -24,7 +24,7 @@ import {
   getLowestPaidMembershipTier,
   getProgressBarColor
 } from "../utils";
-import { JoinButton } from "../page";
+import { JoinButton } from "./JoinButton";
 
 type CampaignModuleProps = {
   club: Club;
