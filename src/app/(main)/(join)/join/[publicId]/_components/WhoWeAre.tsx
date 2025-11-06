@@ -14,7 +14,7 @@ export function WhoWeAre({ club }: WhoWeAreProps) {
       <ReadMoreBox style={{ width: "100%" }}>
         <Title
           order={2}
-          mb={{ base: "xs", md: "sm" }}
+          mb={"xs"}
           tt="uppercase"
           ta="center"
           style={{
@@ -28,6 +28,7 @@ export function WhoWeAre({ club }: WhoWeAreProps) {
           mb={{ base: "sm", md: "lg" }}
           style={{ whiteSpace: "pre-line" }}
           ta="center"
+          fs="italic"
         >
           ✨ Our people, our vibes, our world ✨
         </Text>

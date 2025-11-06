@@ -1,4 +1,13 @@
-import { Accordion, Box, Text, Title, Divider, BoxProps } from "@mantine/core";
+import {
+  Accordion,
+  Text,
+  Title,
+  Divider,
+  BoxProps,
+  Stack,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { FAQs as FAQsType } from "~/server/club/types";
 import { Maybe } from "~/utils/types";
 
@@ -12,14 +21,26 @@ export default function FAQs({
   themeHeadingFont,
   ...props
 }: FAQsProps & BoxProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   if (!faqs.items || faqs.items.length === 0) {
     return null;
   }
 
   return (
-    <Box {...props} w={{ base: "320", md: "500" }}>
+    <Stack
+      {...props}
+      bg={
+        colorScheme === "dark" ? theme.colors.dark![3] : theme.colors.beige![1]
+      }
+      w={"100%"}
+      p={28}
+      bdrs={4}
+      mb={16}
+    >
       <Title
-        order={1}
+        order={2}
         mb={"lg"}
         ta="center"
         style={{
@@ -42,6 +63,6 @@ export default function FAQs({
           </Accordion.Item>
         ))}
       </Accordion>
-    </Box>
+    </Stack>
   );
 }

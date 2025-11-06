@@ -1,4 +1,10 @@
-import { Stack, Title, Text } from "@mantine/core";
+import {
+  Stack,
+  Title,
+  Text,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import SecondaryButton from "~/client/components/SecondaryButton";
 import { Club } from "~/server/club/types";
 import InfoChip from "./InfoChip";
@@ -10,6 +16,9 @@ type HowWeHangProps = {
 };
 
 export function HowWeHang({ club }: HowWeHangProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   if (!club.rhythm?.startDate && !club.eventCalendarUrl) {
     return;
   }
@@ -19,12 +28,16 @@ export function HowWeHang({ club }: HowWeHangProps) {
       w={"100%"}
       ta={"center"}
       style={{
-        border: "1.5px solid #000000",
+        backgroundColor:
+          colorScheme === "dark"
+            ? theme.colors.dark![3]
+            : theme.colors.beige![1],
         borderRadius: 4,
-        padding: "16px",
-        alignItems: "center"
+        padding: "32px",
+        alignItems: "center",
+        paddingBottom: "24ppx"
       }}
-      gap={12}
+      gap={4}
     >
       <Title
         order={2}
@@ -36,7 +49,7 @@ export function HowWeHang({ club }: HowWeHangProps) {
       >
         How We Hang
       </Title>
-      <Text size="sm" mb={{ base: "xs", md: "sm" }}>
+      <Text size="sm" mb={{ base: "xs", md: "md" }} fs="italic">
         Join us for our next gathering. Check out our full event calendar.
       </Text>
       {club.rhythm?.startDate && (

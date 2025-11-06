@@ -36,8 +36,7 @@ export default function PrimaryButton({
         w={{ base: 300, md: 400 }}
         style={{
           border: `1px solid ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`,
-          borderRadius: 360,
-          boxShadow: `2px 2px 0px ${colorScheme === "dark" ? theme.colors.dark[1] : "black"}`
+          borderRadius: 360
         }}
         color={color}
         {...props}
