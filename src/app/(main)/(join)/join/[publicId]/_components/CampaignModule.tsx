@@ -147,7 +147,7 @@ export function CampaignModule({
           <Box pos="relative" h={{ base: 280, sm: 200 }}>
             <Box
               pos="absolute"
-              left={{ base: "calc(50% - 130px)", sm: 56 }}
+              left={{ base: "calc(50% - 130px)", sm: 96 }}
               top={{ base: 40, sm: "50%" }}
               mt={{ base: 20, sm: "0" }}
               style={{
@@ -212,7 +212,7 @@ export function CampaignModule({
 
             <Box
               pos="absolute"
-              right={{ base: "calc(50% - 130px)", sm: 56 }}
+              right={{ base: "calc(50% - 130px)", sm: 96 }}
               top={{ base: 40, sm: "50%" }}
               mt={{ base: 20, sm: "0" }}
               style={{
