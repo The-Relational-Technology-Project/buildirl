@@ -215,7 +215,7 @@ export function CampaignModule({
                       fw={700}
                       c={getProgressBarColor(remainingMembershipsNeeded)}
                     >
-                      {`${remainingMembershipsNeeded} more`}
+                      {`${remainingMembershipsNeeded} to go`}
                     </Text>
                     <Text component="span" size={"sm"} fw={500}>
                       to hit {activeCampaign.targetNumberOfMemberships} member
