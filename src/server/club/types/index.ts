@@ -81,7 +81,7 @@ export const ClubPublicIdSchema = z
 export const ClubNameSchema = z
   .string()
   .min(3, "Length must be >= 3 characters")
-  .max(15, "Length must be >= 15 characters");
+  .max(20, "Length must be >= 20 characters");
 
 export const ClubTagLineSchema = z
   .string()
