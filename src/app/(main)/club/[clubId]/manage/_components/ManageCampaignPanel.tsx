@@ -61,8 +61,8 @@ const CreateMembershipCampaignCard = ({
           <IconTargetArrow size={32} />
           <Title order={3}>No Active Campaign</Title>
           <Text ta="center">
-            Create a membership campaign to set member targets and track
-            progress towards your growth goals.
+            {`Rally new members, get ongoing contributions, and keep your club
+            sustainable. Let’s get it ready!`}
           </Text>
           <Button
             leftSection={<IconPlus size={16} />}

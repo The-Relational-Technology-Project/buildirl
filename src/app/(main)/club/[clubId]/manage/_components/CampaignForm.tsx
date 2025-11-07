@@ -109,11 +109,19 @@ function CreateCampaignForm({
     <Paper p={"lg"}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack gap={20}>
-          <Title order={3}>Create Campaign</Title>
+          <Stack gap={8}>
+            <Title order={1}>Set Up Your Member Campaign</Title>
+            <Text
+              size={"lg"}
+            >{`Rally new members, get ongoing contributions, and keep your club sustainable. Let’s get it ready!`}</Text>
+          </Stack>
 
           <Group grow align="flex-start">
             <Stack gap={8}>
-              <Title order={5}>Target Members</Title>
+              <Stack gap={0}>
+                <Title order={5}>New Member Target</Title>
+                <Text size="sm">{`# of members you need for this campaign to be successful.`}</Text>
+              </Stack>{" "}
               <Controller
                 name="targetNumberOfMemberships"
                 control={control}
@@ -128,10 +136,17 @@ function CreateCampaignForm({
                   />
                 )}
               />
+              <Text size="xs" c="gray" fs="italic">
+                Most clubs aim for 10–30. Only paid-tier applicants count toward
+                your goal.
+              </Text>
             </Stack>
 
             <Stack gap={8}>
-              <Title order={5}>Target Date</Title>
+              <Stack gap={0}>
+                <Title order={5}>Campaign End Date</Title>
+                <Text size="sm">{`When your campaign stops showing on your club page.`}</Text>
+              </Stack>{" "}
               <Controller
                 name="targetDate"
                 control={control}
@@ -149,21 +164,22 @@ function CreateCampaignForm({
                   />
                 )}
               />
+              <Text size="xs" c="gray" fs="italic">
+                Campaign will end at 11:59 PM PST
+              </Text>
             </Stack>
           </Group>
+
+          <Stack gap={0}>
+            <Title order={3}>
+              What Your Club Needs Each Month (and Why It Matters)
+            </Title>
+            <Text size="md">{`Showing people your club’s monthly needs helps them understand why contributions matter. Add high-level cost estimates to show what it takes to keep the club going.`}</Text>
+          </Stack>
 
           <Stack gap={8}>
             <Group justify="space-between">
               <Title order={5}>Budget Items</Title>
-              <Button
-                variant="subtle"
-                size="sm"
-                leftSection={<IconPlus size={14} />}
-                onClick={() => append({ label: "", costPerMonthInUSD: 0 })}
-                disabled={fields.length >= 5}
-              >
-                Add Item
-              </Button>
             </Group>
 
             <Stack gap="sm">
@@ -175,7 +191,7 @@ function CreateCampaignForm({
                     render={({ field }) => (
                       <TextInput
                         {...field}
-                        placeholder="Budget item description"
+                        placeholder="Venue, food, supplies, host time, etc."
                         error={errors.budgetItems?.[index]?.label?.message}
                         style={{ flex: 1 }}
                       />
@@ -216,6 +232,23 @@ function CreateCampaignForm({
                   {errors.budgetItems.message}
                 </Text>
               )}
+
+              <Button
+                variant="subtle"
+                size="sm"
+                leftSection={<IconPlus size={14} />}
+                onClick={() => append({ label: "", costPerMonthInUSD: 0 })}
+                disabled={fields.length >= 5}
+                bd={"1px black solid"}
+                w={200}
+              >
+                Add Cost Bucket
+              </Button>
+              {errors.budgetItems?.message && (
+                <Text c="red" size="sm">
+                  {errors.budgetItems.message}
+                </Text>
+              )}
             </Stack>
 
             <Group justify="flex-end">
@@ -224,7 +257,6 @@ function CreateCampaignForm({
               </Text>
             </Group>
           </Stack>
-
           <Box
             style={{
               display: "flex",
@@ -329,12 +361,20 @@ function EditCampaignForm({
   return (
     <Paper p={"lg"}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack gap={20}>
-          <Title order={3}>Edit Campaign</Title>
+        <Stack gap={24}>
+          <Stack gap={8}>
+            <Title order={1}>Set Up Your Member Campaign</Title>
+            <Text
+              size={"lg"}
+            >{`Rally new members, get ongoing contributions, and keep your club sustainable. Let’s get it ready!`}</Text>
+          </Stack>
 
-          <Group grow align="flex-start">
+          <Group grow align="flex-start" gap={48}>
             <Stack gap={8}>
-              <Title order={5}>Target Members</Title>
+              <Stack gap={0}>
+                <Title order={5}>New Member Target</Title>
+                <Text size="sm">{`# of members you need for this campaign to be successful.`}</Text>
+              </Stack>
               <Controller
                 name="targetNumberOfMemberships"
                 control={control}
@@ -349,10 +389,18 @@ function EditCampaignForm({
                   />
                 )}
               />
+              <Text size="xs" c="gray" fs="italic">
+                Most clubs aim for 10–30. Only paid-tier applicants count toward
+                your goal.
+              </Text>
             </Stack>
 
             <Stack gap={8}>
-              <Title order={5}>Target Date</Title>
+              <Stack gap={0}>
+                <Title order={5}>Campaign End Date</Title>
+                <Text size="sm">{`When your campaign stops showing on your club page.`}</Text>
+              </Stack>
+
               <Controller
                 name="targetDate"
                 control={control}
@@ -370,23 +418,20 @@ function EditCampaignForm({
                   />
                 )}
               />
+              <Text size="xs" c="gray" fs="italic">
+                Campaign ends 11:59 PM PST
+              </Text>
             </Stack>
           </Group>
 
-          <Stack gap={8}>
-            <Group justify="space-between">
-              <Title order={5}>Budget Items</Title>
-              <Button
-                variant="subtle"
-                size="sm"
-                leftSection={<IconPlus size={14} />}
-                onClick={() => append({ label: "", costPerMonthInUSD: 0 })}
-                disabled={fields.length >= 5}
-              >
-                Add Item
-              </Button>
-            </Group>
+          <Stack gap={0}>
+            <Title order={3}>
+              What Your Club Needs Each Month (and Why It Matters)
+            </Title>
+            <Text size="md">{`Showing people your club’s monthly needs helps them understand why contributions matter. Add high-level cost estimates to show what it takes to keep the club going.`}</Text>
+          </Stack>
 
+          <Stack gap={8}>
             <Stack gap="sm">
               {fields.map((field, index) => (
                 <Group key={field.id} gap="sm" align="flex-start">
@@ -396,7 +441,7 @@ function EditCampaignForm({
                     render={({ field }) => (
                       <TextInput
                         {...field}
-                        placeholder="Budget item description"
+                        placeholder="Venue, food, supplies, host time, etc."
                         error={errors.budgetItems?.[index]?.label?.message}
                         style={{ flex: 1 }}
                       />
@@ -432,6 +477,18 @@ function EditCampaignForm({
                   </ColorSchemeAwareActionIcon>
                 </Group>
               ))}
+
+              <Button
+                variant="subtle"
+                size="sm"
+                leftSection={<IconPlus size={14} />}
+                onClick={() => append({ label: "", costPerMonthInUSD: 0 })}
+                disabled={fields.length >= 5}
+                bd={"1px black solid"}
+                w={200}
+              >
+                Add Cost Bucket
+              </Button>
               {errors.budgetItems?.message && (
                 <Text c="red" size="sm">
                   {errors.budgetItems.message}
