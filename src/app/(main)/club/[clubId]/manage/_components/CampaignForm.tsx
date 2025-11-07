@@ -1,6 +1,9 @@
 // noinspection DuplicatedCode
 
 import React from "react";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import {
   Stack,
   TextInput,
@@ -28,6 +31,22 @@ import {
   UpdateMembershipCampaignInput
 } from "~/server/membershipCampaign/types";
 import { Maybe } from "~/utils/types";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const PACIFIC_TIMEZONE = "America/Los_Angeles";
+
+function toPacificEndOfDay(date: Date): Date {
+  const year = date.getUTCFullYear();
+  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+  const day = date.getUTCDate().toString().padStart(2, "0");
+
+  // Convert the selected date to 11:59 PM Pacific Time while keeping UTC storage.
+  return dayjs
+    .tz(`${year}-${month}-${day}T23:59:00`, PACIFIC_TIMEZONE)
+    .toDate();
+}
 
 type CampaignFormProps = {
   club: Club;
@@ -92,9 +111,14 @@ function CreateCampaignForm({
   });
 
   const onSubmit = async (data: CreateMembershipCampaignInput) => {
+    const pacificTargetDate = toPacificEndOfDay(data.targetDate);
+
     await createCampaign.mutateAsync({
       clubId: club.id,
-      input: data
+      input: {
+        ...data,
+        targetDate: pacificTargetDate
+      }
     });
   };
 
@@ -345,9 +369,14 @@ function EditCampaignForm({
   });
 
   const onSubmit = async (data: UpdateMembershipCampaignInput) => {
+    const pacificTargetDate = toPacificEndOfDay(data.targetDate);
+
     await updateCampaign.mutateAsync({
       id: campaign.id,
-      input: data
+      input: {
+        ...data,
+        targetDate: pacificTargetDate
+      }
     });
   };
 
