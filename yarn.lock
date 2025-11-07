@@ -822,10 +822,10 @@
   resolved "https://registry.npmjs.org/@mantine/carousel/-/carousel-7.17.7.tgz"
   integrity sha512-co1T99h7XSCjcv3NYjMRB4eNEfbYEIorJGZxBastrOQM+ldU3iIVb2dJaqwODEroVyrYF9bwGlTr9lXt7AFLHQ==
 
-"@mantine/core@^8.3.2":
-  version "8.3.2"
-  resolved "https://registry.npmjs.org/@mantine/core/-/core-8.3.2.tgz"
-  integrity sha512-uIHC9ooEZ9E+/pw8ag4f8pi0GmwSQ1DYnETjr4a4ZNVKJHfVv5NSkjprBxPrKJq9oox/SdcrAWy5XlKTwBzRag==
+"@mantine/core@^8.0.0":
+  version "8.3.5"
+  resolved "https://registry.yarnpkg.com/@mantine/core/-/core-8.3.5.tgz#5782397a42fa76f46d7aab72761aa44bc02a2db5"
+  integrity sha512-PdVNLMgOS2vFhOujRi6/VC9ic8w3UDyKX7ftwDeJ7yQT8CiepUxfbWWYpVpnq23bdWh/7fIT2Pn1EY8r8GOk7g==
   dependencies:
     "@floating-ui/react" "^0.27.16"
     clsx "^2.1.1"
@@ -834,10 +834,10 @@
     react-textarea-autosize "8.5.9"
     type-fest "^4.41.0"
 
-"@mantine/dates@^8.3.0":
-  version "8.3.0"
-  resolved "https://registry.npmjs.org/@mantine/dates/-/dates-8.3.0.tgz"
-  integrity sha512-FghERXp9qMwBK8nmQKMuVvbUdBVRh2r1ssQZLVyuTkM+OIiZxh14WvQwFrip1TqD0BxpViAtDHWf+UhbMa40iw==
+"@mantine/dates@^8.3.1":
+  version "8.3.1"
+  resolved "https://registry.yarnpkg.com/@mantine/dates/-/dates-8.3.1.tgz#5a8d0cbab5b23679023978b74633ff22f56e9b8b"
+  integrity sha512-qCGlLnrwu9eQsl+yQC/tEYgTEO8rE6hopagNpTV2/wzLBUywlL/AbtB1yHuOikQgZxXAOLfvIBWNTWUHRtTnfw==
   dependencies:
     clsx "^2.1.1"
 

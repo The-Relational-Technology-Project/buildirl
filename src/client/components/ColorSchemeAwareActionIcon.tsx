@@ -23,7 +23,7 @@ export default function ColorSchemeAwareActionIcon({
     <ActionIcon
       onClick={onClick}
       {...props}
-      color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
+      color={colorScheme === "dark" ? theme.colors.dark[7] : "black"}
     >
       {children}
     </ActionIcon>
@@ -40,12 +40,17 @@ export function ActionIconBox({
   icon,
   ...props
 }: ActionIconBoxProps & ActionIconProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   return (
     <ColorSchemeAwareActionIcon
       onClick={onClick}
       style={{
         border: `1px solid`,
-        borderRadius: 0
+        borderRadius: 5,
+        backgroundColor:
+          colorScheme === "dark" ? theme.colors.beige![1] : "white"
       }}
       {...props}
     >

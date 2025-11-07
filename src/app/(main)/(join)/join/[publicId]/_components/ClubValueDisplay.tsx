@@ -1,4 +1,12 @@
-import { useMatches, Title, Grid, Stack, Text } from "@mantine/core";
+import {
+  useMatches,
+  Title,
+  Grid,
+  Stack,
+  Text,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { Club, ClubValue } from "~/server/club/types";
 import { ClubValueCard } from "./ClubValueCard";
 
@@ -7,6 +15,9 @@ interface ClubValueDisplayProps {
 }
 
 export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   const cardContainerHeight = useMatches({ base: 190, md: 190 });
   const containerWidth = useMatches({ base: "100%", md: "80%" });
   const gridCols = useMatches({ base: 6, md: 4 });
@@ -14,12 +25,38 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
 
   return (
     clubValues.length > 0 && (
-      <Stack w={"100%"} mt={32} mb={64} align="center">
-        <Title order={2} style={{ textAlign: "center" }}>
-          Our Vibe Check ✨
+      <Stack
+        w={"100%"}
+        my={16}
+        px={16}
+        py={28}
+        align="center"
+        ta={"center"}
+        style={{
+          borderRadius: 4,
+          padding: "16px",
+          alignItems: "center",
+          backgroundColor:
+            colorScheme === "dark"
+              ? theme.colors.dark![3]
+              : theme.colors.beige![1]
+        }}
+        gap={4}
+      >
+        <Title
+          order={2}
+          tt="uppercase"
+          ta="center"
+          style={{
+            fontFamily: club.themeHeadingFont ?? "inherit"
+          }}
+        >
+          Our Vibe Check
         </Title>
-        <Text>The values that make our community special</Text>
-        <Grid px={16} py={8} w={containerWidth} gutter="sm">
+        <Text size="sm" mb={{ base: "xs", md: "sm" }} fs="italic">
+          The values that make our community special
+        </Text>
+        <Grid px={16} py={8} w={containerWidth} gutter="sm" justify="center">
           {clubValues.map((value, index) => {
             if (value) {
               return (

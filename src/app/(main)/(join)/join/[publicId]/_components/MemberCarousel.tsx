@@ -1,21 +1,39 @@
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
-import { Box, Paper, Stack, Text, ThemeIcon, useMatches } from "@mantine/core";
+import {
+  Paper,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+  useMantineColorScheme,
+  useMantineTheme,
+  useMatches
+} from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import React from "react";
 import { IconStarFilled } from "@tabler/icons-react";
 import { UserImage } from "~/client/components/UserAvatar";
 import { useRouter } from "next/navigation";
+import { Club, ClubStatistics } from "~/server/club/types";
 
 type MemberCarouselProps = {
-  clubId: number;
+  club: Club;
+  clubStatistics: ClubStatistics;
 };
 
-export default function MemberCarousel({ clubId }: MemberCarouselProps) {
+export default function MemberCarousel({
+  club,
+  clubStatistics
+}: MemberCarouselProps) {
   const router = useRouter();
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   const slideWidth = useMatches({ base: 100, md: 150 });
+  const clubId = club.id;
 
   const activeMembershipsForClub = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
@@ -32,11 +50,41 @@ export default function MemberCarousel({ clubId }: MemberCarouselProps) {
 
   const autoplay = Autoplay({ delay: 2000, stopOnInteraction: false });
   return (
-    <Box w={"100%"}>
+    <Stack
+      w={"100%"}
+      bg={
+        colorScheme === "dark" ? theme.colors.dark![3] : theme.colors.beige![1]
+      }
+      p={28}
+      bdrs={4}
+      mb={32}
+      gap={32}
+    >
+      <Stack align={"center"} gap={4}>
+        <Title
+          order={2}
+          tt="uppercase"
+          style={{
+            fontFamily: club.themeHeadingFont ?? "inherit",
+            textAlign: "center"
+          }}
+        >
+          Meet the club
+        </Title>
+        <Text
+          style={{ cursor: "pointer" }}
+          onClick={() => router.push(`/join/${club.publicId}/members`)}
+          size={"md"}
+          td={"underline"}
+        >
+          {`View all ${clubStatistics.memberCount} contributing member${clubStatistics.memberCount > 1 ? "s" : ""}`}
+        </Text>
+      </Stack>
+
       <Carousel
         slideSize={slideWidth}
         slideGap={"md"}
-        align="center"
+        align="start"
         plugins={[autoplay]}
         loop
         withControls={false}
@@ -62,7 +110,6 @@ export default function MemberCarousel({ clubId }: MemberCarouselProps) {
                 onClick={() => router.push(`/user/${m.id}?back=true`)}
                 style={{
                   border: "1px solid",
-                  boxShadow: "2px 2px 0px",
                   cursor: "pointer"
                 }}
               >
@@ -80,6 +127,6 @@ export default function MemberCarousel({ clubId }: MemberCarouselProps) {
           </Carousel.Slide>
         ))}
       </Carousel>
-    </Box>
+    </Stack>
   );
 }

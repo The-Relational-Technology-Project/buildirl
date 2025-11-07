@@ -85,6 +85,16 @@ export default class SubmitMembershipApplicationCommand
     await verifiers.verifyUserMemberships(this.userId, r, m);
     const clubId = m.getClubIdForMembershipTier(this.membershipTierId);
     await verifiers.verifyClubMemberships(clubId, r, m);
+
+    if (m.hasActiveMembershipCampaign(clubId)) {
+      const launchDate = m.getActiveMembershipCampaign(clubId)!.launchDate;
+      await verifiers.verifyMembershipCampaignProgress(
+        clubId,
+        launchDate,
+        r,
+        m
+      );
+    }
   }
 
   toString() {

@@ -1,6 +1,13 @@
 "use client";
 
-import { Stack, Group, Text, Divider } from "@mantine/core";
+import {
+  Stack,
+  Group,
+  Text,
+  Divider,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { api } from "~/trpc/react";
 import { isLoaded } from "~/client/utils";
 import { useParams, useRouter } from "next/navigation";
@@ -35,6 +42,9 @@ type MemberListProps = {
 };
 
 function MemberList({ clubId }: MemberListProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   const activeMembershipsForClub = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
   });
@@ -51,7 +61,15 @@ function MemberList({ clubId }: MemberListProps) {
   const allMembers = activeMembershipsForClub.data!.map((r) => r.user);
 
   return (
-    <Stack px={{ base: 0, md: "xl" }}>
+    <Stack
+      px={{ base: 0, md: "xl" }}
+      bg={{
+        backgroundColor:
+          colorScheme === "dark" ? theme.colors.dark![3] : "white"
+      }}
+      bdrs={4}
+      p={28}
+    >
       {allMembers.map((m, i) => (
         <MemberListItem
           key={m.id}

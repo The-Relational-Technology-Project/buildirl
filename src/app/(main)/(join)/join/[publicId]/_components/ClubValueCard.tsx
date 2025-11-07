@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Stack, useMatches, Text } from "@mantine/core";
+import {
+  Stack,
+  useMatches,
+  Text,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { Icon } from "tabler-dynamic-icon";
 import { ClubValue } from "~/server/club/types";
 
@@ -10,6 +16,10 @@ export function ClubValueCard({
   value: ClubValue;
   height: number;
 }) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const iconColor = colorScheme === "dark" ? "#d0b6ffff" : "#7240d2";
+
   const titleTextSize = useMatches({ base: "sm", md: "sm" });
   const descriptionTextSize = useMatches({ base: "xs", md: "xs" });
 
@@ -19,12 +29,14 @@ export function ClubValueCard({
       style={{
         position: "relative",
         border: "1px solid black",
+        borderRadius: 4,
         "&:hover": {
           border: "2px solid black"
         },
         paddingTop: "0.75rem",
         cursor: "pointer",
-        backgroundColor: "white"
+        backgroundColor:
+          colorScheme === "dark" ? theme.colors.dark![6] : "white"
       }}
     >
       <Stack gap={4} align="center" justify="start">
@@ -38,7 +50,7 @@ export function ClubValueCard({
           }}
         >
           {/* Use the 'cls' prop for Icon returned from mantine-icon-picker and as required by tabler-dynamic-icon */}
-          <Icon cls={value.icon as any} size={32} color={"#7240d2"} />
+          <Icon cls={value.icon as any} size={32} color={iconColor} />
           <Text
             size={titleTextSize}
             tt="uppercase"

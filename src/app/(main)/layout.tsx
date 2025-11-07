@@ -31,7 +31,7 @@ function AuthenticatedLayout({ children }: LayoutProps) {
     <AppShell header={{ height: HEADER_BAR_HEIGHT }}>
       <AppShellMain h={"100%"}>
         {/* We cannot use AppShellHeader because it doesn't work with transparency */}
-        <HeaderBar />
+        <HeaderBar isAuthenticated={true} />
         <WithDefaultColorSchemeOnManualRouteChange>
           <Center>
             <Box w={{ base: "100%", md: PAGE_WIDTH }} px={{ base: 30, md: 0 }}>
@@ -48,6 +48,7 @@ function PublicLayout({ children }: LayoutProps) {
   return (
     <AppShell header={{ height: HEADER_BAR_HEIGHT }}>
       <AppShellMain h={"100%"}>
+        <HeaderBar isAuthenticated={false} />
         <WithDefaultColorSchemeOnManualRouteChange>
           <Center>
             <Box w={{ base: "100%", md: PAGE_WIDTH }} px={{ base: 30, md: 0 }}>

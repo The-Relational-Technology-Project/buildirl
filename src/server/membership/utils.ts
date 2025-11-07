@@ -24,8 +24,9 @@ export const MEMBERSHIP_SELECT = {
   applicationResponses: true,
   role: true,
   isWelcomed: true,
-  createdAt: true
-};
+  createdAt: true,
+  updatedAt: true
+} satisfies Prisma.MembershipSelect;
 
 export const MEMBERSHIP_WITH_CLUB_SELECT = {
   ...MEMBERSHIP_SELECT,
@@ -39,7 +40,7 @@ export const MEMBERSHIP_WITH_CLUB_SELECT = {
       }
     }
   }
-};
+} satisfies Prisma.MembershipSelect;
 
 export function asMembership(
   r: MembershipGetPayload<{ select: typeof MEMBERSHIP_SELECT }>,
@@ -57,7 +58,8 @@ export function asMembership(
     email: userEmail,
     isWelcomed: r.isWelcomed,
     role: r.role,
-    createdAt: r.createdAt
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt
   };
 }
 
@@ -78,6 +80,7 @@ export async function asMembershipWithClub(
     email: userEmail,
     isWelcomed: r.isWelcomed,
     role: r.role,
-    createdAt: r.createdAt
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt
   };
 }

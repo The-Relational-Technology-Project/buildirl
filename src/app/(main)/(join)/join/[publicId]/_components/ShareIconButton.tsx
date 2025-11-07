@@ -15,7 +15,7 @@ export default function ShareIconButton({
 }: ShareIconButtonProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
-  const size = useMatches({ base: 32, md: 36 });
+  const size = useMatches({ base: 32, md: 45 });
 
   const onShare = () => {
     const shareUrl = `${window.location.origin}/join/${clubPublicId}/`;
@@ -31,13 +31,13 @@ export default function ShareIconButton({
 
   return (
     <Group
-      bg={colorScheme === "dark" ? theme.colors.dark[7] : "white"}
+      bg={colorScheme === "dark" ? theme.colors.beige?.[2] : "white"}
       w={size}
       h={size}
       p={2}
+      bdrs={4}
       style={{
-        border: "1px solid",
-        boxShadow: "2px 2px 0px"
+        border: "1px solid"
       }}
     >
       <ColorSchemeAwareActionIcon onClick={onShare} size={"100%"}>

@@ -48,6 +48,13 @@ import {
   UserSocials
 } from "~/server/user/types";
 import { stringify } from "~/utils";
+import {
+  CreateMembershipCampaignInput,
+  MembershipCampaign,
+  UpdateMembershipCampaignInput,
+  CampaignBudgetItem,
+  ActiveMembershipCampaignProgress
+} from "~/server/membershipCampaign/types";
 
 // this entities differ from api ones mostly in that nested entities
 // are replaced by their reference ids
@@ -90,6 +97,8 @@ type MembershipState = {
   applicationResponses: FormResponses;
   isWelcomed: boolean;
   role: Role;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 type UserState = {
@@ -100,6 +109,15 @@ type UserState = {
   socials: Maybe<UserSocials>;
   // settings
   email: Maybe<string>;
+};
+
+type MembershipCampaignState = {
+  id: number;
+  clubId: number;
+  budgetItems: CampaignBudgetItem[];
+  targetNumberOfMembers: number;
+  launchDate: Date;
+  targetDate: Date;
 };
 
 export class SystemState {
@@ -115,6 +133,7 @@ export class SystemState {
     Map<EmailTemplateType, EmailTemplate>
   >;
   private readonly emailBlasts: Map<bigint, EmailBlastState>;
+  private readonly membershipCampaigns: Map<number, MembershipCampaignState>;
 
   constructor() {
     this.users = new Map();
@@ -124,6 +143,7 @@ export class SystemState {
     this.clubFollowing = new Map();
     this.emailTemplates = new Map();
     this.emailBlasts = new Map();
+    this.membershipCampaigns = new Map();
   }
 
   // use this only for internal operations as it also contains
@@ -288,9 +308,7 @@ export class SystemState {
   public getClubIdsWithNoActiveMembershipsOrMembershipApplications(): number[] {
     const clubsWithMemberships =
       this.getClubIdsWithActiveMembershipsOrMembershipApplications();
-    return Array.from(this.clubs.keys()).filter(
-      (id) => !clubsWithMemberships.has(id)
-    );
+    return this.getClubIds().filter((id) => !clubsWithMemberships.has(id));
   }
 
   private getClubIdsWithActiveMembershipsOrMembershipApplications(): Set<number> {
@@ -363,6 +381,7 @@ export class SystemState {
     clubId: number,
     userId: number
   ) {
+    const now = new Date();
     this.memberships.set(leadMembershipId, {
       id: leadMembershipId,
       userId: userId,
@@ -371,7 +390,9 @@ export class SystemState {
       status: "ACTIVE",
       applicationResponses: { responses: [] },
       isWelcomed: true,
-      role: "LEAD"
+      role: "LEAD",
+      createdAt: now,
+      updatedAt: now
     });
   }
 
@@ -553,6 +574,11 @@ export class SystemState {
     return Array.from(this.membershipTiers.values()).map((t) => t.id);
   }
 
+  public getMembershipTierIdsForClub(clubId: number): number[] {
+    const club = this.getClubState(clubId);
+    return club.membershipTierIds;
+  }
+
   public hasPublishedMembershipTiers(): boolean {
     return this.getPublishedMembershipTierIds().length > 0;
   }
@@ -638,7 +664,7 @@ export class SystemState {
   public membershipStateToMembership(
     membershipState: MembershipState,
     includeEmail: boolean = false
-  ): OmitRecursively<Membership, "createdAt"> {
+  ): OmitRecursively<Membership, "createdAt" | "updatedAt"> {
     return {
       id: membershipState.id,
       user: this.getUser(membershipState.userId),
@@ -654,7 +680,7 @@ export class SystemState {
   public membershipStateToMembershipWithClub(
     membershipState: MembershipState,
     includeEmail: boolean = false
-  ): OmitRecursively<MembershipWithClub, "createdAt"> {
+  ): OmitRecursively<MembershipWithClub, "createdAt" | "updatedAt"> {
     return {
       id: membershipState.id,
       user: this.getUser(membershipState.userId),
@@ -688,7 +714,7 @@ export class SystemState {
   public getActiveMembershipsForClub(
     clubId: number,
     includeEmail: boolean
-  ): OmitRecursively<Membership, "createdAt">[] {
+  ): OmitRecursively<Membership, "createdAt" | "updatedAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.clubId === clubId)
       .filter((m) => m.status === "ACTIVE")
@@ -708,7 +734,7 @@ export class SystemState {
 
   public getMembershipApplicationsForClub(
     clubId: number
-  ): OmitRecursively<Membership, "createdAt">[] {
+  ): OmitRecursively<Membership, "createdAt" | "updatedAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.clubId === clubId)
       .filter((m) => m.status === "PENDING")
@@ -732,7 +758,7 @@ export class SystemState {
 
   public getUserMemberships(
     userId: number
-  ): OmitRecursively<MembershipWithClub, "createdAt">[] {
+  ): OmitRecursively<MembershipWithClub, "createdAt" | "updatedAt">[] {
     return Array.from(this.memberships.values())
       .filter((m) => m.userId === userId)
       .map((m) => this.membershipStateToMembershipWithClub(m, false));
@@ -746,6 +772,7 @@ export class SystemState {
   ) {
     const clubId = this.getClubIdForMembershipTier(membershipTierId);
     // add or update if already exists (e.g. declined or deactivated)
+    const now = new Date();
     this.memberships.set(membershipId, {
       id: membershipId,
       userId: userId,
@@ -754,7 +781,9 @@ export class SystemState {
       status: "PENDING",
       applicationResponses: input.applicationResponses,
       isWelcomed: false,
-      role: "MEMBER"
+      role: "MEMBER",
+      createdAt: now,
+      updatedAt: now
     });
   }
 
@@ -842,7 +871,8 @@ export class SystemState {
     this.unfollowClub(membershipState.userId, membershipState.clubId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      status: "ACTIVE"
+      status: "ACTIVE",
+      updatedAt: new Date()
     });
   }
 
@@ -850,7 +880,8 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      status: "DECLINED"
+      status: "DECLINED",
+      updatedAt: new Date()
     });
   }
 
@@ -858,7 +889,8 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      status: "INACTIVE"
+      status: "INACTIVE",
+      updatedAt: new Date()
     });
   }
 
@@ -866,7 +898,8 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      status: "WITHDRAWN"
+      status: "WITHDRAWN",
+      updatedAt: new Date()
     });
   }
 
@@ -874,7 +907,8 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      isWelcomed: true
+      isWelcomed: true,
+      updatedAt: new Date()
     });
   }
 
@@ -913,7 +947,8 @@ export class SystemState {
     const membership = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membership,
-      membershipTierId: newMembershipTierId
+      membershipTierId: newMembershipTierId,
+      updatedAt: new Date()
     });
   }
 
@@ -1121,7 +1156,8 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      role: "LEAD"
+      role: "LEAD",
+      updatedAt: new Date()
     });
   }
 
@@ -1129,7 +1165,135 @@ export class SystemState {
     const membershipState = this.getMembershipState(membershipId);
     this.memberships.set(membershipId, {
       ...membershipState,
-      role: "MEMBER"
+      role: "MEMBER",
+      updatedAt: new Date()
     });
+  }
+
+  public createMembershipCampaign(
+    id: number,
+    clubId: number,
+    input: CreateMembershipCampaignInput,
+    launchDate: Date
+  ) {
+    this.membershipCampaigns.set(id, {
+      id,
+      clubId: clubId,
+      budgetItems: input.budgetItems,
+      targetNumberOfMembers: input.targetNumberOfMemberships,
+      launchDate: launchDate,
+      targetDate: input.targetDate
+    });
+  }
+
+  public updateMembershipCampaign(
+    id: number,
+    input: UpdateMembershipCampaignInput
+  ) {
+    const campaign = this.getMembershipCampaignState(id);
+    this.membershipCampaigns.set(id, {
+      ...campaign,
+      budgetItems: input.budgetItems,
+      targetNumberOfMembers: input.targetNumberOfMemberships,
+      targetDate: input.targetDate
+    });
+  }
+
+  public deleteMembershipCampaign(id: number) {
+    if (!this.membershipCampaigns.has(id)) {
+      throw new Error(`membership campaign with id ${id} not found`);
+    }
+    this.membershipCampaigns.delete(id);
+  }
+
+  private getMembershipCampaignState(id: number): MembershipCampaignState {
+    const campaign = this.membershipCampaigns.get(id);
+    if (!campaign) {
+      throw new Error(`Membership campaign with id ${id} was expected`);
+    }
+    return campaign;
+  }
+
+  public getMembershipCampaignFromState(campaign: MembershipCampaignState) {
+    return this.membershipCampaignStateToMembershipCampaign(campaign);
+  }
+
+  public getMembershipCampaign(id: number): MembershipCampaign {
+    const campaign = this.getMembershipCampaignState(id);
+    return this.getMembershipCampaignFromState(campaign);
+  }
+
+  private membershipCampaignStateToMembershipCampaign(
+    state: MembershipCampaignState
+  ): MembershipCampaign {
+    return {
+      id: state.id,
+      budgetItems: state.budgetItems,
+      targetNumberOfMemberships: state.targetNumberOfMembers,
+      launchDate: state.launchDate,
+      targetDate: state.targetDate
+    };
+  }
+
+  public getActiveMembershipCampaign(
+    clubId: number
+  ): Maybe<MembershipCampaign> {
+    const now = new Date();
+    const campaigns = Array.from(this.membershipCampaigns.values())
+      .filter((c) => {
+        return c.clubId === clubId && c.targetDate >= now;
+      })
+      .sort((a, b) => b.id - a.id);
+
+    if (campaigns.length === 0) {
+      return null;
+    }
+
+    if (campaigns.length > 1) {
+      throw new Error("unexpected to have more than 1 active campaign");
+    }
+
+    return this.getMembershipCampaignFromState(campaigns[0]!);
+  }
+
+  public getClubIdForMembershipCampaign(campaignId: number): number {
+    const campaign = this.getMembershipCampaignState(campaignId);
+    return campaign.clubId;
+  }
+
+  public getClubIdsWithoutActiveCampaigns(): number[] {
+    return this.getClubIds().filter((clubId: number) => {
+      return !this.hasActiveMembershipCampaign(clubId);
+    });
+  }
+
+  public hasActiveMembershipCampaign(clubId: number): boolean {
+    return this.getActiveMembershipCampaign(clubId) !== null;
+  }
+
+  public getActiveMembershipCampaignIds(): number[] {
+    const now = new Date();
+    return Array.from(this.membershipCampaigns.values())
+      .filter((c) => c.targetDate >= now)
+      .map((c) => c.id);
+  }
+
+  public getActiveMembershipCampaignProgress(
+    clubId: number,
+    launchDate: Date
+  ): OmitRecursively<ActiveMembershipCampaignProgress, "createdAt"> {
+    const members = Array.from(this.memberships.values())
+      .filter(
+        (m) =>
+          m.clubId === clubId &&
+          (m.status === "ACTIVE" || m.status === "PENDING") &&
+          m.updatedAt > launchDate
+      )
+      .map((m) => this.getUser(m.userId));
+
+    return {
+      committedNumberOfMemberships: members.length,
+      committedMembers: members
+    };
   }
 }

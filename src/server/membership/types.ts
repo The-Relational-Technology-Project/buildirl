@@ -16,6 +16,7 @@ type MembershipQueries = {
     clubId: number,
     includeEmail: boolean
   ): Promise<Membership[]>;
+  getClubLeads(clubId: number): Promise<Membership[]>;
   getMembershipApplicationsForClub(clubId: number): Promise<Membership[]>;
   // internal
   membershipStatus(membershipId: bigint): Promise<MembershipStatus>;
@@ -46,6 +47,7 @@ export type Membership = {
   // the membership first was created (e.g., as `PENDING_INCOMPLETE`)
   // TODO refine
   createdAt: Date;
+  updatedAt: Date;
 };
 
 export type MembershipWithClub = Membership & { club: Club };

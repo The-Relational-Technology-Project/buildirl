@@ -1,4 +1,9 @@
-import { Stack, Button } from "@mantine/core";
+import {
+  Stack,
+  Button,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { useState, useRef, useLayoutEffect, ReactNode } from "react";
 
 type ReadMoreBoxProps = {
@@ -14,6 +19,9 @@ export function ReadMoreBox({
   style,
   className
 }: ReadMoreBoxProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
   const [expanded, setExpanded] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const textRef = useRef<HTMLDivElement>(null);
@@ -35,10 +43,13 @@ export function ReadMoreBox({
       mb={{ base: "sm", md: "lg" }}
       className={className}
       style={{
-        border: "1.5px solid #000000",
         borderRadius: 4,
-        padding: "16px",
-        ...style
+        padding: "24px",
+        ...style,
+        backgroundColor:
+          colorScheme === "dark"
+            ? theme.colors.dark![3]
+            : theme.colors.beige![1]
       }}
     >
       <div
@@ -71,8 +82,9 @@ export function ReadMoreBox({
         <Button
           variant="subtle"
           size="xs"
+          bg="gray.1"
           onClick={() => setExpanded((v) => !v)}
-          style={{ marginTop: 4 }}
+          style={{ marginTop: 16 }}
         >
           {expanded ? "Collapse" : "Read more"}
         </Button>
