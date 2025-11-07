@@ -30,6 +30,7 @@ import { HowWeHang } from "./_components/HowWeHang";
 import InfoChip from "./_components/InfoChip";
 import { CampaignModule } from "./_components/CampaignModule";
 import { HowCampaignWorks } from "./_components/HowCampaignWorks";
+import { JoinButton } from "./_components/JoinButton";
 
 type WithRedirectToWelcomePageProps = {
   publicId: string;
@@ -215,6 +216,8 @@ export default function ClubJoin() {
               </Group>
             </Stack>
           </Stack>
+
+          {!activeCampaign.data && <JoinButton club={club.data!} />}
 
           {activeCampaign.data && campaignProgress?.data && (
             <CampaignModule
