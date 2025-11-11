@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { strictParseInt } from "~/utils";
 import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHeader";
 import React from "react";
-import { Stack } from "@mantine/core";
+import { Box, Flex, Stack } from "@mantine/core";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
@@ -78,14 +78,23 @@ export default function MemberReview() {
     <WithLocalNavigationHeader>
       {/* include this at the top so the reviewer does not miss it */}
       <Stack gap="xl" pb="xl">
-        {pendingMembership && (
-          <MembershipApplicationActionCard
-            clubId={clubId}
-            membership={pendingMembership}
-          />
-        )}
-
-        <UserInfoCard user={userQuery.data!} />
+        <Flex
+          direction={{ base: "column", sm: "row" }}
+          gap={{ base: "md", sm: "lg" }}
+          align="stretch"
+        >
+          <Box style={{ flex: 1 }}>
+            <UserInfoCard user={userQuery.data!} />
+          </Box>
+          {pendingMembership && (
+            <Box style={{ flex: 1 }}>
+              <MembershipApplicationActionCard
+                clubId={clubId}
+                membership={pendingMembership}
+              />
+            </Box>
+          )}
+        </Flex>
 
         <MembershipInfoCard membership={userMembership} />
 

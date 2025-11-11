@@ -11,7 +11,7 @@ type UserInfoCardProps = {
 export default function UserInfoCard({ user }: UserInfoCardProps) {
   const router = useRouter();
   return (
-    <Paper p="xl">
+    <Paper p="xl" h="100%">
       <Stack align={"center"}>
         <Flex
           direction={{ base: "column", md: "row" }}
