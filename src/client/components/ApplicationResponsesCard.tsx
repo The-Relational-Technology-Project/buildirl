@@ -20,6 +20,17 @@ type ApplicationResponsesCardProps = {
 export default function ApplicationResponsesCard({
   membership
 }: ApplicationResponsesCardProps) {
+  const grayedStyles = {
+    input: {
+      backgroundColor: "var(--mantine-color-gray-1)",
+      color: "var(--mantine-color-gray109)",
+      cursor: "not-allowed",
+      "&:focus": {
+        borderColor: "var(--mantine-color-gray-4)"
+      }
+    }
+  };
+
   const renderResponse = (response: FormResponse) => {
     switch (response.type) {
       case FormQuestionType.SHORT_TEXT:
@@ -27,7 +38,7 @@ export default function ApplicationResponsesCard({
           <TextInput
             label={response.question}
             value={response.response}
-            disabled
+            styles={grayedStyles}
             readOnly
           />
         );
@@ -36,8 +47,9 @@ export default function ApplicationResponsesCard({
           <Textarea
             label={response.question}
             value={response.response}
-            disabled
+            styles={grayedStyles}
             readOnly
+            disabled
             autosize
           />
         );
@@ -51,7 +63,7 @@ export default function ApplicationResponsesCard({
                   value={choice}
                   label={choice}
                   pt="xs"
-                  disabled
+                  style={grayedStyles}
                 />
               ))}
             </Radio.Group>
@@ -67,7 +79,7 @@ export default function ApplicationResponsesCard({
                   value={choice}
                   label={choice}
                   pt={"xs"}
-                  disabled
+                  styles={grayedStyles}
                 />
               ))}
             </Checkbox.Group>
@@ -102,4 +114,4 @@ export default function ApplicationResponsesCard({
       </Stack>
     </Paper>
   );
-} 
+}
