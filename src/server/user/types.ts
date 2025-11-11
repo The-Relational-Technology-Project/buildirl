@@ -60,7 +60,10 @@ export type UserMutations = {
     authEmail: string
   ): Promise<MutationResult>;
   updateUser(id: number, input: UpdateUserInput): Promise<MutationResult>;
-  updateUserSocials(id: number, input: UpdateUserSocialsInput): Promise<MutationResult>;
+  updateUserSocials(
+    id: number,
+    input: UpdateUserSocialsInput
+  ): Promise<MutationResult>;
 };
 
 export const CreateUserInputSchema = z.object({
@@ -71,6 +74,8 @@ export const CreateUserInputSchema = z.object({
 export type CreateUserInput = z.infer<typeof CreateUserInputSchema>;
 
 export const UpdateUserInputSchema = z.object({
+  firstName: RequiredStringSchema,
+  lastName: RequiredStringSchema,
   description: LongTextSchema
 });
 export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
@@ -82,4 +87,6 @@ export const UpdateUserSocialsInputSchema = z.object({
   linkedin: LinkedInHandleSchema.nullable(),
   website: UrlSchema.nullable()
 });
-export type UpdateUserSocialsInput = z.infer<typeof UpdateUserSocialsInputSchema>;
+export type UpdateUserSocialsInput = z.infer<
+  typeof UpdateUserSocialsInputSchema
+>;
