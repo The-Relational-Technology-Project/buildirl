@@ -1,11 +1,12 @@
 import { User } from "~/server/user/types";
-import { 
-  LongTextSchema, 
+import {
+  LongTextSchema,
   UrlSchema,
   TwitterHandleSchema,
   InstagramHandleSchema,
   FacebookHandleSchema,
-  LinkedInHandleSchema
+  LinkedInHandleSchema,
+  RequiredStringSchema
 } from "~/server/utils/types";
 import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
@@ -15,7 +16,15 @@ import { isLoaded } from "~/client/utils";
 import EditableUserAvatar from "~/client/components/EditableUserAvatar";
 import PrefixedInput from "~/client/components/PrefixedInput";
 import React from "react";
-import { Button, Stack, Text, Textarea, Title, TextInput } from "@mantine/core";
+import {
+  Button,
+  Stack,
+  Text,
+  Textarea,
+  Title,
+  TextInput,
+  Group
+} from "@mantine/core";
 import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 
 type UserFormProps = {
@@ -42,6 +51,8 @@ function UpdateUserForm({ user }: UserFormProps) {
 
   const form = useForm({
     initialValues: {
+      firstName: user.firstName,
+      lastName: user.lastName,
       description: user.description,
       twitter: user.socials?.twitter ?? null,
       instagram: user.socials?.instagram ?? null,
@@ -51,67 +62,101 @@ function UpdateUserForm({ user }: UserFormProps) {
     },
     validateInputOnChange: true,
     validate: {
+      firstName: (v) => safeValidateSchema(RequiredStringSchema, v),
+      lastName: (v) => safeValidateSchema(RequiredStringSchema, v),
       description: (v) => safeValidateSchema(LongTextSchema, v),
-      twitter: (v) => v ? safeValidateSchema(TwitterHandleSchema, v) : null,
-      instagram: (v) => v ? safeValidateSchema(InstagramHandleSchema, v) : null,
-      facebook: (v) => v ? safeValidateSchema(FacebookHandleSchema, v) : null,
-      linkedin: (v) => v ? safeValidateSchema(LinkedInHandleSchema, v) : null,
-      website: (v) => v ? safeValidateSchema(UrlSchema, v) : null
+      twitter: (v) => (v ? safeValidateSchema(TwitterHandleSchema, v) : null),
+      instagram: (v) =>
+        v ? safeValidateSchema(InstagramHandleSchema, v) : null,
+      facebook: (v) => (v ? safeValidateSchema(FacebookHandleSchema, v) : null),
+      linkedin: (v) => (v ? safeValidateSchema(LinkedInHandleSchema, v) : null),
+      website: (v) => (v ? safeValidateSchema(UrlSchema, v) : null)
     }
   });
 
   return (
     <form
-      onSubmit={form.onSubmit(async ({ description, twitter, instagram, facebook, linkedin, website }) => {
-        await updateUser.mutateAsync({ id: user.id, input: { description } });
-        
-        await updateUserSocials.mutateAsync({ 
-          id: user.id, 
-          input: { twitter, instagram, facebook, linkedin, website }
-        });
-        
-        notifySuccess("Profile updated", "Your profile has been updated successfully!");
-      })}
+      onSubmit={form.onSubmit(
+        async ({
+          firstName,
+          lastName,
+          description,
+          twitter,
+          instagram,
+          facebook,
+          linkedin,
+          website
+        }) => {
+          await updateUser.mutateAsync({
+            id: user.id,
+            input: { firstName, lastName, description }
+          });
+
+          await updateUserSocials.mutateAsync({
+            id: user.id,
+            input: { twitter, instagram, facebook, linkedin, website }
+          });
+
+          notifySuccess(
+            "Profile updated",
+            "Your profile has been updated successfully!"
+          );
+        }
+      )}
     >
       <Stack w="100%" miw={{ base: 300, md: 400 }} gap="md">
         <Stack gap={2}>
-          <Title order={6}>Name</Title>
-          <Text>{`${user.firstName} ${user.lastName}`}</Text>
+          <Title order={6}>Your Name</Title>
+          <Group>
+            <TextInput
+              placeholder="First name"
+              key={form.key("firstName")}
+              {...form.getInputProps("firstName")}
+            />
+            <TextInput
+              placeholder="Last name"
+              key={form.key("lastName")}
+              {...form.getInputProps("lastName")}
+            />
+          </Group>
         </Stack>
 
-        <Textarea
-          placeholder={
-            "Share a little about who you are and how you will add to the community!"
-          }
-          key={form.key("description")}
-          {...form.getInputProps("description")}
-          autosize
-          minRows={3}
-          maxRows={8}
-          w="100%"
-        />
+        <Stack gap={2}>
+          <Title order={6}>Bio</Title>
+          <Textarea
+            placeholder={
+              "Share a little about who you are and how you will add to the community!"
+            }
+            key={form.key("description")}
+            {...form.getInputProps("description")}
+            autosize
+            minRows={3}
+            maxRows={8}
+            w="100%"
+          />
+        </Stack>
 
         <Stack gap="xs">
-          <Title order={6}>Social Links</Title>          
-          <PrefixedInput 
+          <Title order={6}>Social Links</Title>
+          <PrefixedInput
             prefix="twitter.com/"
             placeholder="username"
             key={form.key("twitter")}
             {...form.getInputProps("twitter")}
           />
-          <PrefixedInput 
+          <PrefixedInput
             prefix="instagram.com/"
             placeholder="username"
             key={form.key("instagram")}
             {...form.getInputProps("instagram")}
           />
-          <PrefixedInput 
+          <PrefixedInput
             prefix="facebook.com/"
             placeholder="username"
             key={form.key("facebook")}
             {...form.getInputProps("facebook")}
           />
-          <PrefixedInput 
+          <PrefixedInput
             prefix="linkedin.com/in/"
             placeholder="username"
             key={form.key("linkedin")}
