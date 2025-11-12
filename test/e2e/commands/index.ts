@@ -139,11 +139,15 @@ function createUserCommands() {
 function updateUserCommands() {
   return record({
     userIdSelector: itemSelector<number>(),
+    firstName: string(),
+    lastName: string(),
     description: string()
   }).map(
     (i) =>
       new UpdateUserCommand(
         {
+          firstName: i.firstName,
+          lastName: i.lastName,
           description: i.description
         },
         i.userIdSelector
