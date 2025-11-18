@@ -187,6 +187,7 @@ export type CreateSubscriptionForMembershipInput = {
   initiationFeePriceId: Maybe<string>;
   setupIntentId: string;
   membershipId: bigint;
+  membershipTierUpdatedAtMs: number;
 };
 
 export type CreateSubscriptionForMembershipResponse = {
