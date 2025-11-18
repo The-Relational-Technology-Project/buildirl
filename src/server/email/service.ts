@@ -524,8 +524,8 @@ export function createEmailService(
   }
 
   async function sendEmailBlast(id: bigint): Promise<void> {
-    return prisma.$transaction(async (tx) => {
-      try {
+    const emailData = await prisma.$transaction(
+      async (tx) => {
         const emailBlast = await tx.emailBlast.findUniqueOrThrow({
           where: { id }
         });
@@ -540,9 +540,7 @@ export function createEmailService(
             status: "ACTIVE",
             role: "LEAD"
           },
-          select: {
-            userId: true
-          }
+          select: { userId: true }
         });
 
         const leadUserIds = leadMemberships.map((m) => m.userId);
@@ -571,38 +569,86 @@ export function createEmailService(
           }
         });
 
-        const template = {
-          subject: emailBlast.subject,
-          htmlContent: emailBlast.htmlContent,
-          textContent: emailBlast.textContent
+        const emailRecipients = await Promise.all(
+          memberships.map(async (membership) => ({
+            membershipId: membership.id,
+            email: await userService.getUserEmailInTransaction(
+              membership.userId,
+              tx
+            ),
+            variables: await getEmailVariables(membership.id, tx)
+          }))
+        );
+
+        return {
+          emailBlast,
+          leadEmails,
+          emailRecipients,
+          template: {
+            subject: emailBlast.subject,
+            htmlContent: emailBlast.htmlContent,
+            textContent: emailBlast.textContent
+          }
         };
+      },
+      {
+        timeout: 10000
+      }
+    );
 
-        for (const membership of memberships) {
-          const memberEmail = await userService.getUserEmailInTransaction(
-            membership.userId,
-            tx
-          );
+    const BATCH_SIZE = 10;
+    const { emailRecipients, leadEmails, template } = emailData;
+    const failedEmails: { email: string; error: string }[] = [];
 
-          const variables = await getEmailVariables(membership.id, tx);
+    try {
+      for (let i = 0; i < emailRecipients.length; i += BATCH_SIZE) {
+        const batch = emailRecipients.slice(i, i + BATCH_SIZE);
 
-          await emailClient.sendInterpolatedEmail(
-            template,
-            variables,
-            memberEmail,
-            leadEmails
-          );
+        const batchPromises = batch.map((recipient) =>
+          emailClient
+            .sendInterpolatedEmail(
+              template,
+              recipient.variables,
+              recipient.email,
+              leadEmails
+            )
+            .catch((error) => {
+              logger.error(error, `Failed to send email to ${recipient.email}`);
+              failedEmails.push({
+                email: recipient.email,
+                error: error.message
+              });
+              return null;
+            })
+        );
+
+        await Promise.all(batchPromises);
+
+        if (i + BATCH_SIZE < emailRecipients.length) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
+      }
 
+      // Update status to SENT only if most emails were sent
+      if (failedEmails.length < emailRecipients.length) {
         await setEmailBlastStatus(id, "SENT");
 
-        logger.info(
-          `sent email blast with id ${id} to ${memberships.length} members with interpolation`
-        );
-      } catch (e) {
-        logger.error(e, `failed to send email blast with id ${id}`);
-        throw e;
+        if (failedEmails.length > 0) {
+          logger.warn(
+            `Email blast ${id} sent to ${emailRecipients.length - failedEmails.length} of ${emailRecipients.length} members. Failed emails: ${JSON.stringify(failedEmails)}`
+          );
+        } else {
+          logger.info(
+            `Email blast ${id} successfully sent to all ${emailRecipients.length} members`
+          );
+        }
+      } else {
+        throw new Error("Failed to send email to any recipients");
       }
-    });
+    } catch (e) {
+      logger.error(e, `Failed to send email blast with id ${id}`);
+      throw e;
+    }
   }
 
   return {
