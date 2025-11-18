@@ -620,8 +620,11 @@ export function createStripeClient(stripe: Stripe): StripeClient {
     }
   }
 
-  function generateSubscriptionIdempotencyKey(membershipId: bigint): string {
-    return `membership-${membershipId}`;
+  function generateSubscriptionIdempotencyKey(
+    membershipId: bigint,
+    membershipTierUpdatedAtMs: number
+  ): string {
+    return `membership-${membershipId}-${membershipTierUpdatedAtMs}`;
   }
 
   async function createSubscriptionForMembership(
@@ -643,7 +646,8 @@ export function createStripeClient(stripe: Stripe): StripeClient {
       }
 
       const idempotencyKey = generateSubscriptionIdempotencyKey(
-        input.membershipId
+        input.membershipId,
+        input.membershipTierUpdatedAtMs
       );
 
       const subscription = await stripe.subscriptions.create(

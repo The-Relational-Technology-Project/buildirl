@@ -387,6 +387,7 @@ export function createPaymentService(
           membershipTier: {
             select: {
               id: true,
+              updatedAt: true,
               stripePriceId: true,
               costPerBillingInterval: true,
               initiationFeeStripePriceId: true,
@@ -423,6 +424,7 @@ export function createPaymentService(
       const priceId = membership.membershipTier.stripePriceId;
       const initiationFeeStripePriceId =
         membership.membershipTier.initiationFeeStripePriceId;
+      const membershipTierUpdatedAt = membership.membershipTier.updatedAt;
 
       if (!customerId) {
         throw new Error(
@@ -457,7 +459,8 @@ export function createPaymentService(
             customerId: customerId,
             priceId: priceId,
             membershipId: input.membershipId,
-            initiationFeePriceId: initiationFeeStripePriceId
+            initiationFeePriceId: initiationFeeStripePriceId,
+            membershipTierUpdatedAtMs: membershipTierUpdatedAt.getTime()
           },
           accountId
         );
