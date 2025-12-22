@@ -1,6 +1,13 @@
 "use client";
 
-import { Stack, Title, Text, useMatches, TitleOrder } from "@mantine/core";
+import {
+  Stack,
+  Title,
+  Text,
+  useMatches,
+  TitleOrder,
+  Paper
+} from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -43,17 +50,33 @@ export default function ClubTiers() {
     mounted && (
       <WithLocalNavigationHeader>
         <Stack gap={titleAndCardGap}>
-          <Stack align={"center"} gap={6}>
-            <Title order={titleOrder}>BE A JOINER.</Title>
-            <Text size={"lg"} ta="center">
-              Become a contributing member.
-            </Text>
+          <Stack align={"center"} gap={6} mb={"md"}>
+            <Title ta="center" order={titleOrder}>
+              Help keep this community alive!
+            </Title>
+            <Paper
+              p="xs"
+              radius="xs"
+              shadow="none"
+              style={{
+                backgroundColor: "white",
+                border: "2px solid #0f0f0f",
+                boxShadow: "4px 6px 0 #0f0f0f",
+                transform: "rotate(-2deg)",
+                maxWidth: 500,
+                marginTop: "12px"
+              }}
+            >
+              <Text size="md" fw={500} ta="center" px="md" lh={1}>
+                ✨ A little contribution, a big difference. ✨
+              </Text>
+            </Paper>
           </Stack>
 
           <MembershipTierCarousel
             tiers={publishedTiers}
             onTierSelect={handleTierSelect}
-            buttonText="Apply to Join"
+            buttonText="Select"
           />
 
           <Text
@@ -61,11 +84,11 @@ export default function ClubTiers() {
             style={{ alignSelf: "center", textAlign: "center" }}
             mb={20}
           >
-            You will only be charged if you are approved as a member.
+            You’ll only be charged if your application is approved by the club.
+            You may also withdraw your application after submitting.
           </Text>
         </Stack>
       </WithLocalNavigationHeader>
     )
   );
 }
-
