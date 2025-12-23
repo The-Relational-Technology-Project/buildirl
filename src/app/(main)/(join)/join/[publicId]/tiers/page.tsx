@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -131,7 +132,7 @@ function ContributionReasonsCarousel() {
 
         <Carousel
           slideSize="33.333333%"
-          slideGap="md"
+          slideGap="lg"
           align={isMobile ? "center" : "start"}
           withIndicators={isMobile}
           withControls
@@ -147,8 +148,9 @@ function ContributionReasonsCarousel() {
               borderRadius: "4px"
             },
             container: {
-              paddingTop: 8,
-              paddingBottom: 8
+              paddingTop: 16,
+              paddingBottom: 16,
+              paddingLeft: 16
             },
             ...(isMobile
               ? {
@@ -160,7 +162,7 @@ function ContributionReasonsCarousel() {
                 }
               : {})
           }}
-          px={{ base: 0, md: 48 }}
+          px={{ base: 0, md: 72 }}
           pb={{ base: 60, md: 0 }}
         >
           {contributionCards.map((card) => (
@@ -175,49 +177,100 @@ function ContributionReasonsCarousel() {
 }
 
 function ContributionCard({ label }: { label: string }) {
+  const [flipped, setFlipped] = useState(false);
+
+  const handleToggle = () => setFlipped((prev) => !prev);
+
   return (
-    <Box
-      h={300}
-      w={250}
-      style={{
-        position: "relative",
-        borderRadius: 26,
-        overflow: "hidden",
-        border: "3px solid #0d0d0d",
-        boxShadow: "8px 8px 0 #0d0d0d",
-        backgroundColor: "#e6f4d7"
-      }}
-    >
+    <Box h={300} w={250} style={{ perspective: 1000 }}>
       <Box
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(180deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.15) 100%)"
+        role="button"
+        tabIndex={0}
+        onClick={handleToggle}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            handleToggle();
+          }
         }}
-      />
-      <Center
+        aria-pressed={flipped}
         style={{
-          position: "absolute",
-          inset: 0
+          position: "relative",
+          height: "100%",
+          width: "100%",
+          borderRadius: 26,
+          cursor: "pointer",
+          transformStyle: "preserve-3d",
+          transition: "transform 0.6s ease",
+          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          boxShadow: "8px 8px 0 #0d0d0d"
         }}
       >
-        <Text
-          fw={700}
-          tt="uppercase"
-          size="lg"
-          px="xl"
-          py={4}
+        <Box
           style={{
-            backgroundColor: "#d2f377",
-            borderRadius: 999,
-            border: "2px solid #0d0d0d",
-            letterSpacing: 0.3
+            position: "absolute",
+            inset: 0,
+            borderRadius: 26,
+            border: "3px solid #0d0d0d",
+            overflow: "hidden",
+            backgroundColor: "#e6f4d7",
+            backfaceVisibility: "hidden"
           }}
         >
-          {label}
-        </Text>
-      </Center>
+          <Box
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(180deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.15) 100%)"
+            }}
+          />
+          <Center
+            style={{
+              position: "absolute",
+              inset: 0
+            }}
+          >
+            <Text
+              fw={700}
+              tt="uppercase"
+              size="lg"
+              px="xl"
+              py={4}
+              style={{
+                backgroundColor: "#d2f377",
+                borderRadius: 999,
+                border: "2px solid #0d0d0d",
+                letterSpacing: 0.3
+              }}
+            >
+              {label}
+            </Text>
+          </Center>
+        </Box>
+
+        <Box
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: 26,
+            border: "3px solid #0d0d0d",
+            overflow: "hidden",
+            backgroundColor: "#e6f4d7",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1.5rem",
+            backfaceVisibility: "hidden",
+            transform: "rotateY(180deg)"
+          }}
+        >
+          <Text ta="center" fw={600} c="#0d0d0d">
+            Contributions help us pay for the venue we hold our weekly meetings
+            at
+          </Text>
+        </Box>
+      </Box>
     </Box>
   );
 }
