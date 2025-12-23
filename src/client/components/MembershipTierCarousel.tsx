@@ -34,6 +34,23 @@ export function MembershipTierCarousel({
   const withCarouselControls = useMatches({ base: false, md: true });
   const { colorScheme } = useMantineColorScheme();
 
+  if (isMobile) {
+    return (
+      <Stack gap="md" w="100%">
+        {tiers.map((tier) => (
+          <MembershipTierCard
+            key={tier.id}
+            membershipTier={tier}
+            onSelect={() => onTierSelect(tier)}
+            buttonText={buttonText}
+            disabled={tier.id === excludedTierId}
+            fullWidth
+          />
+        ))}
+      </Stack>
+    );
+  }
+
   return (
     <Carousel
       slideSize="33.333333%"
@@ -90,13 +107,15 @@ interface MembershipTierCardProps {
   onSelect: () => void;
   buttonText: string;
   disabled: boolean;
+  fullWidth?: boolean;
 }
 
 function MembershipTierCard({
   membershipTier,
   onSelect,
   buttonText,
-  disabled
+  disabled,
+  fullWidth = false
 }: MembershipTierCardProps) {
   const monthlyCost = `$${membershipTier.costPerBillingInterval} / ${billingIntervalLabel(membershipTier.billingInterval)}`;
   const initiationFee =
@@ -111,7 +130,7 @@ function MembershipTierCard({
     <Paper
       key={membershipTier.id}
       h={520}
-      w={320}
+      w={fullWidth ? "100%" : 320}
       radius="lg"
       style={{
         overflow: "hidden",
