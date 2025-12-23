@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isLoaded } from "~/client/utils";
@@ -27,11 +27,36 @@ const contributionCards = [
   { label: "TIME + EFFORT" }
 ];
 
+const scrollToElementSlowly = (element: HTMLElement, duration = 900) => {
+  const startY = window.scrollY;
+  const targetY = element.getBoundingClientRect().top + window.scrollY;
+  const distance = targetY - startY;
+  const startTime = performance.now();
+
+  const easeInOutQuad = (t: number) =>
+    t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+  const step = (currentTime: number) => {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeInOutQuad(progress);
+
+    window.scrollTo(0, startY + distance * easedProgress);
+
+    if (elapsed < duration) {
+      requestAnimationFrame(step);
+    }
+  };
+
+  requestAnimationFrame(step);
+};
+
 export default function ClubTiers() {
   const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
   const titleAndCardGap = useMatches({ base: "lg", md: "xl" });
   const mounted = useMounted();
   const router = useRouter();
+  const contributionReasonsRef = useRef<HTMLDivElement>(null);
 
   const params = useParams<{ publicId: string }>();
 
@@ -43,6 +68,17 @@ export default function ClubTiers() {
     result: club,
     fieldName: "clubByPublicId"
   });
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (typeof window === "undefined") return;
+    if (window.location.hash === "#contribution-reasons") {
+      const target = contributionReasonsRef.current;
+      if (target) {
+        scrollToElementSlowly(target);
+      }
+    }
+  }, [mounted]);
 
   if (!isLoaded(club)) {
     return null;
@@ -94,7 +130,9 @@ export default function ClubTiers() {
               You’ll only be charged if your application is approved by the
               club. You may also withdraw your application after submitting.
             </Text>
-            <ContributionReasonsCarousel />
+            <Box ref={contributionReasonsRef} style={{ width: "100%" }}>
+              <ContributionReasonsCarousel />
+            </Box>
           </Stack>
         </Stack>
       </WithLocalNavigationHeader>
@@ -150,7 +188,7 @@ function ContributionReasonsCarousel() {
             container: {
               paddingTop: 16,
               paddingBottom: 16,
-              paddingLeft: 16
+              paddingLeft: 24
             },
             ...(isMobile
               ? {
