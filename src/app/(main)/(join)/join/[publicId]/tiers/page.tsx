@@ -188,7 +188,7 @@ function ContributionReasonsCarousel() {
             container: {
               paddingTop: 16,
               paddingBottom: 16,
-              paddingLeft: 24
+              paddingLeft: 48
             },
             ...(isMobile
               ? {

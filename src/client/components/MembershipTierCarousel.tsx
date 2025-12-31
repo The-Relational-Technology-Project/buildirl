@@ -86,7 +86,7 @@ export function MembershipTierCarousel({
       }}
       // shifts the indicator down
       pb={{ base: 60, md: 0 }}
-      px={{ base: 0, md: 48 }}
+      px={{ base: 0, md: 72 }}
     >
       {tiers.map((tier) => (
         <Carousel.Slide key={tier.id} py={8}>
@@ -167,7 +167,7 @@ function MembershipTierCard({
               radius="xl"
               color="#ffe680"
               variant="filled"
-              fz={"xs"}
+              fz={"sm"}
               ff={"text"}
               py={"sm"}
               bd={"1px solid black"}
@@ -179,7 +179,7 @@ function MembershipTierCard({
               <Badge
                 color="#ffe680"
                 variant="filled"
-                fz={"xs"}
+                fz={"sm"}
                 ff={"text"}
                 py={"sm"}
                 bd={"1px solid black"}
