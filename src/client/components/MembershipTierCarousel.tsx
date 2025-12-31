@@ -211,9 +211,9 @@ function MembershipTierCard({
           <Space flex={1} />
 
           <Stack gap={6}>
-            <Text size="sm" c="dimmed" fw={600} style={{ letterSpacing: 0.6 }}>
+            {/* <Text size="sm" c="dimmed" fw={600} style={{ letterSpacing: 0.6 }}>
               Impact: ⭐️
-            </Text>
+            </Text> */}
             {/* <Box style={{ borderTop: "1px solid #c9c3b4" }} /> */}
             <Button
               onClick={onSelect}
