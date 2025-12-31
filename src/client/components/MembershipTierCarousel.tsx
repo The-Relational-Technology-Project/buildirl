@@ -34,6 +34,23 @@ export function MembershipTierCarousel({
   const withCarouselControls = useMatches({ base: false, md: true });
   const { colorScheme } = useMantineColorScheme();
 
+  if (isMobile) {
+    return (
+      <Stack gap="md" w="100%">
+        {tiers.map((tier) => (
+          <MembershipTierCard
+            key={tier.id}
+            membershipTier={tier}
+            onSelect={() => onTierSelect(tier)}
+            buttonText={buttonText}
+            disabled={tier.id === excludedTierId}
+            fullWidth
+          />
+        ))}
+      </Stack>
+    );
+  }
+
   return (
     <Carousel
       slideSize="33.333333%"
@@ -69,7 +86,7 @@ export function MembershipTierCarousel({
       }}
       // shifts the indicator down
       pb={{ base: 60, md: 0 }}
-      px={{ base: 0, md: 48 }}
+      px={{ base: 0, md: 72 }}
     >
       {tiers.map((tier) => (
         <Carousel.Slide key={tier.id} py={8}>
@@ -90,13 +107,15 @@ interface MembershipTierCardProps {
   onSelect: () => void;
   buttonText: string;
   disabled: boolean;
+  fullWidth?: boolean;
 }
 
 function MembershipTierCard({
   membershipTier,
   onSelect,
   buttonText,
-  disabled
+  disabled,
+  fullWidth = false
 }: MembershipTierCardProps) {
   const monthlyCost = `$${membershipTier.costPerBillingInterval} / ${billingIntervalLabel(membershipTier.billingInterval)}`;
   const initiationFee =
@@ -111,7 +130,7 @@ function MembershipTierCard({
     <Paper
       key={membershipTier.id}
       h={520}
-      w={320}
+      w={fullWidth ? "100%" : 320}
       radius="lg"
       style={{
         overflow: "hidden",
@@ -148,7 +167,7 @@ function MembershipTierCard({
               radius="xl"
               color="#ffe680"
               variant="filled"
-              fz={"xs"}
+              fz={"sm"}
               ff={"text"}
               py={"sm"}
               bd={"1px solid black"}
@@ -160,7 +179,7 @@ function MembershipTierCard({
               <Badge
                 color="#ffe680"
                 variant="filled"
-                fz={"xs"}
+                fz={"sm"}
                 ff={"text"}
                 py={"sm"}
                 bd={"1px solid black"}
@@ -192,9 +211,9 @@ function MembershipTierCard({
           <Space flex={1} />
 
           <Stack gap={6}>
-            <Text size="sm" c="dimmed" fw={600} style={{ letterSpacing: 0.6 }}>
+            {/* <Text size="sm" c="dimmed" fw={600} style={{ letterSpacing: 0.6 }}>
               Impact: ⭐️
-            </Text>
+            </Text> */}
             {/* <Box style={{ borderTop: "1px solid #c9c3b4" }} /> */}
             <Button
               onClick={onSelect}
