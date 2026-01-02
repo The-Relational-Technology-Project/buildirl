@@ -203,8 +203,20 @@ export function ManageMembershipTierCard({
   });
 
   return (
-    <Paper key={membershipTier.id} px="lg" py="md" h={400} w={300}>
+    <Paper key={membershipTier.id} px="lg" py="md" h={420} w={300}>
       <Stack h="100%" gap={4}>
+        <Box
+          h={120}
+          style={{
+            borderRadius: 8,
+            backgroundImage: membershipTier.coverImageUrl
+              ? `linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.16)), url(${membershipTier.coverImageUrl})`
+              : "linear-gradient(135deg, #1f1b2c 0%, #5a3b33 45%, #d47d38 100%)",
+            backgroundSize: "cover",
+            backgroundPosition: "center"
+          }}
+        />
+
         <Box style={{ alignSelf: "flex-end" }}>
           {membershipTier.status === "PUBLISHED" ? (
             <Badge color="green">Active</Badge>

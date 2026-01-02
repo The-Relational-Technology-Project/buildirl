@@ -2,7 +2,9 @@ import { z } from "zod";
 import {
   LongTextSchema,
   MonetaryValueSchema,
-  MutationResult
+  MutationResult,
+  Url,
+  UrlSchema
 } from "~/server/utils/types";
 import { BillingInterval, Maybe } from "~/utils/types";
 import { Prisma } from "@prisma/client";
@@ -44,6 +46,7 @@ export type MembershipTier = {
   status: MembershipTierStatus;
   benefitDescription: string;
   contributionDescription: string;
+  coverImageUrl: Maybe<Url>;
   costPerBillingInterval: number;
   billingInterval: BillingInterval;
   initiationFeeCostInUSD: Maybe<number>;
@@ -57,6 +60,7 @@ export const CreateMembershipTierInputSchema = z.object({
   name: MembershipTierNameSchema,
   benefitDescription: LongTextSchema,
   contributionDescription: LongTextSchema,
+  coverImageUrl: UrlSchema.nullable().optional(),
   costPerBillingInterval: MonetaryValueSchema,
   billingInterval: z.nativeEnum(BillingInterval),
   initiationFeeCostInUSD: MonetaryValueSchema.nullable()
@@ -69,6 +73,7 @@ export const UpdateMembershipTierInputSchema = z.object({
   name: MembershipTierNameSchema,
   benefitDescription: LongTextSchema,
   contributionDescription: LongTextSchema,
+  coverImageUrl: UrlSchema.nullable().optional(),
   // allow 0 no-op update only on the default free membership tier
   // there is no good way to express this as a check on zod though; it
   // will be checked in service layer

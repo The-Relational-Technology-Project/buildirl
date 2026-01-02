@@ -136,6 +136,7 @@ model MembershipTier {
   name                       String
   benefitDescription         String               @map("benefit_description")
   contributionDescription    String               @map("contribution_description")
+  coverImageUrl              String?              @map("cover_image_url")
   costPerBillingInterval     Decimal              @map("cost_per_billing_interval")
   billingInterval            BillingInterval      @map("billing_interval")
   initiationFeeCostInUSD     Decimal?             @map("initiation_fee_cost_in_usd")
