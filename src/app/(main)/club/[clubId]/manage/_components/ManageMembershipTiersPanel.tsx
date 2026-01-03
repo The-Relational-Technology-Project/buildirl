@@ -10,7 +10,9 @@ import {
   Space,
   Box,
   Tooltip,
-  Center
+  Center,
+  useMatches,
+  useMantineColorScheme
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { Club } from "~/server/club/types";
@@ -42,6 +44,10 @@ export default function ManageMembershipTiersPanel({
     stripeModalOpened,
     { open: openStripeModal, close: closeStripeModal }
   ] = useDisclosure(false);
+
+  const isMobile = useMatches({ base: true, md: false });
+  const withCarouselControls = useMatches({ base: false, md: true });
+  const { colorScheme } = useMantineColorScheme();
 
   const accountStatus = api.payments.accountStatus.useQuery(
     { clubId: club.id },
@@ -84,11 +90,40 @@ export default function ManageMembershipTiersPanel({
       <Carousel
         slideSize="33.333333%"
         slideGap="md"
-        align="start"
-        withControls={true}
+        align={isMobile ? "center" : "start"}
+        // we need indicators for mobile because
+        // the next and previous card are not visible
+        withControls={withCarouselControls}
+        withIndicators={isMobile && publishedTiers.length > 1}
         // we do not want carousel to move when arrows are pressed in
         // update / create membership tier modals
         withKeyboardEvents={false}
+        // shifts the indicator down
+        pb={{ base: 60, md: 0 }}
+        px={{ base: 0, md: 72 }}
+        styles={{
+          // TODO! there is a bug with default control color in the deployed environments
+          //  change the control color to make it visible
+          control: {
+            width: "3rem",
+            height: "3rem",
+            backgroundColor: "white",
+            color: "black",
+            opacity: 1,
+            border: "2px solid",
+            borderColor: "black",
+            borderRadius: "4px"
+          },
+          ...(isMobile && publishedTiers.length > 1
+            ? {
+                indicator: {
+                  backgroundColor: `${colorScheme === "dark" ? "white" : "black"}`,
+                  width: 8,
+                  height: 8
+                }
+              }
+            : {})
+        }}
       >
         {publishedTiers.map((t) => (
           <Carousel.Slide key={t.id} py={4}>
@@ -138,8 +173,33 @@ export default function ManageMembershipTiersPanel({
           <Carousel
             slideSize="33.333333%"
             slideGap="md"
-            align="start"
-            withControls={false}
+            align={isMobile ? "center" : "start"}
+            withControls={withCarouselControls}
+            withIndicators={isMobile && unpublishedTiers.length > 1}
+            withKeyboardEvents={false}
+            pb={{ base: 60, md: 0 }}
+            px={{ base: 0, md: 72 }}
+            styles={{
+              control: {
+                width: "3rem",
+                height: "3rem",
+                backgroundColor: "white",
+                color: "black",
+                opacity: 1,
+                border: "2px solid",
+                borderColor: "black",
+                borderRadius: "4px"
+              },
+              ...(isMobile && unpublishedTiers.length > 1
+                ? {
+                    indicator: {
+                      backgroundColor: `${colorScheme === "dark" ? "white" : "black"}`,
+                      width: 8,
+                      height: 8
+                    }
+                  }
+                : {})
+            }}
           >
             {unpublishedTiers.map((t) => (
               <Carousel.Slide key={t.id} p={4}>
@@ -203,118 +263,120 @@ export function ManageMembershipTierCard({
   });
 
   return (
-    <Paper key={membershipTier.id} px="lg" py="md" h={420} w={300}>
-      <Stack h="100%" gap={4}>
+    <Paper
+      key={membershipTier.id}
+      h={420}
+      w={300}
+      radius={15}
+      bd={"2px black solid"}
+      style={{
+        boxShadow: "4px 4px 0 #000"
+      }}
+    >
+      <Stack h="100%" gap={4} style={{ overflow: "hidden" }}>
         <Box
-          h={120}
+          h={200}
           style={{
-            borderRadius: 8,
+            position: "relative",
             backgroundImage: membershipTier.coverImageUrl
               ? `linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.16)), url(${membershipTier.coverImageUrl})`
               : "linear-gradient(135deg, #1f1b2c 0%, #5a3b33 45%, #d47d38 100%)",
             backgroundSize: "cover",
-            backgroundPosition: "center"
+            backgroundPosition: "center",
+            borderTopLeftRadius: 13,
+            borderTopRightRadius: 13,
+            borderBottomLeftRadius: 0,
+            borderBottomRightRadius: 0,
+            overflow: "hidden"
           }}
-        />
-
-        <Box style={{ alignSelf: "flex-end" }}>
-          {membershipTier.status === "PUBLISHED" ? (
-            <Badge color="green">Active</Badge>
-          ) : (
-            <Badge color="red">Inactive</Badge>
-          )}
+        >
+          <Badge
+            color={membershipTier.status === "PUBLISHED" ? "green" : "red"}
+            style={{
+              position: "absolute",
+              top: 10,
+              right: 10
+            }}
+          >
+            {membershipTier.status === "PUBLISHED" ? "Active" : "Inactive"}
+          </Badge>
         </Box>
+        <Stack h="100%" gap={4} px="lg" pb="md">
+          <Title order={4} mt={4}>
+            {membershipTier.name}
+          </Title>
 
-        <Title order={4} mt={4}>
-          {membershipTier.name}
-        </Title>
-
-        <Stack style={{ overflowY: "auto" }}>
-          <Stack gap={4}>
-            <Title order={6}>Our member experience</Title>
-            <Box mih={60}>
-              {membershipTier.benefitDescription === "" ? (
-                <AlertMessage
-                  message={"Please update benefits details."}
-                  size={"sm"}
-                />
-              ) : (
-                <Text size={"sm"}>{membershipTier.benefitDescription}</Text>
-              )}
-            </Box>
-
-            <Stack gap={4} mt={4}>
-              <Title order={6}>Your contribution is key!</Title>
+          <Stack style={{ overflowY: "auto" }}>
+            <Stack gap={4}>
+              <Title order={6}>Our member experience</Title>
               <Box mih={60}>
-                {membershipTier.contributionDescription === "" ? (
+                {membershipTier.benefitDescription === "" ? (
                   <AlertMessage
-                    message={"Please update contribution details."}
+                    message={"Please update benefits details."}
                     size={"sm"}
                   />
                 ) : (
-                  <Text size={"sm"}>
-                    {membershipTier.contributionDescription}
-                  </Text>
+                  <Text size={"sm"}>{membershipTier.benefitDescription}</Text>
                 )}
               </Box>
             </Stack>
           </Stack>
-        </Stack>
 
-        <Space flex={1} />
+          <Space flex={1} />
 
-        <Text fw={700} size={"md"} mb={"sm"}>
-          {costDisplayText(membershipTier)}
-        </Text>
+          <Text fw={700} size={"md"} mb={"sm"}>
+            {costDisplayText(membershipTier)}
+          </Text>
 
-        <Group
-          style={{
-            alignSelf: "flex-end"
-          }}
-        >
-          <Button onClick={open}>Edit</Button>
+          <Group
+            style={{
+              alignSelf: "flex-end"
+            }}
+          >
+            <Button onClick={open}>Edit</Button>
 
-          <UpdateMembershipTierModal
-            club={club}
-            membershipTier={membershipTier}
-            isLastPublished={isLastPublished}
-            opened={opened}
-            handleClose={close}
-          />
+            <UpdateMembershipTierModal
+              club={club}
+              membershipTier={membershipTier}
+              isLastPublished={isLastPublished}
+              opened={opened}
+              handleClose={close}
+            />
 
-          {membershipTier.status === "PUBLISHED" ? (
-            <Tooltip
-              position={"bottom"}
-              label={"There must be at least one active published tier."}
-              hidden={!isLastPublished}
-            >
+            {membershipTier.status === "PUBLISHED" ? (
+              <Tooltip
+                position={"bottom"}
+                label={"There must be at least one active published tier."}
+                hidden={!isLastPublished}
+              >
+                <Button
+                  variant="light"
+                  onClick={async () =>
+                    await unpublishMembershipTier.mutateAsync({
+                      id: membershipTier.id
+                    })
+                  }
+                  loading={unpublishMembershipTier.isPending}
+                  disabled={isLastPublished}
+                >
+                  Archive
+                </Button>
+              </Tooltip>
+            ) : (
               <Button
                 variant="light"
                 onClick={async () =>
-                  await unpublishMembershipTier.mutateAsync({
+                  await publishMembershipTier.mutateAsync({
                     id: membershipTier.id
                   })
                 }
-                loading={unpublishMembershipTier.isPending}
-                disabled={isLastPublished}
+                loading={publishMembershipTier.isPending}
               >
-                Archive
+                Publish
               </Button>
-            </Tooltip>
-          ) : (
-            <Button
-              variant="light"
-              onClick={async () =>
-                await publishMembershipTier.mutateAsync({
-                  id: membershipTier.id
-                })
-              }
-              loading={publishMembershipTier.isPending}
-            >
-              Publish
-            </Button>
-          )}
-        </Group>
+            )}
+          </Group>
+        </Stack>
       </Stack>
     </Paper>
   );
