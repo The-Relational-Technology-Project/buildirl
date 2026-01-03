@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
@@ -11,17 +12,23 @@ import {
   Title,
   Group,
   Tooltip,
-  SegmentedControl
+  SegmentedControl,
+  FileButton,
+  Image
 } from "@mantine/core";
-import React from "react";
 import {
   isDefaultFreeTier,
-  BILLING_INTERVAL_OPTIONS
+  BILLING_INTERVAL_OPTIONS,
+  Maybe
 } from "~/utils/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { z } from "zod";
-import { handleDefaultMutationError } from "~/client/logger";
+import {
+  handleDefaultMutationError,
+  logger,
+  notifyError
+} from "~/client/logger";
 import {
   CostInput,
   DEFAULT_INITIATION_FEE_USD,
@@ -34,6 +41,9 @@ import {
 } from "~/server/membershipTier/types";
 import { LongTextSchema, MonetaryValueSchema } from "~/server/utils/types";
 import { Membership } from "~/server/membership/types";
+import { storageClient } from "~/client/utils/storageClient";
+import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
+import { stringify } from "~/utils";
 
 type UpdateMembershipTierModalProps = {
   club: Club;
@@ -51,12 +61,22 @@ export default function UpdateMembershipTierModal({
   handleClose
 }: UpdateMembershipTierModalProps) {
   const utils = api.useUtils();
+  const [coverImageUrl, setCoverImageUrl] = useState<Maybe<string>>(
+    membershipTier.coverImageUrl ?? null
+  );
+  const [coverImageName, setCoverImageName] = useState(
+    membershipTier.coverImageUrl ? "Current image" : ""
+  );
+  const [pendingCoverImageUrl, setPendingCoverImageUrl] =
+    useState<Maybe<string>>(null);
+  const [isUploadingCoverImage, setIsUploadingCoverImage] = useState(false);
 
   const updateMembershipTier = api.main.updateMembershipTier.useMutation({
     onSuccess: () => {
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userMemberships.invalidate();
+      resetLocalState();
       handleClose();
     },
     onError: handleDefaultMutationError
@@ -66,7 +86,6 @@ export default function UpdateMembershipTierModal({
     initialValues: {
       name: membershipTier.name,
       benefitDescription: membershipTier.benefitDescription,
-      contributionDescription: membershipTier.contributionDescription,
       costPerBillingInterval: membershipTier.costPerBillingInterval,
       billingInterval: membershipTier.billingInterval,
       initiationFeeCostInUSD: membershipTier.initiationFeeCostInUSD
@@ -77,7 +96,6 @@ export default function UpdateMembershipTierModal({
     validate: {
       name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
       benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
-      contributionDescription: (v) => safeValidateSchema(LongTextSchema, v),
       costPerBillingInterval: (v) =>
         safeValidateSchema(MonetaryValueSchema.or(z.literal(0)), v),
       initiationFeeCostInUSD: (v) =>
@@ -85,10 +103,113 @@ export default function UpdateMembershipTierModal({
     }
   });
 
+  const resetLocalState = () => {
+    form.setValues({
+      name: membershipTier.name,
+      benefitDescription: membershipTier.benefitDescription,
+      costPerBillingInterval: membershipTier.costPerBillingInterval,
+      billingInterval: membershipTier.billingInterval,
+      initiationFeeCostInUSD: membershipTier.initiationFeeCostInUSD
+    });
+    form.resetDirty();
+    setCoverImageUrl(membershipTier.coverImageUrl ?? null);
+    setCoverImageName(membershipTier.coverImageUrl ? "Current image" : "");
+    setPendingCoverImageUrl(null);
+  };
+
+  const cleanupPendingCoverImage = async () => {
+    if (!pendingCoverImageUrl) return;
+    try {
+      await storageClient.deleteMembershipTierCoverImage(
+        club.id,
+        pendingCoverImageUrl
+      );
+    } catch (e) {
+      logger.error(
+        stringify(e),
+        "failed to clean up membership tier cover image on modal close"
+      );
+    } finally {
+      setPendingCoverImageUrl(null);
+    }
+  };
+
+  const handleModalClose = () => {
+    void cleanupPendingCoverImage();
+    resetLocalState();
+    handleClose();
+  };
+
+  const handleCoverUpload = async (file: Maybe<File>) => {
+    if (!file) return;
+
+    if (!isFileSizeValid(file, 5)) {
+      return;
+    }
+    if (!file.type?.startsWith("image/")) {
+      notifyError("Please upload an image file.");
+      return;
+    }
+
+    setIsUploadingCoverImage(true);
+    try {
+      // Prevents orphaned photos in storage
+      if (pendingCoverImageUrl) {
+        await storageClient.deleteMembershipTierCoverImage(
+          club.id,
+          pendingCoverImageUrl
+        );
+      }
+
+      const url = await storageClient.uploadMembershipTierCoverImage(
+        club.id,
+        file
+      );
+      setCoverImageUrl(url);
+      setCoverImageName(file.name);
+      setPendingCoverImageUrl(url);
+    } catch (e) {
+      logger.error(
+        stringify(e),
+        `failed to upload membership tier cover image ${file.name}`
+      );
+      notifyError("Could not upload cover image. Please try again.");
+    } finally {
+      setIsUploadingCoverImage(false);
+    }
+  };
+
+  const handleRemoveCoverImage = async () => {
+    if (!coverImageUrl) return;
+
+    setIsUploadingCoverImage(true);
+    try {
+      if (pendingCoverImageUrl && coverImageUrl === pendingCoverImageUrl) {
+        await storageClient.deleteMembershipTierCoverImage(
+          club.id,
+          pendingCoverImageUrl
+        );
+        setPendingCoverImageUrl(null);
+      }
+      setCoverImageUrl(null);
+      setCoverImageName("");
+    } catch (e) {
+      logger.error(
+        stringify(e),
+        "failed to delete membership tier cover image"
+      );
+      notifyError("Could not delete cover image. Please try again.");
+    } finally {
+      setIsUploadingCoverImage(false);
+    }
+  };
+
+  const isSubmitting = updateMembershipTier.isPending || isUploadingCoverImage;
+
   return (
     <Modal
       opened={opened}
-      onClose={handleClose}
+      onClose={handleModalClose}
       padding={"xl"}
       centered
       title={
@@ -104,7 +225,8 @@ export default function UpdateMembershipTierModal({
             input: {
               name: v.name,
               benefitDescription: v.benefitDescription,
-              contributionDescription: v.contributionDescription,
+              contributionDescription: "",
+              coverImageUrl: coverImageUrl ?? null,
               costPerBillingInterval: v.costPerBillingInterval,
               billingInterval: v.billingInterval,
               initiationFeeCostInUSD: v.initiationFeeCostInUSD
@@ -127,12 +249,53 @@ export default function UpdateMembershipTierModal({
             {...form.getInputProps("benefitDescription")}
           />
 
-          <Textarea
-            placeholder="Describe the contributions expected of members in this tier."
-            rows={5}
-            key={form.key("contributionDescription")}
-            {...form.getInputProps("contributionDescription")}
-          />
+          <Stack gap={8}>
+            <Title order={6}>Cover Image (optional)</Title>
+            <Text size="sm" c="dimmed">
+              Recommended size: 460 x 200 pixels
+            </Text>
+            {coverImageUrl ? (
+              <Image
+                src={coverImageUrl}
+                alt="Cover image preview"
+                radius="md"
+                fit="cover"
+                h={180}
+              />
+            ) : null}
+            <Group gap="sm">
+              <FileButton
+                onChange={handleCoverUpload}
+                accept="image/*"
+                disabled={isSubmitting}
+              >
+                {(props) => (
+                  <Button
+                    {...props}
+                    variant="outline"
+                    loading={isUploadingCoverImage}
+                  >
+                    Upload Image
+                  </Button>
+                )}
+              </FileButton>
+              {coverImageName ? (
+                <Text size="sm" c="dimmed" lineClamp={1}>
+                  {coverImageName}
+                </Text>
+              ) : null}
+              {coverImageUrl ? (
+                <Button
+                  variant="subtle"
+                  color="red"
+                  onClick={handleRemoveCoverImage}
+                  disabled={isSubmitting}
+                >
+                  Remove
+                </Button>
+              ) : null}
+            </Group>
+          </Stack>
 
           {!isDefaultFreeTier(membershipTier) && (
             <Stack>
@@ -173,6 +336,7 @@ export default function UpdateMembershipTierModal({
               clubId={club.id}
               membershipTierId={membershipTier.id}
               isLoading={updateMembershipTier.isPending}
+              isSubmitting={isSubmitting}
             />
             <DeleteMembershipTierButton
               club={club}
@@ -191,12 +355,14 @@ type UpdateMembershipTierButtonProps = {
   clubId: number;
   membershipTierId: number;
   isLoading: boolean;
+  isSubmitting: boolean;
 };
 
 function UpdateMembershipTierButton({
   clubId,
   membershipTierId,
-  isLoading
+  isLoading,
+  isSubmitting
 }: UpdateMembershipTierButtonProps) {
   const activeMembershipsForClub = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
@@ -233,6 +399,7 @@ function UpdateMembershipTierButton({
       type="submit"
       mt="sm"
       loading={isLoading}
+      disabled={isSubmitting}
       onClick={(e) => {
         if (
           membershipTierRequiresWarningBeforeUpdate &&
