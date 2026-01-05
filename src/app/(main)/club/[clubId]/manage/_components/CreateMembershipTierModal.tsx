@@ -18,7 +18,11 @@ import {
   TextInput,
   Title
 } from "@mantine/core";
-import { handleDefaultMutationError, logger, notifyError } from "~/client/logger";
+import {
+  handleDefaultMutationError,
+  logger,
+  notifyError
+} from "~/client/logger";
 import {
   Maybe,
   BillingInterval,
@@ -215,7 +219,7 @@ export default function CreateMembershipTierModal({
 
           <Stack gap={8}>
             <Title order={6}>Cover Image (optional)</Title>
-            <Text size="sm" c="dimmed">
+            <Text size="xs" c="dimmed">
               Recommended size: 460 x 200 pixels
             </Text>
             {coverImageUrl ? (

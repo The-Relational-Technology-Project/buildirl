@@ -64,9 +64,6 @@ export default function UpdateMembershipTierModal({
   const [coverImageUrl, setCoverImageUrl] = useState<Maybe<string>>(
     membershipTier.coverImageUrl ?? null
   );
-  const [coverImageName, setCoverImageName] = useState(
-    membershipTier.coverImageUrl ? "Current image" : ""
-  );
   const [pendingCoverImageUrl, setPendingCoverImageUrl] =
     useState<Maybe<string>>(null);
   const [isUploadingCoverImage, setIsUploadingCoverImage] = useState(false);
@@ -112,8 +109,6 @@ export default function UpdateMembershipTierModal({
       initiationFeeCostInUSD: membershipTier.initiationFeeCostInUSD
     });
     form.resetDirty();
-    setCoverImageUrl(membershipTier.coverImageUrl ?? null);
-    setCoverImageName(membershipTier.coverImageUrl ? "Current image" : "");
     setPendingCoverImageUrl(null);
   };
 
@@ -166,7 +161,6 @@ export default function UpdateMembershipTierModal({
         file
       );
       setCoverImageUrl(url);
-      setCoverImageName(file.name);
       setPendingCoverImageUrl(url);
     } catch (e) {
       logger.error(
@@ -192,7 +186,6 @@ export default function UpdateMembershipTierModal({
         setPendingCoverImageUrl(null);
       }
       setCoverImageUrl(null);
-      setCoverImageName("");
     } catch (e) {
       logger.error(
         stringify(e),
@@ -250,6 +243,47 @@ export default function UpdateMembershipTierModal({
             {...form.getInputProps("name")}
           />
 
+          <Stack gap={12}>
+            <SegmentedControl
+              data={BILLING_INTERVAL_OPTIONS}
+              key={form.key("billingInterval")}
+              radius={4}
+              {...form.getInputProps("billingInterval")}
+            />
+          </Stack>
+
+          {!isDefaultFreeTier(membershipTier) && (
+            <Stack mt={"-8"}>
+              <Stack gap={12}>
+                <CostInput
+                  value={form.values.costPerBillingInterval}
+                  onChange={(value) =>
+                    form.setFieldValue("costPerBillingInterval", value)
+                  }
+                />
+              </Stack>
+
+              <Stack gap={12} align="center">
+                {form.values.initiationFeeCostInUSD && (
+                  <Text
+                    c={"gray"}
+                    fz="sm"
+                    style={{ marginTop: "-12px", marginBottom: "-8px" }}
+                  >
+                    + one-time initiation fee
+                  </Text>
+                )}
+                <NullableCostInput
+                  value={form.values.initiationFeeCostInUSD}
+                  onChange={(value) =>
+                    form.setFieldValue("initiationFeeCostInUSD", value)
+                  }
+                  defaultValue={DEFAULT_INITIATION_FEE_USD}
+                />
+              </Stack>
+            </Stack>
+          )}
+
           <Textarea
             placeholder="Describe the benefits members in this tier can expect."
             rows={5}
@@ -261,9 +295,6 @@ export default function UpdateMembershipTierModal({
 
           <Stack gap={8}>
             <Title order={6}>Cover Image (optional)</Title>
-            <Text size="sm" c="dimmed">
-              Recommended size: 460 x 200 pixels
-            </Text>
             {coverImageUrl ? (
               <Image
                 src={coverImageUrl}
@@ -273,6 +304,9 @@ export default function UpdateMembershipTierModal({
                 h={180}
               />
             ) : null}
+            <Text size="xs" c="dimmed" fs="italic">
+              Recommended size: 460 x 200 pixels
+            </Text>
             <Group gap="sm">
               <FileButton
                 onChange={handleCoverUpload}
@@ -290,11 +324,6 @@ export default function UpdateMembershipTierModal({
                   </Button>
                 )}
               </FileButton>
-              {coverImageName ? (
-                <Text size="sm" c="dimmed" lineClamp={1}>
-                  {coverImageName}
-                </Text>
-              ) : null}
               {coverImageUrl ? (
                 <Button
                   variant="subtle"
@@ -308,41 +337,6 @@ export default function UpdateMembershipTierModal({
               ) : null}
             </Group>
           </Stack>
-
-          {!isDefaultFreeTier(membershipTier) && (
-            <Stack>
-              <Stack gap={12}>
-                <Title order={6}>Dues Cost</Title>
-                <CostInput
-                  value={form.values.costPerBillingInterval}
-                  onChange={(value) =>
-                    form.setFieldValue("costPerBillingInterval", value)
-                  }
-                />
-              </Stack>
-
-              <Stack gap={12}>
-                <Title order={6}>Dues Frequency</Title>
-                <SegmentedControl
-                  data={BILLING_INTERVAL_OPTIONS}
-                  key={form.key("billingInterval")}
-                  radius={4}
-                  {...form.getInputProps("billingInterval")}
-                />
-              </Stack>
-
-              <Stack gap={12}>
-                <Title order={6}>Initiation Fee</Title>
-                <NullableCostInput
-                  value={form.values.initiationFeeCostInUSD}
-                  onChange={(value) =>
-                    form.setFieldValue("initiationFeeCostInUSD", value)
-                  }
-                  defaultValue={DEFAULT_INITIATION_FEE_USD}
-                />
-              </Stack>
-            </Stack>
-          )}
 
           <Group style={{ alignSelf: "center" }}>
             <UpdateMembershipTierButton
