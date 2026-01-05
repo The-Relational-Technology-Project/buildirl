@@ -212,6 +212,12 @@ export default function UpdateMembershipTierModal({
       onClose={handleModalClose}
       padding={"xl"}
       centered
+      styles={{
+        content: {
+          border: "2px black solid",
+          borderRadius: 15
+        }
+      }}
       title={
         <Text size={"xl"} fw={700}>
           Update Tier
@@ -239,6 +245,8 @@ export default function UpdateMembershipTierModal({
             placeholder="Tier name"
             required
             key={form.key("name")}
+            radius={4}
+            styles={{ input: { borderRadius: 4 } }}
             {...form.getInputProps("name")}
           />
 
@@ -246,6 +254,8 @@ export default function UpdateMembershipTierModal({
             placeholder="Describe the benefits members in this tier can expect."
             rows={5}
             key={form.key("benefitDescription")}
+            radius={4}
+            styles={{ input: { borderRadius: 4 } }}
             {...form.getInputProps("benefitDescription")}
           />
 
@@ -274,6 +284,7 @@ export default function UpdateMembershipTierModal({
                     {...props}
                     variant="outline"
                     loading={isUploadingCoverImage}
+                    radius={4}
                   >
                     Upload Image
                   </Button>
@@ -290,6 +301,7 @@ export default function UpdateMembershipTierModal({
                   color="red"
                   onClick={handleRemoveCoverImage}
                   disabled={isSubmitting}
+                  radius={4}
                 >
                   Remove
                 </Button>
@@ -314,6 +326,7 @@ export default function UpdateMembershipTierModal({
                 <SegmentedControl
                   data={BILLING_INTERVAL_OPTIONS}
                   key={form.key("billingInterval")}
+                  radius={4}
                   {...form.getInputProps("billingInterval")}
                 />
               </Stack>
@@ -400,6 +413,7 @@ function UpdateMembershipTierButton({
       mt="sm"
       loading={isLoading}
       disabled={isSubmitting}
+      radius={4}
       onClick={(e) => {
         if (
           membershipTierRequiresWarningBeforeUpdate &&
@@ -490,6 +504,7 @@ function DeleteMembershipTierButton({
         }}
         disabled={!membershipTierIsEligibleForDeletion}
         loading={deleteMembershipTier.isPending}
+        radius={4}
       >
         Delete
       </Button>

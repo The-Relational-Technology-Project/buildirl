@@ -13,6 +13,7 @@ type CostInputProps = {
   defaultValue?: number;
   min?: number;
   max?: number;
+  radius?: number;
 };
 
 export function CostInput({
@@ -43,10 +44,12 @@ export function CostInput({
       maxLength={5}
       hideControls
       prefix="$"
+      radius={4}
       styles={{
         input: {
-          border: "none",
-          background: "transparent",
+          border: "1px solid #ced4da",
+          borderRadius: 4,
+          background: "white",
           fontSize: 32,
           textAlign: "center",
           width: "100%"
@@ -83,6 +86,7 @@ export function NullableCostInput({
         size="sm"
         leftSection={<IconPlus size={16} />}
         onClick={() => onChange(defaultValue)}
+        radius={4}
       >
         Add one-time fee
       </Button>
@@ -110,6 +114,7 @@ export function NullableCostInput({
         defaultValue={defaultValue}
         min={min}
         max={max}
+        radius={4}
       />
     </Box>
   );
