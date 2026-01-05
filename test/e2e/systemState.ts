@@ -458,6 +458,7 @@ export class SystemState {
       status: "PUBLISHED",
       benefitDescription: input.benefitDescription,
       contributionDescription: input.contributionDescription,
+      coverImageUrl: input.coverImageUrl ?? null,
       costPerBillingInterval: input.costPerBillingInterval,
       billingInterval: input.billingInterval,
       initiationFeeCostInUSD: input.initiationFeeCostInUSD

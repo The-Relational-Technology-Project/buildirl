@@ -2,6 +2,8 @@ import { MembershipTier } from "~/server/membershipTier/types";
 import { BillingInterval } from "~/utils/types";
 import MembershipTierGetPayload = Prisma.MembershipTierGetPayload;
 import { Prisma } from "@prisma/client";
+import { parseAsZodType } from "~/utils/zod";
+import { UrlSchema } from "~/server/utils/types";
 
 export const MEMBERSHIP_TIER_SELECT = {
   id: true,
@@ -9,6 +11,7 @@ export const MEMBERSHIP_TIER_SELECT = {
   status: true,
   benefitDescription: true,
   contributionDescription: true,
+  coverImageUrl: true,
   costPerBillingInterval: true,
   billingInterval: true,
   initiationFeeCostInUSD: true
@@ -23,6 +26,7 @@ export function asMembershipTier(
     status: r.status,
     benefitDescription: r.benefitDescription,
     contributionDescription: r.contributionDescription,
+    coverImageUrl: parseAsZodType(r.coverImageUrl, UrlSchema.nullable()),
     // possible loss of precision here, but it doesn't matter for us
     costPerBillingInterval: r.costPerBillingInterval.toNumber(),
     billingInterval: r.billingInterval as BillingInterval,

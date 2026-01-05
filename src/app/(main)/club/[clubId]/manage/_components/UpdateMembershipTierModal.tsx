@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { api } from "~/trpc/react";
 import { useForm } from "@mantine/form";
 import { safeValidateSchema } from "~/utils/zod";
@@ -11,17 +12,23 @@ import {
   Title,
   Group,
   Tooltip,
-  SegmentedControl
+  SegmentedControl,
+  FileButton,
+  Image
 } from "@mantine/core";
-import React from "react";
 import {
   isDefaultFreeTier,
-  BILLING_INTERVAL_OPTIONS
+  BILLING_INTERVAL_OPTIONS,
+  Maybe
 } from "~/utils/types";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
 import { z } from "zod";
-import { handleDefaultMutationError } from "~/client/logger";
+import {
+  handleDefaultMutationError,
+  logger,
+  notifyError
+} from "~/client/logger";
 import {
   CostInput,
   DEFAULT_INITIATION_FEE_USD,
@@ -34,6 +41,10 @@ import {
 } from "~/server/membershipTier/types";
 import { LongTextSchema, MonetaryValueSchema } from "~/server/utils/types";
 import { Membership } from "~/server/membership/types";
+import { storageClient } from "~/client/utils/storageClient";
+import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
+import { stringify } from "~/utils";
+import { IconPhoto } from "@tabler/icons-react";
 
 type UpdateMembershipTierModalProps = {
   club: Club;
@@ -51,12 +62,19 @@ export default function UpdateMembershipTierModal({
   handleClose
 }: UpdateMembershipTierModalProps) {
   const utils = api.useUtils();
+  const [coverImageUrl, setCoverImageUrl] = useState<Maybe<string>>(
+    membershipTier.coverImageUrl ?? null
+  );
+  const [pendingCoverImageUrl, setPendingCoverImageUrl] =
+    useState<Maybe<string>>(null);
+  const [isUploadingCoverImage, setIsUploadingCoverImage] = useState(false);
 
   const updateMembershipTier = api.main.updateMembershipTier.useMutation({
     onSuccess: () => {
       utils.main.club.invalidate({ id: club.id });
       utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
       utils.main.userMemberships.invalidate();
+      resetLocalState();
       handleClose();
     },
     onError: handleDefaultMutationError
@@ -66,7 +84,6 @@ export default function UpdateMembershipTierModal({
     initialValues: {
       name: membershipTier.name,
       benefitDescription: membershipTier.benefitDescription,
-      contributionDescription: membershipTier.contributionDescription,
       costPerBillingInterval: membershipTier.costPerBillingInterval,
       billingInterval: membershipTier.billingInterval,
       initiationFeeCostInUSD: membershipTier.initiationFeeCostInUSD
@@ -77,7 +94,6 @@ export default function UpdateMembershipTierModal({
     validate: {
       name: (v) => safeValidateSchema(MembershipTierNameSchema, v),
       benefitDescription: (v) => safeValidateSchema(LongTextSchema, v),
-      contributionDescription: (v) => safeValidateSchema(LongTextSchema, v),
       costPerBillingInterval: (v) =>
         safeValidateSchema(MonetaryValueSchema.or(z.literal(0)), v),
       initiationFeeCostInUSD: (v) =>
@@ -85,12 +101,119 @@ export default function UpdateMembershipTierModal({
     }
   });
 
+  const resetLocalState = () => {
+    form.setValues({
+      name: membershipTier.name,
+      benefitDescription: membershipTier.benefitDescription,
+      costPerBillingInterval: membershipTier.costPerBillingInterval,
+      billingInterval: membershipTier.billingInterval,
+      initiationFeeCostInUSD: membershipTier.initiationFeeCostInUSD
+    });
+    form.resetDirty();
+    setPendingCoverImageUrl(null);
+  };
+
+  const cleanupPendingCoverImage = async () => {
+    if (!pendingCoverImageUrl) return;
+    try {
+      await storageClient.deleteMembershipTierCoverImage(
+        club.id,
+        pendingCoverImageUrl
+      );
+    } catch (e) {
+      logger.error(
+        stringify(e),
+        "failed to clean up membership tier cover image on modal close"
+      );
+    } finally {
+      setPendingCoverImageUrl(null);
+    }
+  };
+
+  const handleModalClose = () => {
+    void cleanupPendingCoverImage();
+    resetLocalState();
+    handleClose();
+  };
+
+  const handleCoverUpload = async (file: Maybe<File>) => {
+    if (!file) return;
+
+    if (!isFileSizeValid(file, 5)) {
+      return;
+    }
+    if (!file.type?.startsWith("image/")) {
+      notifyError("Please upload an image file.");
+      return;
+    }
+
+    setIsUploadingCoverImage(true);
+    try {
+      // Prevents orphaned photos in storage
+      if (pendingCoverImageUrl) {
+        await storageClient.deleteMembershipTierCoverImage(
+          club.id,
+          pendingCoverImageUrl
+        );
+      }
+
+      const url = await storageClient.uploadMembershipTierCoverImage(
+        club.id,
+        file
+      );
+      setCoverImageUrl(url);
+      setPendingCoverImageUrl(url);
+    } catch (e) {
+      logger.error(
+        stringify(e),
+        `failed to upload membership tier cover image ${file.name}`
+      );
+      notifyError("Could not upload cover image. Please try again.");
+    } finally {
+      setIsUploadingCoverImage(false);
+    }
+  };
+
+  const handleRemoveCoverImage = async () => {
+    if (!coverImageUrl) return;
+
+    setIsUploadingCoverImage(true);
+    try {
+      if (pendingCoverImageUrl && coverImageUrl === pendingCoverImageUrl) {
+        await storageClient.deleteMembershipTierCoverImage(
+          club.id,
+          pendingCoverImageUrl
+        );
+        setPendingCoverImageUrl(null);
+      }
+      setCoverImageUrl(null);
+    } catch (e) {
+      logger.error(
+        stringify(e),
+        "failed to delete membership tier cover image"
+      );
+      notifyError("Could not delete cover image. Please try again.");
+    } finally {
+      setIsUploadingCoverImage(false);
+    }
+  };
+
+  const isSubmitting = updateMembershipTier.isPending || isUploadingCoverImage;
+
   return (
     <Modal
       opened={opened}
-      onClose={handleClose}
+      onClose={handleModalClose}
       padding={"xl"}
       centered
+      styles={{
+        content: {
+          border: "2px black solid",
+          borderRadius: 15,
+          maxHeight: "80vh",
+          overflowY: "auto"
+        }
+      }}
       title={
         <Text size={"xl"} fw={700}>
           Update Tier
@@ -104,7 +227,8 @@ export default function UpdateMembershipTierModal({
             input: {
               name: v.name,
               benefitDescription: v.benefitDescription,
-              contributionDescription: v.contributionDescription,
+              contributionDescription: "",
+              coverImageUrl: coverImageUrl ?? null,
               costPerBillingInterval: v.costPerBillingInterval,
               billingInterval: v.billingInterval,
               initiationFeeCostInUSD: v.initiationFeeCostInUSD
@@ -117,27 +241,23 @@ export default function UpdateMembershipTierModal({
             placeholder="Tier name"
             required
             key={form.key("name")}
+            radius={4}
+            styles={{ input: { borderRadius: 4 } }}
             {...form.getInputProps("name")}
           />
 
-          <Textarea
-            placeholder="Describe the benefits members in this tier can expect."
-            rows={5}
-            key={form.key("benefitDescription")}
-            {...form.getInputProps("benefitDescription")}
-          />
-
-          <Textarea
-            placeholder="Describe the contributions expected of members in this tier."
-            rows={5}
-            key={form.key("contributionDescription")}
-            {...form.getInputProps("contributionDescription")}
-          />
+          <Stack gap={12}>
+            <SegmentedControl
+              data={BILLING_INTERVAL_OPTIONS}
+              key={form.key("billingInterval")}
+              radius={4}
+              {...form.getInputProps("billingInterval")}
+            />
+          </Stack>
 
           {!isDefaultFreeTier(membershipTier) && (
-            <Stack>
+            <Stack mt={"-8"}>
               <Stack gap={12}>
-                <Title order={6}>Dues Cost</Title>
                 <CostInput
                   value={form.values.costPerBillingInterval}
                   onChange={(value) =>
@@ -146,17 +266,16 @@ export default function UpdateMembershipTierModal({
                 />
               </Stack>
 
-              <Stack gap={12}>
-                <Title order={6}>Dues Frequency</Title>
-                <SegmentedControl
-                  data={BILLING_INTERVAL_OPTIONS}
-                  key={form.key("billingInterval")}
-                  {...form.getInputProps("billingInterval")}
-                />
-              </Stack>
-
-              <Stack gap={12}>
-                <Title order={6}>Initiation Fee</Title>
+              <Stack gap={12} align="center">
+                {form.values.initiationFeeCostInUSD && (
+                  <Text
+                    c={"gray"}
+                    fz="sm"
+                    style={{ marginTop: "-12px", marginBottom: "-8px" }}
+                  >
+                    + one-time initiation fee
+                  </Text>
+                )}
                 <NullableCostInput
                   value={form.values.initiationFeeCostInUSD}
                   onChange={(value) =>
@@ -168,11 +287,69 @@ export default function UpdateMembershipTierModal({
             </Stack>
           )}
 
+          <Textarea
+            placeholder="Describe the benefits members in this tier can expect."
+            rows={5}
+            key={form.key("benefitDescription")}
+            radius={4}
+            styles={{ input: { borderRadius: 4 } }}
+            {...form.getInputProps("benefitDescription")}
+          />
+
+          <Stack gap={8}>
+            <Title order={6}>Cover Image (optional)</Title>
+            {coverImageUrl ? (
+              <Image
+                src={coverImageUrl}
+                alt="Cover image preview"
+                radius="md"
+                fit="cover"
+                h={180}
+              />
+            ) : null}
+            <Text size="xs" c="dimmed" fs="italic">
+              Recommended size: 460 x 200 pixels
+            </Text>
+            <Group gap="sm">
+              <FileButton
+                onChange={handleCoverUpload}
+                accept="image/*"
+                disabled={isSubmitting}
+              >
+                {(props) => (
+                  <Button
+                    {...props}
+                    variant="outline"
+                    loading={isUploadingCoverImage}
+                    radius={4}
+                  >
+                    <Group gap={"xs"}>
+                      <IconPhoto size={15} />
+                      Upload Image
+                    </Group>
+                  </Button>
+                )}
+              </FileButton>
+              {coverImageUrl ? (
+                <Button
+                  variant="subtle"
+                  color="red"
+                  onClick={handleRemoveCoverImage}
+                  disabled={isSubmitting}
+                  radius={4}
+                >
+                  Remove
+                </Button>
+              ) : null}
+            </Group>
+          </Stack>
+
           <Group style={{ alignSelf: "center" }}>
             <UpdateMembershipTierButton
               clubId={club.id}
               membershipTierId={membershipTier.id}
               isLoading={updateMembershipTier.isPending}
+              isSubmitting={isSubmitting}
             />
             <DeleteMembershipTierButton
               club={club}
@@ -191,12 +368,14 @@ type UpdateMembershipTierButtonProps = {
   clubId: number;
   membershipTierId: number;
   isLoading: boolean;
+  isSubmitting: boolean;
 };
 
 function UpdateMembershipTierButton({
   clubId,
   membershipTierId,
-  isLoading
+  isLoading,
+  isSubmitting
 }: UpdateMembershipTierButtonProps) {
   const activeMembershipsForClub = api.main.activeMembershipsForClub.useQuery({
     clubId: clubId
@@ -233,6 +412,8 @@ function UpdateMembershipTierButton({
       type="submit"
       mt="sm"
       loading={isLoading}
+      disabled={isSubmitting}
+      radius={4}
       onClick={(e) => {
         if (
           membershipTierRequiresWarningBeforeUpdate &&
@@ -323,6 +504,7 @@ function DeleteMembershipTierButton({
         }}
         disabled={!membershipTierIsEligibleForDeletion}
         loading={deleteMembershipTier.isPending}
+        radius={4}
       >
         Delete
       </Button>

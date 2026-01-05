@@ -125,6 +125,17 @@ function MembershipTierCard({
       : null;
   const ctaLabel =
     `${buttonText ?? "Select"} ${membershipTier.name.toUpperCase()}`.trim();
+  const heroBackground = membershipTier.coverImageUrl
+    ? {
+        backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.18) 100%), url(${membershipTier.coverImageUrl})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }
+    : {
+        backgroundImage:
+          "linear-gradient(135deg, #1f1b2c 0%, #5a3b33 45%, #d47d38 100%)",
+        backgroundSize: "cover"
+      };
 
   return (
     <Paper
@@ -152,9 +163,7 @@ function MembershipTierCard({
           h={160}
           style={{
             position: "relative",
-            backgroundImage:
-              "linear-gradient(135deg, #1f1b2c 0%, #5a3b33 45%, #d47d38 100%)",
-            backgroundSize: "cover"
+            ...heroBackground
           }}
         >
           <Group
