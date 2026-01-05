@@ -209,7 +209,9 @@ export default function UpdateMembershipTierModal({
       styles={{
         content: {
           border: "2px black solid",
-          borderRadius: 15
+          borderRadius: 15,
+          maxHeight: "80vh",
+          overflowY: "auto"
         }
       }}
       title={

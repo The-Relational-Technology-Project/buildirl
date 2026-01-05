@@ -139,7 +139,15 @@ export default function ManageMembershipTiersPanel({
         ))}
 
         <Carousel.Slide py={4}>
-          <Paper w={300} h={400}>
+          <Paper
+            h={420}
+            w={300}
+            radius={15}
+            bd={"2px black solid"}
+            style={{
+              boxShadow: "4px 4px 0 #000"
+            }}
+          >
             <Center h={"100%"}>
               <ColorSchemeAwareActionIcon
                 variant="transparent"
