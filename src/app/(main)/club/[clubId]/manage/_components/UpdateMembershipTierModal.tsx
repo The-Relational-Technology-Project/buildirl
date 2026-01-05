@@ -44,6 +44,7 @@ import { Membership } from "~/server/membership/types";
 import { storageClient } from "~/client/utils/storageClient";
 import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
 import { stringify } from "~/utils";
+import { IconPhoto } from "@tabler/icons-react";
 
 type UpdateMembershipTierModalProps = {
   club: Club;
@@ -214,7 +215,7 @@ export default function UpdateMembershipTierModal({
       title={
         <Text size={"xl"} fw={700}>
           Update Tier
-        </Text> 
+        </Text>
       }
     >
       <form
@@ -320,7 +321,10 @@ export default function UpdateMembershipTierModal({
                     loading={isUploadingCoverImage}
                     radius={4}
                   >
-                    Upload Image
+                    <Group gap={"xs"}>
+                      <IconPhoto size={15} />
+                      Upload Image
+                    </Group>
                   </Button>
                 )}
               </FileButton>
