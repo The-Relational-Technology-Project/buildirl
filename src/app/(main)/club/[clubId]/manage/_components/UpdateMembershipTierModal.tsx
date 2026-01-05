@@ -214,7 +214,7 @@ export default function UpdateMembershipTierModal({
       title={
         <Text size={"xl"} fw={700}>
           Update Tier
-        </Text>
+        </Text> 
       }
     >
       <form

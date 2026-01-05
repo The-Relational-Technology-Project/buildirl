@@ -51,7 +51,6 @@ export default function CreateMembershipTierModal({
 }: CreateMembershipTierModalProps) {
   const utils = api.useUtils();
   const [coverImageUrl, setCoverImageUrl] = useState<Maybe<string>>(null);
-  const [coverImageName, setCoverImageName] = useState("");
   const [isUploadingCoverImage, setIsUploadingCoverImage] = useState(false);
 
   const form = useForm({
@@ -77,7 +76,6 @@ export default function CreateMembershipTierModal({
   const resetLocalState = () => {
     form.reset();
     setCoverImageUrl(null);
-    setCoverImageName("");
   };
 
   const createMembershipTier = api.main.createMembershipTier.useMutation({
@@ -106,7 +104,6 @@ export default function CreateMembershipTierModal({
       );
     } finally {
       setCoverImageUrl(null);
-      setCoverImageName("");
     }
   };
 
@@ -140,7 +137,6 @@ export default function CreateMembershipTierModal({
         file
       );
       setCoverImageUrl(url);
-      setCoverImageName(file.name);
     } catch (e) {
       logger.error(
         stringify(e),
@@ -162,7 +158,6 @@ export default function CreateMembershipTierModal({
         coverImageUrl
       );
       setCoverImageUrl(null);
-      setCoverImageName("");
     } catch (e) {
       logger.error(
         stringify(e),
@@ -180,6 +175,9 @@ export default function CreateMembershipTierModal({
       onClose={handleModalClose}
       padding={"xl"}
       centered
+      styles={{
+        content: { borderRadius: 15 }
+      }}
       title={
         <Text size={"xl"} fw={700}>
           Create Tier
@@ -207,21 +205,62 @@ export default function CreateMembershipTierModal({
             placeholder="Tier name"
             required
             key={form.key("name")}
+            radius={4}
+            styles={{ input: { borderRadius: 4 } }}
             {...form.getInputProps("name")}
           />
+
+          <Stack gap={12}>
+            <SegmentedControl
+              data={BILLING_INTERVAL_OPTIONS}
+              key={form.key("billingInterval")}
+              radius={4}
+              {...form.getInputProps("billingInterval")}
+            />
+          </Stack>
+
+          <Stack mt={"-8"}>
+            <Stack gap={12}>
+              <CostInput
+                value={form.values.costPerBillingInterval}
+                onChange={(value) =>
+                  form.setFieldValue("costPerBillingInterval", value)
+                }
+                defaultValue={DEFAULT_COST_PER_MONTH_USD}
+              />
+            </Stack>
+
+            <Stack gap={12} align="center">
+              {form.values.initiationFeeCostInUSD && (
+                <Text
+                  c={"gray"}
+                  fz="sm"
+                  style={{ marginTop: "-12px", marginBottom: "-8px" }}
+                >
+                  + one-time initiation fee
+                </Text>
+              )}
+              <NullableCostInput
+                value={form.values.initiationFeeCostInUSD}
+                onChange={(value) =>
+                  form.setFieldValue("initiationFeeCostInUSD", value)
+                }
+                defaultValue={DEFAULT_INITIATION_FEE_USD}
+              />
+            </Stack>
+          </Stack>
 
           <Textarea
             placeholder="Describe the benefits members in this tier can expect."
             rows={5}
             key={form.key("benefitDescription")}
+            radius={4}
+            styles={{ input: { borderRadius: 4 } }}
             {...form.getInputProps("benefitDescription")}
           />
 
           <Stack gap={8}>
             <Title order={6}>Cover Image (optional)</Title>
-            <Text size="xs" c="dimmed">
-              Recommended size: 460 x 200 pixels
-            </Text>
             {coverImageUrl ? (
               <Image
                 src={coverImageUrl}
@@ -231,6 +270,9 @@ export default function CreateMembershipTierModal({
                 h={180}
               />
             ) : null}
+            <Text size="xs" c="dimmed" fs="italic">
+              Recommended size: 460 x 200 pixels
+            </Text>
             <Group gap="sm">
               <FileButton
                 onChange={handleCoverUpload}
@@ -247,11 +289,6 @@ export default function CreateMembershipTierModal({
                   </Button>
                 )}
               </FileButton>
-              {coverImageName ? (
-                <Text size="sm" c="dimmed" lineClamp={1}>
-                  {coverImageName}
-                </Text>
-              ) : null}
               {coverImageUrl ? (
                 <Button
                   variant="subtle"
@@ -265,37 +302,6 @@ export default function CreateMembershipTierModal({
             </Group>
           </Stack>
 
-          <Stack gap={12}>
-            <Title order={6}>Dues Cost</Title>
-            <CostInput
-              value={form.values.costPerBillingInterval}
-              onChange={(value) =>
-                form.setFieldValue("costPerBillingInterval", value)
-              }
-              defaultValue={DEFAULT_COST_PER_MONTH_USD}
-            />
-          </Stack>
-
-          <Stack gap={12}>
-            <Title order={6}>Dues Frequency</Title>
-            <SegmentedControl
-              data={BILLING_INTERVAL_OPTIONS}
-              key={form.key("billingInterval")}
-              {...form.getInputProps("billingInterval")}
-            />
-          </Stack>
-
-          <Stack gap={12}>
-            <Title order={6}>Initiation Fee</Title>
-            <NullableCostInput
-              value={form.values.initiationFeeCostInUSD}
-              onChange={(value) =>
-                form.setFieldValue("initiationFeeCostInUSD", value)
-              }
-              defaultValue={DEFAULT_INITIATION_FEE_USD}
-            />
-          </Stack>
-
           <Button
             type="submit"
             mt="sm"
@@ -303,7 +309,7 @@ export default function CreateMembershipTierModal({
             loading={createMembershipTier.isPending}
             disabled={isUploadingCoverImage}
           >
-            Create
+            Create Tier
           </Button>
         </Stack>
       </form>
