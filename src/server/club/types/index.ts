@@ -58,6 +58,10 @@ export type ClubStatistics = {
 type ClubMutations = {
   createClub(input: CreateClubInput, userId: number): Promise<MutationResult>;
   updateClub(id: number, input: UpdateClubInput): Promise<MutationResult>;
+  updateClubContributionReasons(
+    clubId: number,
+    input: UpdateClubContributionReasonsInput
+  ): Promise<MutationResult>;
   deleteClub(id: number): Promise<MutationResult>;
   updateClubApplicationQuestions(
     clubId: number,
@@ -169,7 +173,7 @@ export const ContributionReasonSchema = z.object({
   label: z
     .string()
     .min(1, "Label is required")
-    .max(10, "Label cannot exceed 10 characters"),
+    .max(15, "Label cannot exceed 15 characters"),
   description: z
     .string()
     .min(1, "Description is required")
@@ -208,6 +212,12 @@ export const UpdateClubApplicationQuestionsInputSchema = z.object({
 });
 export type UpdateClubApplicationQuestionsInput = z.infer<
   typeof UpdateClubApplicationQuestionsInputSchema
+>;
+
+export const UpdateClubContributionReasonsInputSchema =
+  ContributionReasonsSchema;
+export type UpdateClubContributionReasonsInput = z.infer<
+  typeof UpdateClubContributionReasonsInputSchema
 >;
 
 export const UpdateClubDisplayImageUrlsInputSchema = z.object({

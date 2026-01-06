@@ -16,7 +16,9 @@ import {
   Text,
   Textarea,
   TextInput,
-  Title
+  Title,
+  ActionIcon,
+  Box
 } from "@mantine/core";
 import {
   handleDefaultMutationError,
@@ -37,6 +39,7 @@ import {
 import { storageClient } from "~/client/utils/storageClient";
 import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
 import { stringify } from "~/utils";
+import { IconX } from "@tabler/icons-react";
 
 type CreateMembershipTierModalProps = {
   club: Club;
@@ -267,13 +270,31 @@ export default function CreateMembershipTierModal({
           <Stack gap={8}>
             <Title order={6}>Cover Image (optional)</Title>
             {coverImageUrl ? (
-              <Image
-                src={coverImageUrl}
-                alt="Cover image preview"
-                radius="md"
-                fit="cover"
-                h={180}
-              />
+              <Box pos="relative">
+                <Image
+                  src={coverImageUrl}
+                  alt="Cover image preview"
+                  radius="md"
+                  fit="cover"
+                  h={180}
+                />
+                <ActionIcon
+                  size="md"
+                  variant="filled"
+                  onClick={handleRemoveCoverImage}
+                  disabled={isSubmitting}
+                  style={{
+                    position: "absolute",
+                    top: 10,
+                    right: 10,
+                    backgroundColor: "white",
+                    border: "2px solid #000",
+                    color: "#000"
+                  }}
+                >
+                  <IconX size={16} />
+                </ActionIcon>
+              </Box>
             ) : null}
             <Text size="xs" c="dimmed" fs="italic">
               Recommended size: 460 x 200 pixels
@@ -294,16 +315,6 @@ export default function CreateMembershipTierModal({
                   </Button>
                 )}
               </FileButton>
-              {coverImageUrl ? (
-                <Button
-                  variant="subtle"
-                  color="red"
-                  onClick={handleRemoveCoverImage}
-                  disabled={isSubmitting}
-                >
-                  Remove
-                </Button>
-              ) : null}
             </Group>
           </Stack>
 

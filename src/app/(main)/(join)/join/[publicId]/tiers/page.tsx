@@ -20,12 +20,7 @@ import WithLocalNavigationHeader from "~/client/components/WithLocalNavigationHe
 import { useMounted } from "@mantine/hooks";
 import { MembershipTier } from "~/server/membershipTier/types";
 import { MembershipTierCarousel } from "~/client/components/MembershipTierCarousel";
-
-const contributionCards = [
-  { label: "VENUE" },
-  { label: "FOOD" },
-  { label: "TIME + EFFORT" }
-];
+import { ContributionReason } from "~/server/club/types";
 
 const scrollToElementSlowly = (element: HTMLElement, duration = 900) => {
   const startY = window.scrollY;
@@ -87,6 +82,8 @@ export default function ClubTiers() {
   const publishedTiers = club.data!.membershipTiers.filter(
     (t) => t.status === "PUBLISHED"
   );
+  const contributionReasons = club.data!.contributionReasons.items;
+  const hasContributionReasons = contributionReasons.length > 0;
 
   const handleTierSelect = (tier: MembershipTier) => {
     router.push(`/apply/${params.publicId}?membershipTierId=${tier.id}`);
@@ -126,13 +123,21 @@ export default function ClubTiers() {
           />
 
           <Stack gap="md" align="center">
-            <Text size={"sm"} ta="center">
+            <Text
+              size={"sm"}
+              ta="center"
+              mb={!hasContributionReasons ? "96px" : "0"}
+            >
               You’ll only be charged if your application is approved by the
               club. You may also withdraw your application after submitting.
             </Text>
-            <Box ref={contributionReasonsRef} style={{ width: "100%" }}>
-              <ContributionReasonsCarousel />
-            </Box>
+            {hasContributionReasons ? (
+              <Box ref={contributionReasonsRef} style={{ width: "100%" }}>
+                <ContributionReasonsCarousel
+                  contributionReasons={contributionReasons}
+                />
+              </Box>
+            ) : null}
           </Stack>
         </Stack>
       </WithLocalNavigationHeader>
@@ -140,8 +145,13 @@ export default function ClubTiers() {
   );
 }
 
-function ContributionReasonsCarousel() {
+function ContributionReasonsCarousel({
+  contributionReasons
+}: {
+  contributionReasons: ContributionReason[];
+}) {
   const isMobile = useMatches({ base: true, md: false });
+  if (contributionReasons.length === 0) return null;
 
   return (
     <Paper
@@ -172,7 +182,7 @@ function ContributionReasonsCarousel() {
           slideSize="33.333333%"
           slideGap="lg"
           align={isMobile ? "center" : "start"}
-          withIndicators={isMobile}
+          withIndicators={isMobile && contributionReasons.length > 1}
           withControls
           styles={{
             control: {
@@ -190,7 +200,7 @@ function ContributionReasonsCarousel() {
               paddingBottom: 16,
               paddingLeft: 48
             },
-            ...(isMobile
+            ...(isMobile && contributionReasons.length > 1
               ? {
                   indicator: {
                     backgroundColor: "black",
@@ -203,9 +213,9 @@ function ContributionReasonsCarousel() {
           px={{ base: 0, md: 72 }}
           pb={{ base: 60, md: 0 }}
         >
-          {contributionCards.map((card) => (
-            <Carousel.Slide key={card.label}>
-              <ContributionCard label={card.label} />
+          {contributionReasons.map((reason, index) => (
+            <Carousel.Slide key={`${reason.label}-${index}`}>
+              <ContributionCard contributionReason={reason} />
             </Carousel.Slide>
           ))}
         </Carousel>
@@ -214,8 +224,15 @@ function ContributionReasonsCarousel() {
   );
 }
 
-function ContributionCard({ label }: { label: string }) {
+const FALLBACK_CONTRIBUTION_COLOR = "#e6f4d7";
+
+function ContributionCard({
+  contributionReason
+}: {
+  contributionReason: ContributionReason;
+}) {
   const [flipped, setFlipped] = useState(false);
+  const { label, description, coverImageUrl } = contributionReason;
 
   const handleToggle = () => setFlipped((prev) => !prev);
 
@@ -251,7 +268,12 @@ function ContributionCard({ label }: { label: string }) {
             borderRadius: 26,
             border: "3px solid #0d0d0d",
             overflow: "hidden",
-            backgroundColor: "#e6f4d7",
+            backgroundColor: FALLBACK_CONTRIBUTION_COLOR,
+            backgroundImage: coverImageUrl
+              ? `linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.35) 100%), url(${coverImageUrl})`
+              : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
             backfaceVisibility: "hidden"
           }}
         >
@@ -294,7 +316,7 @@ function ContributionCard({ label }: { label: string }) {
             borderRadius: 26,
             border: "3px solid #0d0d0d",
             overflow: "hidden",
-            backgroundColor: "#e6f4d7",
+            backgroundColor: "white",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -304,8 +326,7 @@ function ContributionCard({ label }: { label: string }) {
           }}
         >
           <Text ta="center" fw={600} c="#0d0d0d">
-            Contributions help us pay for the venue we hold our weekly meetings
-            at
+            {description}
           </Text>
         </Box>
       </Box>

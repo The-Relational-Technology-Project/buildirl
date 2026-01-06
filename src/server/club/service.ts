@@ -8,6 +8,7 @@ import {
   ClubStatistics,
   ClubWithFirstLead,
   CreateClubInput,
+  UpdateClubContributionReasonsInput,
   UpdateClubApplicationQuestionsInput,
   UpdateClubDisplayImageUrlsInput,
   UpdateClubInput
@@ -171,6 +172,28 @@ export function createClubService(
       logger.error(
         e,
         `failed to update club with id ${id} from input ${stringify(input)}`
+      );
+      throw e;
+    }
+  }
+
+  async function updateClubContributionReasons(
+    clubId: number,
+    input: UpdateClubContributionReasonsInput
+  ): Promise<MutationResult> {
+    try {
+      await prisma.club.update({
+        data: { contributionReasons: input },
+        where: { id: clubId }
+      });
+      logger.info(
+        `updated contribution reasons for club with id ${clubId} from input ${stringify(input)}`
+      );
+      return NO_ID_MUTATION_RESULT;
+    } catch (e) {
+      logger.error(
+        e,
+        `failed to update contribution reasons for club with id ${clubId} from input ${stringify(input)}`
       );
       throw e;
     }
@@ -356,6 +379,7 @@ export function createClubService(
     createClub,
     updateClub,
     deleteClub,
+    updateClubContributionReasons,
     updateClubApplicationQuestions,
     updateClubDisplayImageUrls
   };
