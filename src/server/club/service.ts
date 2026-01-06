@@ -117,6 +117,7 @@ export function createClubService(
           eventCalendarUrl: null,
           applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
           theme: Prisma.DbNull,
+          contributionReasons: { items: [] },
           values: { items: [] },
           faqs: { items: [] }
         },
@@ -273,8 +274,10 @@ export function createClubService(
       const blacklist = await prisma.clubBlacklist.findMany({
         select: { clubId: true }
       });
-      const blacklistedIds = blacklist.map(b => b.clubId);
-      logger.info(`queried blacklisted clubs with result count ${blacklistedIds.length}`);
+      const blacklistedIds = blacklist.map((b) => b.clubId);
+      logger.info(
+        `queried blacklisted clubs with result count ${blacklistedIds.length}`
+      );
       return blacklistedIds;
     } catch (e) {
       logger.error(e, `failed to query blacklisted clubs`);
@@ -298,7 +301,7 @@ export function createClubService(
         }
       });
       const clubs = results.map((r) => asClub(r));
-      const clubIds = clubs.map(c => c.id);
+      const clubIds = clubs.map((c) => c.id);
 
       const allLeadsResults = await prisma.membership.findMany({
         select: {
@@ -314,11 +317,11 @@ export function createClubService(
           membershipTier: {
             clubId: { in: clubIds }
           },
-          status: 'ACTIVE',
-          role: 'LEAD'
+          status: "ACTIVE",
+          role: "LEAD"
         },
         orderBy: {
-          createdAt: 'asc'
+          createdAt: "asc"
         }
       });
 
@@ -330,12 +333,14 @@ export function createClubService(
         }
       }
 
-      const clubsWithLeads: ClubWithFirstLead[] = clubs.map(club => ({
+      const clubsWithLeads: ClubWithFirstLead[] = clubs.map((club) => ({
         ...club,
         firstLead: leadsByClubId.get(club.id)
       }));
 
-      logger.info(`queried all clubs with leads, result count ${clubsWithLeads.length}, filtered out ${blacklistedClubIds.length} blacklisted clubs`);
+      logger.info(
+        `queried all clubs with leads, result count ${clubsWithLeads.length}, filtered out ${blacklistedClubIds.length} blacklisted clubs`
+      );
       return clubsWithLeads;
     } catch (e) {
       logger.error(e, `failed to query all clubs with leads`);

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Maybe } from "~/utils/types";
 
 export function parseAsZodType<T, Schema extends z.ZodType<T>>(
-  o: Maybe<Object>,
+  o: Maybe<unknown>,
   schema: Schema
 ): z.infer<Schema> {
   try {
@@ -18,7 +18,7 @@ export function parseAsZodType<T, Schema extends z.ZodType<T>>(
 }
 
 export function isZodType<T, Schema extends z.ZodType<T>>(
-  o: Object,
+  o: unknown,
   schema: Schema
 ): boolean {
   try {

@@ -176,7 +176,12 @@ export default function CreateMembershipTierModal({
       padding={"xl"}
       centered
       styles={{
-        content: { borderRadius: 15, maxHeight: "80vh", overflowY: "auto" }
+        content: {
+          borderRadius: 15,
+          border: "2px black solid",
+          maxHeight: "80vh",
+          overflowY: "auto"
+        }
       }}
       title={
         <Text size={"xl"} fw={700}>

@@ -1,5 +1,6 @@
 import {
   Club,
+  ContributionReasonsSchema,
   ClubValuesSchema,
   DateString,
   FAQsSchema,
@@ -37,6 +38,7 @@ export const CLUB_SELECT = {
   theme: true,
   themeHeadingFont: true,
   displayImageUrls: true,
+  contributionReasons: true,
   values: true,
   faqs: true,
   membershipTiers: {
@@ -70,6 +72,10 @@ export function asClub(
     theme: parseAsZodType(r.theme, TemplateThemeSchema.nullable()),
     themeHeadingFont: r.themeHeadingFont,
     displayImageUrls: parseAsZodType(r.displayImageUrls, z.array(UrlSchema)),
+    contributionReasons: parseAsZodType(
+      r.contributionReasons,
+      ContributionReasonsSchema
+    ),
     values: parseAsZodType(r.values, ClubValuesSchema),
     faqs: parseAsZodType(r.faqs, FAQsSchema),
     membershipTiers: orderedByPricing(

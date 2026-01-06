@@ -147,7 +147,7 @@ function ContributionReasonsCarousel() {
     <Paper
       radius="xl"
       p={{ base: "md", md: 32 }}
-      mb={"xl"}
+      mb={"96"}
       mt={"xl"}
       shadow="lg"
       style={{

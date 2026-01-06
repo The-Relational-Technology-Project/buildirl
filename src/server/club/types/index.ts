@@ -41,6 +41,7 @@ export type Club = {
   theme: Maybe<TemplateTheme>;
   themeHeadingFont: Maybe<string>;
   displayImageUrls: Url[];
+  contributionReasons: ContributionReasons;
   values: ClubValues;
   faqs: FAQs;
   membershipTiers: MembershipTier[];
@@ -164,6 +165,26 @@ export const ClubValuesSchema = z.object({
 
 export type ClubValues = z.infer<typeof ClubValuesSchema>;
 
+export const ContributionReasonSchema = z.object({
+  label: z
+    .string()
+    .min(1, "Label is required")
+    .max(10, "Label cannot exceed 10 characters"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(180, "Description cannot exceed 180 characters"),
+  coverImageUrl: UrlSchema.nullable()
+});
+
+export type ContributionReason = z.infer<typeof ContributionReasonSchema>;
+
+export const ContributionReasonsSchema = z.object({
+  items: z.array(ContributionReasonSchema)
+});
+
+export type ContributionReasons = z.infer<typeof ContributionReasonsSchema>;
+
 export const UpdateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
@@ -176,6 +197,7 @@ export const UpdateClubInputSchema = z.object({
   eventCalendarUrl: UrlSchema.nullable(),
   theme: TemplateThemeSchema.nullable(),
   themeHeadingFont: z.string().nullable(),
+  contributionReasons: ContributionReasonsSchema,
   values: ClubValuesSchema,
   faqs: FAQsSchema
 });
