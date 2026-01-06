@@ -41,6 +41,7 @@ export type Club = {
   theme: Maybe<TemplateTheme>;
   themeHeadingFont: Maybe<string>;
   displayImageUrls: Url[];
+  contributionReasons: ContributionReasons;
   values: ClubValues;
   faqs: FAQs;
   membershipTiers: MembershipTier[];
@@ -57,6 +58,10 @@ export type ClubStatistics = {
 type ClubMutations = {
   createClub(input: CreateClubInput, userId: number): Promise<MutationResult>;
   updateClub(id: number, input: UpdateClubInput): Promise<MutationResult>;
+  updateClubContributionReasons(
+    clubId: number,
+    input: UpdateClubContributionReasonsInput
+  ): Promise<MutationResult>;
   deleteClub(id: number): Promise<MutationResult>;
   updateClubApplicationQuestions(
     clubId: number,
@@ -164,6 +169,26 @@ export const ClubValuesSchema = z.object({
 
 export type ClubValues = z.infer<typeof ClubValuesSchema>;
 
+export const ContributionReasonSchema = z.object({
+  label: z
+    .string()
+    .min(1, "Label is required")
+    .max(15, "Label cannot exceed 15 characters"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(180, "Description cannot exceed 180 characters"),
+  coverImageUrl: UrlSchema.nullable()
+});
+
+export type ContributionReason = z.infer<typeof ContributionReasonSchema>;
+
+export const ContributionReasonsSchema = z.object({
+  items: z.array(ContributionReasonSchema)
+});
+
+export type ContributionReasons = z.infer<typeof ContributionReasonsSchema>;
+
 export const UpdateClubInputSchema = z.object({
   name: ClubNameSchema,
   publicId: ClubPublicIdSchema,
@@ -176,6 +201,7 @@ export const UpdateClubInputSchema = z.object({
   eventCalendarUrl: UrlSchema.nullable(),
   theme: TemplateThemeSchema.nullable(),
   themeHeadingFont: z.string().nullable(),
+  contributionReasons: ContributionReasonsSchema,
   values: ClubValuesSchema,
   faqs: FAQsSchema
 });
@@ -186,6 +212,12 @@ export const UpdateClubApplicationQuestionsInputSchema = z.object({
 });
 export type UpdateClubApplicationQuestionsInput = z.infer<
   typeof UpdateClubApplicationQuestionsInputSchema
+>;
+
+export const UpdateClubContributionReasonsInputSchema =
+  ContributionReasonsSchema;
+export type UpdateClubContributionReasonsInput = z.infer<
+  typeof UpdateClubContributionReasonsInputSchema
 >;
 
 export const UpdateClubDisplayImageUrlsInputSchema = z.object({

@@ -115,6 +115,7 @@ model Club {
   themeHeadingFont                    String?              @map("theme_heading_font")
   // ordered
   displayImageUrls                    String[]             @default([]) @map("display_image_urls")
+  contributionReasons                 Json                 @map("contribution_reasons")
   values                              Json
   faqs                                Json                 @map("faqs")
   membershipTiers                     MembershipTier[]

@@ -49,6 +49,7 @@ function createVerifiers() {
       theme: club.theme,
       themeHeadingFont: club.themeHeadingFont,
       displayImageUrls: club.displayImageUrls,
+      contributionReasons: club.contributionReasons,
       values: club.values,
       faqs: club.faqs,
       membershipTiers: club.membershipTiers

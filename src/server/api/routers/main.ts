@@ -16,6 +16,7 @@ import {
 import {
   CreateClubInputSchema,
   UpdateClubApplicationQuestionsInputSchema,
+  UpdateClubContributionReasonsInputSchema,
   UpdateClubDisplayImageUrlsInputSchema,
   UpdateClubInputSchema
 } from "~/server/club/types";
@@ -162,6 +163,23 @@ export const mainRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
       return ctx.service.club.updateClub(input.id, input.input);
+    }),
+
+  updateClubContributionReasons: securedProcedureWithAbilityFor("Club")
+    .input(
+      z.object({
+        clubId: z.number(),
+        input: UpdateClubContributionReasonsInputSchema
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      if (!ctx.ability.can("manage", subject("Club", { id: input.clubId }))) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return ctx.service.club.updateClubContributionReasons(
+        input.clubId,
+        input.input
+      );
     }),
 
   deleteClub: securedProcedureWithAbilityFor("Club")

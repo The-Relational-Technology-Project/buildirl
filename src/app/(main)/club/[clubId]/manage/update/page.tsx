@@ -450,6 +450,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       eventCalendarUrl: club.eventCalendarUrl ?? "",
       theme: club.theme,
       themeHeadingFont: club.themeHeadingFont,
+      contributionReasons: club.contributionReasons,
       values: club.values,
       faqs: club.faqs
     },

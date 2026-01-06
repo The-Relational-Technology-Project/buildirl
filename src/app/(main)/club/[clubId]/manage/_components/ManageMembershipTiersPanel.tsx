@@ -1,23 +1,33 @@
 import { api } from "~/trpc/react";
 import {
   Badge,
-  Group,
-  Paper,
-  Stack,
-  Title,
-  Text,
-  Button,
-  Space,
   Box,
-  Tooltip,
+  Button,
   Center,
+  ActionIcon,
+  FileButton,
+  Group,
+  Image,
+  Modal,
+  Paper,
+  Space,
+  Stack,
+  Text,
+  Textarea,
+  TextInput,
+  Title,
+  Tooltip,
   useMatches,
   useMantineColorScheme
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { Club } from "~/server/club/types";
+import {
+  Club,
+  ContributionReason,
+  ContributionReasonSchema
+} from "~/server/club/types";
 import { MembershipTier } from "~/server/membershipTier/types";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AlertMessage from "~/client/components/AlertMessage";
 import { useDisclosure } from "@mantine/hooks";
 import CreateMembershipTierModal from "~/app/(main)/club/[clubId]/manage/_components/CreateMembershipTierModal";
@@ -27,7 +37,18 @@ import { Carousel } from "@mantine/carousel";
 import ColorSchemeAwareActionIcon from "~/client/components/ColorSchemeAwareActionIcon";
 import { QueryError } from "~/client/utils/QueryError";
 import { billingIntervalLabel, isLoaded } from "~/client/utils";
-import { handleDefaultMutationError } from "~/client/logger";
+import {
+  handleDefaultMutationError,
+  logger,
+  notifyError
+} from "~/client/logger";
+import { useForm } from "@mantine/form";
+import { safeValidateSchema } from "~/utils/zod";
+import { storageClient } from "~/client/utils/storageClient";
+import { isFileSizeValid } from "~/client/components/EditableUserAvatar";
+import { stringify } from "~/utils";
+import { Maybe } from "~/utils/types";
+import { IconX } from "@tabler/icons-react";
 
 type ManageMembershipsPanelProps = {
   club: Club;
@@ -44,10 +65,17 @@ export default function ManageMembershipTiersPanel({
     stripeModalOpened,
     { open: openStripeModal, close: closeStripeModal }
   ] = useDisclosure(false);
+  const [
+    contributionModalOpened,
+    { open: openContributionModal, close: closeContributionModal }
+  ] = useDisclosure(false);
+  const [editingContributionReason, setEditingContributionReason] =
+    useState<Maybe<{ reason: ContributionReason; index: number }>>(null);
 
   const isMobile = useMatches({ base: true, md: false });
   const withCarouselControls = useMatches({ base: false, md: true });
   const { colorScheme } = useMantineColorScheme();
+  const desktopTitlePadding = isMobile ? 0 : 36;
 
   const accountStatus = api.payments.accountStatus.useQuery(
     { clubId: club.id },
@@ -72,6 +100,24 @@ export default function ManageMembershipTiersPanel({
   const unpublishedTiers = club.membershipTiers.filter(
     (tier) => tier.status === "UNPUBLISHED"
   );
+  const contributionReasons = club.contributionReasons.items;
+  const contributionSlideCount = contributionReasons.length + 1;
+  const showContributionIndicators = isMobile && contributionSlideCount > 1;
+  const handleCreateContributionCardClick = () => {
+    setEditingContributionReason(null);
+    openContributionModal();
+  };
+  const handleEditContributionCardClick = (
+    reason: ContributionReason,
+    index: number
+  ) => {
+    setEditingContributionReason({ reason, index });
+    openContributionModal();
+  };
+  const handleContributionModalClose = () => {
+    setEditingContributionReason(null);
+    closeContributionModal();
+  };
 
   const handleCreateTierClick = () => {
     // do not allow create and prompt for Stripe Connect setup
@@ -84,8 +130,10 @@ export default function ManageMembershipTiersPanel({
   };
 
   return (
-    <Stack py={"lg"} pb={"xl"} gap={"sm"}>
-      <Title order={4}>Active Tiers</Title>
+    <Stack py={"lg"} pb={"xl"} gap={"lg"}>
+      <Box px={desktopTitlePadding}>
+        <Title order={3}>Active Tiers</Title>
+      </Box>
 
       <Carousel
         slideSize="33.333333%"
@@ -144,17 +192,22 @@ export default function ManageMembershipTiersPanel({
             w={300}
             radius={15}
             bd={"2px black solid"}
+            onClick={handleCreateTierClick}
             style={{
-              boxShadow: "4px 4px 0 #000"
+              boxShadow: "4px 4px 0 #000",
+              cursor: "pointer"
             }}
           >
             <Center h={"100%"}>
-              <ColorSchemeAwareActionIcon
-                variant="transparent"
-                onClick={handleCreateTierClick}
-              >
-                <IconPlus />
-              </ColorSchemeAwareActionIcon>
+              <Stack gap={8} align="center">
+                <ColorSchemeAwareActionIcon
+                  variant="transparent"
+                  onClick={handleCreateTierClick}
+                >
+                  <IconPlus />
+                </ColorSchemeAwareActionIcon>
+                <Text fw={600}>New tier</Text>
+              </Stack>
             </Center>
           </Paper>
         </Carousel.Slide>
@@ -172,11 +225,98 @@ export default function ManageMembershipTiersPanel({
         handleClose={closeStripeModal}
       />
 
+      <Stack gap={"sm"} mt="md">
+        <Box px={desktopTitlePadding}>
+          <Title order={3}>Contribution Cards</Title>
+          <Text size="sm" c="dimmed">
+            People are more inclined to contribute when they know what their
+            money is going towards (food, venue, events, etc).
+          </Text>
+        </Box>
+
+        <Carousel
+          slideSize="33.333333%"
+          slideGap="md"
+          align={isMobile ? "center" : "start"}
+          withControls={withCarouselControls}
+          withIndicators={showContributionIndicators}
+          withKeyboardEvents={false}
+          pb={{ base: 60, md: 0 }}
+          px={{ base: 0, md: 72 }}
+          styles={{
+            control: {
+              width: "3rem",
+              height: "3rem",
+              backgroundColor: "white",
+              color: "black",
+              opacity: 1,
+              border: "2px solid",
+              borderColor: "black",
+              borderRadius: "4px"
+            },
+            ...(showContributionIndicators
+              ? {
+                  indicator: {
+                    backgroundColor: `${colorScheme === "dark" ? "white" : "black"}`,
+                    width: 8,
+                    height: 8
+                  }
+                }
+              : {})
+          }}
+        >
+          {contributionReasons.map((reason, index) => (
+            <Carousel.Slide key={`${reason.label}-${index}`} py={4}>
+              <ContributionCard
+                contributionReason={reason}
+                onEdit={() => handleEditContributionCardClick(reason, index)}
+              />
+            </Carousel.Slide>
+          ))}
+
+          <Carousel.Slide py={4}>
+            <Paper
+              h={420}
+              w={300}
+              radius={15}
+              bd={"2px black solid"}
+              onClick={handleCreateContributionCardClick}
+              style={{
+                boxShadow: "4px 4px 0 #000",
+                cursor: "pointer"
+              }}
+            >
+              <Center h={"100%"}>
+                <Stack gap={8} align="center">
+                  <ColorSchemeAwareActionIcon
+                    variant="transparent"
+                    onClick={handleCreateContributionCardClick}
+                  >
+                    <IconPlus />
+                  </ColorSchemeAwareActionIcon>
+                  <Text fw={600}>Add contribution card</Text>
+                </Stack>
+              </Center>
+            </Paper>
+          </Carousel.Slide>
+        </Carousel>
+      </Stack>
+
+      <ContributionCardModal
+        club={club}
+        opened={contributionModalOpened}
+        handleClose={handleContributionModalClose}
+        mode={editingContributionReason ? "edit" : "create"}
+        contributionToEdit={editingContributionReason}
+      />
+
       {unpublishedTiers.length !== 0 && (
         <Stack gap={"sm"}>
-          <Title order={4} mt="md">
-            Inactive Tiers
-          </Title>
+          <Box px={desktopTitlePadding}>
+            <Title order={3} mt="md">
+              Inactive Tiers
+            </Title>
+          </Box>
 
           <Carousel
             slideSize="33.333333%"
@@ -223,6 +363,485 @@ export default function ManageMembershipTiersPanel({
         </Stack>
       )}
     </Stack>
+  );
+}
+
+const FALLBACK_CARD_BACKGROUND =
+  "linear-gradient(135deg, #1f1b2c 0%, #5a3b33 45%, #d47d38 100%)";
+
+type ContributionCardProps = {
+  contributionReason: ContributionReason;
+  onEdit?: () => void;
+};
+
+function ContributionCard({
+  contributionReason,
+  onEdit
+}: ContributionCardProps) {
+  return (
+    <Paper
+      h={420}
+      w={300}
+      radius={15}
+      bd={"2px black solid"}
+      style={{
+        boxShadow: "4px 4px 0 #000",
+        position: "relative"
+      }}
+    >
+      {onEdit ? (
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+          style={{
+            position: "absolute",
+            bottom: 12,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 2
+          }}
+        >
+          Edit
+        </Button>
+      ) : null}
+      <Stack h="100%" gap={0} style={{ overflow: "hidden" }}>
+        <Box
+          p={16}
+          style={{
+            flex: 1,
+            height: "50%",
+            boxSizing: "border-box"
+          }}
+        >
+          <Box
+            style={{
+              height: "100%",
+              width: "100%",
+              position: "relative",
+              backgroundImage: contributionReason.coverImageUrl
+                ? `linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.08)), url(${contributionReason.coverImageUrl})`
+                : FALLBACK_CARD_BACKGROUND,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderRadius: 13,
+              border: "2px black solid",
+              overflow: "hidden"
+            }}
+          >
+            <Center h="100%">
+              <Text
+                fw={800}
+                size="sm"
+                px={16}
+                py={8}
+                style={{
+                  backgroundColor: "#d5ed65",
+                  borderRadius: 999,
+                  border: "2px solid #0d0d0d",
+                  letterSpacing: 0.5
+                }}
+              >
+                {contributionReason.label.toUpperCase()}
+              </Text>
+            </Center>
+          </Box>
+        </Box>
+        <Stack
+          style={{ flex: 1, letterSpacing: -0.15 }}
+          gap={10}
+          px="lg"
+          pb="md"
+        >
+          <Text size="sm" lh={1.6}>
+            {contributionReason.description}
+          </Text>
+        </Stack>
+      </Stack>
+    </Paper>
+  );
+}
+
+type ContributionCardModalProps = {
+  club: Club;
+  opened: boolean;
+  handleClose: () => void;
+  mode: "create" | "edit";
+  contributionToEdit: Maybe<{ reason: ContributionReason; index: number }>;
+};
+
+function ContributionCardModal({
+  club,
+  opened,
+  handleClose,
+  mode,
+  contributionToEdit
+}: ContributionCardModalProps) {
+  const contributionReasonToEdit = contributionToEdit?.reason ?? null;
+  const contributionReasonIndex = contributionToEdit?.index ?? null;
+  const isEditMode = mode === "edit";
+  const utils = api.useUtils();
+  const [coverImageUrl, setCoverImageUrl] = useState<Maybe<string>>(null);
+  const [originalCoverImageUrl, setOriginalCoverImageUrl] =
+    useState<Maybe<string>>(null);
+  const [isUploadingCoverImage, setIsUploadingCoverImage] = useState(false);
+
+  const form = useForm({
+    initialValues: {
+      label: "",
+      description: ""
+    },
+    validateInputOnChange: true,
+    validate: {
+      label: (v) => safeValidateSchema(ContributionReasonSchema.shape.label, v),
+      description: (v) =>
+        safeValidateSchema(ContributionReasonSchema.shape.description, v)
+    }
+  });
+
+  const resetLocalState = () => {
+    form.reset();
+    setCoverImageUrl(null);
+    setOriginalCoverImageUrl(null);
+  };
+
+  useEffect(() => {
+    if (!opened) return;
+
+    const values =
+      isEditMode && contributionReasonToEdit
+        ? {
+            label: contributionReasonToEdit.label,
+            description: contributionReasonToEdit.description
+          }
+        : {
+            label: "",
+            description: ""
+          };
+
+    form.setValues(values);
+    form.resetDirty(values);
+    setCoverImageUrl(contributionReasonToEdit?.coverImageUrl ?? null);
+    setOriginalCoverImageUrl(contributionReasonToEdit?.coverImageUrl ?? null);
+  }, [
+    opened,
+    isEditMode,
+    contributionReasonToEdit?.label,
+    contributionReasonToEdit?.description,
+    contributionReasonToEdit?.coverImageUrl
+  ]);
+
+  const updateContributionReasons =
+    api.main.updateClubContributionReasons.useMutation({
+      onSuccess: () => {
+        utils.main.club.invalidate({ id: club.id });
+        utils.main.clubByPublicId.invalidate({ publicId: club.publicId });
+      },
+      onError: handleDefaultMutationError
+    });
+
+  const isSubmitting =
+    updateContributionReasons.isPending || isUploadingCoverImage;
+  const submitButtonLabel = isEditMode ? "Save changes" : "Create Card";
+
+  const cleanupUnsavedCoverImage = async () => {
+    if (!coverImageUrl) return;
+    if (isEditMode && coverImageUrl === originalCoverImageUrl) {
+      return;
+    }
+    try {
+      await storageClient.deleteMembershipTierCoverImage(
+        club.id,
+        coverImageUrl
+      );
+    } catch (e) {
+      logger.error(
+        stringify(e),
+        "failed to clean up contribution cover image on modal close"
+      );
+    } finally {
+      setCoverImageUrl(originalCoverImageUrl);
+    }
+  };
+
+  const handleModalClose = () => {
+    void cleanupUnsavedCoverImage();
+    resetLocalState();
+    handleClose();
+  };
+
+  const handleCoverUpload = async (file: Maybe<File>) => {
+    if (!file) return;
+
+    if (!isFileSizeValid(file, 5)) {
+      return;
+    }
+    if (!file.type?.startsWith("image/")) {
+      notifyError("Please upload an image file.");
+      return;
+    }
+
+    setIsUploadingCoverImage(true);
+    try {
+      if (coverImageUrl && coverImageUrl !== originalCoverImageUrl) {
+        await storageClient.deleteMembershipTierCoverImage(
+          club.id,
+          coverImageUrl
+        );
+      }
+      const url = await storageClient.uploadMembershipTierCoverImage(
+        club.id,
+        file
+      );
+      setCoverImageUrl(url);
+    } catch (e) {
+      logger.error(
+        stringify(e),
+        `failed to upload contribution cover image ${(file as File).name}`
+      );
+      notifyError("Could not upload cover image. Please try again.");
+    } finally {
+      setIsUploadingCoverImage(false);
+    }
+  };
+
+  const handleRemoveCoverImage = async () => {
+    if (!coverImageUrl) return;
+
+    setIsUploadingCoverImage(true);
+    try {
+      if (coverImageUrl !== originalCoverImageUrl || !isEditMode) {
+        await storageClient.deleteMembershipTierCoverImage(
+          club.id,
+          coverImageUrl
+        );
+      }
+      setCoverImageUrl(null);
+      if (coverImageUrl === originalCoverImageUrl) {
+        setOriginalCoverImageUrl(null);
+      }
+    } catch (e) {
+      logger.error(stringify(e), "failed to delete contribution cover image");
+      notifyError("Could not delete cover image. Please try again.");
+    } finally {
+      setIsUploadingCoverImage(false);
+    }
+  };
+
+  const handleRemoveContributionCard = async () => {
+    if (!isEditMode || contributionReasonIndex === null) return;
+
+    const updatedItems = club.contributionReasons.items.filter(
+      (_, idx) => idx !== contributionReasonIndex
+    );
+
+    try {
+      await updateContributionReasons.mutateAsync({
+        clubId: club.id,
+        input: { items: updatedItems }
+      });
+
+      const imagesToDelete = Array.from(
+        new Set(
+          [coverImageUrl, originalCoverImageUrl].filter((url): url is string =>
+            Boolean(url)
+          )
+        )
+      );
+
+      await Promise.all(
+        imagesToDelete.map(async (url) => {
+          try {
+            await storageClient.deleteMembershipTierCoverImage(club.id, url);
+          } catch (e) {
+            logger.error(
+              stringify(e),
+              "failed to delete contribution cover image on remove"
+            );
+          }
+        })
+      );
+
+      resetLocalState();
+      handleClose();
+    } catch {
+      // errors handled via onError
+    }
+  };
+
+  return (
+    <Modal
+      opened={opened}
+      onClose={handleModalClose}
+      padding={"xl"}
+      centered
+      styles={{
+        content: {
+          borderRadius: 15,
+          border: "2px black solid",
+          maxHeight: "80vh",
+          overflowY: "auto"
+        }
+      }}
+      title={
+        <Text size={"xl"} fw={700}>
+          {isEditMode ? "Update Contribution Card" : "Create Contribution Card"}
+        </Text>
+      }
+    >
+      <form
+        onSubmit={form.onSubmit(async (v) => {
+          if (isEditMode && contributionReasonIndex === null) {
+            notifyError(
+              "Unable to update this contribution card. Please try again."
+            );
+            return;
+          }
+          const updatedItems =
+            isEditMode && contributionReasonIndex !== null
+              ? club.contributionReasons.items.map((item, idx) =>
+                  idx === contributionReasonIndex
+                    ? {
+                        label: v.label,
+                        description: v.description,
+                        coverImageUrl: coverImageUrl ?? null
+                      }
+                    : item
+                )
+              : [
+                  ...club.contributionReasons.items,
+                  {
+                    label: v.label,
+                    description: v.description,
+                    coverImageUrl: coverImageUrl ?? null
+                  }
+                ];
+
+          await updateContributionReasons.mutateAsync({
+            clubId: club.id,
+            input: {
+              items: updatedItems
+            }
+          });
+
+          if (
+            isEditMode &&
+            originalCoverImageUrl &&
+            originalCoverImageUrl !== coverImageUrl
+          ) {
+            try {
+              await storageClient.deleteMembershipTierCoverImage(
+                club.id,
+                originalCoverImageUrl
+              );
+            } catch (e) {
+              logger.error(
+                stringify(e),
+                "failed to delete old contribution cover image after update"
+              );
+            }
+          }
+
+          resetLocalState();
+          handleClose();
+        })}
+      >
+        <Stack>
+          <TextInput
+            placeholder="Contribution card label"
+            required
+            key={form.key("label")}
+            radius={4}
+            styles={{ input: { borderRadius: 4 } }}
+            {...form.getInputProps("label")}
+          />
+
+          <Textarea
+            placeholder="Why should members contribute? Add some color."
+            rows={5}
+            key={form.key("description")}
+            radius={4}
+            styles={{ input: { borderRadius: 4 } }}
+            {...form.getInputProps("description")}
+          />
+
+          <Stack gap={8}>
+            <Title order={6}>Cover Image (optional)</Title>
+            {coverImageUrl ? (
+              <Box pos="relative">
+                <Image
+                  src={coverImageUrl}
+                  alt="Cover image preview"
+                  radius="md"
+                  fit="cover"
+                  h={180}
+                />
+                <ActionIcon
+                  size="md"
+                  variant="filled"
+                  onClick={handleRemoveCoverImage}
+                  disabled={isSubmitting}
+                  style={{
+                    position: "absolute",
+                    top: 10,
+                    right: 10,
+                    backgroundColor: "white",
+                    border: "2px solid #000",
+                    color: "#000"
+                  }}
+                >
+                  <IconX size={16} />
+                </ActionIcon>
+              </Box>
+            ) : null}
+            <Text size="xs" c="dimmed" fs="italic">
+              Recommended size: 460 x 200 pixels
+            </Text>
+            <Group gap="sm">
+              <FileButton
+                onChange={handleCoverUpload}
+                accept="image/*"
+                disabled={isSubmitting}
+              >
+                {(props) => (
+                  <Button
+                    {...props}
+                    variant="outline"
+                    loading={isUploadingCoverImage}
+                  >
+                    Upload Image
+                  </Button>
+                )}
+              </FileButton>
+            </Group>
+          </Stack>
+
+          <Group gap={"md"} mt="sm" justify="center">
+            <Button
+              type="submit"
+              loading={updateContributionReasons.isPending}
+              disabled={isUploadingCoverImage}
+            >
+              {submitButtonLabel}
+            </Button>
+            {isEditMode ? (
+              <Button
+                variant="filled"
+                color="red"
+                onClick={handleRemoveContributionCard}
+                disabled={isSubmitting}
+                loading={updateContributionReasons.isPending}
+              >
+                Delete
+              </Button>
+            ) : (
+              <Space w={8} />
+            )}
+          </Group>
+        </Stack>
+      </form>
+    </Modal>
   );
 }
 
