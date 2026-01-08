@@ -7,7 +7,7 @@ export function DefaultJoinButton({ club }: JoinButtonProps) {
   return (
     <PrimaryButton
       includeIcon
-      onClick={() => router.push(`/join/${club.publicId}/tiers#contribution-reasons`)}
+      onClick={() => router.push(`/join/${club.publicId}/tiers`)}
     >
       Join the club
     </PrimaryButton>

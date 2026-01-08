@@ -22,16 +22,22 @@ interface MembershipTierCarouselProps {
   onTierSelect: (tier: MembershipTier) => void;
   buttonText?: string;
   excludedTierId?: number;
+  alignDesktop?: "start" | "center";
+  withDesktopControls?: boolean;
 }
 
 export function MembershipTierCarousel({
   tiers,
   onTierSelect,
   buttonText = "Select",
-  excludedTierId
+  excludedTierId,
+  alignDesktop,
+  withDesktopControls
 }: MembershipTierCarouselProps) {
   const isMobile = useMatches({ base: true, md: false });
   const withCarouselControls = useMatches({ base: false, md: true });
+  const desktopAlign = alignDesktop ?? "start";
+  const showDesktopControls = withDesktopControls ?? withCarouselControls;
   const { colorScheme } = useMantineColorScheme();
 
   if (isMobile) {
@@ -51,14 +57,33 @@ export function MembershipTierCarousel({
     );
   }
 
+  const shouldCenterDesktopCards =
+    desktopAlign === "center" && tiers.length <= 3;
+
+  if (shouldCenterDesktopCards) {
+    return (
+      <Group justify="center" align="flex-start" gap="xl" w="100%">
+        {tiers.map((tier) => (
+          <MembershipTierCard
+            key={tier.id}
+            membershipTier={tier}
+            onSelect={() => onTierSelect(tier)}
+            buttonText={buttonText}
+            disabled={tier.id === excludedTierId}
+          />
+        ))}
+      </Group>
+    );
+  }
+
   return (
     <Carousel
       slideSize="33.333333%"
       slideGap="md"
-      align={isMobile ? "center" : "start"}
+      align={isMobile ? "center" : desktopAlign}
       // we need indicators for mobile because
       // the next and previous card are not visible
-      withControls={withCarouselControls}
+      withControls={showDesktopControls}
       withIndicators={isMobile && tiers.length > 1}
       withKeyboardEvents={true}
       styles={{
@@ -86,7 +111,10 @@ export function MembershipTierCarousel({
       }}
       // shifts the indicator down
       pb={{ base: 60, md: 0 }}
-      px={{ base: 0, md: 72 }}
+      px={{
+        base: 0,
+        md: !showDesktopControls && desktopAlign === "center" ? 0 : 72
+      }}
     >
       {tiers.map((tier) => (
         <Carousel.Slide key={tier.id} py={8}>
@@ -140,7 +168,7 @@ function MembershipTierCard({
   return (
     <Paper
       key={membershipTier.id}
-      h={520}
+      h={475}
       w={fullWidth ? "100%" : 320}
       radius="lg"
       style={{
