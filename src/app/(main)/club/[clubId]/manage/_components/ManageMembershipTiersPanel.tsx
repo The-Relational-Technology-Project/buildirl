@@ -1,5 +1,6 @@
 import { api } from "~/trpc/react";
 import {
+  Anchor,
   Badge,
   Box,
   Button,
@@ -214,6 +215,16 @@ export default function ManageMembershipTiersPanel({
         </Carousel.Slide>
       </Carousel>
 
+      {unpublishedTiers.length !== 0 && (
+        <Box px={desktopTitlePadding} mx={{ base: 0, md: 56 }}>
+          <Center>
+            <Anchor href="#inactive-tiers" size="sm" fw={600} mt={"sm"}>
+              View Inactive Tiers
+            </Anchor>
+          </Center>
+        </Box>
+      )}
+
       <CreateMembershipTierModal
         club={club}
         opened={createModalOpened}
@@ -315,9 +326,9 @@ export default function ManageMembershipTiersPanel({
       />
 
       {unpublishedTiers.length !== 0 && (
-        <Stack gap={"sm"}>
+        <Stack gap={"sm"} id="inactive-tiers">
           <Box px={desktopTitlePadding} mx={{ base: 0, md: 56 }}>
-            <Title order={3} mt="md">
+            <Title order={3} mt="xl">
               Inactive Tiers
             </Title>
           </Box>

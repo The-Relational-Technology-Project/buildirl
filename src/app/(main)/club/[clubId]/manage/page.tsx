@@ -59,7 +59,7 @@ export default function ManageClub() {
         >
           <Tabs.List>
             <Tabs.Tab value={"overview"}>Club Overview</Tabs.Tab>
-            <Tabs.Tab value={"memberships"}>Membership Tiers</Tabs.Tab>
+            <Tabs.Tab value={"memberships"}>Manage Memberships</Tabs.Tab>
             <Tabs.Tab value={"intake"}>Intake Form</Tabs.Tab>
             <Tabs.Tab value={"campaign"}>Campaign</Tabs.Tab>
             <Tabs.Tab value={"people"}>People</Tabs.Tab>
