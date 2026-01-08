@@ -21,7 +21,7 @@ export default function ClubDisplayImageGallery({
   return (
     club.displayImageUrls.length !== 0 && (
       <Group w={"100%"} justify={"center"} {...props}>
-        <ScrollArea type="never" h={size + 10}>
+        <ScrollArea type="never" h={size + 10} w="100%">
           <Group w={"max-content"} px={4}>
             {club?.displayImageUrls.map((url, index) => (
               // remove the shadow
