@@ -8,7 +8,8 @@ import {
   TitleOrder,
   Paper,
   Box,
-  Center
+  Center,
+  Group
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { useParams, useRouter } from "next/navigation";
@@ -49,6 +50,7 @@ const scrollToElementSlowly = (element: HTMLElement, duration = 900) => {
 export default function ClubTiers() {
   const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
   const titleAndCardGap = useMatches({ base: "lg", md: "xl" });
+  const isDesktop = useMatches({ base: false, md: true });
   const mounted = useMounted();
   const router = useRouter();
   const contributionReasonsRef = useRef<HTMLDivElement>(null);
@@ -82,6 +84,7 @@ export default function ClubTiers() {
   const publishedTiers = club.data!.membershipTiers.filter(
     (t) => t.status === "PUBLISHED"
   );
+  const shouldCenterDesktopCarousel = isDesktop && publishedTiers.length <= 3;
   const contributionReasons = club.data!.contributionReasons.items;
   const hasContributionReasons = contributionReasons.length > 0;
 
@@ -92,7 +95,7 @@ export default function ClubTiers() {
   return (
     mounted && (
       <WithLocalNavigationHeader>
-        <Stack gap={titleAndCardGap}>
+        <Stack gap={titleAndCardGap} px={{ base: 0, md: 56 }}>
           <Stack align={"center"} gap={6} mb={"md"}>
             <Title ta="center" order={titleOrder}>
               Help keep this community alive!
@@ -120,6 +123,10 @@ export default function ClubTiers() {
             tiers={publishedTiers}
             onTierSelect={handleTierSelect}
             buttonText="Select"
+            alignDesktop={shouldCenterDesktopCarousel ? "center" : undefined}
+            withDesktopControls={
+              shouldCenterDesktopCarousel ? false : undefined
+            }
           />
 
           <Stack gap="md" align="center">
@@ -151,6 +158,8 @@ function ContributionReasonsCarousel({
   contributionReasons: ContributionReason[];
 }) {
   const isMobile = useMatches({ base: true, md: false });
+  const isDesktop = useMatches({ base: false, md: true });
+  const shouldCenterDesktopCards = isDesktop && contributionReasons.length <= 3;
   if (contributionReasons.length === 0) return null;
 
   return (
@@ -178,47 +187,58 @@ function ContributionReasonsCarousel({
           </Text>
         </Stack>
 
-        <Carousel
-          slideSize="33.333333%"
-          slideGap="lg"
-          align={isMobile ? "center" : "start"}
-          withIndicators={isMobile && contributionReasons.length > 1}
-          withControls
-          styles={{
-            control: {
-              width: "3rem",
-              height: "3rem",
-              backgroundColor: "white",
-              color: "black",
-              opacity: 1,
-              border: "2px solid",
-              borderColor: "black",
-              borderRadius: "4px"
-            },
-            container: {
-              paddingTop: 16,
-              paddingBottom: 16,
-              paddingLeft: 48
-            },
-            ...(isMobile && contributionReasons.length > 1
-              ? {
-                  indicator: {
-                    backgroundColor: "black",
-                    width: 8,
-                    height: 8
+        {shouldCenterDesktopCards ? (
+          <Group justify="center" align="flex-start" gap="lg" w="100%" py="md">
+            {contributionReasons.map((reason, index) => (
+              <ContributionCard
+                key={`${reason.label}-${index}`}
+                contributionReason={reason}
+              />
+            ))}
+          </Group>
+        ) : (
+          <Carousel
+            slideSize="33.333333%"
+            slideGap="lg"
+            align={isMobile ? "center" : "start"}
+            withIndicators={isMobile && contributionReasons.length > 1}
+            withControls
+            styles={{
+              control: {
+                width: "3rem",
+                height: "3rem",
+                backgroundColor: "white",
+                color: "black",
+                opacity: 1,
+                border: "2px solid",
+                borderColor: "black",
+                borderRadius: "4px"
+              },
+              container: {
+                paddingTop: 16,
+                paddingBottom: 16,
+                paddingLeft: 48
+              },
+              ...(isMobile && contributionReasons.length > 1
+                ? {
+                    indicator: {
+                      backgroundColor: "black",
+                      width: 8,
+                      height: 8
+                    }
                   }
-                }
-              : {})
-          }}
-          px={{ base: 0, md: 72 }}
-          pb={{ base: 60, md: 0 }}
-        >
-          {contributionReasons.map((reason, index) => (
-            <Carousel.Slide key={`${reason.label}-${index}`}>
-              <ContributionCard contributionReason={reason} />
-            </Carousel.Slide>
-          ))}
-        </Carousel>
+                : {})
+            }}
+            px={{ base: 0, md: 72 }}
+            pb={{ base: 60, md: 0 }}
+          >
+            {contributionReasons.map((reason, index) => (
+              <Carousel.Slide key={`${reason.label}-${index}`}>
+                <ContributionCard contributionReason={reason} />
+              </Carousel.Slide>
+            ))}
+          </Carousel>
+        )}
       </Stack>
     </Paper>
   );

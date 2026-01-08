@@ -131,7 +131,7 @@ export default function ManageMembershipTiersPanel({
 
   return (
     <Stack py={"lg"} pb={"xl"} gap={"lg"}>
-      <Box px={desktopTitlePadding}>
+      <Box px={desktopTitlePadding} mx={{ base: 0, md: 56 }}>
         <Title order={3}>Active Tiers</Title>
       </Box>
 
@@ -141,7 +141,7 @@ export default function ManageMembershipTiersPanel({
         align={isMobile ? "center" : "start"}
         // we need indicators for mobile because
         // the next and previous card are not visible
-        withControls={withCarouselControls}
+        withControls={withCarouselControls && publishedTiers.length + 1 > 3}
         withIndicators={isMobile && publishedTiers.length > 1}
         // we do not want carousel to move when arrows are pressed in
         // update / create membership tier modals
@@ -149,6 +149,7 @@ export default function ManageMembershipTiersPanel({
         // shifts the indicator down
         pb={{ base: 60, md: 0 }}
         px={{ base: 0, md: 72 }}
+        mx={{ base: 0, md: 84 }}
         styles={{
           // TODO! there is a bug with default control color in the deployed environments
           //  change the control color to make it visible
@@ -226,7 +227,7 @@ export default function ManageMembershipTiersPanel({
       />
 
       <Stack gap={"sm"} mt="md">
-        <Box px={desktopTitlePadding}>
+        <Box px={desktopTitlePadding} mx={{ base: 0, md: 56 }}>
           <Title order={3}>Contribution Cards</Title>
           <Text size="sm" c="dimmed">
             People are more inclined to contribute when they know what their
@@ -238,11 +239,14 @@ export default function ManageMembershipTiersPanel({
           slideSize="33.333333%"
           slideGap="md"
           align={isMobile ? "center" : "start"}
-          withControls={withCarouselControls}
+          withControls={
+            withCarouselControls && contributionReasons.length + 1 > 3
+          }
           withIndicators={showContributionIndicators}
           withKeyboardEvents={false}
           pb={{ base: 60, md: 0 }}
           px={{ base: 0, md: 72 }}
+          mx={{ base: 0, md: 84 }}
           styles={{
             control: {
               width: "3rem",
@@ -312,7 +316,7 @@ export default function ManageMembershipTiersPanel({
 
       {unpublishedTiers.length !== 0 && (
         <Stack gap={"sm"}>
-          <Box px={desktopTitlePadding}>
+          <Box px={desktopTitlePadding} mx={{ base: 0, md: 56 }}>
             <Title order={3} mt="md">
               Inactive Tiers
             </Title>
@@ -322,8 +326,9 @@ export default function ManageMembershipTiersPanel({
             slideSize="33.333333%"
             slideGap="md"
             align={isMobile ? "center" : "start"}
-            withControls={withCarouselControls}
+            withControls={withCarouselControls && publishedTiers.length > 3}
             withIndicators={isMobile && unpublishedTiers.length > 1}
+            mx={{ base: 0, md: 84 }}
             withKeyboardEvents={false}
             pb={{ base: 60, md: 0 }}
             px={{ base: 0, md: 72 }}
