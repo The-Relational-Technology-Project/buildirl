@@ -19,7 +19,6 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     case "PENDING":
       return (
         <PrimaryButton
-          includeIcon
           onClick={() => router.push(`/club/${club.id}/manage-application`)}
         >
           Manage Application
@@ -28,7 +27,6 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     case "ACTIVE":
       return (
         <PrimaryButton
-          includeIcon
           onClick={() => router.push(`/club/${club.id}/manage-membership`)}
         >
           Manage Membership
@@ -37,7 +35,6 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     case "PENDING_INCOMPLETE":
       return (
         <PrimaryButton
-          includeIcon
           onClick={() =>
             router.push(
               `/apply/${club.publicId}/payments?membershipId=${membership.id}`
@@ -54,10 +51,9 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     default:
       return (
         <PrimaryButton
-          includeIcon
           onClick={() => router.push(`/join/${club.publicId}/tiers`)}
         >
-          Join as a member
+          join the club
         </PrimaryButton>
       );
   }
