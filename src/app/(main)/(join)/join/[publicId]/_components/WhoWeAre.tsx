@@ -8,7 +8,7 @@ type WhoWeAreProps = {
 
 export function WhoWeAre({ club }: WhoWeAreProps) {
   const description = club.description;
-  const borderRadius = "0px 8px 0px 8px";
+  const borderRadius = 15;
 
   return (
     description.length > 0 && (
