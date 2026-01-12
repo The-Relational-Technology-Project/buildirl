@@ -8,10 +8,18 @@ type WhoWeAreProps = {
 
 export function WhoWeAre({ club }: WhoWeAreProps) {
   const description = club.description;
+  const borderRadius = "0px 8px 0px 8px";
 
   return (
     description.length > 0 && (
-      <ReadMoreBox style={{ width: "100%" }}>
+      <ReadMoreBox
+        style={{
+          width: "100%",
+          border: "2px solid #000",
+          borderRadius,
+          boxShadow: "6px 6px 0px #000"
+        }}
+      >
         <Title
           order={2}
           mb={"xs"}
