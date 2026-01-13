@@ -23,6 +23,7 @@ export default function FAQs({
 }: FAQsProps & BoxProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const borderRadius = 15;
 
   if (!faqs.items || faqs.items.length === 0) {
     return null;
@@ -36,8 +37,11 @@ export default function FAQs({
       }
       w={"100%"}
       p={28}
-      bdrs={4}
       mb={16}
+      style={{
+        border: "2px solid #000",
+        borderRadius
+      }}
     >
       <Title
         order={2}
