@@ -32,15 +32,6 @@ export function WhoWeAre({ club }: WhoWeAreProps) {
           Who We Are
         </Title>
         <Text
-          size={"sm"}
-          mb={{ base: "sm", md: "lg" }}
-          style={{ whiteSpace: "pre-line" }}
-          ta="center"
-          fs="italic"
-        >
-          ✨ Our people, our vibes, our world ✨
-        </Text>
-        <Text
           size={"md"}
           mb={{ base: "sm", md: "lg" }}
           style={{ whiteSpace: "pre-line", letterSpacing: "-0.15px" }}
