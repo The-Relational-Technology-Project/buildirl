@@ -3,22 +3,23 @@ import {
   Stack,
   useMatches,
   Text,
-  useMantineColorScheme,
-  useMantineTheme
+  useMantineColorScheme
 } from "@mantine/core";
 import { Icon } from "tabler-dynamic-icon";
 import { ClubValue } from "~/server/club/types";
 
 export function ClubValueCard({
   value,
-  height
+  height,
+  rotation = 0
 }: {
   value: ClubValue;
   height: number;
+  rotation?: number;
 }) {
   const { colorScheme } = useMantineColorScheme();
-  const theme = useMantineTheme();
   const iconColor = colorScheme === "dark" ? "#d0b6ffff" : "#7240d2";
+  const borderRadius = 15;
 
   const titleTextSize = useMatches({ base: "sm", md: "sm" });
   const descriptionTextSize = useMatches({ base: "xs", md: "xs" });
@@ -28,15 +29,14 @@ export function ClubValueCard({
       h={height}
       style={{
         position: "relative",
-        border: "1px solid black",
-        borderRadius: 4,
-        "&:hover": {
-          border: "2px solid black"
-        },
+        border: "2px solid #000",
+        borderRadius,
+        boxShadow: "6px 6px 0px #000",
         paddingTop: "0.75rem",
         cursor: "pointer",
-        backgroundColor:
-          colorScheme === "dark" ? theme.colors.dark![6] : "white"
+        backgroundColor: "#fff",
+        transform: `rotate(${rotation}deg)`,
+        transformOrigin: "center"
       }}
     >
       <Stack gap={4} align="center" justify="start">

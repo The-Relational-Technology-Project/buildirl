@@ -1,12 +1,4 @@
-import {
-  useMatches,
-  Title,
-  Grid,
-  Stack,
-  Text,
-  useMantineColorScheme,
-  useMantineTheme
-} from "@mantine/core";
+import { useMatches, Title, Grid, Stack, Text, Box } from "@mantine/core";
 import { Club, ClubValue } from "~/server/club/types";
 import { ClubValueCard } from "./ClubValueCard";
 
@@ -15,13 +7,19 @@ interface ClubValueDisplayProps {
 }
 
 export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
-  const { colorScheme } = useMantineColorScheme();
-  const theme = useMantineTheme();
-
   const cardContainerHeight = useMatches({ base: 190, md: 190 });
-  const containerWidth = useMatches({ base: "100%", md: "80%" });
-  const gridCols = useMatches({ base: 6, md: 4 });
+  const containerWidth = useMatches({ base: "100%", md: "90%" });
   const clubValues: ClubValue[] = club.values?.items || [];
+  const rotations = [0.5, -2.1, -2.4, 3.8, -3.2, 3.8];
+  const spacingOffsets = [-4, 12, 0, 8, -2, 10];
+  const baseCardSpacing = 0;
+  const spacingOffsetScale = useMatches({ base: 0.6, md: 0.8 });
+  const columnMarginTop = useMatches({ base: "lg", md: "sm" });
+  const extraColumnPadding = useMatches({ base: 0, md: 18 });
+  const columnHorizontalPadding = `calc(var(--grid-col-padding) + ${
+    extraColumnPadding ?? 0
+  }px)`;
+  const hasOddCount = clubValues.length % 2 === 1;
 
   return (
     clubValues.length > 0 && (
@@ -32,39 +30,62 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
         py={28}
         align="center"
         ta={"center"}
-        style={{
-          borderRadius: 4,
-          padding: "16px",
-          alignItems: "center",
-          backgroundColor:
-            colorScheme === "dark"
-              ? theme.colors.dark![3]
-              : theme.colors.beige![1]
-        }}
         gap={4}
       >
-        <Title
-          order={2}
-          tt="uppercase"
-          ta="center"
+        <Box
           style={{
-            fontFamily: club.themeHeadingFont ?? "inherit"
+            border: "2px solid #000",
+            borderRadius: 15,
+            boxShadow: "6px 6px 0px #000",
+            backgroundColor: "#fff",
+            padding: "10px 20px"
           }}
         >
-          Our Vibe Check
-        </Title>
-        <Text size="sm" mb={{ base: "xs", md: "sm" }} fs="italic">
-          The values that make our community special
-        </Text>
-        <Grid px={16} py={8} w={containerWidth} gutter="sm" justify="center">
+          <Title
+            order={2}
+            tt="uppercase"
+            ta="center"
+            style={{
+              fontFamily: club.themeHeadingFont ?? "inherit"
+            }}
+          >
+            Our Values
+          </Title>
+        </Box>
+        <Grid
+          px={16}
+          py={8}
+          w={containerWidth}
+          gutter={{ base: 48, md: 32 }}
+          justify="center"
+          mt={"lg"}
+        >
           {clubValues.map((value, index) => {
             if (value) {
+              const isSingleCardRow =
+                hasOddCount && index === clubValues.length - 1;
+              const spacingOffset =
+                spacingOffsets[index % spacingOffsets.length] ?? 0;
+              const columnStyle = {
+                marginTop: baseCardSpacing + spacingOffset * spacingOffsetScale,
+                paddingLeft: columnHorizontalPadding,
+                paddingRight: columnHorizontalPadding,
+                ...(isSingleCardRow
+                  ? { marginLeft: "auto", marginRight: "auto" }
+                  : {})
+              };
               return (
-                <Grid.Col span={gridCols} key={index + value.title}>
+                <Grid.Col
+                  span={{ base: 12, md: 6 }}
+                  key={index + value.title}
+                  style={columnStyle}
+                  mt={columnMarginTop}
+                >
                   <ClubValueCard
                     key={index + value.title}
                     value={value}
                     height={cardContainerHeight}
+                    rotation={rotations[index % rotations.length]}
                   />
                 </Grid.Col>
               );
