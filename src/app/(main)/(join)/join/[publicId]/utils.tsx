@@ -5,20 +5,20 @@ export const getRhythmString = (rhythm: Rhythm) => {
   if (!rhythm.frequency || !rhythm.startDate || !rhythm.startTime) {
     return null;
   }
-  return (
-    <>
-      {rhythm.frequency} on{" "}
-      {new Date(rhythm.startDate).toLocaleDateString("en-US", {
-        weekday: "long"
-      })}
-      s @{" "}
-      {new Date(`1970-01-01T${rhythm.startTime}`).toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true
-      })}
-    </>
-  );
+  const weekday = new Date(rhythm.startDate).toLocaleDateString("en-US", {
+    weekday: "long"
+  });
+  const time = new Date(`1970-01-01T${rhythm.startTime}`)
+    .toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    })
+    .toLowerCase()
+    .replace(" ", "");
+  const frequency = rhythm.frequency.toUpperCase();
+
+  return `${frequency} \u2022 ${weekday}s @ ${time}`;
 };
 
 export const getAvatarEmoji = () => {

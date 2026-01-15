@@ -12,15 +12,15 @@ import {
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
 import { isAllLoaded } from "~/client/utils";
-import { PAGE_WIDTH } from "~/client/components/HeaderBar";
+import { HEADER_BAR_HEIGHT, PAGE_WIDTH } from "~/client/components/HeaderBar";
 import { activeMembershipForClub, Maybe } from "~/utils/types";
 import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 import ClubImage from "~/client/components/ClubImage";
-import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/MemberCarousel";
-import React, { useEffect } from "react";
+import ClubMembers from "~/app/(main)/(join)/join/[publicId]/_components/ClubMembers";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import FAQs from "./_components/FAQs";
-import { useMounted } from "@mantine/hooks";
+import { useElementSize, useMounted } from "@mantine/hooks";
 import ShareIconButton from "./_components/ShareIconButton";
 import FollowToggle from "~/app/(main)/(join)/join/[publicId]/_components/FollowToggle";
 import { InstagramHandle, Url } from "~/server/utils/types";
@@ -29,7 +29,6 @@ import { WhoWeAre } from "./_components/WhoWeAre";
 import { HowWeHang } from "./_components/HowWeHang";
 import InfoChip from "./_components/InfoChip";
 import { CampaignModule } from "./_components/CampaignModule";
-import { HowCampaignWorks } from "./_components/HowCampaignWorks";
 import { JoinButton } from "./_components/JoinButton";
 
 type WithRedirectToWelcomePageProps = {
@@ -89,6 +88,23 @@ export default function ClubJoin() {
   const mounted = useMounted();
   const shareButtonRightPosition = useMatches({ base: -12, md: 120 });
   const clubImageSize = useMatches({ base: 320, md: 400 });
+  const contentDirection = useMatches({
+    base: "column",
+    md: "row"
+  }) as React.CSSProperties["flexDirection"];
+  const contentGap = useMatches({ base: 32, md: 80 });
+  const leftColumnWidth = useMatches({ base: "100%", md: 420 });
+  const leftAlign = useMatches({ base: "center", md: "flex-start" });
+  const contentAlign = useMatches({
+    base: "stretch",
+    md: "stretch"
+  }) as React.CSSProperties["alignItems"];
+  const isDesktop = useMatches({ base: false, md: true });
+  const { ref: leftColumnRef, width: leftColumnWidthMeasured } =
+    useElementSize<HTMLDivElement>();
+  const { ref: stickyContentRef, height: stickyContentHeight } =
+    useElementSize<HTMLDivElement>();
+  const [leftColumnLeft, setLeftColumnLeft] = useState(0);
 
   const params = useParams<{ publicId: string }>();
   const publicId = params.publicId;
@@ -137,6 +153,76 @@ export default function ClubJoin() {
     fieldName: "isUserAuthenticated"
   });
 
+  useLayoutEffect(() => {
+    if (!isDesktop || !leftColumnRef.current) {
+      return;
+    }
+    const rect = leftColumnRef.current.getBoundingClientRect();
+    setLeftColumnLeft(rect.left);
+  }, [isDesktop, leftColumnWidthMeasured]);
+
+  const clubHeaderDetails = (
+    <>
+      <Title
+        fz={{ base: 32, md: 45 }}
+        style={{
+          // TODO apply this dynamically across all headings
+          fontFamily: club.data!.themeHeadingFont ?? "inherit",
+          textAlign: isDesktop ? "left" : "center",
+          width: "100%"
+        }}
+      >
+        {club.data!.name}
+      </Title>
+
+      <Stack
+        align={isDesktop ? "flex-start" : "center"}
+        gap={8}
+        mt={4}
+        w="100%"
+      >
+        {club.data!.tagLine !== "" && (
+          <Text ta={isDesktop ? "left" : "center"} size={"lg"}>
+            {club.data!.tagLine}
+          </Text>
+        )}
+
+        <Group justify="center" align="center" gap={16} mb={16}>
+          <Group
+            justify={isDesktop ? "flex-start" : "center"}
+            align="center"
+            gap={8}
+          >
+            {club.data?.location && (
+              <InfoChip>
+                <IconMapPin size={18} stroke={1} />
+                <Text size="sm">{club.data!.location}</Text>
+              </InfoChip>
+            )}
+            {club.data?.rhythm && (
+              <InfoChip>
+                <IconCalendar size={18} stroke={1} />
+                <Text size="sm">{club.data.rhythm.frequency}</Text>
+              </InfoChip>
+            )}
+            {shouldShowClubMemberInfo && (
+              <InfoChip>
+                <IconUserCircle size={18} stroke={1} />
+                <Text size="sm">
+                  {clubStatistics.data?.memberCount} members
+                </Text>
+              </InfoChip>
+            )}
+          </Group>
+          <LinkIcons
+            websiteUrl={club.data!.websiteUrl}
+            instagramHandle={club.data!.instagramHandle}
+          />
+        </Group>
+      </Stack>
+    </>
+  );
+
   return (
     mounted &&
     isAllLoaded([club, isUserAuthenticated]) && (
@@ -146,11 +232,11 @@ export default function ClubJoin() {
         )}
         <Stack
           pt={50}
-          pb={"lg"}
-          px={{ base: 0, md: 150 }}
+          pb={{ base: 120, md: "lg" }}
+          px={{ base: 0, md: 120 }}
           // this page specifically, we want to fill up more space
-          mx={-6}
-          maw={PAGE_WIDTH}
+          mx={{ base: 0, md: -6 }}
+          maw={{ base: PAGE_WIDTH, md: "100%" }}
           align={"center"}
         >
           <Box
@@ -166,99 +252,136 @@ export default function ClubJoin() {
             />
           </Box>
 
-          <ClubImage club={club.data!} size={clubImageSize} />
-
-          <Stack align={"center"} gap={0}>
-            <Title
-              fz={{ base: 32, md: 45 }}
+          <Box
+            style={{
+              display: "flex",
+              flexDirection: contentDirection,
+              gap: contentGap,
+              width: "100%",
+              alignItems: contentAlign,
+              justifyContent: "center"
+            }}
+          >
+            <Stack
+              ref={leftColumnRef as React.RefObject<HTMLDivElement>}
               style={{
-                // TODO apply this dynamically across all headings
-                fontFamily: club.data!.themeHeadingFont ?? "inherit",
-                textAlign: "center"
+                width: leftColumnWidth,
+                flexShrink: 0,
+                alignItems: leftAlign
               }}
             >
-              {club.data!.name}
-            </Title>
+              {isDesktop ? (
+                <>
+                  <Box h={stickyContentHeight} />
+                  <Box
+                    style={{
+                      position: "fixed",
+                      top: HEADER_BAR_HEIGHT + 20,
+                      left: leftColumnLeft,
+                      width: leftColumnWidthMeasured || leftColumnWidth,
+                      zIndex: 1
+                    }}
+                  >
+                    <Stack
+                      align={leftAlign}
+                      w="100%"
+                      ref={stickyContentRef as React.RefObject<HTMLDivElement>}
+                    >
+                      <ClubImage club={club.data!} size={clubImageSize} />
+                      <JoinButton club={club.data!} />
+                      {shouldShowClubMemberInfo && (
+                        <ClubMembers
+                          club={club.data!}
+                          clubStatistics={clubStatistics.data!}
+                        />
+                      )}
+                    </Stack>
+                  </Box>
+                </>
+              ) : (
+                <>
+                  <ClubImage club={club.data!} size={clubImageSize} />
+                  <Stack align="center" w="100%">
+                    {clubHeaderDetails}
 
-            <Stack align={"center"} gap={8} mt={4}>
-              {club.data!.tagLine !== "" && (
-                <Text ta={"center"} size={"lg"}>
-                  {club.data!.tagLine}
-                </Text>
+                    {shouldShowClubMemberInfo && (
+                      <ClubMembers
+                        club={club.data!}
+                        clubStatistics={clubStatistics.data!}
+                      />
+                    )}
+                  </Stack>
+                </>
               )}
 
-              <LinkIcons
-                websiteUrl={club.data!.websiteUrl}
-                instagramHandle={club.data!.instagramHandle}
+              {!isDesktop && activeCampaign.data && campaignProgress?.data && (
+                <CampaignModule
+                  club={club.data!}
+                  activeCampaign={activeCampaign.data}
+                  campaignProgress={campaignProgress.data}
+                />
+              )}
+            </Stack>
+
+            <Stack
+              style={{
+                flex: 1,
+                minWidth: 0,
+                width: "100%",
+                overflow: "visible"
+              }}
+            >
+              {isDesktop && (
+                <Stack align="flex-start" w="100%" mt={81}>
+                  {clubHeaderDetails}
+                </Stack>
+              )}
+              {isDesktop && activeCampaign.data && campaignProgress?.data && (
+                <CampaignModule
+                  club={club.data!}
+                  activeCampaign={activeCampaign.data}
+                  campaignProgress={campaignProgress.data}
+                />
+              )}
+              <WhoWeAre club={club.data!} />
+
+              <ClubDisplayImageGallery club={club.data!} mb={"sm"} />
+
+              <HowWeHang club={club.data!} />
+
+              <FollowToggle
+                clubId={club.data!.id}
+                mt={10}
+                redirectTo={`/join/${publicId}`}
               />
 
-              <Group justify="center" mb={16}>
-                {club.data?.location && (
-                  <InfoChip>
-                    <IconMapPin size={18} stroke={1} />
-                    <Text size="sm">{club.data!.location}</Text>
-                  </InfoChip>
-                )}
-                {club.data?.rhythm && (
-                  <InfoChip>
-                    <IconCalendar size={18} stroke={1} />
-                    <Text size="sm">{club.data.rhythm.frequency}</Text>
-                  </InfoChip>
-                )}
-                {shouldShowClubMemberInfo && (
-                  <InfoChip>
-                    <IconUserCircle size={18} stroke={1} />
-                    <Text size="sm">
-                      {clubStatistics.data?.memberCount} members
-                    </Text>
-                  </InfoChip>
-                )}
-              </Group>
+              <ClubValueDisplay club={club.data!} />
+
+              <FAQs
+                faqs={club.data!.faqs}
+                themeHeadingFont={club.data!.themeHeadingFont}
+              />
+
+              <Text mt={48}>Powered by BuildIRL</Text>
             </Stack>
-          </Stack>
-
-          {!activeCampaign.data && <JoinButton club={club.data!} />}
-
-          {activeCampaign.data && campaignProgress?.data && (
-            <CampaignModule
-              club={club.data!}
-              activeCampaign={activeCampaign.data}
-              campaignProgress={campaignProgress.data}
-            />
-          )}
-
-          <WhoWeAre club={club.data!} />
-
-          <ClubDisplayImageGallery club={club.data!} mb={"sm"} />
-
-          <HowWeHang club={club.data!} />
-
-          <FollowToggle
-            clubId={club.data!.id}
-            mt={10}
-            redirectTo={`/join/${publicId}`}
-          />
-
-          <ClubValueDisplay club={club.data!} />
-
-          {shouldShowClubMemberInfo && (
-            <MemberCarousel
-              club={club.data!}
-              clubStatistics={clubStatistics.data!}
-            />
-          )}
-
-          <FAQs
-            faqs={club.data!.faqs}
-            themeHeadingFont={club.data!.themeHeadingFont}
-          />
-
-          {activeCampaign.data && campaignProgress?.data && (
-            <HowCampaignWorks club={club.data!} />
-          )}
-
-          <Text mt={48}>Powered by BuildIRL</Text>
+          </Box>
         </Stack>
+        {!isDesktop && (
+          <Box
+            style={{
+              position: "fixed",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 3,
+              display: "flex",
+              justifyContent: "center",
+              padding: "12px 16px calc(24px + env(safe-area-inset-bottom))"
+            }}
+          >
+            <JoinButton club={club.data!} />
+          </Box>
+        )}
       </>
     )
   );
@@ -275,7 +398,7 @@ function LinkIcons({ websiteUrl, instagramHandle }: LinkIconProps) {
   }
 
   return (
-    <Group mt={"xs"} mb={8}>
+    <Group align="center">
       {websiteUrl && (
         <ActionIconBox
           onClick={() => window.open(`${websiteUrl}`)}
