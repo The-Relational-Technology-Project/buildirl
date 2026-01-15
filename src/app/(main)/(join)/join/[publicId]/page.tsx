@@ -232,7 +232,7 @@ export default function ClubJoin() {
         )}
         <Stack
           pt={50}
-          pb={"lg"}
+          pb={{ base: 120, md: "lg" }}
           px={{ base: 0, md: 120 }}
           // this page specifically, we want to fill up more space
           mx={{ base: 0, md: -6 }}
@@ -303,7 +303,6 @@ export default function ClubJoin() {
                   <ClubImage club={club.data!} size={clubImageSize} />
                   <Stack align="center" w="100%">
                     {clubHeaderDetails}
-                    <JoinButton club={club.data!} />
 
                     {shouldShowClubMemberInfo && (
                       <ClubMembers
@@ -367,6 +366,22 @@ export default function ClubJoin() {
             </Stack>
           </Box>
         </Stack>
+        {!isDesktop && (
+          <Box
+            style={{
+              position: "fixed",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 3,
+              display: "flex",
+              justifyContent: "center",
+              padding: "12px 16px calc(24px + env(safe-area-inset-bottom))"
+            }}
+          >
+            <JoinButton club={club.data!} />
+          </Box>
+        )}
       </>
     )
   );

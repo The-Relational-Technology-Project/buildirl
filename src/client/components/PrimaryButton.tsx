@@ -43,6 +43,7 @@ export default function PrimaryButton({
         onClick={onClick}
         rightSection={includeIcon && <IconArrowUpRight />}
         size={"xl"}
+        fz={{ base: "lg", md: "xl" }}
         w={{ base: 300, md: 400 }}
         onMouseDown={(event) => {
           applyPressedStyle(event.currentTarget);

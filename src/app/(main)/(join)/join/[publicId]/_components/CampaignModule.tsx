@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
   Title,
+  useMatches,
   useMantineColorScheme,
   useMantineTheme
 } from "@mantine/core";
@@ -66,6 +67,7 @@ export function CampaignModule({
 }: CampaignModuleProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const isDesktop = useMatches({ base: false, md: true });
   const borderRadius = 15;
   const cardBorder = "2px solid #000";
   const cardShadow = "6px 6px 0px #000";
@@ -291,9 +293,11 @@ export function CampaignModule({
           </Box>
         </Stack>
 
-        <Box w={"100%"} pt={16}>
-          <JoinButton club={club} />
-        </Box>
+        {isDesktop && (
+          <Box w={"100%"} pt={16}>
+            <JoinButton club={club} />
+          </Box>
+        )}
 
         <Flex
           flex={1}
