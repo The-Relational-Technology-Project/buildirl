@@ -17,7 +17,7 @@ import { activeMembershipForClub, Maybe } from "~/utils/types";
 import { ActionIconBox } from "~/client/components/ColorSchemeAwareActionIcon";
 import ClubDisplayImageGallery from "~/app/(main)/(join)/join/[publicId]/_components/ClubDisplayImageGallery";
 import ClubImage from "~/client/components/ClubImage";
-import MemberCarousel from "~/app/(main)/(join)/join/[publicId]/_components/MemberCarousel";
+import ClubMembers from "~/app/(main)/(join)/join/[publicId]/_components/ClubMembers";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import FAQs from "./_components/FAQs";
 import { useElementSize, useMounted } from "@mantine/hooks";
@@ -188,30 +188,37 @@ export default function ClubJoin() {
           </Text>
         )}
 
-        <LinkIcons
-          websiteUrl={club.data!.websiteUrl}
-          instagramHandle={club.data!.instagramHandle}
-        />
-
-        <Group justify={isDesktop ? "flex-start" : "center"} mb={16}>
-          {club.data?.location && (
-            <InfoChip>
-              <IconMapPin size={18} stroke={1} />
-              <Text size="sm">{club.data!.location}</Text>
-            </InfoChip>
-          )}
-          {club.data?.rhythm && (
-            <InfoChip>
-              <IconCalendar size={18} stroke={1} />
-              <Text size="sm">{club.data.rhythm.frequency}</Text>
-            </InfoChip>
-          )}
-          {shouldShowClubMemberInfo && (
-            <InfoChip>
-              <IconUserCircle size={18} stroke={1} />
-              <Text size="sm">{clubStatistics.data?.memberCount} members</Text>
-            </InfoChip>
-          )}
+        <Group justify="center" align="center" gap={16} mb={16}>
+          <Group
+            justify={isDesktop ? "flex-start" : "center"}
+            align="center"
+            gap={8}
+          >
+            {club.data?.location && (
+              <InfoChip>
+                <IconMapPin size={18} stroke={1} />
+                <Text size="sm">{club.data!.location}</Text>
+              </InfoChip>
+            )}
+            {club.data?.rhythm && (
+              <InfoChip>
+                <IconCalendar size={18} stroke={1} />
+                <Text size="sm">{club.data.rhythm.frequency}</Text>
+              </InfoChip>
+            )}
+            {shouldShowClubMemberInfo && (
+              <InfoChip>
+                <IconUserCircle size={18} stroke={1} />
+                <Text size="sm">
+                  {clubStatistics.data?.memberCount} members
+                </Text>
+              </InfoChip>
+            )}
+          </Group>
+          <LinkIcons
+            websiteUrl={club.data!.websiteUrl}
+            instagramHandle={club.data!.instagramHandle}
+          />
         </Group>
       </Stack>
     </>
@@ -284,7 +291,7 @@ export default function ClubJoin() {
                       <ClubImage club={club.data!} size={clubImageSize} />
                       <JoinButton club={club.data!} />
                       {shouldShowClubMemberInfo && (
-                        <MemberCarousel
+                        <ClubMembers
                           club={club.data!}
                           clubStatistics={clubStatistics.data!}
                         />
@@ -297,8 +304,15 @@ export default function ClubJoin() {
                   <ClubImage club={club.data!} size={clubImageSize} />
                   <Stack align="center" w="100%">
                     {clubHeaderDetails}
+                    <JoinButton club={club.data!} />
+
+                    {shouldShowClubMemberInfo && (
+                      <ClubMembers
+                        club={club.data!}
+                        clubStatistics={clubStatistics.data!}
+                      />
+                    )}
                   </Stack>
-                  <JoinButton club={club.data!} />
                 </>
               )}
 
@@ -312,10 +326,15 @@ export default function ClubJoin() {
             </Stack>
 
             <Stack
-              style={{ flex: 1, minWidth: 0, width: "100%", overflow: "visible" }}
+              style={{
+                flex: 1,
+                minWidth: 0,
+                width: "100%",
+                overflow: "visible"
+              }}
             >
               {isDesktop && (
-                <Stack align="flex-start" w="100%">
+                <Stack align="flex-start" w="100%" mt={81}>
                   {clubHeaderDetails}
                 </Stack>
               )}
@@ -339,13 +358,6 @@ export default function ClubJoin() {
               />
 
               <ClubValueDisplay club={club.data!} />
-
-              {!isDesktop && shouldShowClubMemberInfo && (
-                <MemberCarousel
-                  club={club.data!}
-                  clubStatistics={clubStatistics.data!}
-                />
-              )}
 
               <FAQs
                 faqs={club.data!.faqs}
@@ -376,7 +388,7 @@ function LinkIcons({ websiteUrl, instagramHandle }: LinkIconProps) {
   }
 
   return (
-    <Group mt={"xs"} mb={8}>
+    <Group align="center">
       {websiteUrl && (
         <ActionIconBox
           onClick={() => window.open(`${websiteUrl}`)}

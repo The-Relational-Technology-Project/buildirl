@@ -40,6 +40,7 @@ export default function FAQs({
       mb={16}
       style={{
         border: "2px solid #000",
+        boxShadow: "6px 6px 0px #000",
         borderRadius
       }}
     >

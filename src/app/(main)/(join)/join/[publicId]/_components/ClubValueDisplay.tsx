@@ -1,4 +1,4 @@
-import { useMatches, Title, Grid, Stack, Text, Box } from "@mantine/core";
+import { useMatches, Title, Grid, Stack, Box } from "@mantine/core";
 import { Club, ClubValue } from "~/server/club/types";
 import { ClubValueCard } from "./ClubValueCard";
 

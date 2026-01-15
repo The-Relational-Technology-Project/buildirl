@@ -22,7 +22,8 @@ export function DefaultClubImage({ size }: DefaultClubImageProps) {
           // max radius
           borderTopLeftRadius: 1000,
           borderTopRightRadius: 1000,
-          border: "1px solid"
+          border: "1px solid",
+          boxShadow: "6px 6px 0px #000"
         }}
       ></Image>
     </Box>
@@ -43,6 +44,7 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
         // prevents image from shrinking
         flexShrink: 0
       }}
+      mb={8}
     >
       <Image
         src={storageClient.clubProfileImageUrl(club.id)}
@@ -59,7 +61,8 @@ export default function ClubImage({ club, size }: ClubImageProps & ImageProps) {
             // max radius
             borderTopLeftRadius: 1000,
             borderTopRightRadius: 1000,
-            border: "1px solid"
+            border: "1px solid",
+            boxShadow: "6px 6px 0px #000"
           }
         }}
       />
