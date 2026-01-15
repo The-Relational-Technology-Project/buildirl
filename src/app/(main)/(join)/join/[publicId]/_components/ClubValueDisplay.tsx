@@ -8,7 +8,7 @@ import {
   useMantineTheme
 } from "@mantine/core";
 import { Club, ClubValue } from "~/server/club/types";
-import { Icon } from "tabler-dynamic-icon";
+import { Icon, type IconsCls } from "tabler-dynamic-icon";
 
 interface ClubValueDisplayProps {
   club: Club;
@@ -65,7 +65,7 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
                 style={{ display: "flex", justifyContent: "center" }}
               >
                 <Stack align="center" gap={6} maw={200}>
-                  <Icon cls={value.icon as any} size={28} color="#000" />
+                  <Icon cls={value.icon as IconsCls} size={28} color="#000" />
                   <Text size="sm" tt="uppercase" fw={600} ta="center">
                     {value.title}
                   </Text>
