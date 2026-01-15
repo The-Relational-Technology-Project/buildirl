@@ -69,7 +69,7 @@ export function CampaignModule({
   const theme = useMantineTheme();
   const isDesktop = useMatches({ base: false, md: true });
   const borderRadius = 15;
-  const cardBorder = "2px solid #000";
+  const cardBorder = "1px solid #000";
   const cardShadow = "6px 6px 0px #000";
   const innerCardRadius = 12;
   const sectionBackground =
@@ -146,7 +146,7 @@ export function CampaignModule({
           px={36}
           py={8}
           bdrs={99}
-          bd={cardBorder}
+          bd={"2px black solid"}
           tt="uppercase"
           pos="relative"
           top={30}
@@ -164,7 +164,7 @@ export function CampaignModule({
         p="32px 24px"
         ta={"center"}
         style={{
-          border: cardBorder,
+          border: "2px black solid",
           borderRadius,
           boxShadow: cardShadow,
           backgroundColor: sectionBackground
