@@ -29,7 +29,6 @@ import { WhoWeAre } from "./_components/WhoWeAre";
 import { HowWeHang } from "./_components/HowWeHang";
 import InfoChip from "./_components/InfoChip";
 import { CampaignModule } from "./_components/CampaignModule";
-import { HowCampaignWorks } from "./_components/HowCampaignWorks";
 import { JoinButton } from "./_components/JoinButton";
 
 type WithRedirectToWelcomePageProps = {
@@ -363,10 +362,6 @@ export default function ClubJoin() {
                 faqs={club.data!.faqs}
                 themeHeadingFont={club.data!.themeHeadingFont}
               />
-
-              {activeCampaign.data && campaignProgress?.data && (
-                <HowCampaignWorks club={club.data!} />
-              )}
 
               <Text mt={48}>Powered by BuildIRL</Text>
             </Stack>

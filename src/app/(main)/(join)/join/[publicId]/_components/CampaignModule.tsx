@@ -1,5 +1,5 @@
 import {
-  Anchor,
+  Accordion,
   Box,
   Card,
   Center,
@@ -41,6 +41,24 @@ type CommittedMember = Pick<
   "id" | "firstName"
 >;
 
+const CAMPAIGN_STEPS = [
+  {
+    title: "Keep it alive ⚡",
+    description:
+      "Your membership contribution keeps the club sustainable month after month."
+  },
+  {
+    title: "Community-powered love ❤️",
+    description:
+      "If enough members join and contribute, we'll have the fuel to keep going!"
+  },
+  {
+    title: "Flexible ✨",
+    description:
+      "Change or cancel membership anytime. Only your first contribution is committed in the campaign."
+  }
+];
+
 export function CampaignModule({
   club,
   activeCampaign,
@@ -56,6 +74,7 @@ export function CampaignModule({
     colorScheme === "dark" ? theme.colors.dark![3] : theme.colors.beige![1];
   const innerCardBackground =
     colorScheme === "dark" ? theme.colors.dark![5] : "#ffffff";
+  const campaignStepAccent = "#f7b7b1";
 
   const daysLeft = Math.ceil(
     (activeCampaign.targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -419,6 +438,7 @@ export function CampaignModule({
             </Stack>
           </Stack>
         </Flex>
+
         <Text size="xs" pt={28}>
           ❤️ Campaign ends{" "}
           {activeCampaign.targetDate.toLocaleDateString("en-US", {
@@ -433,11 +453,81 @@ export function CampaignModule({
             hour12: true
           })}
           . Apply to join before it ends! Final membership subject to mutual
-          fit.{" "}
-          <Anchor href="#how-campaign-works" size="xs">
-            Learn more about how campaigns work.
-          </Anchor>
+          fit.
         </Text>
+        <Accordion
+          variant="contained"
+          radius={12}
+          w="100%"
+          mt={20}
+          styles={{
+            item: {
+              border: cardBorder,
+              backgroundColor: innerCardBackground
+            },
+            control: {
+              padding: "12px 16px"
+            },
+            label: {
+              width: "100%"
+            }
+          }}
+        >
+          <Accordion.Item value="how-it-works">
+            <Accordion.Control>
+              <Group justify="space-between" align="center" w="100%">
+                <Text
+                  tt="uppercase"
+                  fw={700}
+                  style={{
+                    fontFamily: club.themeHeadingFont ?? "inherit"
+                  }}
+                >
+                  How does this campaign work?
+                </Text>
+              </Group>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack gap="sm" w="100%">
+                {CAMPAIGN_STEPS.map((step, index) => (
+                  <Card
+                    key={step.title}
+                    p="md"
+                    style={{
+                      backgroundColor: innerCardBackground,
+                      border: cardBorder,
+                      borderRadius: innerCardRadius
+                    }}
+                  >
+                    <Group align="center" gap="md" wrap="nowrap">
+                      <Box
+                        w={40}
+                        h={40}
+                        bdrs={999}
+                        style={{
+                          backgroundColor: campaignStepAccent,
+                          border: cardBorder,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontWeight: 700
+                        }}
+                      >
+                        {index + 1}
+                      </Box>
+                      <Stack gap={4} ta="start" style={{ flex: 1 }}>
+                        <Text fw={700}>{step.title}</Text>
+                        <Text size="sm" style={{ lineHeight: 1.6 }}>
+                          {step.description}
+                        </Text>
+                      </Stack>
+                    </Group>
+                  </Card>
+                ))}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+        </Accordion>
       </Stack>
     </>
   );
