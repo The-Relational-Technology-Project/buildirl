@@ -96,27 +96,10 @@ export default function ClubTiers() {
     mounted && (
       <WithLocalNavigationHeader>
         <Stack gap={titleAndCardGap} px={{ base: 0, md: 56 }}>
-          <Stack align={"center"} gap={6} mb={"md"}>
+          <Stack align={"center"} gap={6} mb={"sm"}>
             <Title ta="center" order={titleOrder}>
               Help keep this community alive!
             </Title>
-            <Paper
-              p="xs"
-              radius="xs"
-              shadow="none"
-              style={{
-                backgroundColor: "white",
-                border: "2px solid #0f0f0f",
-                boxShadow: "4px 6px 0 #0f0f0f",
-                transform: "rotate(-2deg)",
-                maxWidth: 500,
-                marginTop: "12px"
-              }}
-            >
-              <Text size="md" fw={500} ta="center" px="md" lh={1}>
-                ✨ A little contribution, a big difference. ✨
-              </Text>
-            </Paper>
           </Stack>
 
           <MembershipTierCarousel
@@ -145,6 +128,23 @@ export default function ClubTiers() {
                 />
               </Box>
             ) : null}
+            <Paper
+              p="xs"
+              radius="xs"
+              shadow="none"
+              style={{
+                backgroundColor: "white",
+                border: "2px solid #0f0f0f",
+                boxShadow: "4px 6px 0 #0f0f0f",
+                // transform: "rotate(-2deg)",
+                maxWidth: 500,
+                marginBottom: 96
+              }}
+            >
+              <Text size="md" fw={500} ta="center" px="md" lh={1}>
+                ✨ A little contribution, a big difference. ✨
+              </Text>
+            </Paper>
           </Stack>
         </Stack>
       </WithLocalNavigationHeader>
@@ -166,8 +166,9 @@ function ContributionReasonsCarousel({
     <Paper
       radius="xl"
       p={{ base: "md", md: 32 }}
-      mb={"96"}
+      mb={"48"}
       mt={"xl"}
+      mx="auto"
       shadow="lg"
       style={{
         border: "2px solid #0d0d0d",
