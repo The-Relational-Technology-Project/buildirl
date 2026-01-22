@@ -65,7 +65,7 @@ function MemberList({ clubId }: MemberListProps) {
       px={{ base: 0, md: "xl" }}
       bg={{
         backgroundColor:
-          colorScheme === "dark" ? theme.colors.dark![3] : "white"
+          colorScheme === "dark" ? theme.other.dark.surface : "white"
       }}
       bdrs={4}
       p={28}

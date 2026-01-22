@@ -9,6 +9,7 @@ import {
   Space,
   useMatches,
   useMantineColorScheme,
+  useMantineTheme,
   Group,
   Badge,
   Button
@@ -39,6 +40,7 @@ export function MembershipTierCarousel({
   const desktopAlign = alignDesktop ?? "start";
   const showDesktopControls = withDesktopControls ?? withCarouselControls;
   const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
 
   if (isMobile) {
     return (
@@ -92,17 +94,21 @@ export function MembershipTierCarousel({
         control: {
           width: "3rem",
           height: "3rem",
-          backgroundColor: "white",
-          color: "black",
+          backgroundColor:
+            colorScheme === "dark" ? theme.other.dark.surfaceHighlight : "white",
+          color: colorScheme === "dark" ? theme.other.dark.text : "black",
           opacity: 1,
           border: "2px solid",
-          borderColor: "black",
+          borderColor:
+            colorScheme === "dark" ? theme.other.dark.borderStrong : "black",
           borderRadius: "4px"
         },
         ...(isMobile && tiers.length > 1
           ? {
               indicator: {
-                backgroundColor: `${colorScheme === "dark" ? "white" : "black"}`,
+                backgroundColor: `${
+                  colorScheme === "dark" ? theme.other.dark.text : "black"
+                }`,
                 width: 8,
                 height: 8
               }
@@ -145,6 +151,9 @@ function MembershipTierCard({
   disabled,
   fullWidth = false
 }: MembershipTierCardProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
   const monthlyCost = `$${membershipTier.costPerBillingInterval} / ${billingIntervalLabel(membershipTier.billingInterval)}`;
   const initiationFee =
     membershipTier.initiationFeeCostInUSD !== null &&
@@ -164,6 +173,19 @@ function MembershipTierCard({
           "linear-gradient(135deg, #1f1b2c 0%, #5a3b33 45%, #d47d38 100%)",
         backgroundSize: "cover"
       };
+  const cardBorder = isDark
+    ? `2px solid ${theme.other.dark.borderStrong}`
+    : "2px solid #000";
+  const cardShadow = isDark
+    ? `6px 6px 0px ${theme.other.dark.shadow}`
+    : "6px 6px 0px #000";
+  const pressedShadow = isDark
+    ? `2px 2px 0px ${theme.other.dark.shadow}`
+    : "2px 2px 0px #000";
+  const cardBackground = isDark ? theme.other.dark.surfaceAlt : "#ffffff";
+  const dividerBorder = isDark
+    ? `1px solid ${theme.other.dark.border}`
+    : "1px solid #0d0d0d";
 
   return (
     <Paper
@@ -173,17 +195,19 @@ function MembershipTierCard({
       radius="lg"
       style={{
         overflow: "hidden",
-        boxShadow: "6px 6px 0px #000",
-        border: "2px solid #000",
+        boxShadow: cardShadow,
+        border: cardBorder,
+        backgroundColor: cardBackground,
+        color: isDark ? theme.other.dark.text : undefined,
         transition: "transform 0.1s ease, box-shadow 0.1s ease"
       }}
       onMouseDown={(e) => {
         e.currentTarget.style.transform = "translate(4px, 4px)";
-        e.currentTarget.style.boxShadow = "2px 2px 0px #000";
+        e.currentTarget.style.boxShadow = pressedShadow;
       }}
       onMouseUp={(e) => {
         e.currentTarget.style.transform = "translate(0, 0)";
-        e.currentTarget.style.boxShadow = "6px 6px 0px #000";
+        e.currentTarget.style.boxShadow = cardShadow;
       }}
     >
       <Stack h={"100%"} gap={0}>
@@ -232,7 +256,7 @@ function MembershipTierCard({
           h={"100%"}
           p={"lg"}
           gap="md"
-          style={{ borderTop: "1px solid #0d0d0d", flex: 1 }}
+          style={{ borderTop: dividerBorder, flex: 1 }}
         >
           <Box>
             <Title order={3} style={{ letterSpacing: 0.3 }}>

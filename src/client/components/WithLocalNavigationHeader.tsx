@@ -26,7 +26,7 @@ export function NavigationButton({
   const theme = useMantineTheme();
   return (
     <Box
-      bg={colorScheme === "dark" ? theme.colors.dark[7] : "white"}
+      bg={colorScheme === "dark" ? theme.other.dark.surfaceDeep : "white"}
       w={30}
       h={30}
       style={{

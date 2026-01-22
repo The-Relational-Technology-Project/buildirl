@@ -27,8 +27,9 @@ export function ReadMoreBox({
 }: ReadMoreBoxProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const sectionTextColor = theme.other.dark.text;
   const buttonColor =
-    colorScheme === "dark" ? theme.colors.gray[0] : theme.colors.dark[9];
+    colorScheme === "dark" ? sectionTextColor : theme.other.dark.ink;
 
   const [expanded, setExpanded] = useState(false);
   const [showButton, setShowButton] = useState(false);
@@ -63,8 +64,9 @@ export function ReadMoreBox({
         ...style,
         backgroundColor:
           colorScheme === "dark"
-            ? theme.colors.dark![3]
-            : theme.colors.beige![1]
+            ? theme.other.dark.surface
+            : theme.colors.beige![1],
+        color: colorScheme === "dark" ? sectionTextColor : undefined
       }}
     >
       {header}

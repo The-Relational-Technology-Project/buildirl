@@ -116,7 +116,7 @@ export default function ClubTiers() {
             <Text
               size={"sm"}
               ta="center"
-              mb={!hasContributionReasons ? "96px" : "0"}
+              mb={!hasContributionReasons ? "24px" : "0"}
             >
               You’ll only be charged if your application is approved by the
               club. You may also withdraw your application after submitting.

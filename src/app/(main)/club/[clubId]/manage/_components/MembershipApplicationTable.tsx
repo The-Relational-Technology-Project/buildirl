@@ -128,7 +128,7 @@ export default function MembershipApplicationTable({
                   position: "sticky",
                   top: 0,
                   background:
-                    colorScheme === "dark" ? theme.colors.dark[7] : "white"
+                    colorScheme === "dark" ? theme.other.dark.surfaceDeep : "white"
                 }}
               >
                 <Table.Tr>

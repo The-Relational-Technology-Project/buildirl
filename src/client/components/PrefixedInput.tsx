@@ -25,8 +25,10 @@ export default function PrefixedInput({
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
 
-  const borderColor = isDark ? theme.colors.dark[1] : theme.colors.dark[9];
-  const bgColor = isDark ? theme.colors.dark[6] : theme.colors.gray[0];
+  const borderColor = isDark
+    ? theme.other.dark.borderStrong
+    : theme.other.dark.ink;
+  const bgColor = isDark ? theme.other.dark.surfaceAlt : theme.colors.gray[0];
 
   return (
     <Box>

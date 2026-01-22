@@ -175,19 +175,14 @@ export default function ClubJoin() {
         {club.data!.name}
       </Title>
 
-      <Stack
-        align={isDesktop ? "flex-start" : "center"}
-        gap={8}
-        mt={4}
-        w="100%"
-      >
+      <Stack align={isDesktop ? "flex-start" : "center"} gap={8} w="100%">
         {club.data!.tagLine !== "" && (
           <Text ta={isDesktop ? "left" : "center"} size={"lg"}>
             {club.data!.tagLine}
           </Text>
         )}
 
-        <Group justify="center" align="center" gap={16} mb={16}>
+        <Group justify="center" align="center" gap={16} mb={16} mt={8}>
           <Group
             justify={isDesktop ? "flex-start" : "center"}
             align="center"
@@ -301,7 +296,7 @@ export default function ClubJoin() {
               ) : (
                 <>
                   <ClubImage club={club.data!} size={clubImageSize} />
-                  <Stack align="center" w="100%">
+                  <Stack align="center" w="100%" gap={"0"}>
                     {clubHeaderDetails}
 
                     {shouldShowClubMemberInfo && (
@@ -403,7 +398,8 @@ function LinkIcons({ websiteUrl, instagramHandle }: LinkIconProps) {
         <ActionIconBox
           onClick={() => window.open(`${websiteUrl}`)}
           icon={<IconWorld />}
-          size={"xl"}
+          size={"lg"}
+          variant="infochip"
         />
       )}
 
@@ -413,7 +409,8 @@ function LinkIcons({ websiteUrl, instagramHandle }: LinkIconProps) {
             window.open(`https://instagram.com/${instagramHandle}`)
           }
           icon={<IconBrandInstagram />}
-          size={"xl"}
+          size={"lg"}
+          variant="infochip"
         />
       )}
     </Group>

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
   const userMemberships = api.main.userMemberships.useQuery();
+  const buttonFont = club.themeHeadingFont ?? undefined;
 
   if (!isLoaded(userMemberships)) {
     return null;
@@ -20,6 +21,7 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
       return (
         <PrimaryButton
           onClick={() => router.push(`/club/${club.id}/manage-application`)}
+          fontFamily={buttonFont}
         >
           Manage Application
         </PrimaryButton>
@@ -28,6 +30,7 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
       return (
         <PrimaryButton
           onClick={() => router.push(`/club/${club.id}/manage-membership`)}
+          fontFamily={buttonFont}
         >
           Manage Membership
         </PrimaryButton>
@@ -40,6 +43,7 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
               `/apply/${club.publicId}/payments?membershipId=${membership.id}`
             )
           }
+          fontFamily={buttonFont}
         >
           Complete Application
         </PrimaryButton>
@@ -52,6 +56,7 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
       return (
         <PrimaryButton
           onClick={() => router.push(`/join/${club.publicId}/tiers`)}
+          fontFamily={buttonFont}
         >
           join the club
         </PrimaryButton>

@@ -30,7 +30,7 @@ export default function SecondaryButton({
         border: "1px solid",
         borderRadius: 360
       }}
-      color={colorScheme === "dark" ? theme.colors.dark[1] : "black"}
+      color={colorScheme === "dark" ? theme.other.dark.textMuted : "black"}
       {...props}
     >
       {children}

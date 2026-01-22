@@ -19,6 +19,14 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
   const displayValues = clubValues.slice(0, 6);
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const sectionTextColor = theme.other.dark.text;
+  const sectionBorder = isDark
+    ? `1px solid ${theme.other.dark.borderStrong}`
+    : "2px solid #000";
+  const sectionShadow = isDark
+    ? `6px 6px 0px ${theme.other.dark.shadow}`
+    : "6px 6px 0px #000";
 
   return (
     clubValues.length > 0 && (
@@ -30,15 +38,12 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
           align="center"
           ta="center"
           gap={36}
-          bg={
-            colorScheme === "dark"
-              ? theme.colors.dark![3]
-              : theme.colors.beige![1]
-          }
+          bg={isDark ? theme.other.dark.surface : theme.colors.beige![1]}
           style={{
-            border: "2px solid #000",
+            border: sectionBorder,
             borderRadius: 18,
-            boxShadow: "6px 6px 0px #000"
+            boxShadow: sectionShadow,
+            color: isDark ? sectionTextColor : undefined
           }}
         >
           <Title
@@ -65,7 +70,11 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
                 style={{ display: "flex", justifyContent: "center" }}
               >
                 <Stack align="center" gap={6} maw={200}>
-                  <Icon cls={value.icon as IconsCls} size={28} color="#000" />
+                  <Icon
+                    cls={value.icon as IconsCls}
+                    size={28}
+                    color="currentColor"
+                  />
                   <Text size="sm" tt="uppercase" fw={600} ta="center">
                     {value.title}
                   </Text>

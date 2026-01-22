@@ -1,4 +1,9 @@
-import { Text, Title } from "@mantine/core";
+import {
+  Text,
+  Title,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { ReadMoreBox } from "./ReadMoreBox";
 import { Club } from "~/server/club/types";
 
@@ -9,6 +14,15 @@ type WhoWeAreProps = {
 export function WhoWeAre({ club }: WhoWeAreProps) {
   const description = club.description;
   const borderRadius = 15;
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const sectionBorder = isDark
+    ? `1px solid ${theme.other.dark.borderStrong}`
+    : "2px solid #000";
+  const sectionShadow = isDark
+    ? `6px 6px 0px ${theme.other.dark.shadow}`
+    : "6px 6px 0px #000";
 
   return (
     description.length > 0 && (
@@ -29,9 +43,9 @@ export function WhoWeAre({ club }: WhoWeAreProps) {
         }
         style={{
           width: "100%",
-          border: "2px solid #000",
+          border: sectionBorder,
           borderRadius,
-          boxShadow: "6px 6px 0px #000"
+          boxShadow: sectionShadow
         }}
       >
         <Text

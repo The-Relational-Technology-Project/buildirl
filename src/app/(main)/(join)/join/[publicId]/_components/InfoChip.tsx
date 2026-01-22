@@ -1,4 +1,4 @@
-import { Group } from "@mantine/core";
+import { Group, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 
 type InfoChipProps = {
   children: React.ReactNode;
@@ -6,12 +6,23 @@ type InfoChipProps = {
 };
 
 export default function InfoChip({ children, backgroundColor }: InfoChipProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const chipBackground =
+    backgroundColor ?? (isDark ? theme.other.dark.surface : theme.colors.beige![1]);
+  const chipBorder = isDark
+    ? "1px solid rgba(255, 255, 255, 0.5)"
+    : "1px solid #000";
+  const chipTextColor = isDark ? theme.other.dark.text : "black";
+
   return (
     <Group
-      bg={backgroundColor ?? "#000000"}
-      c={"white"}
+      bg={chipBackground}
+      bd={chipBorder}
+      c={chipTextColor}
       px={24}
-      py={8}
+      py={6}
       bdrs={999}
       ff={"text"}
       gap={8}

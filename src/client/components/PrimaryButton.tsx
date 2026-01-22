@@ -8,6 +8,7 @@ type PrimaryButtonProps = {
   includeIcon?: boolean;
   onClick?: (e: React.MouseEvent) => void;
   type?: "submit" | "reset" | "button";
+  fontFamily?: string;
 };
 
 const BASE_SHADOW = "6px 6px 0px #000";
@@ -21,6 +22,7 @@ export default function PrimaryButton({
   onClick = () => {},
   includeIcon = false,
   type,
+  fontFamily,
   ...props
 }: PrimaryButtonProps & ButtonProps) {
   const mounted = useMounted();
@@ -70,6 +72,7 @@ export default function PrimaryButton({
             textTransform: "uppercase",
             letterSpacing: "0.08em",
             fontWeight: 700,
+            fontFamily: fontFamily ?? undefined,
             transition: "transform 0.1s ease, box-shadow 0.1s ease",
             "&:hover": {
               backgroundColor: "#ffe680"

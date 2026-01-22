@@ -17,8 +17,30 @@ type HowWeHangProps = {
 export function HowWeHang({ club }: HowWeHangProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
   const borderRadius = 15;
   const accentColor = "#f7b7b1";
+  const sectionTextColor = theme.other.dark.text;
+  const sectionBorder = isDark
+    ? `1px solid ${theme.other.dark.borderStrong}`
+    : "2px solid #000";
+  const sectionShadow = isDark
+    ? `6px 6px 0px ${theme.other.dark.shadow}`
+    : "6px 6px 0px #000";
+  const upcomingButtonBackground = isDark
+    ? "linear-gradient(180deg, #fde9e6 0%, #f7b7b1 100%)"
+    : "#ffffff";
+  const upcomingButtonTextColor = isDark ? theme.other.dark.ink : "#000";
+  const upcomingButtonBorder = isDark
+    ? `2px solid ${theme.other.dark.ink}`
+    : "2px solid #000";
+  const upcomingButtonShadowColor = isDark ? "#d28f89" : accentColor;
+  const upcomingButtonShadowBorder = isDark
+    ? `2px solid ${theme.other.dark.ink}`
+    : "2px solid #000";
+  const upcomingButtonInsetShadow = isDark
+    ? "0 1px 0 rgba(255, 255, 255, 0.35) inset"
+    : "0 1px 0 rgba(0, 0, 0, 0.08) inset";
   const rhythmLabel = club.rhythm ? getRhythmString(club.rhythm) : null;
   const baseTranslate = "translate(0, 0)";
   const pressedTranslate = "translate(6px, 6px)";
@@ -41,13 +63,11 @@ export function HowWeHang({ club }: HowWeHangProps) {
       ta="center"
       align="center"
       style={{
-        backgroundColor:
-          colorScheme === "dark"
-            ? theme.colors.dark![3]
-            : theme.colors.beige![1],
-        border: "2px solid #000",
+        backgroundColor: isDark ? theme.other.dark.surface : theme.colors.beige![1],
+        border: sectionBorder,
         borderRadius,
-        boxShadow: "6px 6px 0px #000",
+        boxShadow: sectionShadow,
+        color: isDark ? sectionTextColor : undefined,
         padding: "32px 24px"
       }}
       gap="md"
@@ -74,7 +94,12 @@ export function HowWeHang({ club }: HowWeHangProps) {
             maxWidth: "100%"
           }}
         >
-          <Text size="sm" fw={700} style={{ letterSpacing: "0.04em" }}>
+          <Text
+            size="sm"
+            fw={700}
+            c="#000"
+            style={{ letterSpacing: "0.04em" }}
+          >
             {rhythmLabel}
           </Text>
         </Box>
@@ -90,8 +115,8 @@ export function HowWeHang({ club }: HowWeHangProps) {
             style={{
               position: "absolute",
               inset: 0,
-              backgroundColor: accentColor,
-              border: "2px solid #000",
+              backgroundColor: upcomingButtonShadowColor,
+              border: upcomingButtonShadowBorder,
               borderRadius: 999,
               transform: "translate(6px, 6px)",
               pointerEvents: "none"
@@ -108,18 +133,20 @@ export function HowWeHang({ club }: HowWeHangProps) {
             onTouchEnd={(event) => resetPressedStyle(event.currentTarget)}
             style={{
               position: "relative",
-              border: "2px solid #000",
+              border: upcomingButtonBorder,
               borderRadius: 999,
-              backgroundColor: "#ffffff",
+              background: upcomingButtonBackground,
               padding: "16px 56px",
               height: "auto",
               minHeight: "unset",
               transform: baseTranslate,
               transition: "transform 0.12s ease",
+              boxShadow: upcomingButtonInsetShadow,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               fontWeight: 700,
-              color: "#000"
+              fontFamily: club.themeHeadingFont ?? "inherit",
+              color: upcomingButtonTextColor
             }}
           >
             Upcoming Events

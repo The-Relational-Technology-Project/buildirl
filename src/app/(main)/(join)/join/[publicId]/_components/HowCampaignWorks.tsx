@@ -37,8 +37,20 @@ export function HowCampaignWorks({ club }: HowCampaignWorksProps) {
   const theme = useMantineTheme();
   const borderRadius = 15;
   const accentColor = "#f7b7b1";
+  const sectionBorder =
+    colorScheme === "dark"
+      ? `2px solid ${theme.other.dark.borderStrong}`
+      : "2px solid #000";
+  const sectionShadow =
+    colorScheme === "dark"
+      ? `6px 6px 0px ${theme.other.dark.shadow}`
+      : "6px 6px 0px #000";
+  const cardBorder =
+    colorScheme === "dark"
+      ? `2px solid ${theme.other.dark.borderStrong}`
+      : "2px solid #000";
   const cardBackground =
-    colorScheme === "dark" ? theme.colors.dark![5] : "#ffffff";
+    colorScheme === "dark" ? theme.other.dark.surface : "#ffffff";
 
   return (
     <Stack
@@ -48,12 +60,12 @@ export function HowCampaignWorks({ club }: HowCampaignWorksProps) {
       align="center"
       p="32px 24px"
       style={{
-        border: "2px solid #000",
         borderRadius,
-        boxShadow: "6px 6px 0px #000",
+        border: sectionBorder,
+        boxShadow: sectionShadow,
         backgroundColor:
           colorScheme === "dark"
-            ? theme.colors.dark![3]
+            ? theme.other.dark.surfaceAlt
             : theme.colors.beige![1]
       }}
       mb={20}
@@ -75,7 +87,7 @@ export function HowCampaignWorks({ club }: HowCampaignWorksProps) {
             p="md"
             style={{
               backgroundColor: cardBackground,
-              border: "2px solid #000",
+              border: cardBorder,
               borderRadius: 12
             }}
           >
@@ -86,7 +98,7 @@ export function HowCampaignWorks({ club }: HowCampaignWorksProps) {
                 bdrs={999}
                 style={{
                   backgroundColor: accentColor,
-                  border: "2px solid #000",
+                  border: cardBorder,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",

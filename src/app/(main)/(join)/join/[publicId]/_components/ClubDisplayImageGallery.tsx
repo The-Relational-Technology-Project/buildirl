@@ -1,4 +1,12 @@
-import { Group, Image, useMatches, Box, GroupProps } from "@mantine/core";
+import {
+  Group,
+  Image,
+  useMatches,
+  Box,
+  GroupProps,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { Club } from "~/server/club/types";
@@ -18,6 +26,16 @@ export default function ClubDisplayImageGallery({
   const borderRadius = 15;
   const rotations = [-4, 2, 4, -2, 3];
   const autoplay = Autoplay({ delay: 2000, stopOnInteraction: false });
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const frameBorder = isDark
+    ? `1px solid ${theme.other.dark.borderStrong}`
+    : "2px solid #000";
+  const frameBackground = isDark ? "#5E5E5E" : "#fff";
+  const frameShadow = isDark
+    ? `6px 6px 0px ${theme.other.dark.shadow}`
+    : "6px 6px 0px #000";
 
   return (
     club.displayImageUrls.length !== 0 && (
@@ -49,10 +67,10 @@ export default function ClubDisplayImageGallery({
             >
               <Box
                 style={{
-                  backgroundColor: "#fff",
-                  border: "2px solid #000",
+                  backgroundColor: frameBackground,
+                  border: frameBorder,
                   borderRadius,
-                  boxShadow: "6px 6px 0px #000",
+                  boxShadow: frameShadow,
                   padding: `${framePadding.top}px ${framePadding.side}px ${framePadding.bottom}px`,
                   transform: `rotate(${rotations[index % rotations.length]}deg)`,
                   transformOrigin: "center"
@@ -63,6 +81,7 @@ export default function ClubDisplayImageGallery({
                   h={size}
                   w={size}
                   radius={3}
+                  bd={"1px gray solid"}
                   style={{ display: "block" }}
                 />
               </Box>
