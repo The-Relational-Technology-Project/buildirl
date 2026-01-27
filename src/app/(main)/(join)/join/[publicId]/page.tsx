@@ -78,7 +78,7 @@ function WithRedirectToWelcomePage({
     if (membership !== null && !membership.isWelcomed) {
       router.push(`/apply/${publicId}/welcome`);
     }
-  }, [userMemberships, club, fromWelcome]);
+  }, [userMemberships, club, fromWelcome, publicId, router]);
 
   // no-op; just for the effect
   return null;
@@ -159,7 +159,7 @@ export default function ClubJoin() {
     }
     const rect = leftColumnRef.current.getBoundingClientRect();
     setLeftColumnLeft(rect.left);
-  }, [isDesktop, leftColumnWidthMeasured]);
+  }, [isDesktop, leftColumnRef, leftColumnWidthMeasured]);
 
   const clubHeaderDetails = (
     <>

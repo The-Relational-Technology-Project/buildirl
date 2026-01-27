@@ -48,6 +48,7 @@ function createVerifiers() {
       applicationQuestions: club.applicationQuestions,
       theme: club.theme,
       themeHeadingFont: club.themeHeadingFont,
+      accentColor: club.accentColor,
       displayImageUrls: club.displayImageUrls,
       contributionReasons: club.contributionReasons,
       values: club.values,

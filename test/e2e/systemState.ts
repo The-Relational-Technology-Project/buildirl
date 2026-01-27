@@ -15,7 +15,7 @@ import {
 import { EmailTemplate } from "~/server/email/types";
 import { EmailTemplateId } from "~/server/email/types";
 import { ItemSelector } from "./utils/itemSelector";
-import { InstagramHandle, Url } from "~/server/utils/types";
+import { HexColor, InstagramHandle, Url } from "~/server/utils/types";
 import {
   Club,
   ClubStatistics,
@@ -73,6 +73,7 @@ type ClubState = {
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
   themeHeadingFont: Maybe<string>;
+  accentColor: Maybe<HexColor>;
   displayImageUrls: Url[];
   contributionReasons: ContributionReasons;
   membershipTierIds: number[];
@@ -283,6 +284,7 @@ export class SystemState {
       applicationQuestions: clubState.applicationQuestions,
       theme: clubState.theme,
       themeHeadingFont: clubState.themeHeadingFont,
+      accentColor: clubState.accentColor,
       displayImageUrls: clubState.displayImageUrls,
       contributionReasons: clubState.contributionReasons,
       values: clubState.values,
@@ -351,6 +353,7 @@ export class SystemState {
       applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
       theme: null,
       themeHeadingFont: null,
+      accentColor: null,
       displayImageUrls: [],
       contributionReasons: { items: [] },
       values: { items: [] },

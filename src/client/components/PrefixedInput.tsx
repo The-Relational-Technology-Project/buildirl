@@ -25,12 +25,16 @@ export default function PrefixedInput({
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
+  const resolvedStyles =
+    typeof styles === "function"
+      ? styles(theme, { ...props, error }, undefined)
+      : styles;
 
   const borderColor = isDark
     ? theme.other.dark.borderStrong
     : theme.other.dark.ink;
   const bgColor = isDark ? theme.other.dark.surfaceAlt : theme.colors.gray[0];
-  const styleInput = styles?.input;
+  const styleInput = resolvedStyles?.input;
   const inputBorder =
     typeof styleInput?.border === "string"
       ? styleInput.border
@@ -42,9 +46,9 @@ export default function PrefixedInput({
         ? Number.parseInt(styleInput.borderRadius, 10)
         : 12;
   const mergedStyles = {
-    ...styles,
+    ...resolvedStyles,
     input: {
-      ...(styles?.input ?? {}),
+      ...(resolvedStyles?.input ?? {}),
       borderTopLeftRadius: 0,
       borderBottomLeftRadius: 0,
       borderTopRightRadius: inputBorderRadius,
@@ -53,7 +57,7 @@ export default function PrefixedInput({
     },
     error: {
       marginTop: "5px",
-      ...(styles?.error ?? {})
+      ...(resolvedStyles?.error ?? {})
     }
   };
 

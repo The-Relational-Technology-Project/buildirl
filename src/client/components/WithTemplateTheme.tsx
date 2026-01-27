@@ -20,7 +20,7 @@ export default function WithTemplateTheme({
       // revert to default color scheme
       setColorScheme("light");
     };
-  }, [theme]);
+  }, [theme, setColorScheme]);
 
   if (null === theme) {
     return children;

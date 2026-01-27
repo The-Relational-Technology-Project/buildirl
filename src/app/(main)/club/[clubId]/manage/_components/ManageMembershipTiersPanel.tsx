@@ -540,13 +540,7 @@ function ContributionCardModal({
     form.resetDirty(values);
     setCoverImageUrl(contributionReasonToEdit?.coverImageUrl ?? null);
     setOriginalCoverImageUrl(contributionReasonToEdit?.coverImageUrl ?? null);
-  }, [
-    opened,
-    isEditMode,
-    contributionReasonToEdit?.label,
-    contributionReasonToEdit?.description,
-    contributionReasonToEdit?.coverImageUrl
-  ]);
+  }, [opened, isEditMode, contributionReasonToEdit, form]);
 
   const updateContributionReasons =
     api.main.updateClubContributionReasons.useMutation({

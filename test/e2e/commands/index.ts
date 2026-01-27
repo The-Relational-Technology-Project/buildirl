@@ -25,6 +25,7 @@ import {
 } from "~/server/club/types";
 import {
   InstagramHandleSchema,
+  HexColorSchema,
   RequiredStringSchema,
   TwitterHandleSchema,
   FacebookHandleSchema,
@@ -289,6 +290,10 @@ function updateClubCommands() {
     themeHeadingFont: option(oneof(...FONT_SELECTION.map(constant)), {
       freq: 4
     }),
+    accentColor: option(
+      string().filter((s) => isZodType(s, HexColorSchema)),
+      { freq: 4 }
+    ),
     contributionReasons: contributionReasonsArbitrary(),
     values: record({
       items: array(
@@ -322,6 +327,7 @@ function updateClubCommands() {
           eventCalendarUrl: i.eventCalendarUrl,
           theme: i.theme,
           themeHeadingFont: i.themeHeadingFont,
+          accentColor: i.accentColor,
           contributionReasons: i.contributionReasons,
           values: i.values,
           faqs: i.faqs

@@ -11,7 +11,7 @@ const darkPalette = [
   "#191716",
   "#131211",
   "#0e0d0c"
-];
+] as const;
 
 const darkScheme = {
   text: "#f5f2ee",
