@@ -103,7 +103,7 @@ export default function ClubTiers() {
         <Stack gap={titleAndCardGap} px={{ base: 0, md: 56 }}>
           <Stack align={"center"} gap={6} mb={"sm"}>
             <Title ta="center" order={titleOrder}>
-              Help keep this community alive!
+              Join as a member!
             </Title>
           </Stack>
 
@@ -139,9 +139,7 @@ export default function ClubTiers() {
               radius="xs"
               shadow="none"
               style={{
-                backgroundColor: isDark
-                  ? theme.other.dark.surfaceAlt
-                  : "white",
+                backgroundColor: isDark ? theme.other.dark.surfaceAlt : "white",
                 border: isDark
                   ? `2px solid ${theme.other.dark.borderStrong}`
                   : "2px solid #0f0f0f",
