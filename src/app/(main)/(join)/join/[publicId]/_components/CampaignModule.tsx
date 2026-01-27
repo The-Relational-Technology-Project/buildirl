@@ -69,13 +69,21 @@ export function CampaignModule({
   const theme = useMantineTheme();
   const isDesktop = useMatches({ base: false, md: true });
   const borderRadius = 15;
-  const cardBorder = "1px solid #000";
-  const cardShadow = "6px 6px 0px #000";
+  const cardBorder =
+    colorScheme === "dark"
+      ? `1px solid ${theme.other.dark.borderStrong}`
+      : "1px solid #000";
+  const cardShadow =
+    colorScheme === "dark"
+      ? `6px 6px 0px ${theme.other.dark.shadow}`
+      : "6px 6px 0px #000";
   const innerCardRadius = 12;
   const sectionBackground =
-    colorScheme === "dark" ? theme.colors.dark![3] : theme.colors.beige![1];
+    colorScheme === "dark"
+      ? theme.other.dark.surfaceAlt
+      : theme.colors.beige![1];
   const innerCardBackground =
-    colorScheme === "dark" ? theme.colors.dark![5] : "#ffffff";
+    colorScheme === "dark" ? theme.other.dark.surface : "#ffffff";
   const campaignStepAccent = "#f7b7b1";
 
   const daysLeft = Math.ceil(
@@ -146,7 +154,11 @@ export function CampaignModule({
           px={36}
           py={8}
           bdrs={99}
-          bd={"2px black solid"}
+          bd={
+            colorScheme === "dark"
+              ? `2px solid ${theme.other.dark.borderStrong}`
+              : "2px solid black"
+          }
           tt="uppercase"
           pos="relative"
           top={30}
@@ -164,7 +176,10 @@ export function CampaignModule({
         p="32px 24px"
         ta={"center"}
         style={{
-          border: "2px black solid",
+          border:
+            colorScheme === "dark"
+              ? `2px solid ${theme.other.dark.borderStrong}`
+              : "2px solid black",
           borderRadius,
           boxShadow: cardShadow,
           backgroundColor: sectionBackground
@@ -200,7 +215,11 @@ export function CampaignModule({
                 alignItems: "center",
                 justifyContent: "center"
               }}
-              bg={colorScheme === "dark" ? theme.colors.dark![1] : "gray.1"}
+              bg={
+                colorScheme === "dark"
+                  ? theme.other.dark.surfaceHighlight
+                  : "gray.1"
+              }
               w={90}
               h={90}
               bdrs={50}
@@ -215,7 +234,11 @@ export function CampaignModule({
               </Text>
               <Text
                 size={"xs"}
-                c={colorScheme === "dark" ? theme.colors.dark![2] : "dimmed"}
+                c={
+                  colorScheme === "dark"
+                    ? theme.other.dark.textSubtle
+                    : "dimmed"
+                }
                 tt="uppercase"
                 fw={600}
               >
@@ -234,7 +257,9 @@ export function CampaignModule({
                   remainingMembershipsNeeded
                 )}
                 emptySegmentColor={
-                  colorScheme === "dark" ? theme.colors.dark![2] : "gray.2"
+                  colorScheme === "dark"
+                    ? theme.other.dark.textSubtle
+                    : "gray.2"
                 }
                 label={
                   <Stack
@@ -273,7 +298,11 @@ export function CampaignModule({
                 alignItems: "center",
                 justifyContent: "center"
               }}
-              bg={colorScheme === "dark" ? theme.colors.dark![1] : "gray.1"}
+              bg={
+                colorScheme === "dark"
+                  ? theme.other.dark.surfaceHighlight
+                  : "gray.1"
+              }
               w={90}
               h={90}
               bdrs={50}
@@ -353,7 +382,12 @@ export function CampaignModule({
               })}
             </Stack>
           </Stack>
-          <Box bg="#000" w={2} />
+          <Box
+            bg={
+              colorScheme === "dark" ? theme.other.dark.borderStrong : "#000"
+            }
+            w={2}
+          />
 
           <Stack flex={1} h="100%" gap={4} justify="start">
             <Title

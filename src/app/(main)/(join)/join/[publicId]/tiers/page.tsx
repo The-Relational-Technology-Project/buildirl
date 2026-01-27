@@ -5,6 +5,8 @@ import {
   Title,
   Text,
   useMatches,
+  useMantineColorScheme,
+  useMantineTheme,
   TitleOrder,
   Paper,
   Box,
@@ -51,6 +53,9 @@ export default function ClubTiers() {
   const titleOrder = useMatches<TitleOrder>({ base: 2, md: 1 });
   const titleAndCardGap = useMatches({ base: "lg", md: "xl" });
   const isDesktop = useMatches({ base: false, md: true });
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
   const mounted = useMounted();
   const router = useRouter();
   const contributionReasonsRef = useRef<HTMLDivElement>(null);
@@ -110,13 +115,14 @@ export default function ClubTiers() {
             withDesktopControls={
               shouldCenterDesktopCarousel ? false : undefined
             }
+            accentColor={club.data!.accentColor}
           />
 
           <Stack gap="md" align="center">
             <Text
               size={"sm"}
               ta="center"
-              mb={!hasContributionReasons ? "96px" : "0"}
+              mb={!hasContributionReasons ? "24px" : "0"}
             >
               You’ll only be charged if your application is approved by the
               club. You may also withdraw your application after submitting.
@@ -133,10 +139,17 @@ export default function ClubTiers() {
               radius="xs"
               shadow="none"
               style={{
-                backgroundColor: "white",
-                border: "2px solid #0f0f0f",
-                boxShadow: "4px 6px 0 #0f0f0f",
+                backgroundColor: isDark
+                  ? theme.other.dark.surfaceAlt
+                  : "white",
+                border: isDark
+                  ? `2px solid ${theme.other.dark.borderStrong}`
+                  : "2px solid #0f0f0f",
+                boxShadow: isDark
+                  ? `4px 6px 0 ${theme.other.dark.shadow}`
+                  : "4px 6px 0 #0f0f0f",
                 // transform: "rotate(-2deg)",
+                color: isDark ? theme.other.dark.text : "#0f0f0f",
                 maxWidth: 500,
                 marginBottom: 96
               }}

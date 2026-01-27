@@ -1,19 +1,35 @@
 import { createTheme } from "@mantine/core";
 
+const darkPalette = [
+  "#ededed",
+  "#d3d3d2",
+  "#b2b1b1",
+  "#91908f",
+  "#706f6d",
+  "#23211f",
+  "#1e1c1a",
+  "#191716",
+  "#131211",
+  "#0e0d0c"
+];
+
+const darkScheme = {
+  text: "#f5f2ee",
+  textMuted: "#d8d4cf",
+  textSubtle: "#b8b3ad",
+  surface: "#23211f",
+  surfaceAlt: "#2c2926",
+  surfaceDeep: "#161513",
+  surfaceHighlight: "#3a3531",
+  ink: "#0e0d0c",
+  border: "rgba(245, 242, 238, 0.24)",
+  borderStrong: "rgba(245, 242, 238, 0.45)",
+  shadow: "rgba(0, 0, 0, 0.75)"
+};
+
 export const theme = createTheme({
   colors: {
-    dark: [
-      "#ffffff",
-      "#ffffff",
-      "#8c8fa3",
-      "#666980",
-      "#4d4f66",
-      "#34354a",
-      "#2b2c3d",
-      "#1d1e30",
-      "#0c0d21",
-      "#0c0d21"
-    ],
+    dark: darkPalette,
     beige: [
       "#fffdf2",
       "#fffef3",
@@ -39,8 +55,11 @@ export const theme = createTheme({
       "#442a8f"
     ]
   },
-  fontFamily: 'var(--font-body)',
-  headings: { fontFamily: 'var(--font-heading)' },
+  other: {
+    dark: darkScheme
+  },
+  fontFamily: "var(--font-body)",
+  headings: { fontFamily: "var(--font-heading)" },
   components: {
     Button: {
       defaultProps: {

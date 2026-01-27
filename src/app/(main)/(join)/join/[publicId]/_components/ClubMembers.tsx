@@ -10,6 +10,8 @@ import {
   Text,
   ThemeIcon,
   Title,
+  useMantineColorScheme,
+  useMantineTheme,
   useMatches
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
@@ -29,6 +31,9 @@ export default function ClubMembers({
   const router = useRouter();
   const columns = useMatches({ base: 4, sm: 4 });
   const maxRows = useMatches({ base: 1, sm: 2 });
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
 
   const clubId = club.id;
 
@@ -74,6 +79,7 @@ export default function ClubMembers({
           <Title
             order={2}
             tt="uppercase"
+            c={isDark ? theme.other.dark.text : undefined}
             style={{ fontFamily: club.themeHeadingFont ?? "inherit" }}
           >
             Meet the club
@@ -149,10 +155,10 @@ export default function ClubMembers({
               }}
             >
               <Stack align="center" gap={0}>
-                <Text size="lg" fw={600}>
+                <Text size="lg" fw={500}>
                   + {remainingCount}
                 </Text>
-                <Text size="sm" fw="semibold">
+                <Text size="sm" fw={500} mt={"-6"}>
                   more
                 </Text>
               </Stack>
