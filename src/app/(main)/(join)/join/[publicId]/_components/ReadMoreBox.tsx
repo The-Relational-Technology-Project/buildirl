@@ -8,19 +8,28 @@ import { useState, useRef, useLayoutEffect, ReactNode } from "react";
 
 type ReadMoreBoxProps = {
   children: ReactNode;
+  header?: ReactNode;
   maxLines?: number;
+  expandLabel?: string;
+  collapseLabel?: string;
   style?: React.CSSProperties;
   className?: string;
 };
 
 export function ReadMoreBox({
   children,
+  header,
   maxLines = 10,
+  expandLabel = "Read more",
+  collapseLabel = "Collapse",
   style,
   className
 }: ReadMoreBoxProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const sectionTextColor = theme.other.dark.text;
+  const buttonColor =
+    colorScheme === "dark" ? sectionTextColor : theme.other.dark.ink;
 
   const [expanded, setExpanded] = useState(false);
   const [showButton, setShowButton] = useState(false);
@@ -29,9 +38,15 @@ export function ReadMoreBox({
 
   useLayoutEffect(() => {
     if (textRef.current) {
-      const lineHeight = parseFloat(
+      let lineHeight = parseFloat(
         getComputedStyle(textRef.current).lineHeight || "20"
       );
+      if (!lineHeight || Number.isNaN(lineHeight)) {
+        const firstChild = textRef.current.firstElementChild;
+        lineHeight = parseFloat(
+          (firstChild && getComputedStyle(firstChild).lineHeight) || "20"
+        );
+      }
       const lines = textRef.current.scrollHeight / lineHeight;
       setShowButton(lines > maxLines);
     }
@@ -42,16 +57,19 @@ export function ReadMoreBox({
       gap={0}
       mb={{ base: "sm", md: "lg" }}
       className={className}
+      align="center"
       style={{
         borderRadius: 4,
         padding: "24px",
         ...style,
         backgroundColor:
           colorScheme === "dark"
-            ? theme.colors.dark![3]
-            : theme.colors.beige![1]
+            ? theme.other.dark.surface
+            : theme.colors.beige![1],
+        color: colorScheme === "dark" ? sectionTextColor : undefined
       }}
     >
+      {header}
       <div
         ref={textRef}
         style={{
@@ -80,13 +98,22 @@ export function ReadMoreBox({
       </div>
       {showButton && (
         <Button
-          variant="subtle"
+          variant="outline"
           size="xs"
-          bg="gray.1"
           onClick={() => setExpanded((v) => !v)}
-          style={{ marginTop: 16 }}
+          style={{
+            marginTop: 16,
+            backgroundColor: "transparent",
+            border: `2px solid ${buttonColor}`,
+            color: buttonColor,
+            minHeight: "auto",
+            height: "auto",
+            width: "180px",
+            padding: "8px 10px",
+            fontSize: "0.75rem"
+          }}
         >
-          {expanded ? "Collapse" : "Read more"}
+          {expanded ? collapseLabel : expandLabel}
         </Button>
       )}
     </Stack>

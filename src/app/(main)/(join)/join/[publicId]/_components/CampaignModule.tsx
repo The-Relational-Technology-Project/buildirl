@@ -1,5 +1,5 @@
 import {
-  Anchor,
+  Accordion,
   Box,
   Card,
   Center,
@@ -10,12 +10,14 @@ import {
   Stack,
   Text,
   Title,
+  useMatches,
   useMantineColorScheme,
   useMantineTheme
 } from "@mantine/core";
 import { Club } from "~/server/club/types";
 import {
   ActiveMembershipCampaignProgress,
+  CampaignBudgetItem,
   MembershipCampaign
 } from "~/server/membershipCampaign/types";
 import {
@@ -32,6 +34,32 @@ type CampaignModuleProps = {
   campaignProgress: ActiveMembershipCampaignProgress;
 };
 
+type BudgetItemCardProps = Readonly<
+  Pick<CampaignBudgetItem, "label" | "costPerMonthInUSD">
+>;
+type CommittedMember = Pick<
+  ActiveMembershipCampaignProgress["committedMembers"][number],
+  "id" | "firstName"
+>;
+
+const CAMPAIGN_STEPS = [
+  {
+    title: "Keep it alive ⚡",
+    description:
+      "Your membership contribution keeps the club sustainable month after month."
+  },
+  {
+    title: "Community-powered love ❤️",
+    description:
+      "If enough members join and contribute, we'll have the fuel to keep going!"
+  },
+  {
+    title: "Flexible ✨",
+    description:
+      "Change or cancel membership anytime. Only your first contribution is committed in the campaign."
+  }
+];
+
 export function CampaignModule({
   club,
   activeCampaign,
@@ -39,6 +67,24 @@ export function CampaignModule({
 }: CampaignModuleProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const isDesktop = useMatches({ base: false, md: true });
+  const borderRadius = 15;
+  const cardBorder =
+    colorScheme === "dark"
+      ? `1px solid ${theme.other.dark.borderStrong}`
+      : "1px solid #000";
+  const cardShadow =
+    colorScheme === "dark"
+      ? `6px 6px 0px ${theme.other.dark.shadow}`
+      : "6px 6px 0px #000";
+  const innerCardRadius = 12;
+  const sectionBackground =
+    colorScheme === "dark"
+      ? theme.other.dark.surfaceAlt
+      : theme.colors.beige![1];
+  const innerCardBackground =
+    colorScheme === "dark" ? theme.other.dark.surface : "#ffffff";
+  const campaignStepAccent = "#f7b7b1";
 
   const daysLeft = Math.ceil(
     (activeCampaign.targetDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -68,10 +114,8 @@ export function CampaignModule({
       ? totalCommittedMembers
       : Math.min(totalCommittedMembers, memberSlotCount);
 
-  const committedMembersToDisplay = campaignProgress.committedMembers.slice(
-    0,
-    visibleMemberLimit
-  );
+  const committedMembersToDisplay: CommittedMember[] =
+    campaignProgress.committedMembers.slice(0, visibleMemberLimit);
 
   const lowestMembershipPrice = getLowestPaidMembershipTier(club);
 
@@ -82,20 +126,16 @@ export function CampaignModule({
     return total + item.costPerMonthInUSD;
   }, 0);
 
-  function BudgetItemCard({
-    costPerMonthInUSD,
-    label
-  }: {
-    costPerMonthInUSD: number;
-    label: string;
-  }) {
+  function BudgetItemCard({ costPerMonthInUSD, label }: BudgetItemCardProps) {
     return (
       <Card
         style={{
           boxShadow: "none",
-          border: "1px solid gray",
+          border: cardBorder,
+          borderRadius: innerCardRadius,
           paddingTop: "6px",
-          paddingBottom: "6px"
+          paddingBottom: "6px",
+          backgroundColor: innerCardBackground
         }}
       >
         <Group justify="space-between">
@@ -108,12 +148,17 @@ export function CampaignModule({
 
   return (
     <>
-      <Center mt={-16}>
+      <Center mt={-24}>
         <Box
           bg="yellow"
           px={36}
           py={8}
           bdrs={99}
+          bd={
+            colorScheme === "dark"
+              ? `2px solid ${theme.other.dark.borderStrong}`
+              : "2px solid black"
+          }
           tt="uppercase"
           pos="relative"
           top={30}
@@ -128,23 +173,28 @@ export function CampaignModule({
       <Stack
         gap={4}
         mb={{ base: "sm", md: "lg" }}
-        p={28}
+        p="32px 24px"
         ta={"center"}
         style={{
-          borderRadius: 4,
-          padding: "16px",
-          paddingVertical: "28",
-          backgroundColor:
+          border:
             colorScheme === "dark"
-              ? theme.colors.dark![3]
-              : theme.colors.beige![1],
-          fontFamily: club.themeHeadingFont ?? "inherit"
+              ? `2px solid ${theme.other.dark.borderStrong}`
+              : "2px solid black",
+          borderRadius,
+          boxShadow: cardShadow,
+          backgroundColor: sectionBackground
         }}
       >
         <Title
           order={2}
           tt="uppercase"
-        >{`Back this Club. Become a Member.`}</Title>
+          ta="center"
+          style={{
+            fontFamily: club.themeHeadingFont ?? "inherit"
+          }}
+        >
+          {`Back this Club. Become a Member.`}
+        </Title>
 
         <Text size={"sm"}>
           Help this club reach its campaign goal! Join as a contributing member
@@ -155,7 +205,7 @@ export function CampaignModule({
           <Box pos="relative" h={{ base: 280, sm: 200 }}>
             <Box
               pos="absolute"
-              left={{ base: "calc(50% - 130px)", sm: 72 }}
+              left={{ base: "calc(50% - 130px)", sm: 52 }}
               top={{ base: 40, sm: "50%" }}
               mt={{ base: 20, sm: "0" }}
               style={{
@@ -165,7 +215,11 @@ export function CampaignModule({
                 alignItems: "center",
                 justifyContent: "center"
               }}
-              bg={colorScheme === "dark" ? theme.colors.dark![1] : "gray.1"}
+              bg={
+                colorScheme === "dark"
+                  ? theme.other.dark.surfaceHighlight
+                  : "gray.1"
+              }
               w={90}
               h={90}
               bdrs={50}
@@ -180,7 +234,11 @@ export function CampaignModule({
               </Text>
               <Text
                 size={"xs"}
-                c={colorScheme === "dark" ? theme.colors.dark![2] : "dimmed"}
+                c={
+                  colorScheme === "dark"
+                    ? theme.other.dark.textSubtle
+                    : "dimmed"
+                }
                 tt="uppercase"
                 fw={600}
               >
@@ -199,7 +257,9 @@ export function CampaignModule({
                   remainingMembershipsNeeded
                 )}
                 emptySegmentColor={
-                  colorScheme === "dark" ? theme.colors.dark![2] : "gray.2"
+                  colorScheme === "dark"
+                    ? theme.other.dark.textSubtle
+                    : "gray.2"
                 }
                 label={
                   <Stack
@@ -228,7 +288,7 @@ export function CampaignModule({
 
             <Box
               pos="absolute"
-              right={{ base: "calc(50% - 130px)", sm: 72 }}
+              right={{ base: "calc(50% - 130px)", sm: 52 }}
               top={{ base: 40, sm: "50%" }}
               mt={{ base: 20, sm: "0" }}
               style={{
@@ -238,7 +298,11 @@ export function CampaignModule({
                 alignItems: "center",
                 justifyContent: "center"
               }}
-              bg={colorScheme === "dark" ? theme.colors.dark![1] : "gray.1"}
+              bg={
+                colorScheme === "dark"
+                  ? theme.other.dark.surfaceHighlight
+                  : "gray.1"
+              }
               w={90}
               h={90}
               bdrs={50}
@@ -258,9 +322,11 @@ export function CampaignModule({
           </Box>
         </Stack>
 
-        <Box w={"100%"} pt={16}>
-          <JoinButton club={club} />
-        </Box>
+        {isDesktop && (
+          <Box w={"100%"} pt={16}>
+            <JoinButton club={club} />
+          </Box>
+        )}
 
         <Flex
           flex={1}
@@ -270,7 +336,14 @@ export function CampaignModule({
           pt={28}
         >
           <Stack flex={1} h="100%" gap={4}>
-            <Title order={4}>Ongoing Club Costs</Title>
+            <Title
+              order={4}
+              style={{
+                fontFamily: club.themeHeadingFont ?? "inherit"
+              }}
+            >
+              Ongoing Club Costs
+            </Title>
             <Text size={"xs"} ta={"center"}>
               This is what it takes to keep our lights on.
             </Text>
@@ -278,7 +351,9 @@ export function CampaignModule({
               <Card
                 style={{
                   boxShadow: "none",
-                  border: "1px solid gray"
+                  border: cardBorder,
+                  borderRadius: innerCardRadius,
+                  backgroundColor: innerCardBackground
                 }}
               >
                 <Stack justify="center" gap={8}>
@@ -307,10 +382,22 @@ export function CampaignModule({
               })}
             </Stack>
           </Stack>
-          <Box bg={"lightgray"} w={1.5} />
+          <Box
+            bg={
+              colorScheme === "dark" ? theme.other.dark.borderStrong : "#000"
+            }
+            w={2}
+          />
 
           <Stack flex={1} h="100%" gap={4} justify="start">
-            <Title order={4}>Each member contributes</Title>
+            <Title
+              order={4}
+              style={{
+                fontFamily: club.themeHeadingFont ?? "inherit"
+              }}
+            >
+              Each member contributes
+            </Title>
             <Text size={"xs"} ta={"center"}>
               to keep the club thriving!
             </Text>
@@ -318,7 +405,9 @@ export function CampaignModule({
               <Card
                 style={{
                   boxShadow: "none",
-                  border: "1px solid gray"
+                  border: cardBorder,
+                  borderRadius: innerCardRadius,
+                  backgroundColor: innerCardBackground
                 }}
               >
                 <Stack justify="center" gap={8}>
@@ -343,9 +432,9 @@ export function CampaignModule({
                   return (
                     <Grid.Col key={member.id} span={3}>
                       <Stack
-                        bd={"1px solid gray"}
-                        bg={"white"}
-                        bdrs={5}
+                        bd={cardBorder}
+                        bg={innerCardBackground}
+                        bdrs={10}
                         px={2}
                         py={8}
                         gap={2}
@@ -364,9 +453,9 @@ export function CampaignModule({
                 {shouldCapCommittedMembers && remainingCommittedMembers > 0 && (
                   <Grid.Col key={"more-members"} span={3}>
                     <Stack
-                      bdrs={5}
-                      bd={"1px solid gray"}
-                      bg={"white"}
+                      bdrs={10}
+                      bd={cardBorder}
+                      bg={innerCardBackground}
                       px={4}
                       py={10}
                       gap={0}
@@ -387,6 +476,7 @@ export function CampaignModule({
             </Stack>
           </Stack>
         </Flex>
+
         <Text size="xs" pt={28}>
           ❤️ Campaign ends{" "}
           {activeCampaign.targetDate.toLocaleDateString("en-US", {
@@ -401,11 +491,81 @@ export function CampaignModule({
             hour12: true
           })}
           . Apply to join before it ends! Final membership subject to mutual
-          fit.{" "}
-          <Anchor href="#how-campaign-works" size="xs">
-            Learn more about how campaigns work.
-          </Anchor>
+          fit.
         </Text>
+        <Accordion
+          variant="contained"
+          radius={12}
+          w="100%"
+          mt={20}
+          styles={{
+            item: {
+              border: cardBorder,
+              backgroundColor: innerCardBackground
+            },
+            control: {
+              padding: "12px 16px"
+            },
+            label: {
+              width: "100%"
+            }
+          }}
+        >
+          <Accordion.Item value="how-it-works">
+            <Accordion.Control>
+              <Group justify="space-between" align="center" w="100%">
+                <Text
+                  tt="uppercase"
+                  fw={700}
+                  style={{
+                    fontFamily: club.themeHeadingFont ?? "inherit"
+                  }}
+                >
+                  How does this campaign work?
+                </Text>
+              </Group>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack gap="sm" w="100%">
+                {CAMPAIGN_STEPS.map((step, index) => (
+                  <Card
+                    key={step.title}
+                    p="md"
+                    style={{
+                      backgroundColor: innerCardBackground,
+                      border: cardBorder,
+                      borderRadius: innerCardRadius
+                    }}
+                  >
+                    <Group align="center" gap="md" wrap="nowrap">
+                      <Box
+                        w={40}
+                        h={40}
+                        bdrs={999}
+                        style={{
+                          backgroundColor: campaignStepAccent,
+                          border: cardBorder,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontWeight: 700
+                        }}
+                      >
+                        {index + 1}
+                      </Box>
+                      <Stack gap={4} ta="start" style={{ flex: 1 }}>
+                        <Text fw={700}>{step.title}</Text>
+                        <Text size="sm" style={{ lineHeight: 1.6 }}>
+                          {step.description}
+                        </Text>
+                      </Stack>
+                    </Group>
+                  </Card>
+                ))}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+        </Accordion>
       </Stack>
     </>
   );

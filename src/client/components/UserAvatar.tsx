@@ -20,6 +20,7 @@ export function UserImage({
         fallbackSrc={"/images/purple-with-glasses.svg"}
         h={"100%"}
         w={"100%"}
+        bd="2px solid #000"
         fit={"cover"}
         radius={radius ?? 0}
         alt={`${user.firstName} ${user.lastName}`}
@@ -59,7 +60,7 @@ export default function UserAvatar({
         fit={"cover"}
         alt={`${user.firstName} ${user.lastName}`}
         style={{
-          border: `1px solid`
+          border: "2px solid #000"
         }}
       />
     </Box>

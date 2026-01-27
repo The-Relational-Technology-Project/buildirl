@@ -21,6 +21,13 @@ export const UrlSchema = z
   .url("Not a valid url (tip: did you forget http(s) prefix?)");
 export type Url = z.infer<typeof UrlSchema>;
 
+const HEX_COLOR_REGEX = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
+
+export const HexColorSchema = z
+  .string()
+  .regex(HEX_COLOR_REGEX, "Must be a hex color like #RRGGBB");
+export type HexColor = z.infer<typeof HexColorSchema>;
+
 const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._]{0,29}$/;
 const TWITTER_HANDLE_REGEX = /^[a-zA-Z0-9_]{1,15}$/;
 const FACEBOOK_HANDLE_REGEX = /^[a-zA-Z0-9.]{5,50}$/;

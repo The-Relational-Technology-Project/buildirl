@@ -38,7 +38,7 @@ export default function WithDefaultColorSchemeOnManualRouteChange({
     }
 
     previousPathRef.current = currentPath;
-  }, [pathname]);
+  }, [pathname, setColorScheme]);
 
   return <>{children}</>;
 }

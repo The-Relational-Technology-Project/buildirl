@@ -8,51 +8,116 @@ import {
   Box,
   Space,
   useMatches,
-  useMantineColorScheme
+  useMantineColorScheme,
+  useMantineTheme,
+  Group,
+  Badge,
+  Button
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { MembershipTier } from "~/server/membershipTier/types";
 import { billingIntervalLabel } from "~/client/utils";
-import PrimaryButton from "~/client/components/PrimaryButton";
+import {
+  DEFAULT_ACCENT_COLOR,
+  getReadableTextColor,
+  resolveAccentColor
+} from "~/client/utils/color";
 
 interface MembershipTierCarouselProps {
   tiers: MembershipTier[];
   onTierSelect: (tier: MembershipTier) => void;
   buttonText?: string;
   excludedTierId?: number;
+  alignDesktop?: "start" | "center";
+  withDesktopControls?: boolean;
+  accentColor?: string | null;
 }
 
 export function MembershipTierCarousel({
   tiers,
   onTierSelect,
   buttonText = "Select",
-  excludedTierId
+  excludedTierId,
+  alignDesktop,
+  withDesktopControls,
+  accentColor
 }: MembershipTierCarouselProps) {
   const isMobile = useMatches({ base: true, md: false });
   const withCarouselControls = useMatches({ base: false, md: true });
+  const desktopAlign = alignDesktop ?? "start";
+  const showDesktopControls = withDesktopControls ?? withCarouselControls;
   const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+
+  if (isMobile) {
+    return (
+      <Stack gap="md" w="100%">
+        {tiers.map((tier) => (
+          <MembershipTierCard
+            key={tier.id}
+            membershipTier={tier}
+            onSelect={() => onTierSelect(tier)}
+            buttonText={buttonText}
+            disabled={tier.id === excludedTierId}
+            accentColor={accentColor}
+            fullWidth
+          />
+        ))}
+      </Stack>
+    );
+  }
+
+  const shouldCenterDesktopCards =
+    desktopAlign === "center" && tiers.length <= 3;
+
+  if (shouldCenterDesktopCards) {
+    return (
+      <Group justify="center" align="flex-start" gap="xl" w="100%">
+        {tiers.map((tier) => (
+          <MembershipTierCard
+            key={tier.id}
+            membershipTier={tier}
+            onSelect={() => onTierSelect(tier)}
+            buttonText={buttonText}
+            disabled={tier.id === excludedTierId}
+            accentColor={accentColor}
+          />
+        ))}
+      </Group>
+    );
+  }
 
   return (
     <Carousel
       slideSize="33.333333%"
       slideGap="md"
-      align="center"
+      align={isMobile ? "center" : desktopAlign}
       // we need indicators for mobile because
       // the next and previous card are not visible
-      withControls={withCarouselControls}
+      withControls={showDesktopControls}
       withIndicators={isMobile && tiers.length > 1}
       withKeyboardEvents={true}
       styles={{
         // TODO! there is a bug with default control color in the deployed environments
         //  change the control color to make it visible
         control: {
-          backgroundColor: `${colorScheme === "dark" ? "white" : "grey"}`,
-          color: `${colorScheme === "dark" ? "black" : "white"}`
+          width: "3rem",
+          height: "3rem",
+          backgroundColor:
+            colorScheme === "dark" ? theme.other.dark.surfaceHighlight : "white",
+          color: colorScheme === "dark" ? theme.other.dark.text : "black",
+          opacity: 1,
+          border: "2px solid",
+          borderColor:
+            colorScheme === "dark" ? theme.other.dark.borderStrong : "black",
+          borderRadius: "4px"
         },
         ...(isMobile && tiers.length > 1
           ? {
               indicator: {
-                backgroundColor: `${colorScheme === "dark" ? "white" : "black"}`,
+                backgroundColor: `${
+                  colorScheme === "dark" ? theme.other.dark.text : "black"
+                }`,
                 width: 8,
                 height: 8
               }
@@ -61,14 +126,19 @@ export function MembershipTierCarousel({
       }}
       // shifts the indicator down
       pb={{ base: 60, md: 0 }}
+      px={{
+        base: 0,
+        md: !showDesktopControls && desktopAlign === "center" ? 0 : 72
+      }}
     >
       {tiers.map((tier) => (
-        <Carousel.Slide key={tier.id} py={4}>
+        <Carousel.Slide key={tier.id} py={8}>
           <MembershipTierCard
             membershipTier={tier}
             onSelect={() => onTierSelect(tier)}
             buttonText={buttonText}
             disabled={tier.id === excludedTierId}
+            accentColor={accentColor}
           />
         </Carousel.Slide>
       ))}
@@ -76,75 +146,180 @@ export function MembershipTierCarousel({
   );
 }
 
-// it is intentional to omit dollar sign here as $ sign causes anxiety for consumers
-function costDisplayText(membershipTier: MembershipTier) {
-  const cost = membershipTier.costPerBillingInterval;
-  const interval = billingIntervalLabel(membershipTier.billingInterval);
-  const initiationFee = membershipTier.initiationFeeCostInUSD;
-
-  let text = `${cost} / ${interval}`;
-  if (initiationFee !== null && initiationFee > 0) {
-    text += ` + ${initiationFee} initiation`;
-  }
-  return text;
-}
-
 interface MembershipTierCardProps {
   membershipTier: MembershipTier;
   onSelect: () => void;
   buttonText: string;
   disabled: boolean;
+  fullWidth?: boolean;
+  accentColor?: string | null;
 }
 
 function MembershipTierCard({
   membershipTier,
   onSelect,
   buttonText,
-  disabled
+  disabled,
+  fullWidth = false,
+  accentColor
 }: MembershipTierCardProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const shouldUseAccent = accentColor !== undefined;
+  const resolvedAccentColor = shouldUseAccent
+    ? resolveAccentColor(accentColor, DEFAULT_ACCENT_COLOR)
+    : null;
+  const accentTextColor = resolvedAccentColor
+    ? getReadableTextColor(resolvedAccentColor)
+    : "#0d0d0d";
+  const monthlyCost = `$${membershipTier.costPerBillingInterval} / ${billingIntervalLabel(membershipTier.billingInterval)}`;
+  const initiationFee =
+    membershipTier.initiationFeeCostInUSD !== null &&
+    membershipTier.initiationFeeCostInUSD > 0
+      ? `$${membershipTier.initiationFeeCostInUSD} initiation fee`
+      : null;
+  const ctaLabel =
+    `${buttonText ?? "Select"} ${membershipTier.name.toUpperCase()}`.trim();
+  const heroBackground = membershipTier.coverImageUrl
+    ? {
+        backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.18) 100%), url(${membershipTier.coverImageUrl})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }
+    : {
+        backgroundImage:
+          "linear-gradient(135deg, #1f1b2c 0%, #5a3b33 45%, #d47d38 100%)",
+        backgroundSize: "cover"
+      };
+  const cardBorder = isDark
+    ? `2px solid ${theme.other.dark.borderStrong}`
+    : "2px solid #000";
+  const cardShadow = isDark
+    ? `6px 6px 0px ${theme.other.dark.shadow}`
+    : "6px 6px 0px #000";
+  const pressedShadow = isDark
+    ? `2px 2px 0px ${theme.other.dark.shadow}`
+    : "2px 2px 0px #000";
+  const cardBackground = isDark ? theme.other.dark.surfaceAlt : "#ffffff";
+  const dividerBorder = isDark
+    ? `1px solid ${theme.other.dark.border}`
+    : "1px solid #0d0d0d";
+  const badgeBackground = resolvedAccentColor ?? "#ffe680";
+
   return (
-    <Paper key={membershipTier.id} h={425} w={300} p={"lg"}>
-      <Stack h={"100%"} gap={10}>
-        <Title order={3}>{membershipTier.name}</Title>
+    <Paper
+      key={membershipTier.id}
+      h={475}
+      w={fullWidth ? "100%" : 320}
+      radius="lg"
+      style={{
+        overflow: "hidden",
+        boxShadow: cardShadow,
+        border: cardBorder,
+        backgroundColor: cardBackground,
+        color: isDark ? theme.other.dark.text : undefined,
+        transition: "transform 0.1s ease, box-shadow 0.1s ease"
+      }}
+      onMouseDown={(e) => {
+        e.currentTarget.style.transform = "translate(4px, 4px)";
+        e.currentTarget.style.boxShadow = pressedShadow;
+      }}
+      onMouseUp={(e) => {
+        e.currentTarget.style.transform = "translate(0, 0)";
+        e.currentTarget.style.boxShadow = cardShadow;
+      }}
+    >
+      <Stack h={"100%"} gap={0}>
+        <Box
+          h={160}
+          style={{
+            position: "relative",
+            ...heroBackground
+          }}
+        >
+          <Group
+            gap="sm"
+            px="md"
+            py="sm"
+            style={{ position: "absolute", top: 0 }}
+          >
+            <Badge
+              radius="xl"
+              variant="filled"
+              fz={"sm"}
+              ff={"text"}
+              py={"sm"}
+              bd={`1px solid ${accentTextColor}`}
+              style={{
+                color: accentTextColor,
+                fontWeight: 600,
+                backgroundColor: badgeBackground
+              }}
+            >
+              {monthlyCost}
+            </Badge>
+            {initiationFee && (
+              <Badge
+                variant="filled"
+                fz={"sm"}
+                ff={"text"}
+                py={"sm"}
+                bd={`1px solid ${accentTextColor}`}
+                style={{
+                  color: accentTextColor,
+                  fontWeight: 600,
+                  backgroundColor: badgeBackground
+                }}
+              >
+                {initiationFee}
+              </Badge>
+            )}
+          </Group>
+        </Box>
 
-        <Stack style={{ overflowY: "auto" }}>
-          {membershipTier.benefitDescription !== "" && (
-            <Stack gap={4}>
-              <Title order={6}>Our member experience</Title>
-              <Box mih={72}>
-                <Text size="sm">{membershipTier.benefitDescription}</Text>
+        <Stack
+          h={"100%"}
+          p={"lg"}
+          gap="md"
+          style={{ borderTop: dividerBorder, flex: 1 }}
+        >
+          <Box>
+            <Title order={3} style={{ letterSpacing: 0.3 }}>
+              {membershipTier.name.toUpperCase()}
+            </Title>
+            {membershipTier.benefitDescription !== "" && (
+              <Box mt={8}>
+                <Text size="md">{membershipTier.benefitDescription}</Text>
               </Box>
-            </Stack>
-          )}
+            )}
+          </Box>
 
-          {membershipTier.contributionDescription !== "" && (
-            <Stack gap={4}>
-              <Title order={6}>Your contribution is key!</Title>
-              <Box mih={72}>
-                <Text size="sm">{membershipTier.contributionDescription}</Text>
-              </Box>
-            </Stack>
-          )}
-        </Stack>
+          <Space flex={1} />
 
-        <Space flex={1} />
-
-        <Stack>
-          <Text size="lg" fw={500}>
-            {costDisplayText(membershipTier)}
-          </Text>
-
-          <Box style={{ alignSelf: "center" }}>
-            <PrimaryButton
-              size={"lg"}
-              w={200}
-              color={"lilac"}
+          <Stack gap={6}>
+            {/* <Text size="sm" c="dimmed" fw={600} style={{ letterSpacing: 0.6 }}>
+              Impact: ⭐️
+            </Text> */}
+            {/* <Box style={{ borderTop: "1px solid #c9c3b4" }} /> */}
+            <Button
               onClick={onSelect}
               disabled={disabled}
+              radius="md"
+              size="lg"
+              styles={{
+                root: {
+                  position: "relative",
+                  isolation: "isolate",
+                  color: accentTextColor,
+                  border: `2px solid ${accentTextColor}`,
+                  backgroundColor: badgeBackground
+                }
+              }}
             >
-              {buttonText}
-            </PrimaryButton>
-          </Box>
+              {ctaLabel}
+            </Button>
+          </Stack>
         </Stack>
       </Stack>
     </Paper>

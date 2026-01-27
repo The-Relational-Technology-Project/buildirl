@@ -42,13 +42,15 @@ export function CostInput({
       allowDecimal={false}
       maxLength={5}
       hideControls
-      prefix="$"
+      prefix="$  "
+      radius={4}
       styles={{
         input: {
-          border: "none",
-          background: "transparent",
-          fontSize: 32,
-          textAlign: "center",
+          border: "1px solid #ced4da",
+          borderRadius: 4,
+          background: "white",
+          fontSize: 18,
+          textAlign: "left",
           width: "100%"
         },
         error: {
@@ -83,8 +85,10 @@ export function NullableCostInput({
         size="sm"
         leftSection={<IconPlus size={16} />}
         onClick={() => onChange(defaultValue)}
+        radius={4}
+        bd={"1px black solid"}
       >
-        Add one-time fee
+        One-time initiation fee
       </Button>
     );
   }
@@ -97,8 +101,8 @@ export function NullableCostInput({
         onClick={() => onChange(null)}
         style={{
           position: "absolute",
-          top: "-8px",
-          right: "-8px",
+          top: "4px",
+          right: "4px",
           zIndex: 2
         }}
       >

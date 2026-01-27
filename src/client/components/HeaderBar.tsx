@@ -26,7 +26,7 @@ import UserAvatar from "~/client/components/UserAvatar";
 import posthog from "posthog-js";
 
 export const HEADER_BAR_HEIGHT = 50;
-export const PAGE_WIDTH = 1000;
+export const PAGE_WIDTH = 1400;
 
 type NavigationLinkProps = {
   label: string;
@@ -56,7 +56,7 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
                   ? alpha(theme.colors.blue[6], 0.2)
                   : alpha(theme.colors.blue[6], 0.1)
                 : colorScheme === "dark"
-                  ? alpha(theme.colors.dark[4], 0.3)
+                  ? alpha(theme.other.dark.textSubtle, 0.2)
                   : alpha(theme.colors.gray[1], 0.8),
               transition: "all 150ms ease",
               cursor: "pointer"
@@ -72,7 +72,7 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
                       ? theme.colors.blue[4]
                       : theme.colors.blue[6]
                     : colorScheme === "dark"
-                      ? theme.colors.dark[1]
+                      ? theme.other.dark.textMuted
                       : theme.colors.gray[7]
                 }
               >
@@ -85,7 +85,7 @@ function NavigationLink({ label, navigateTo, Icon }: NavigationLinkProps) {
                       ? theme.colors.blue[4]
                       : theme.colors.blue[6]
                     : colorScheme === "dark"
-                      ? theme.colors.dark[1]
+                      ? theme.other.dark.textMuted
                       : theme.colors.gray[7]
                 }
                 size={"sm"}

@@ -9,6 +9,10 @@ import {
   useMantineTheme
 } from "@mantine/core";
 import { Club } from "~/server/club/types";
+import {
+  getReadableTextColor,
+  resolveAccentColor
+} from "~/client/utils/color";
 
 type HowCampaignWorksProps = {
   club: Club;
@@ -35,19 +39,38 @@ const STEPS = [
 export function HowCampaignWorks({ club }: HowCampaignWorksProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const borderRadius = 15;
+  const accentColor = resolveAccentColor(club.accentColor);
+  const accentTextColor = getReadableTextColor(accentColor);
+  const sectionBorder =
+    colorScheme === "dark"
+      ? `2px solid ${theme.other.dark.borderStrong}`
+      : "2px solid #000";
+  const sectionShadow =
+    colorScheme === "dark"
+      ? `6px 6px 0px ${theme.other.dark.shadow}`
+      : "6px 6px 0px #000";
+  const cardBorder =
+    colorScheme === "dark"
+      ? `2px solid ${theme.other.dark.borderStrong}`
+      : "2px solid #000";
+  const cardBackground =
+    colorScheme === "dark" ? theme.other.dark.surface : "#ffffff";
 
   return (
     <Stack
       id="how-campaign-works"
       w="100%"
-      gap={20}
-      ta="center"
-      p={28}
+      gap="md"
+      align="center"
+      p="32px 24px"
       style={{
-        borderRadius: 4,
+        borderRadius,
+        border: sectionBorder,
+        boxShadow: sectionShadow,
         backgroundColor:
           colorScheme === "dark"
-            ? theme.colors.dark![3]
+            ? theme.other.dark.surfaceAlt
             : theme.colors.beige![1]
       }}
       mb={20}
@@ -55,41 +78,46 @@ export function HowCampaignWorks({ club }: HowCampaignWorksProps) {
       <Title
         order={2}
         tt="uppercase"
+        ta="center"
         style={{
           fontFamily: club.themeHeadingFont ?? "inherit"
         }}
       >
         How does this campaign work?
       </Title>
-      <Stack gap="sm">
+      <Stack gap="sm" w="100%">
         {STEPS.map((step, index) => (
           <Card
             key={step.title}
-            padding="md"
+            p="md"
             style={{
-              boxShadow: "none",
-              border: "1px solid gray"
+              backgroundColor: cardBackground,
+              border: cardBorder,
+              borderRadius: 12
             }}
           >
-            <Group align="center" gap="md">
+            <Group align="center" gap="md" wrap="nowrap">
               <Box
-                w={36}
-                h={36}
+                w={40}
+                h={40}
                 bdrs={999}
-                bg="gray.1"
-                c="gray.7"
                 style={{
+                  backgroundColor: accentColor,
+                  border: cardBorder,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontWeight: 600
+                  fontWeight: 700,
+                  color: accentTextColor
                 }}
               >
                 {index + 1}
               </Box>
               <Stack gap={4} ta="start" style={{ flex: 1 }}>
-                <Text fw={600}>{step.title}</Text>
-                <Text size="sm">{step.description}</Text>
+                <Text fw={700}>{step.title}</Text>
+                <Text size="sm" style={{ lineHeight: 1.6 }}>
+                  {step.description}
+                </Text>
               </Stack>
             </Group>
           </Card>

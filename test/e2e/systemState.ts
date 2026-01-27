@@ -15,10 +15,11 @@ import {
 import { EmailTemplate } from "~/server/email/types";
 import { EmailTemplateId } from "~/server/email/types";
 import { ItemSelector } from "./utils/itemSelector";
-import { InstagramHandle, Url } from "~/server/utils/types";
+import { HexColor, InstagramHandle, Url } from "~/server/utils/types";
 import {
   Club,
   ClubStatistics,
+  ContributionReasons,
   ClubValues,
   CreateClubInput,
   FAQs,
@@ -72,7 +73,9 @@ type ClubState = {
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
   themeHeadingFont: Maybe<string>;
+  accentColor: Maybe<HexColor>;
   displayImageUrls: Url[];
+  contributionReasons: ContributionReasons;
   membershipTierIds: number[];
   hasStripeAccount: boolean;
   values: ClubValues;
@@ -281,7 +284,9 @@ export class SystemState {
       applicationQuestions: clubState.applicationQuestions,
       theme: clubState.theme,
       themeHeadingFont: clubState.themeHeadingFont,
+      accentColor: clubState.accentColor,
       displayImageUrls: clubState.displayImageUrls,
+      contributionReasons: clubState.contributionReasons,
       values: clubState.values,
       faqs: clubState.faqs,
       membershipTiers: this.orderByCost(
@@ -348,7 +353,9 @@ export class SystemState {
       applicationQuestions: DEFAULT_APPLICATION_QUESTIONS,
       theme: null,
       themeHeadingFont: null,
+      accentColor: null,
       displayImageUrls: [],
+      contributionReasons: { items: [] },
       values: { items: [] },
       faqs: { items: [] },
       membershipTierIds: [],
@@ -458,6 +465,7 @@ export class SystemState {
       status: "PUBLISHED",
       benefitDescription: input.benefitDescription,
       contributionDescription: input.contributionDescription,
+      coverImageUrl: input.coverImageUrl ?? null,
       costPerBillingInterval: input.costPerBillingInterval,
       billingInterval: input.billingInterval,
       initiationFeeCostInUSD: input.initiationFeeCostInUSD

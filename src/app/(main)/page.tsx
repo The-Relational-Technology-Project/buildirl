@@ -33,7 +33,7 @@ export default function Home() {
         <Title order={titleOrder}>Clubs</Title>
         <Tabs
           // hacky but how we support dark mode with defaults
-          color={colorScheme === "dark" ? theme.colors.dark[4] : undefined}
+          color={colorScheme === "dark" ? theme.other.dark.textMuted : undefined}
           defaultValue={activeTab}
           onChange={(value) => {
             // change url without scrolling page to top

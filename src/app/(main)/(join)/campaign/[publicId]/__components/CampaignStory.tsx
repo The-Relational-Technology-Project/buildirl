@@ -102,7 +102,13 @@ export default function CampaignStory({
                         window.open(photo.replace("w=600", "w=1200"), "_blank")
                       }
                     >
-                      <Image src={photo} w="100%" h="100%" fit="cover" />
+                      <Image
+                        src={photo}
+                        w="100%"
+                        h="100%"
+                        fit="cover"
+                        alt={`Campaign photo ${index + 1}`}
+                      />
                     </Box>
                   </Grid.Col>
                 ))}

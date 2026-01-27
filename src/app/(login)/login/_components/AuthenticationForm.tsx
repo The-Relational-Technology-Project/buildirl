@@ -170,7 +170,7 @@ export default function AuthenticationForm() {
     <Stack w={300}>
       <Paper p="xl" w={300}>
         <Group justify="center">
-          <Image src={"/images/logo.svg"} h={40} my={10} />
+          <Image src={"/images/logo.svg"} h={40} my={10} alt="Build IRL logo" />
         </Group>
 
         <Divider

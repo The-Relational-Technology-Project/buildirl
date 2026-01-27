@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
   const userMemberships = api.main.userMemberships.useQuery();
+  const buttonFont = club.themeHeadingFont ?? undefined;
 
   if (!isLoaded(userMemberships)) {
     return null;
@@ -19,8 +20,9 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     case "PENDING":
       return (
         <PrimaryButton
-          includeIcon
           onClick={() => router.push(`/club/${club.id}/manage-application`)}
+          fontFamily={buttonFont}
+          accentColor={club.accentColor}
         >
           Manage Application
         </PrimaryButton>
@@ -28,8 +30,9 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     case "ACTIVE":
       return (
         <PrimaryButton
-          includeIcon
           onClick={() => router.push(`/club/${club.id}/manage-membership`)}
+          fontFamily={buttonFont}
+          accentColor={club.accentColor}
         >
           Manage Membership
         </PrimaryButton>
@@ -37,12 +40,13 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     case "PENDING_INCOMPLETE":
       return (
         <PrimaryButton
-          includeIcon
           onClick={() =>
             router.push(
               `/apply/${club.publicId}/payments?membershipId=${membership.id}`
             )
           }
+          fontFamily={buttonFont}
+          accentColor={club.accentColor}
         >
           Complete Application
         </PrimaryButton>
@@ -54,10 +58,11 @@ export function AuthenticatedJoinButton({ club }: JoinButtonProps) {
     default:
       return (
         <PrimaryButton
-          includeIcon
           onClick={() => router.push(`/join/${club.publicId}/tiers`)}
+          fontFamily={buttonFont}
+          accentColor={club.accentColor}
         >
-          Join as a member
+          join the club
         </PrimaryButton>
       );
   }

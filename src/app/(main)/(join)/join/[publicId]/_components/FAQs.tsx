@@ -23,6 +23,15 @@ export default function FAQs({
 }: FAQsProps & BoxProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const borderRadius = 15;
+  const isDark = colorScheme === "dark";
+  const sectionTextColor = theme.other.dark.text;
+  const sectionBorder = isDark
+    ? `1px solid ${theme.other.dark.borderStrong}`
+    : "2px solid #000";
+  const sectionShadow = isDark
+    ? `6px 6px 0px ${theme.other.dark.shadow}`
+    : "6px 6px 0px #000";
 
   if (!faqs.items || faqs.items.length === 0) {
     return null;
@@ -31,13 +40,16 @@ export default function FAQs({
   return (
     <Stack
       {...props}
-      bg={
-        colorScheme === "dark" ? theme.colors.dark![3] : theme.colors.beige![1]
-      }
+      bg={isDark ? theme.other.dark.surface : theme.colors.beige![1]}
       w={"100%"}
       p={28}
-      bdrs={4}
       mb={16}
+      style={{
+        border: sectionBorder,
+        boxShadow: sectionShadow,
+        borderRadius,
+        color: isDark ? sectionTextColor : undefined
+      }}
     >
       <Title
         order={2}
@@ -58,7 +70,9 @@ export default function FAQs({
               <Text fw={600}>{faq.question}</Text>
             </Accordion.Control>
             <Accordion.Panel>
-              <Text style={{ whiteSpace: "pre-line" }}>{faq.answer}</Text>
+              <Text style={{ whiteSpace: "pre-line" }}>
+                {faq.answer}
+              </Text>
             </Accordion.Panel>
           </Accordion.Item>
         ))}

@@ -17,7 +17,10 @@ import {
   Select,
   ActionIcon,
   Flex,
-  Text
+  Text,
+  ColorInput,
+  useMantineColorScheme,
+  useMantineTheme
 } from "@mantine/core";
 import { DateInput, TimePicker } from "@mantine/dates";
 import EditableClubImage from "~/client/components/EditableClubImage";
@@ -44,21 +47,57 @@ import { handleDefaultMutationError, notifySuccess } from "~/client/logger";
 import LocationSelect from "~/client/components/LocationSelect";
 import { City } from "~/server/club/types/location";
 import { ClubValueCreator } from "./_components/ClubValueCreator";
+import { DEFAULT_ACCENT_COLOR } from "~/client/utils/color";
+
+const INPUT_BORDER_RADIUS = 12;
 
 const errorStyles = {
   input: {
-    border: "1px solid red",
+    border: "2px solid red",
     color: "red",
-    borderRadius: 0
+    borderRadius: INPUT_BORDER_RADIUS
   }
 };
 
 const inputStyles = {
   input: {
-    border: "1px solid black",
-    borderRadius: 0
+    border: "2px solid black",
+    borderRadius: INPUT_BORDER_RADIUS
   }
 };
+
+type SectionCardProps = {
+  children: React.ReactNode;
+  gap?: number;
+};
+
+function SectionCard({ children, gap = 16 }: SectionCardProps) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const border = isDark
+    ? `2px solid ${theme.other.dark.borderStrong}`
+    : "2px solid #000";
+  const shadow = isDark
+    ? `6px 6px 0px ${theme.other.dark.shadow}`
+    : "6px 6px 0px #000";
+  const backgroundColor = isDark ? theme.other.dark.surface : "#fff";
+
+  return (
+    <Stack
+      gap={gap}
+      style={{
+        border,
+        borderRadius: 15,
+        boxShadow: shadow,
+        padding: "24px",
+        backgroundColor
+      }}
+    >
+      {children}
+    </Stack>
+  );
+}
 
 function BasicInfoSection() {
   const {
@@ -73,11 +112,13 @@ function BasicInfoSection() {
         placeholder="Club name"
         {...register("name")}
         error={errors.name?.message}
+        styles={errors.name ? errorStyles : inputStyles}
       />
       <TextInput
         placeholder="Tag line"
         {...register("tagLine")}
         error={errors.tagLine?.message}
+        styles={errors.tagLine ? errorStyles : inputStyles}
       />
     </Stack>
   );
@@ -103,6 +144,7 @@ function WhoWeAreSection() {
         {...register("description")}
         rows={6}
         error={errors.description?.message}
+        styles={errors.description ? errorStyles : inputStyles}
       />
     </Stack>
   );
@@ -131,6 +173,7 @@ function HowWeHangSection() {
           placeholder="Event calendar or next gathering, (e.g. Luma, Partiful, etc.)"
           {...register("eventCalendarUrl")}
           error={errors.eventCalendarUrl?.message}
+          styles={errors.eventCalendarUrl ? errorStyles : inputStyles}
         />
       </Stack>
     </Stack>
@@ -301,6 +344,7 @@ function LinksSection() {
         placeholder="Website link"
         {...register("websiteUrl")}
         error={errors.websiteUrl?.message}
+        styles={errors.websiteUrl ? errorStyles : inputStyles}
       />
       <Stack gap={4}>
         <PrefixedInput
@@ -308,6 +352,7 @@ function LinksSection() {
           placeholder="username"
           {...register("instagramHandle")}
           error={errors.instagramHandle?.message}
+          styles={errors.instagramHandle ? errorStyles : inputStyles}
         />
       </Stack>
     </Stack>
@@ -361,6 +406,35 @@ function FontSection() {
         value={font}
         onChange={(newFont) => setValue("themeHeadingFont", newFont)}
       />
+    </Stack>
+  );
+}
+
+function AccentColorSection() {
+  const {
+    control,
+    formState: { errors }
+  } = useFormContext<UpdateClubInput>();
+
+  return (
+    <Stack gap={12}>
+      <Title order={6}>Accent color</Title>
+      <Controller
+        name="accentColor"
+        control={control}
+        render={({ field }) => (
+          <ColorInput
+            placeholder={DEFAULT_ACCENT_COLOR}
+            value={field.value ?? DEFAULT_ACCENT_COLOR}
+            onChange={(value) => field.onChange(value || null)}
+            error={errors.accentColor?.message}
+            styles={errors.accentColor ? errorStyles : inputStyles}
+          />
+        )}
+      />
+      <Text size="xs" c="gray">
+        Used for buttons and price labels on your join page.
+      </Text>
     </Stack>
   );
 }
@@ -450,6 +524,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       eventCalendarUrl: club.eventCalendarUrl ?? "",
       theme: club.theme,
       themeHeadingFont: club.themeHeadingFont,
+      accentColor: club.accentColor,
+      contributionReasons: club.contributionReasons,
       values: club.values,
       faqs: club.faqs
     },
@@ -481,7 +557,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           return methods.handleSubmit(onSubmit)(e);
         }}
       >
-        <Stack gap={42}>
+        <Stack gap={42} px={{ sm: "116g" }}>
           <EditableClubImage
             club={club}
             size={clubImageSize}
@@ -490,21 +566,27 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
               position: "relative"
             }}
           />
-          <Stack>
+          <SectionCard gap={16}>
             <Title order={2}>Club Basics</Title>
             <BasicInfoSection />
             <ShareLinkSection />
             <LocationSection />
             <LinksSection />
-          </Stack>
+          </SectionCard>
 
-          <WhoWeAreSection />
+          <SectionCard>
+            <WhoWeAreSection />
+          </SectionCard>
 
-          <HowWeHangSection />
+          <SectionCard>
+            <HowWeHangSection />
+          </SectionCard>
 
-          <ClubValuesSection />
+          <SectionCard>
+            <ClubValuesSection />
+          </SectionCard>
 
-          <Stack gap={16}>
+          <SectionCard gap={16}>
             <Stack gap={4}>
               <Title order={2}>Show off your club! </Title>
               <Text size="sm" c="gray">
@@ -514,9 +596,10 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
             </Stack>
             <ThemeSection />
             <FontSection />
+            <AccentColorSection />
             <ShowcaseImagesSection club={club} />
             <FAQsSection />
-          </Stack>
+          </SectionCard>
 
           <Box
             mb={32}
@@ -564,7 +647,7 @@ export default function UpdateClub() {
   return (
     isLoaded(club) && (
       <WithLocalNavigationHeader>
-        <Stack px={{ base: 20, sm: 150 }} mb={"md"}>
+        <Stack px={{ base: 24, sm: 160 }} mb={"md"}>
           <UpdateClubForm club={club.data!} />
         </Stack>
       </WithLocalNavigationHeader>

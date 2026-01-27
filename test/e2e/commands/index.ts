@@ -15,6 +15,7 @@ import {
 import CreateUserCommand from "./createUserCommand";
 import {
   ClubNameSchema,
+  ContributionReasonSchema,
   ClubPublicIdSchema,
   ClubValueSchema,
   DateStringSchema,
@@ -24,6 +25,7 @@ import {
 } from "~/server/club/types";
 import {
   InstagramHandleSchema,
+  HexColorSchema,
   RequiredStringSchema,
   TwitterHandleSchema,
   FacebookHandleSchema,
@@ -236,6 +238,25 @@ function faqsArbitrary() {
   });
 }
 
+function contributionReasonsArbitrary() {
+  return record({
+    items: array(
+      record({
+        label: string()
+          .filter((s) => isZodType(s, ContributionReasonSchema.shape.label))
+          .filter((s) => s.length <= 10),
+        description: string().filter((s) =>
+          isZodType(s, ContributionReasonSchema.shape.description)
+        ),
+        coverImageUrl: option(webUrl(), { freq: 4, nil: null }).filter((s) =>
+          isZodType(s, ContributionReasonSchema.shape.coverImageUrl)
+        )
+      }),
+      { maxLength: 5 }
+    )
+  });
+}
+
 function updateClubCommands() {
   return record({
     clubIdSelector: itemSelector<number>(),
@@ -269,6 +290,11 @@ function updateClubCommands() {
     themeHeadingFont: option(oneof(...FONT_SELECTION.map(constant)), {
       freq: 4
     }),
+    accentColor: option(
+      string().filter((s) => isZodType(s, HexColorSchema)),
+      { freq: 4 }
+    ),
+    contributionReasons: contributionReasonsArbitrary(),
     values: record({
       items: array(
         record({
@@ -301,6 +327,8 @@ function updateClubCommands() {
           eventCalendarUrl: i.eventCalendarUrl,
           theme: i.theme,
           themeHeadingFont: i.themeHeadingFont,
+          accentColor: i.accentColor,
+          contributionReasons: i.contributionReasons,
           values: i.values,
           faqs: i.faqs
         },

@@ -4,12 +4,14 @@ import { useRouter } from "next/navigation";
 
 export function DefaultJoinButton({ club }: JoinButtonProps) {
   const router = useRouter();
+  const buttonFont = club.themeHeadingFont ?? undefined;
   return (
     <PrimaryButton
-      includeIcon
       onClick={() => router.push(`/join/${club.publicId}/tiers`)}
+      fontFamily={buttonFont}
+      accentColor={club.accentColor}
     >
-      Join the club
+      join the club
     </PrimaryButton>
   );
 }

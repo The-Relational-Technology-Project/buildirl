@@ -1,4 +1,9 @@
-import { Text, Title } from "@mantine/core";
+import {
+  Text,
+  Title,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { ReadMoreBox } from "./ReadMoreBox";
 import { Club } from "~/server/club/types";
 
@@ -8,30 +13,41 @@ type WhoWeAreProps = {
 
 export function WhoWeAre({ club }: WhoWeAreProps) {
   const description = club.description;
+  const borderRadius = 15;
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const sectionBorder = isDark
+    ? `1px solid ${theme.other.dark.borderStrong}`
+    : "2px solid #000";
+  const sectionShadow = isDark
+    ? `6px 6px 0px ${theme.other.dark.shadow}`
+    : "6px 6px 0px #000";
 
   return (
     description.length > 0 && (
-      <ReadMoreBox style={{ width: "100%" }}>
-        <Title
-          order={2}
-          mb={"xs"}
-          tt="uppercase"
-          ta="center"
-          style={{
-            fontFamily: club.themeHeadingFont ?? "inherit"
-          }}
-        >
-          Who We Are
-        </Title>
-        <Text
-          size={"sm"}
-          mb={{ base: "sm", md: "lg" }}
-          style={{ whiteSpace: "pre-line" }}
-          ta="center"
-          fs="italic"
-        >
-          ✨ Our people, our vibes, our world ✨
-        </Text>
+      <ReadMoreBox
+        maxLines={3}
+        header={
+          <Title
+            order={2}
+            mb={"xs"}
+            tt="uppercase"
+            ta="center"
+            style={{
+              fontFamily: club.themeHeadingFont ?? "inherit"
+            }}
+          >
+            Who We Are
+          </Title>
+        }
+        style={{
+          width: "100%",
+          border: sectionBorder,
+          borderRadius,
+          boxShadow: sectionShadow
+        }}
+      >
         <Text
           size={"md"}
           mb={{ base: "sm", md: "lg" }}

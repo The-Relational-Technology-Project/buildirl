@@ -9,6 +9,11 @@ export type StorageClient = {
   uploadClubProfileImage(clubId: number, image: File): Promise<void>;
   clubProfileImageUrl(clubId: number): Url;
   uploadClubDisplayImage(clubId: number, image: File): Promise<Url>;
+  uploadMembershipTierCoverImage(
+    clubId: number,
+    image: File
+  ): Promise<Url>;
+  deleteMembershipTierCoverImage(clubId: number, imageUrl: Url): Promise<void>;
   deleteClubDisplayImage(clubId: number, imageUrl: Url): Promise<void>;
 };
 
@@ -72,6 +77,10 @@ export default function createStorageClient(): StorageClient {
     return `club/${clubId}/profile`;
   }
 
+  function sanitizeFileName(fileName: string) {
+    return fileName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+  }
+
   // TODO selectively skip cache only on images that can be updated by user
   function userProfileImageUrl(userId: number) {
     const { data } = supabaseClient.storage
@@ -97,14 +106,38 @@ export default function createStorageClient(): StorageClient {
   }
 
   function clubDisplayImageRelativeUrl(clubId: number, fileName: string) {
-    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    const sanitizedFileName = sanitizeFileName(fileName);
     return `club/${clubId}/display/${sanitizedFileName}`;
+  }
+
+  function membershipTierCoverImageRelativeUrl(
+    clubId: number,
+    fileName: string
+  ) {
+    const sanitizedFileName = sanitizeFileName(fileName);
+    return `membership-tier/${clubId}/cover/${Date.now()}-${sanitizedFileName}`;
+  }
+
+  function assertValidImageFile(file: File, maxFileSizeInMbs: number) {
+    if (!file.type?.startsWith("image/")) {
+      throw new Error(`file ${file.name} must be an image`);
+    }
+    if (file.size === 0) {
+      throw new Error(`file ${file.name} was empty`);
+    }
+    if (file.size > maxFileSizeInMbs * 1024 * 1024) {
+      throw new Error(
+        `image file upload cannot be greater than ${maxFileSizeInMbs} MB but was ${file.size / (1024 * 1024)} MB`
+      );
+    }
   }
 
   async function uploadClubDisplayImage(
     clubId: number,
     displayImage: File
   ): Promise<Url> {
+    assertValidImageFile(displayImage, 5);
+
     const filePath = clubDisplayImageRelativeUrl(clubId, displayImage.name);
 
     const { error } = await supabaseClient.storage
@@ -129,6 +162,44 @@ export default function createStorageClient(): StorageClient {
 
     logger.info(
       `uploaded display image for club with id ${clubId} at ${publicUrl}`
+    );
+
+    return publicUrl;
+  }
+
+  async function uploadMembershipTierCoverImage(
+    clubId: number,
+    coverImage: File
+  ): Promise<Url> {
+    assertValidImageFile(coverImage, 5);
+
+    const filePath = membershipTierCoverImageRelativeUrl(
+      clubId,
+      coverImage.name
+    );
+
+    const { error } = await supabaseClient.storage
+      .from("images")
+      .upload(filePath, coverImage, {
+        upsert: false
+      });
+
+    if (error) {
+      logger.error(
+        error,
+        `failed to upload membership tier cover image for club with id ${clubId}`
+      );
+      throw error;
+    }
+
+    const { data } = supabaseClient.storage
+      .from("images")
+      .getPublicUrl(filePath);
+
+    const publicUrl = parseAsZodType(data.publicUrl, UrlSchema);
+
+    logger.info(
+      `uploaded membership tier cover image for club with id ${clubId} at ${publicUrl}`
     );
 
     return publicUrl;
@@ -166,13 +237,37 @@ export default function createStorageClient(): StorageClient {
     logger.info(`deleted display image for club with id ${clubId}`);
   }
 
+  async function deleteMembershipTierCoverImage(
+    clubId: number,
+    imageUrl: Url
+  ) {
+    const filePath =
+      decodedRelativeFilePathFromEncodedImageBucketPath(imageUrl);
+
+    const { error } = await supabaseClient.storage
+      .from("images")
+      .remove([filePath]);
+
+    if (error) {
+      logger.error(
+        error,
+        `failed to delete membership tier cover image for club with id ${clubId}`
+      );
+      throw error;
+    }
+
+    logger.info(`deleted membership tier cover image for club with id ${clubId}`);
+  }
+
   return {
     uploadUserProfileImage,
     uploadClubProfileImage,
     userProfileImageUrl,
     clubProfileImageUrl,
     uploadClubDisplayImage,
-    deleteClubDisplayImage
+    uploadMembershipTierCoverImage,
+    deleteClubDisplayImage,
+    deleteMembershipTierCoverImage
   };
 }
 
