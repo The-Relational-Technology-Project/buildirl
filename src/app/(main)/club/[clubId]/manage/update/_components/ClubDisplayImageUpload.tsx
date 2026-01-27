@@ -112,7 +112,13 @@ export default function ClubImageUploader({ club }: ClubImageUploaderProps) {
               >
                 {url ? (
                   <>
-                    <Image src={url} w={"100%"} h={"100%"} fit="cover" />
+                    <Image
+                      src={url}
+                      w={"100%"}
+                      h={"100%"}
+                      fit="cover"
+                      alt={`Club display image ${index + 1}`}
+                    />
                     <ActionIcon
                       style={{
                         position: "absolute",

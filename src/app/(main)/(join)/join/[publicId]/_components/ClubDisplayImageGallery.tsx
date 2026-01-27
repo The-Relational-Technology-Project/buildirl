@@ -83,6 +83,7 @@ export default function ClubDisplayImageGallery({
                   radius={3}
                   bd={"1px gray solid"}
                   style={{ display: "block" }}
+                  alt={`Club photo ${index + 1}`}
                 />
               </Box>
             </Carousel.Slide>

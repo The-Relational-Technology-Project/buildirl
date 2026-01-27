@@ -4,13 +4,12 @@ import {
   Stack,
   Box,
   Text,
-  alpha,
   useMantineColorScheme,
   useMantineTheme
 } from "@mantine/core";
 import { Club, ClubValue } from "~/server/club/types";
 import { Icon, type IconsCls } from "tabler-dynamic-icon";
-import { isColorDark, resolveAccentColor } from "~/client/utils/color";
+import { resolveAccentColor } from "~/client/utils/color";
 
 interface ClubValueDisplayProps {
   club: Club;
@@ -24,10 +23,6 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
   const isDark = colorScheme === "dark";
   const sectionTextColor = theme.other.dark.text;
   const accentColor = resolveAccentColor(club.accentColor);
-  const accentIsDark = isColorDark(accentColor);
-  const glowCore = alpha(accentColor, accentIsDark ? 0.5 : 0.35);
-  const glowEdge = alpha(accentColor, accentIsDark ? 0.22 : 0.16);
-  const glowShadow = alpha(accentColor, accentIsDark ? 0.4 : 0.28);
   const sectionBorder = isDark
     ? `1px solid ${theme.other.dark.borderStrong}`
     : "2px solid #000";

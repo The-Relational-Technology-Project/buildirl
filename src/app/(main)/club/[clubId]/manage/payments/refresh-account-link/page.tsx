@@ -24,7 +24,7 @@ export default function RefreshAccountLink() {
       origin: window.location.origin,
       clubId
     });
-  }, []);
+  }, [clubId, createAccountLink]);
 
   return (
     <AbsoluteCenter adjustForHeader={true}>

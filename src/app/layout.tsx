@@ -58,6 +58,7 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin={"anonymous"}
         />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Calistoga&family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@100..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Rozha+One&display=swap"
           rel="stylesheet"
