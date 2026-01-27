@@ -19,6 +19,7 @@ type PrefixedInputProps = {
 export default function PrefixedInput({
   prefix,
   error,
+  styles,
   ...props
 }: PrefixedInputProps & TextInputProps) {
   const theme = useMantineTheme();
@@ -29,6 +30,32 @@ export default function PrefixedInput({
     ? theme.other.dark.borderStrong
     : theme.other.dark.ink;
   const bgColor = isDark ? theme.other.dark.surfaceAlt : theme.colors.gray[0];
+  const styleInput = styles?.input;
+  const inputBorder =
+    typeof styleInput?.border === "string"
+      ? styleInput.border
+      : `2px solid ${borderColor}`;
+  const inputBorderRadius =
+    typeof styleInput?.borderRadius === "number"
+      ? styleInput.borderRadius
+      : typeof styleInput?.borderRadius === "string"
+        ? Number.parseInt(styleInput.borderRadius, 10)
+        : 12;
+  const mergedStyles = {
+    ...styles,
+    input: {
+      ...(styles?.input ?? {}),
+      borderTopLeftRadius: 0,
+      borderBottomLeftRadius: 0,
+      borderTopRightRadius: inputBorderRadius,
+      borderBottomRightRadius: inputBorderRadius,
+      border: inputBorder
+    },
+    error: {
+      marginTop: "5px",
+      ...(styles?.error ?? {})
+    }
+  };
 
   return (
     <Box>
@@ -37,9 +64,9 @@ export default function PrefixedInput({
           size="sm"
           style={{
             background: bgColor,
-            padding: "8px 8px",
-            borderRadius: "4px 0 0 4px",
-            border: `1px solid ${borderColor}`,
+            padding: "6px 8px",
+            borderRadius: `${inputBorderRadius}px 0 0 ${inputBorderRadius}px`,
+            border: inputBorder,
             borderRight: "none"
           }}
         >
@@ -47,16 +74,7 @@ export default function PrefixedInput({
         </Text>
         <TextInput
           w="100%"
-          styles={{
-            input: {
-              borderTopLeftRadius: 0,
-              borderBottomLeftRadius: 0,
-              border: `1px solid ${borderColor}`
-            },
-            error: {
-              marginTop: "5px"
-            }
-          }}
+          styles={mergedStyles}
           // use the error message instead as this error message will
           // mess up the layout
           error={null}

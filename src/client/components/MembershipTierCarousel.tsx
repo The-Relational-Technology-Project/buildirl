@@ -17,6 +17,11 @@ import {
 import { Carousel } from "@mantine/carousel";
 import { MembershipTier } from "~/server/membershipTier/types";
 import { billingIntervalLabel } from "~/client/utils";
+import {
+  DEFAULT_ACCENT_COLOR,
+  getReadableTextColor,
+  resolveAccentColor
+} from "~/client/utils/color";
 
 interface MembershipTierCarouselProps {
   tiers: MembershipTier[];
@@ -25,6 +30,7 @@ interface MembershipTierCarouselProps {
   excludedTierId?: number;
   alignDesktop?: "start" | "center";
   withDesktopControls?: boolean;
+  accentColor?: string | null;
 }
 
 export function MembershipTierCarousel({
@@ -33,7 +39,8 @@ export function MembershipTierCarousel({
   buttonText = "Select",
   excludedTierId,
   alignDesktop,
-  withDesktopControls
+  withDesktopControls,
+  accentColor
 }: MembershipTierCarouselProps) {
   const isMobile = useMatches({ base: true, md: false });
   const withCarouselControls = useMatches({ base: false, md: true });
@@ -52,6 +59,7 @@ export function MembershipTierCarousel({
             onSelect={() => onTierSelect(tier)}
             buttonText={buttonText}
             disabled={tier.id === excludedTierId}
+            accentColor={accentColor}
             fullWidth
           />
         ))}
@@ -72,6 +80,7 @@ export function MembershipTierCarousel({
             onSelect={() => onTierSelect(tier)}
             buttonText={buttonText}
             disabled={tier.id === excludedTierId}
+            accentColor={accentColor}
           />
         ))}
       </Group>
@@ -129,6 +138,7 @@ export function MembershipTierCarousel({
             onSelect={() => onTierSelect(tier)}
             buttonText={buttonText}
             disabled={tier.id === excludedTierId}
+            accentColor={accentColor}
           />
         </Carousel.Slide>
       ))}
@@ -142,6 +152,7 @@ interface MembershipTierCardProps {
   buttonText: string;
   disabled: boolean;
   fullWidth?: boolean;
+  accentColor?: string | null;
 }
 
 function MembershipTierCard({
@@ -149,11 +160,19 @@ function MembershipTierCard({
   onSelect,
   buttonText,
   disabled,
-  fullWidth = false
+  fullWidth = false,
+  accentColor
 }: MembershipTierCardProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const isDark = colorScheme === "dark";
+  const shouldUseAccent = accentColor !== undefined;
+  const resolvedAccentColor = shouldUseAccent
+    ? resolveAccentColor(accentColor, DEFAULT_ACCENT_COLOR)
+    : null;
+  const accentTextColor = resolvedAccentColor
+    ? getReadableTextColor(resolvedAccentColor)
+    : "#0d0d0d";
   const monthlyCost = `$${membershipTier.costPerBillingInterval} / ${billingIntervalLabel(membershipTier.billingInterval)}`;
   const initiationFee =
     membershipTier.initiationFeeCostInUSD !== null &&
@@ -186,6 +205,7 @@ function MembershipTierCard({
   const dividerBorder = isDark
     ? `1px solid ${theme.other.dark.border}`
     : "1px solid #0d0d0d";
+  const badgeBackground = resolvedAccentColor ?? "#ffe680";
 
   return (
     <Paper
@@ -226,25 +246,31 @@ function MembershipTierCard({
           >
             <Badge
               radius="xl"
-              color="#ffe680"
               variant="filled"
               fz={"sm"}
               ff={"text"}
               py={"sm"}
-              bd={"1px solid black"}
-              style={{ color: "#0d0d0d", fontWeight: 600 }}
+              bd={`1px solid ${accentTextColor}`}
+              style={{
+                color: accentTextColor,
+                fontWeight: 600,
+                backgroundColor: badgeBackground
+              }}
             >
               {monthlyCost}
             </Badge>
             {initiationFee && (
               <Badge
-                color="#ffe680"
                 variant="filled"
                 fz={"sm"}
                 ff={"text"}
                 py={"sm"}
-                bd={"1px solid black"}
-                style={{ color: "#0d0d0d", fontWeight: 600 }}
+                bd={`1px solid ${accentTextColor}`}
+                style={{
+                  color: accentTextColor,
+                  fontWeight: 600,
+                  backgroundColor: badgeBackground
+                }}
               >
                 {initiationFee}
               </Badge>
@@ -280,15 +306,14 @@ function MembershipTierCard({
               onClick={onSelect}
               disabled={disabled}
               radius="md"
-              color="yellow"
               size="lg"
               styles={{
                 root: {
                   position: "relative",
                   isolation: "isolate",
-                  color: "#0d0d0d",
-                  border: "2px solid #0d0d0d",
-                  backgroundColor: "#ffe680"
+                  color: accentTextColor,
+                  border: `2px solid ${accentTextColor}`,
+                  backgroundColor: badgeBackground
                 }
               }}
             >

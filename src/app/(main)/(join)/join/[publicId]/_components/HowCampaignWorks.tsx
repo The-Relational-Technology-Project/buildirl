@@ -9,6 +9,10 @@ import {
   useMantineTheme
 } from "@mantine/core";
 import { Club } from "~/server/club/types";
+import {
+  getReadableTextColor,
+  resolveAccentColor
+} from "~/client/utils/color";
 
 type HowCampaignWorksProps = {
   club: Club;
@@ -36,7 +40,8 @@ export function HowCampaignWorks({ club }: HowCampaignWorksProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const borderRadius = 15;
-  const accentColor = "#f7b7b1";
+  const accentColor = resolveAccentColor(club.accentColor);
+  const accentTextColor = getReadableTextColor(accentColor);
   const sectionBorder =
     colorScheme === "dark"
       ? `2px solid ${theme.other.dark.borderStrong}`
@@ -102,7 +107,8 @@ export function HowCampaignWorks({ club }: HowCampaignWorksProps) {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontWeight: 700
+                  fontWeight: 700,
+                  color: accentTextColor
                 }}
               >
                 {index + 1}

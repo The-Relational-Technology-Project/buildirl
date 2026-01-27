@@ -9,6 +9,12 @@ import {
 } from "@mantine/core";
 import { Club } from "~/server/club/types";
 import { getRhythmString } from "../utils";
+import {
+  darkenHexColor,
+  getReadableTextColor,
+  isColorDark,
+  resolveAccentColor
+} from "~/client/utils/color";
 
 type HowWeHangProps = {
   club: Club;
@@ -19,7 +25,18 @@ export function HowWeHang({ club }: HowWeHangProps) {
   const theme = useMantineTheme();
   const isDark = colorScheme === "dark";
   const borderRadius = 15;
-  const accentColor = "#f7b7b1";
+  const accentColor = resolveAccentColor(club.accentColor);
+  const accentIsDark = isColorDark(accentColor);
+  const accentTextColor = getReadableTextColor(accentColor);
+  const accentShadowColor = darkenHexColor(accentColor, 0.22);
+  const accentGradientTop = darkenHexColor(
+    accentColor,
+    accentIsDark ? 0.08 : 0.18
+  );
+  const accentGradientBottom = darkenHexColor(
+    accentColor,
+    accentIsDark ? 0.36 : 0.14
+  );
   const sectionTextColor = theme.other.dark.text;
   const sectionBorder = isDark
     ? `1px solid ${theme.other.dark.borderStrong}`
@@ -28,18 +45,18 @@ export function HowWeHang({ club }: HowWeHangProps) {
     ? `6px 6px 0px ${theme.other.dark.shadow}`
     : "6px 6px 0px #000";
   const upcomingButtonBackground = isDark
-    ? "linear-gradient(180deg, #fde9e6 0%, #f7b7b1 100%)"
-    : "#ffffff";
-  const upcomingButtonTextColor = isDark ? theme.other.dark.ink : "#000";
+    ? `linear-gradient(180deg, ${accentGradientTop} 0%, ${accentColor} 52%, ${accentGradientBottom} 100%)`
+    : accentColor;
+  const upcomingButtonTextColor = accentTextColor;
   const upcomingButtonBorder = isDark
     ? `2px solid ${theme.other.dark.ink}`
     : "2px solid #000";
-  const upcomingButtonShadowColor = isDark ? "#d28f89" : accentColor;
+  const upcomingButtonShadowColor = accentShadowColor;
   const upcomingButtonShadowBorder = isDark
     ? `2px solid ${theme.other.dark.ink}`
     : "2px solid #000";
   const upcomingButtonInsetShadow = isDark
-    ? "0 1px 0 rgba(255, 255, 255, 0.35) inset"
+    ? "0 1px 0 rgba(0, 0, 0, 0.35) inset"
     : "0 1px 0 rgba(0, 0, 0, 0.08) inset";
   const rhythmLabel = club.rhythm ? getRhythmString(club.rhythm) : null;
   const baseTranslate = "translate(0, 0)";
@@ -97,7 +114,7 @@ export function HowWeHang({ club }: HowWeHangProps) {
           <Text
             size="sm"
             fw={700}
-            c="#000"
+            c={accentTextColor}
             style={{ letterSpacing: "0.04em" }}
           >
             {rhythmLabel}

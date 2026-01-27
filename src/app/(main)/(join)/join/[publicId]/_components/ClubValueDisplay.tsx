@@ -4,11 +4,13 @@ import {
   Stack,
   Box,
   Text,
+  alpha,
   useMantineColorScheme,
   useMantineTheme
 } from "@mantine/core";
 import { Club, ClubValue } from "~/server/club/types";
 import { Icon, type IconsCls } from "tabler-dynamic-icon";
+import { isColorDark, resolveAccentColor } from "~/client/utils/color";
 
 interface ClubValueDisplayProps {
   club: Club;
@@ -21,6 +23,11 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
   const theme = useMantineTheme();
   const isDark = colorScheme === "dark";
   const sectionTextColor = theme.other.dark.text;
+  const accentColor = resolveAccentColor(club.accentColor);
+  const accentIsDark = isColorDark(accentColor);
+  const glowCore = alpha(accentColor, accentIsDark ? 0.5 : 0.35);
+  const glowEdge = alpha(accentColor, accentIsDark ? 0.22 : 0.16);
+  const glowShadow = alpha(accentColor, accentIsDark ? 0.4 : 0.28);
   const sectionBorder = isDark
     ? `1px solid ${theme.other.dark.borderStrong}`
     : "2px solid #000";
@@ -65,16 +72,28 @@ export function ClubValueDisplay({ club }: ClubValueDisplayProps) {
           >
             {displayValues.map((value, index) => (
               <Grid.Col
-                span={{ base: 4, sm: 4 }}
+                span={{ base: 6, sm: 4 }}
                 key={`${value.title}-${index}`}
                 style={{ display: "flex", justifyContent: "center" }}
               >
                 <Stack align="center" gap={6} maw={200}>
-                  <Icon
-                    cls={value.icon as IconsCls}
-                    size={28}
-                    color="currentColor"
-                  />
+                  <Box
+                    w={44}
+                    h={44}
+                    style={{
+                      display: "grid",
+                      placeItems: "center",
+                      borderRadius: 999,
+                      border: "2px dashed",
+                      borderColor: accentColor
+                    }}
+                  >
+                    <Icon
+                      cls={value.icon as IconsCls}
+                      size={28}
+                      color="currentColor"
+                    />
+                  </Box>
                   <Text size="sm" tt="uppercase" fw={600} ta="center">
                     {value.title}
                   </Text>

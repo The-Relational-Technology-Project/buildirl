@@ -9,6 +9,7 @@ export function DefaultJoinButton({ club }: JoinButtonProps) {
     <PrimaryButton
       onClick={() => router.push(`/join/${club.publicId}/tiers`)}
       fontFamily={buttonFont}
+      accentColor={club.accentColor}
     >
       join the club
     </PrimaryButton>

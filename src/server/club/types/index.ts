@@ -6,6 +6,8 @@ import { z } from "zod";
 import { MembershipTier } from "~/server/membershipTier/types";
 import { Membership } from "~/server/membership/types";
 import {
+  HexColor,
+  HexColorSchema,
   InstagramHandle,
   InstagramHandleSchema,
   LongTextSchema,
@@ -40,6 +42,7 @@ export type Club = {
   applicationQuestions: FormQuestions;
   theme: Maybe<TemplateTheme>;
   themeHeadingFont: Maybe<string>;
+  accentColor: Maybe<HexColor>;
   displayImageUrls: Url[];
   contributionReasons: ContributionReasons;
   values: ClubValues;
@@ -201,6 +204,7 @@ export const UpdateClubInputSchema = z.object({
   eventCalendarUrl: UrlSchema.nullable(),
   theme: TemplateThemeSchema.nullable(),
   themeHeadingFont: z.string().nullable(),
+  accentColor: HexColorSchema.nullable(),
   contributionReasons: ContributionReasonsSchema,
   values: ClubValuesSchema,
   faqs: FAQsSchema

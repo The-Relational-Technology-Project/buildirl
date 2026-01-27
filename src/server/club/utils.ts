@@ -8,7 +8,11 @@ import {
   TimeString
 } from "~/server/club/types";
 import { parseAsZodType } from "~/utils/zod";
-import { InstagramHandleSchema, UrlSchema } from "~/server/utils/types";
+import {
+  HexColorSchema,
+  InstagramHandleSchema,
+  UrlSchema
+} from "~/server/utils/types";
 import { FormQuestionsSchema } from "~/server/club/types/form";
 import { TemplateThemeSchema } from "~/client/theme/templates";
 import { z } from "zod";
@@ -37,6 +41,7 @@ export const CLUB_SELECT = {
   applicationQuestions: true,
   theme: true,
   themeHeadingFont: true,
+  accentColor: true,
   displayImageUrls: true,
   contributionReasons: true,
   values: true,
@@ -71,6 +76,7 @@ export function asClub(
     ),
     theme: parseAsZodType(r.theme, TemplateThemeSchema.nullable()),
     themeHeadingFont: r.themeHeadingFont,
+    accentColor: parseAsZodType(r.accentColor, HexColorSchema.nullable()),
     displayImageUrls: parseAsZodType(r.displayImageUrls, z.array(UrlSchema)),
     contributionReasons: parseAsZodType(
       r.contributionReasons,

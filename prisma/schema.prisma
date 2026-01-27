@@ -113,6 +113,7 @@ model Club {
   applicationQuestions                Json                 @map("application_questions")
   theme                               Json?
   themeHeadingFont                    String?              @map("theme_heading_font")
+  accentColor                         String?              @map("accent_color")
   // ordered
   displayImageUrls                    String[]             @default([]) @map("display_image_urls")
   contributionReasons                 Json                 @map("contribution_reasons")

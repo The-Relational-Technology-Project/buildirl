@@ -10,10 +10,11 @@ export default function InfoChip({ children, backgroundColor }: InfoChipProps) {
   const theme = useMantineTheme();
   const isDark = colorScheme === "dark";
   const chipBackground =
-    backgroundColor ?? (isDark ? theme.other.dark.surface : theme.colors.beige![1]);
+    backgroundColor ??
+    (isDark ? theme.other.dark.surface : theme.colors.beige![1]);
   const chipBorder = isDark
-    ? "1px solid rgba(255, 255, 255, 0.5)"
-    : "1px solid #000";
+    ? "2px solid rgba(255, 255, 255, 0.5)"
+    : "2px solid #000";
   const chipTextColor = isDark ? theme.other.dark.text : "black";
 
   return (
