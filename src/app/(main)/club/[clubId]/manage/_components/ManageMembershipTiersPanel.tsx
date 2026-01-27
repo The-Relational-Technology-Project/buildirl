@@ -938,12 +938,12 @@ export function ManageMembershipTierCard({
             {membershipTier.status === "PUBLISHED" ? "Active" : "Inactive"}
           </Badge>
         </Box>
-        <Stack h="100%" gap={4} px="lg" pb="md">
+        <Stack h="100%" gap={4} px="lg" pb="md" style={{ minHeight: 0 }}>
           <Title order={4} mt={4}>
             {membershipTier.name}
           </Title>
 
-          <Stack style={{ overflowY: "auto" }}>
+          <Stack style={{ maxHeight: 140, overflowY: "auto" }}>
             <Stack gap={4}>
               <Title order={6}>Our member experience</Title>
               <Box mih={60}>
@@ -959,60 +959,60 @@ export function ManageMembershipTierCard({
             </Stack>
           </Stack>
 
-          <Space flex={1} />
+          <Box mt="auto">
+            <Text fw={700} size={"md"} mb={"sm"}>
+              {costDisplayText(membershipTier)}
+            </Text>
 
-          <Text fw={700} size={"md"} mb={"sm"}>
-            {costDisplayText(membershipTier)}
-          </Text>
+            <Group
+              style={{
+                alignSelf: "flex-end"
+              }}
+            >
+              <Button onClick={open}>Edit</Button>
 
-          <Group
-            style={{
-              alignSelf: "flex-end"
-            }}
-          >
-            <Button onClick={open}>Edit</Button>
+              <UpdateMembershipTierModal
+                club={club}
+                membershipTier={membershipTier}
+                isLastPublished={isLastPublished}
+                opened={opened}
+                handleClose={close}
+              />
 
-            <UpdateMembershipTierModal
-              club={club}
-              membershipTier={membershipTier}
-              isLastPublished={isLastPublished}
-              opened={opened}
-              handleClose={close}
-            />
-
-            {membershipTier.status === "PUBLISHED" ? (
-              <Tooltip
-                position={"bottom"}
-                label={"There must be at least one active published tier."}
-                hidden={!isLastPublished}
-              >
+              {membershipTier.status === "PUBLISHED" ? (
+                <Tooltip
+                  position={"bottom"}
+                  label={"There must be at least one active published tier."}
+                  hidden={!isLastPublished}
+                >
+                  <Button
+                    variant="light"
+                    onClick={async () =>
+                      await unpublishMembershipTier.mutateAsync({
+                        id: membershipTier.id
+                      })
+                    }
+                    loading={unpublishMembershipTier.isPending}
+                    disabled={isLastPublished}
+                  >
+                    Archive
+                  </Button>
+                </Tooltip>
+              ) : (
                 <Button
                   variant="light"
                   onClick={async () =>
-                    await unpublishMembershipTier.mutateAsync({
+                    await publishMembershipTier.mutateAsync({
                       id: membershipTier.id
                     })
                   }
-                  loading={unpublishMembershipTier.isPending}
-                  disabled={isLastPublished}
+                  loading={publishMembershipTier.isPending}
                 >
-                  Archive
+                  Publish
                 </Button>
-              </Tooltip>
-            ) : (
-              <Button
-                variant="light"
-                onClick={async () =>
-                  await publishMembershipTier.mutateAsync({
-                    id: membershipTier.id
-                  })
-                }
-                loading={publishMembershipTier.isPending}
-              >
-                Publish
-              </Button>
-            )}
-          </Group>
+              )}
+            </Group>
+          </Box>
         </Stack>
       </Stack>
     </Paper>
