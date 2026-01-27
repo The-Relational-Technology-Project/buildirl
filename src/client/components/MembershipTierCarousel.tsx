@@ -6,7 +6,6 @@ import {
   Title,
   Text,
   Box,
-  Space,
   useMatches,
   useMantineColorScheme,
   useMantineTheme,
@@ -179,8 +178,7 @@ function MembershipTierCard({
     membershipTier.initiationFeeCostInUSD > 0
       ? `$${membershipTier.initiationFeeCostInUSD} initiation fee`
       : null;
-  const ctaLabel =
-    `${buttonText ?? "Select"} ${membershipTier.name.toUpperCase()}`.trim();
+  const ctaLabel = buttonText ?? "Select";
   const heroBackground = membershipTier.coverImageUrl
     ? {
         backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.18) 100%), url(${membershipTier.coverImageUrl})`,
@@ -282,9 +280,9 @@ function MembershipTierCard({
           h={"100%"}
           p={"lg"}
           gap="md"
-          style={{ borderTop: dividerBorder, flex: 1 }}
+          style={{ borderTop: dividerBorder, flex: 1, minHeight: 0 }}
         >
-          <Box>
+          <Box style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
             <Title order={3} style={{ letterSpacing: 0.3 }}>
               {membershipTier.name.toUpperCase()}
             </Title>
@@ -294,8 +292,6 @@ function MembershipTierCard({
               </Box>
             )}
           </Box>
-
-          <Space flex={1} />
 
           <Stack gap={6}>
             {/* <Text size="sm" c="dimmed" fw={600} style={{ letterSpacing: 0.6 }}>
