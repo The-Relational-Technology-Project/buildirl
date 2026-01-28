@@ -515,6 +515,7 @@ function ContributionCardModal({
         safeValidateSchema(ContributionReasonSchema.shape.description, v)
     }
   });
+  const { setValues: setContributionFormValues, resetDirty } = form;
 
   const resetLocalState = () => {
     form.reset();
@@ -536,11 +537,17 @@ function ContributionCardModal({
             description: ""
           };
 
-    form.setValues(values);
-    form.resetDirty(values);
+    setContributionFormValues(values);
+    resetDirty(values);
     setCoverImageUrl(contributionReasonToEdit?.coverImageUrl ?? null);
     setOriginalCoverImageUrl(contributionReasonToEdit?.coverImageUrl ?? null);
-  }, [opened, isEditMode, contributionReasonToEdit, form]);
+  }, [
+    opened,
+    isEditMode,
+    contributionReasonToEdit,
+    setContributionFormValues,
+    resetDirty
+  ]);
 
   const updateContributionReasons =
     api.main.updateClubContributionReasons.useMutation({
