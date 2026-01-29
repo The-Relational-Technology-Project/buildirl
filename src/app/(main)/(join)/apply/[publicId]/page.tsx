@@ -1,6 +1,13 @@
 "use client";
 
-import { Stack, Title, Center, useMatches } from "@mantine/core";
+import {
+  Stack,
+  Title,
+  Center,
+  useMatches,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { QueryError } from "~/client/utils/QueryError";
@@ -13,6 +20,10 @@ import React from "react";
 
 export default function Apply() {
   const imageSize = useMatches({ base: 300, md: 360 });
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const headingColor = isDark ? theme.other.dark.text : "black";
 
   const params = useParams<{ publicId: string }>();
   const searchParams = useSearchParams();
@@ -36,11 +47,13 @@ export default function Apply() {
       <WithLocalNavigationHeader>
         <Center pt={30} px={40}>
           <Stack align="center" gap="lg" mb={"xl"}>
-            <Title order={1}>YOU ROCK!</Title>
+            <Title order={1} c={headingColor}>
+              YOU ROCK!
+            </Title>
 
             <FitCheckImage size={imageSize} />
 
-            <Title order={2} fw={500} ta="center">
+            <Title order={2} fw={500} ta="center" c={headingColor}>
               {"Let’s see if we’re a fit."}
             </Title>
 

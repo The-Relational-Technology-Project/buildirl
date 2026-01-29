@@ -2,7 +2,8 @@ import {
   Button,
   ButtonProps,
   useMantineColorScheme,
-  useMantineTheme
+  useMantineTheme,
+  useMatches
 } from "@mantine/core";
 import React from "react";
 import { IconArrowUpRight } from "@tabler/icons-react";
@@ -20,16 +21,19 @@ type PrimaryButtonProps = {
   type?: "submit" | "reset" | "button";
   fontFamily?: string;
   accentColor?: string | null;
+  shadowScale?: number;
+  letterSpacing?: string;
+  letterSpacingMobile?: string;
 };
 
-const BASE_SHADOW_OFFSET = "6px 6px 0px";
-const PRESSED_SHADOW_OFFSET = "2px 2px 0px";
-const DARK_BASE_SHADOW_OFFSET = "8px 8px 0px";
-const DARK_PRESSED_SHADOW_OFFSET = "3px 3px 0px";
+const BASE_SHADOW_OFFSET = 6;
+const PRESSED_SHADOW_OFFSET = 2;
+const DARK_BASE_SHADOW_OFFSET = 8;
+const DARK_PRESSED_SHADOW_OFFSET = 3;
 const BASE_SHADOW_COLOR = "#000";
 const DARK_SHADOW_COLOR = "#a86f00";
 const BASE_TRANSLATE = "translate(0, 0)";
-const PRESSED_TRANSLATE = "translate(4px, 4px)";
+const PRESSED_TRANSLATE = 4;
 
 export default function PrimaryButton({
   children,
@@ -39,11 +43,15 @@ export default function PrimaryButton({
   type,
   fontFamily,
   accentColor,
+  shadowScale = 1,
+  letterSpacing,
+  letterSpacingMobile,
   ...props
 }: PrimaryButtonProps & ButtonProps) {
   const mounted = useMounted();
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const isMobile = useMatches({ base: true, sm: false });
   const isDark = colorScheme === "dark";
   const shouldUseAccent = accentColor !== undefined;
   const resolvedAccentColor = shouldUseAccent
@@ -56,25 +64,32 @@ export default function PrimaryButton({
     ? darkenHexColor(resolvedAccentColor, 0.38)
     : null;
   const borderColor = isDark ? theme.other.dark.ink : "#0d0d0d";
+  const normalizedShadowScale = Math.max(0.4, shadowScale);
+  const buildOffset = (offset: number) =>
+    `${Math.max(1, Math.round(offset * normalizedShadowScale))}px ${Math.max(1, Math.round(offset * normalizedShadowScale))}px 0px`;
+  const pressedTranslate = `translate(${Math.round(PRESSED_TRANSLATE * normalizedShadowScale)}px, ${Math.round(PRESSED_TRANSLATE * normalizedShadowScale)}px)`;
   const buildShadow = (offset: string, color: string) =>
     `${offset} ${color}, ${offset} 2px ${borderColor}`;
   const baseShadow = shouldUseAccent
-    ? buildShadow(BASE_SHADOW_OFFSET, accentShadowColor ?? BASE_SHADOW_COLOR)
+    ? buildShadow(buildOffset(BASE_SHADOW_OFFSET), accentShadowColor ?? BASE_SHADOW_COLOR)
     : isDark
-      ? buildShadow(DARK_BASE_SHADOW_OFFSET, DARK_SHADOW_COLOR)
-      : buildShadow(BASE_SHADOW_OFFSET, BASE_SHADOW_COLOR);
+      ? buildShadow(buildOffset(DARK_BASE_SHADOW_OFFSET), DARK_SHADOW_COLOR)
+      : buildShadow(buildOffset(BASE_SHADOW_OFFSET), BASE_SHADOW_COLOR);
   const pressedShadow = shouldUseAccent
-    ? buildShadow(PRESSED_SHADOW_OFFSET, accentPressedShadowColor ?? BASE_SHADOW_COLOR)
+    ? buildShadow(buildOffset(PRESSED_SHADOW_OFFSET), accentPressedShadowColor ?? BASE_SHADOW_COLOR)
     : isDark
-      ? buildShadow(DARK_PRESSED_SHADOW_OFFSET, DARK_SHADOW_COLOR)
-      : buildShadow(PRESSED_SHADOW_OFFSET, BASE_SHADOW_COLOR);
+      ? buildShadow(buildOffset(DARK_PRESSED_SHADOW_OFFSET), DARK_SHADOW_COLOR)
+      : buildShadow(buildOffset(PRESSED_SHADOW_OFFSET), BASE_SHADOW_COLOR);
   const buttonBackground = resolvedAccentColor ?? "#ffe680";
   const buttonTextColor = resolvedAccentColor
     ? getReadableTextColor(resolvedAccentColor)
     : "#0d0d0d";
+  const resolvedLetterSpacing = isMobile
+    ? letterSpacingMobile ?? letterSpacing ?? "0.08em"
+    : letterSpacing ?? "0.08em";
 
   const applyPressedStyle = (target: HTMLButtonElement) => {
-    target.style.transform = PRESSED_TRANSLATE;
+    target.style.transform = pressedTranslate;
     target.style.boxShadow = pressedShadow;
   };
 
@@ -116,7 +131,7 @@ export default function PrimaryButton({
             boxShadow: baseShadow,
             borderRadius: 9999,
             textTransform: "uppercase",
-            letterSpacing: "0.08em",
+            letterSpacing: resolvedLetterSpacing,
             fontWeight: 700,
             fontFamily: fontFamily ?? undefined,
             transition: "transform 0.1s ease, box-shadow 0.1s ease",
@@ -124,7 +139,7 @@ export default function PrimaryButton({
               backgroundColor: buttonBackground
             },
             "&:active": {
-              transform: PRESSED_TRANSLATE,
+              transform: pressedTranslate,
               boxShadow: pressedShadow
             },
             "&:disabled": {
