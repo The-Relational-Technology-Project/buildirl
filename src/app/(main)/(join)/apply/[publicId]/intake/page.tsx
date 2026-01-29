@@ -18,8 +18,7 @@ import {
   TextInput,
   Title,
   useMantineColorScheme,
-  useMantineTheme,
-  useMatches
+  useMantineTheme
 } from "@mantine/core";
 import {
   FormQuestion,
