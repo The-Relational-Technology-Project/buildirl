@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import AbsoluteCenter from "~/client/components/AbsoluteCenter";
 import WithDefaultColorSchemeOnManualRouteChange from "~/client/components/WithDefaultColorSchemeOnManualRouteChange";
 import posthog from "posthog-js";
+import { Box } from "@mantine/core";
 
 export default function Login() {
   const supabase = createComponentClient();
@@ -29,9 +30,18 @@ export default function Login() {
 
   return (
     <WithDefaultColorSchemeOnManualRouteChange>
-      <AbsoluteCenter>
-        <AuthenticationForm />
-      </AbsoluteCenter>
+      <Box
+        mih="100vh"
+        style={{
+          backgroundImage: "url(/images/buildirl_login.webp)",
+          backgroundSize: "cover",
+          backgroundPosition: "center"
+        }}
+      >
+        <AbsoluteCenter mih="100vh" w="100%">
+          <AuthenticationForm />
+        </AbsoluteCenter>
+      </Box>
     </WithDefaultColorSchemeOnManualRouteChange>
   );
 }

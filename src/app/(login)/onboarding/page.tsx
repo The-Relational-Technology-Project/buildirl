@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Box,
   Button,
   Paper,
   Stack,
@@ -82,15 +83,25 @@ function CreateUserForm(props: StackProps) {
 export default function Onboarding() {
   return (
     <WithDefaultColorSchemeOnManualRouteChange>
-      <AbsoluteCenter>
-        <Paper p="xl" w={300}>
-          <Title order={4}>Welcome</Title>
-          <Text size={"md"} fw={300} mt={"xs"}>
-            Tell us more about yourself.
-          </Text>
-          <CreateUserForm mt="md" />
-        </Paper>
-      </AbsoluteCenter>
+      <Box
+        mih="100vh"
+        style={{
+          backgroundImage: "url(/images/buildirl_welcome.webp)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat"
+        }}
+      >
+        <AbsoluteCenter>
+          <Paper p="xl" w={300} bdrs={"lg"}>
+            <Title order={4}>Welcome</Title>
+            <Text size={"md"} fw={300} mt={"xs"}>
+              Tell us more about yourself.
+            </Text>
+            <CreateUserForm mt="md" />
+          </Paper>
+        </AbsoluteCenter>
+      </Box>
     </WithDefaultColorSchemeOnManualRouteChange>
   );
 }

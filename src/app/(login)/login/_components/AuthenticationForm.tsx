@@ -148,13 +148,21 @@ function OtpForm({ toggle, email, supabase }: OtpProps) {
 
 function TermsConditionsAndPrivacyPolicyLinks() {
   return (
-    <Text size={"xs"} c={"dimmed"} ta={"center"}>
+    <Text size={"xs"} c={"white"} ta={"center"}>
       {"By signing up, you agree to our \n\n"}
-      <Anchor href="https://www.buildirl.com/terms-of-use" target="_blank">
+      <Anchor
+        href="https://www.buildirl.com/terms-of-use"
+        target="_blank"
+        fw="bold"
+      >
         {"Terms & Conditions"}
       </Anchor>
       {" and "}
-      <Anchor href="https://www.buildirl.com/privacy-policy" target="_blank">
+      <Anchor
+        href="https://www.buildirl.com/privacy-policy"
+        target="_blank"
+        fw="bold"
+      >
         {"Privacy Policy"}
       </Anchor>
     </Text>
@@ -168,7 +176,7 @@ export default function AuthenticationForm() {
 
   return (
     <Stack w={300}>
-      <Paper p="xl" w={300}>
+      <Paper p="xl" w={300} bdrs={"lg"}>
         <Group justify="center">
           <Image src={"/images/logo.svg"} h={40} my={10} alt="Build IRL logo" />
         </Group>

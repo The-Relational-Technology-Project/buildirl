@@ -17,7 +17,8 @@ import {
   Textarea,
   TextInput,
   Title,
-  useMatches
+  useMantineColorScheme,
+  useMantineTheme
 } from "@mantine/core";
 import {
   FormQuestion,
@@ -48,19 +49,41 @@ function ShareEmailQuestion({
   shareEmail,
   setShareEmail
 }: ShareEmailQuestionProp) {
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const accentColor = isDark
+    ? theme.colors.lilac?.[2] ?? "#d7d0ff"
+    : theme.colors.lilac?.[7] ?? "#6850b7";
+  const bodyTextColor = isDark ? theme.other.dark.text : undefined;
+  const mutedTextColor = isDark ? theme.other.dark.textMuted : "dimmed";
+  const offTrackStyle = isDark
+    ? {
+        backgroundColor: theme.other.dark.surfaceHighlight,
+        border: `1px solid ${theme.other.dark.borderStrong}`
+      }
+    : undefined;
+
   return (
     <Stack>
-      <Text fw={500}>Share your email</Text>
-      <Text size="sm">
+      <Text fw={500} c={bodyTextColor}>
+        Share your email
+      </Text>
+      <Text size="sm" c={mutedTextColor}>
         This will allow club managers to reach out to you with more information
         on getting involved with the club.
       </Text>
       <Switch
-        color={"lilac"}
+        color={accentColor}
         checked={shareEmail}
         onChange={(event) => setShareEmail(event.currentTarget.checked)}
         label="Acknowledge"
         mt="md"
+        styles={{
+          track: {
+            ...(shareEmail ? {} : (offTrackStyle ?? {}))
+          }
+        }}
       />
     </Stack>
   );
@@ -115,7 +138,24 @@ function ApplicationForm({
   isDefaultFreeTier,
   clubPublicId
 }: ApplicationFormProps) {
-  const buttonWidth = useMatches({ base: 100, md: 120 });
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const accentColor = isDark
+    ? theme.colors.lilac?.[2] ?? "#d7d0ff"
+    : theme.colors.lilac?.[7] ?? "#6850b7";
+  const errorColor = isDark ? theme.colors.red[4] : theme.colors.red[7];
+  const sectionBorder = isDark
+    ? `1px solid ${theme.other.dark.borderStrong}`
+    : "2px solid #000";
+  const sectionShadow = isDark
+    ? `6px 6px 0px ${theme.other.dark.shadow}`
+    : "6px 6px 0px #000";
+  const sectionBackground = isDark
+    ? theme.other.dark.surface
+    : (theme.colors.beige?.[1] ?? "#fffdf2");
+  const sectionTextColor = isDark ? theme.other.dark.text : undefined;
+  const sectionBorderRadius = 15;
 
   const [activeStep, setActiveStep] = useState(0);
   const [shareEmail, setShareEmail] = useState(false);
@@ -265,7 +305,7 @@ function ApplicationForm({
                     value={choice}
                     label={choice}
                     pt={"xs"}
-                    color={"lilac"}
+                    color={accentColor}
                   />
                 ))}
               </RadioGroup>
@@ -291,7 +331,7 @@ function ApplicationForm({
                     key={choice}
                     value={choice}
                     label={choice}
-                    color={"lilac"}
+                    color={accentColor}
                     pt={"xs"}
                   />
                 ))}
@@ -306,9 +346,19 @@ function ApplicationForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <HideablePaper hidden={totalQuestions === 1}>
+      <HideablePaper
+        hidden={totalQuestions === 1}
+        bg={sectionBackground}
+        p="md"
+        style={{
+          border: sectionBorder,
+          boxShadow: sectionShadow,
+          borderRadius: sectionBorderRadius,
+          color: sectionTextColor
+        }}
+      >
         <Stepper
-          color="lilac"
+          color={accentColor}
           active={activeStep + 1}
           hidden={totalQuestions === 1}
           // hacky way to get the stepper to look like a bar!
@@ -335,10 +385,20 @@ function ApplicationForm({
         </Stepper>
       </HideablePaper>
 
-      <Paper p={"xl"} mt={"xl"}>
+      <Paper
+        p={"xl"}
+        mt={"xl"}
+        style={{
+          backgroundColor: sectionBackground,
+          border: sectionBorder,
+          boxShadow: sectionShadow,
+          borderRadius: sectionBorderRadius,
+          color: sectionTextColor
+        }}
+      >
         {activeStep < applicationQuestions.questions.length ? (
           <Stack gap={4}>
-            <Title order={4} c={"lilac"} mb={"md"}>
+            <Title order={4} c={accentColor} mb={"md"}>
               {applicationQuestions.questions[activeStep]!.question}
             </Title>
             {renderQuestion(
@@ -346,7 +406,7 @@ function ApplicationForm({
               activeStep
             )}
             {errors.responses?.[activeStep]?.response && (
-              <Text c="red" size="sm">
+              <Text c={errorColor} size="sm">
                 {errors.responses?.[activeStep]?.response?.message}
               </Text>
             )}
@@ -360,7 +420,13 @@ function ApplicationForm({
 
         <Group mt="xl" justify={"center"}>
           {activeStep > 0 && (
-            <SecondaryButton w={buttonWidth} size={"sm"} onClick={prevStep}>
+            <SecondaryButton
+              size="sm"
+              w="auto"
+              px={28}
+              py={6}
+              onClick={prevStep}
+            >
               Back
             </SecondaryButton>
           )}
@@ -369,16 +435,24 @@ function ApplicationForm({
             // is always the last question
             <PrimaryButton
               type="submit"
-              w={buttonWidth}
-              size={"sm"}
+              size="sm"
+              w="auto"
+              px={28}
+              py={6}
+              shadowScale={0.6}
+              fz={{ base: "sm", md: "md" }}
               disabled={!shareEmail}
             >
               {isDefaultFreeTier ? "Submit" : "Next"}
             </PrimaryButton>
           ) : (
             <PrimaryButton
-              w={buttonWidth}
-              size={"sm"}
+              size="sm"
+              w="auto"
+              px={28}
+              py={6}
+              shadowScale={0.6}
+              fz={{ base: "sm", md: "md" }}
               onClick={nextStep}
               disabled={!isCurrentQuestionValid()}
             >
