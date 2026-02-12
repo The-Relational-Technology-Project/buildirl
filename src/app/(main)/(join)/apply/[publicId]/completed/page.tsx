@@ -32,7 +32,7 @@ export default function ApplicationCompleted() {
   const surfaceColor = isDark ? theme.other.dark.surface : "#fffaf0";
   const textColor = isDark ? theme.other.dark.text : undefined;
   const mutedTextColor = isDark ? theme.other.dark.textMuted : "dimmed";
-  const buttonBg = isDark ? theme.colors.lilac[5] : "#6f3bd2";
+  const buttonBg = isDark ? theme.colors.lilac?.[5] ?? "#6f3bd2" : "#6f3bd2";
   const buttonBorder = isDark ? theme.other.dark.ink : "#0d0d0d";
 
   const club = api.main.clubByPublicId.useQuery({

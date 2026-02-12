@@ -52,7 +52,9 @@ function ShareEmailQuestion({
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const isDark = colorScheme === "dark";
-  const accentColor = isDark ? theme.colors.lilac[2] : theme.colors.lilac[7];
+  const accentColor = isDark
+    ? theme.colors.lilac?.[2] ?? "#d7d0ff"
+    : theme.colors.lilac?.[7] ?? "#6850b7";
   const bodyTextColor = isDark ? theme.other.dark.text : undefined;
   const mutedTextColor = isDark ? theme.other.dark.textMuted : "dimmed";
   const offTrackStyle = isDark
@@ -139,7 +141,9 @@ function ApplicationForm({
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const isDark = colorScheme === "dark";
-  const accentColor = isDark ? theme.colors.lilac[2] : theme.colors.lilac[7];
+  const accentColor = isDark
+    ? theme.colors.lilac?.[2] ?? "#d7d0ff"
+    : theme.colors.lilac?.[7] ?? "#6850b7";
   const errorColor = isDark ? theme.colors.red[4] : theme.colors.red[7];
   const sectionBorder = isDark
     ? `1px solid ${theme.other.dark.borderStrong}`
