@@ -1,7 +1,16 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Stack, Title, Text, Group, Box, useMatches } from "@mantine/core";
+import {
+  Stack,
+  Title,
+  Text,
+  Group,
+  Box,
+  useMatches,
+  useMantineColorScheme,
+  useMantineTheme
+} from "@mantine/core";
 import {
   IconBrandInstagram,
   IconWorld,
@@ -86,6 +95,13 @@ function WithRedirectToWelcomePage({
 
 export default function ClubJoin() {
   const mounted = useMounted();
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
+  const headingTextColor = isDark ? theme.other.dark.text : theme.other.dark.ink;
+  const descriptionTextColor = isDark
+    ? theme.other.dark.textMuted
+    : theme.other.dark.ink;
   const shareButtonRightPosition = useMatches({ base: -12, md: 120 });
   const clubImageSize = useMatches({ base: 320, md: 400 });
   const contentDirection = useMatches({
@@ -165,6 +181,7 @@ export default function ClubJoin() {
     <>
       <Title
         fz={{ base: 32, md: 45 }}
+        c={headingTextColor}
         style={{
           // TODO apply this dynamically across all headings
           fontFamily: club.data!.themeHeadingFont ?? "inherit",
@@ -177,7 +194,11 @@ export default function ClubJoin() {
 
       <Stack align={isDesktop ? "flex-start" : "center"} gap={8} w="100%">
         {club.data!.tagLine !== "" && (
-          <Text ta={isDesktop ? "left" : "center"} size={"lg"}>
+          <Text
+            ta={isDesktop ? "left" : "center"}
+            size={"lg"}
+            c={descriptionTextColor}
+          >
             {club.data!.tagLine}
           </Text>
         )}
@@ -357,7 +378,9 @@ export default function ClubJoin() {
                 themeHeadingFont={club.data!.themeHeadingFont}
               />
 
-              <Text mt={48}>Powered by BuildIRL</Text>
+              <Text mt={48} c={descriptionTextColor}>
+                Powered by BuildIRL
+              </Text>
             </Stack>
           </Box>
         </Stack>

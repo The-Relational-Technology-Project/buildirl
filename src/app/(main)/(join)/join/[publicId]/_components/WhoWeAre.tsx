@@ -17,6 +17,10 @@ export function WhoWeAre({ club }: WhoWeAreProps) {
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const isDark = colorScheme === "dark";
+  const sectionTextColor = isDark ? theme.other.dark.text : theme.other.dark.ink;
+  const sectionDescriptionColor = isDark
+    ? theme.other.dark.textMuted
+    : theme.other.dark.ink;
   const sectionBorder = isDark
     ? `1px solid ${theme.other.dark.borderStrong}`
     : "2px solid #000";
@@ -34,6 +38,7 @@ export function WhoWeAre({ club }: WhoWeAreProps) {
             mb={"xs"}
             tt="uppercase"
             ta="center"
+            c={sectionTextColor}
             style={{
               fontFamily: club.themeHeadingFont ?? "inherit"
             }}
@@ -50,6 +55,7 @@ export function WhoWeAre({ club }: WhoWeAreProps) {
       >
         <Text
           size={"md"}
+          c={sectionDescriptionColor}
           mb={{ base: "sm", md: "lg" }}
           style={{ whiteSpace: "pre-line", letterSpacing: "-0.15px" }}
         >
