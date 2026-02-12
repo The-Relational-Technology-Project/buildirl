@@ -34,6 +34,8 @@ export default function ClubMembers({
   const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const isDark = colorScheme === "dark";
+  const sectionTextColor = isDark ? theme.other.dark.text : theme.other.dark.ink;
+  const mutedTextColor = isDark ? theme.other.dark.textMuted : theme.other.dark.ink;
 
   const clubId = club.id;
 
@@ -79,17 +81,20 @@ export default function ClubMembers({
           <Title
             order={2}
             tt="uppercase"
-            c={isDark ? theme.other.dark.text : undefined}
+            c={sectionTextColor}
             style={{ fontFamily: club.themeHeadingFont ?? "inherit" }}
           >
             Meet the club
           </Title>
-          <Text size="sm">{memberCountLabel}</Text>
+          <Text size="sm" c={mutedTextColor}>
+            {memberCountLabel}
+          </Text>
         </Stack>
         <Anchor
           href={`/join/${club.publicId}/members`}
           size="sm"
           fw={600}
+          c={sectionTextColor}
           td="underline"
           style={{ whiteSpace: "nowrap", alignSelf: "flex-end" }}
         >
@@ -132,7 +137,7 @@ export default function ClubMembers({
                 user={membership.user}
               />
             </Paper>
-            <Text size="sm" fw={500}>
+            <Text size="sm" fw={500} c={sectionTextColor}>
               {membership.user.firstName}
             </Text>
           </Stack>
@@ -155,10 +160,10 @@ export default function ClubMembers({
               }}
             >
               <Stack align="center" gap={0}>
-                <Text size="lg" fw={500}>
+                <Text size="lg" fw={500} c={sectionTextColor}>
                   + {remainingCount}
                 </Text>
-                <Text size="sm" fw={500} mt={"-6"}>
+                <Text size="sm" fw={500} mt={"-6"} c={mutedTextColor}>
                   more
                 </Text>
               </Stack>

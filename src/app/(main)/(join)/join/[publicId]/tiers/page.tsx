@@ -171,6 +171,9 @@ function ContributionReasonsCarousel({
   const isMobile = useMatches({ base: true, md: false });
   const isDesktop = useMatches({ base: false, md: true });
   const shouldCenterDesktopCards = isDesktop && contributionReasons.length <= 3;
+  const { colorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
+  const isDark = colorScheme === "dark";
   if (contributionReasons.length === 0) return null;
 
   return (
@@ -182,9 +185,16 @@ function ContributionReasonsCarousel({
       mx="auto"
       shadow="lg"
       style={{
-        border: "2px solid #0d0d0d",
-        boxShadow: isMobile ? "none" : "8px 10px 0 #0d0d0d",
-        backgroundColor: "#fffdf4",
+        border: isDark
+          ? `2px solid ${theme.other.dark.borderStrong}`
+          : "2px solid #0d0d0d",
+        boxShadow: isMobile
+          ? "none"
+          : isDark
+            ? `8px 10px 0 ${theme.other.dark.shadow}`
+            : "8px 10px 0 #0d0d0d",
+        backgroundColor: isDark ? theme.other.dark.surface : "#fffdf4",
+        color: isDark ? theme.other.dark.text : undefined,
         width: "100%",
         maxWidth: 1200
       }}
@@ -194,7 +204,11 @@ function ContributionReasonsCarousel({
           <Title order={2} ta="center">
             Why do we ask for contributions?
           </Title>
-          <Text size="sm" c="dimmed" ta="center">
+          <Text
+            size="sm"
+            c={isDark ? theme.other.dark.textMuted : "dimmed"}
+            ta="center"
+          >
             Tap a card to learn more about why this club has memberships.
           </Text>
         </Stack>
@@ -219,11 +233,11 @@ function ContributionReasonsCarousel({
               control: {
                 width: "3rem",
                 height: "3rem",
-                backgroundColor: "white",
-                color: "black",
+                backgroundColor: isDark ? theme.other.dark.surfaceAlt : "white",
+                color: isDark ? theme.other.dark.text : "black",
                 opacity: 1,
                 border: "2px solid",
-                borderColor: "black",
+                borderColor: isDark ? theme.other.dark.borderStrong : "black",
                 borderRadius: "4px"
               },
               container: {
@@ -234,7 +248,9 @@ function ContributionReasonsCarousel({
               ...(isMobile && contributionReasons.length > 1
                 ? {
                     indicator: {
-                      backgroundColor: "black",
+                      backgroundColor: isDark
+                        ? theme.other.dark.text
+                        : "black",
                       width: 8,
                       height: 8
                     }
@@ -333,7 +349,8 @@ function ContributionCard({
                 backgroundColor: "#d2f377",
                 borderRadius: 999,
                 border: "2px solid #0d0d0d",
-                letterSpacing: 0.3
+                letterSpacing: 0.3,
+                color: "#0d0d0d"
               }}
             >
               {label}

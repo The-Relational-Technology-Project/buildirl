@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Title, Center } from "@mantine/core";
+import { Stack, Title, Center, Box } from "@mantine/core";
 import confetti from "canvas-confetti";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
@@ -79,50 +79,59 @@ export default function Welcome() {
   };
 
   return (
-    <Center pt={50}>
-      {/* in desktop, we need to decrease margin top for vertical centering*/}
-      <Stack align="center" gap="xl" mt={{ base: "xl", md: 0 }}>
-        <Title order={1} ta={"center"}>
-          {"YOU'VE BEEN APPROVED!"}
-        </Title>
-
-        <UserClubHandshake user={user.data!} club={club.data!} />
-
-        <Stack gap={"sm"} align={"center"}>
-          <Title order={2} fw={700} style={{ textAlign: "center" }}>
-            Welcome {user.data!.firstName}!
+    <Box
+      mih="100vh"
+      style={{
+        backgroundImage: "url(/images/buildirl_welcome.webp)",
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}
+    >
+      <Center mih="100vh" pt={50}>
+        {/* in desktop, we need to decrease margin top for vertical centering*/}
+        <Stack align="center" gap="xl" mt={{ base: "xl", md: 0 }}>
+          <Title order={1} ta={"center"}>
+            {"YOU'VE BEEN APPROVED!"}
           </Title>
+
+          <UserClubHandshake user={user.data!} club={club.data!} />
+
+          <Stack gap={"sm"} align={"center"}>
+            <Title order={2} fw={700} style={{ textAlign: "center" }}>
+              Welcome {user.data!.firstName}!
+            </Title>
+            <Title order={3} fw={400}>
+              {"You Are Now a Member Of"}
+            </Title>
+            <Title order={3} style={{ textAlign: "center" }}>
+              {club.data!.name}!
+            </Title>
+          </Stack>
+
           <Title order={3} fw={400}>
-            {"You Are Now a Member Of"}
+            {"Celebrate Publicly!"}
           </Title>
-          <Title order={3} style={{ textAlign: "center" }}>
-            {club.data!.name}!
-          </Title>
+
+          <Stack align="center" gap="md" w={"100%"}>
+            <PrimaryButton onClick={onShare}>{"Share"}</PrimaryButton>
+
+            <SecondaryButton
+              onClick={async () => {
+                // mark as welcomed
+                await setMembershipAsWelcomed.mutateAsync({
+                  membershipId: membership!.id
+                });
+                // this is necessary because the mutation takes a bit to reflect
+                // in the query, so we need this bit to ensure the user is not
+                // redirected back here after clicking this
+                router.push(`/join/${publicId}?fromWelcome=true`);
+              }}
+            >
+              {"Enter"}
+            </SecondaryButton>
+          </Stack>
         </Stack>
-
-        <Title order={3} fw={400}>
-          {"Celebrate Publicly!"}
-        </Title>
-
-        <Stack align="center" gap="md" w={"100%"}>
-          <PrimaryButton onClick={onShare}>{"Share"}</PrimaryButton>
-
-          <SecondaryButton
-            onClick={async () => {
-              // mark as welcomed
-              await setMembershipAsWelcomed.mutateAsync({
-                membershipId: membership!.id
-              });
-              // this is necessary because the mutation takes a bit to reflect
-              // in the query, so we need this bit to ensure the user is not
-              // redirected back here after clicking this
-              router.push(`/join/${publicId}?fromWelcome=true`);
-            }}
-          >
-            {"Enter"}
-          </SecondaryButton>
-        </Stack>
-      </Stack>
-    </Center>
+      </Center>
+    </Box>
   );
 }

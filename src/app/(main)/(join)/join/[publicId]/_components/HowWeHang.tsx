@@ -59,6 +59,7 @@ export function HowWeHang({ club }: HowWeHangProps) {
     ? "0 1px 0 rgba(0, 0, 0, 0.35) inset"
     : "0 1px 0 rgba(0, 0, 0, 0.08) inset";
   const rhythmLabel = club.rhythm ? getRhythmString(club.rhythm) : null;
+  const howWeHangText = club.howWeHang?.trim() || null;
   const baseTranslate = "translate(0, 0)";
   const pressedTranslate = "translate(6px, 6px)";
 
@@ -70,7 +71,7 @@ export function HowWeHang({ club }: HowWeHangProps) {
     target.style.transform = baseTranslate;
   };
 
-  if (!rhythmLabel && !club.eventCalendarUrl) {
+  if (!rhythmLabel && !club.eventCalendarUrl && !howWeHangText) {
     return null;
   }
 
@@ -121,11 +122,11 @@ export function HowWeHang({ club }: HowWeHangProps) {
           </Text>
         </Box>
       )}
-      <Text size="sm" ta="center" style={{ maxWidth: 520 }}>
-        Downtown Arts District at the empty studio. We often start out the
-        meetings with a quick ice breaker. Most people tend to stay afterwards
-        to go to Chinatown for late night dumplings.
-      </Text>
+      {howWeHangText && (
+        <Text size="sm" ta="center" style={{ maxWidth: 520 }}>
+          {howWeHangText}
+        </Text>
+      )}
       {club.eventCalendarUrl && (
         <Box style={{ position: "relative", display: "inline-block" }} mt="sm">
           <Box

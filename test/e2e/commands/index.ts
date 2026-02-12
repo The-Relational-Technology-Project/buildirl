@@ -267,6 +267,7 @@ function updateClubCommands() {
     ),
     tagLine: string(),
     description: string(),
+    howWeHang: option(string(), { freq: 4, nil: null }),
     location: locationArbitrary(),
     rhythm: record({
       startDate: dateStringArbitrary.filter((s) =>
@@ -320,6 +321,7 @@ function updateClubCommands() {
           publicId: i.publicId,
           tagLine: i.tagLine,
           description: i.description,
+          howWeHang: i.howWeHang,
           location: i.location,
           rhythm: i.rhythm,
           websiteUrl: i.websiteUrl,

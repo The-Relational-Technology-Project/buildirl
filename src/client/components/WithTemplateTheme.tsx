@@ -1,7 +1,8 @@
 import { TemplateTheme } from "~/client/theme/templates";
-import React, { useEffect } from "react";
+import React from "react";
 import { Maybe } from "~/utils/types";
-import { Box, useMantineColorScheme } from "@mantine/core";
+import { Box, MantineProvider } from "@mantine/core";
+import { theme as baseTheme } from "~/client/theme/theme";
 
 type WithTemplateThemeProps = {
   children: React.ReactNode;
@@ -10,40 +11,43 @@ type WithTemplateThemeProps = {
 
 export default function WithTemplateTheme({
   children,
-  theme
+  theme: templateTheme
 }: WithTemplateThemeProps) {
-  // set color scheme based on if theme `isDark`
-  const { setColorScheme } = useMantineColorScheme();
-  useEffect(() => {
-    setColorScheme(null === theme || !theme.isDark ? "light" : "dark");
-    return () => {
-      // revert to default color scheme
-      setColorScheme("light");
-    };
-  }, [theme, setColorScheme]);
-
-  if (null === theme) {
+  if (null === templateTheme) {
     return children;
   }
 
+  const joinThemeRootId = "join-theme-root";
+
   return (
-    <Box pos="relative" w={"100%"} h={"100%"}>
-      <Box
-        w={"100%"}
-        h={"100%"}
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          zIndex: -999,
-          backgroundImage: theme.backgroundFileName
-            ? `url(/templates/background/${theme.isDark ? "dark/" : "light/"}${theme.backgroundFileName})`
-            : undefined,
-          backgroundSize: "cover",
-          backgroundPosition: "center"
-        }}
-      />
-      {children}
-    </Box>
+    <MantineProvider
+      theme={baseTheme}
+      forceColorScheme={templateTheme.isDark ? "dark" : "light"}
+      cssVariablesSelector={`#${joinThemeRootId}`}
+      getRootElement={() =>
+        typeof document === "undefined"
+          ? undefined
+          : document.getElementById(joinThemeRootId) ?? undefined
+      }
+    >
+      <Box id={joinThemeRootId} pos="relative" w={"100%"} h={"100%"}>
+        <Box
+          w={"100%"}
+          h={"100%"}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            zIndex: -999,
+            backgroundImage: templateTheme.backgroundFileName
+              ? `url(/templates/background/${templateTheme.isDark ? "dark/" : "light/"}${templateTheme.backgroundFileName})`
+              : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center"
+          }}
+        />
+        {children}
+      </Box>
+    </MantineProvider>
   );
 }

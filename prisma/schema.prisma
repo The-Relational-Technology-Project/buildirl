@@ -100,6 +100,7 @@ model Club {
   name                                String
   tagLine                             String               @map("tag_line")
   description                         String
+  howWeHang                           String?              @map("how_we_hang")
   // Specify native Postgres types to negate timezone from startDate and startTime
   startDate                           DateTime?            @map("start_date") @db.Date
   startTime                           DateTime?            @map("start_time") @db.Time
