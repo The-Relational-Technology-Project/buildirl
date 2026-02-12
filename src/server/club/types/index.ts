@@ -36,6 +36,7 @@ export type Club = {
   location: Maybe<City>;
   rhythm: Maybe<Rhythm>;
   description: string;
+  howWeHang: Maybe<string>;
   websiteUrl: Maybe<Url>;
   instagramHandle: Maybe<InstagramHandle>;
   eventCalendarUrl: Maybe<Url>;
@@ -197,6 +198,7 @@ export const UpdateClubInputSchema = z.object({
   publicId: ClubPublicIdSchema,
   tagLine: ClubTagLineSchema,
   description: LongTextSchema,
+  howWeHang: LongTextSchema.nullable(),
   location: CitySchema,
   rhythm: RhythmSchema,
   websiteUrl: UrlSchema.nullable(),

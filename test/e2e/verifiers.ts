@@ -42,6 +42,7 @@ function createVerifiers() {
       location: club.location,
       rhythm: club.rhythm,
       description: club.description,
+      howWeHang: club.howWeHang,
       websiteUrl: club.websiteUrl,
       instagramHandle: club.instagramHandle,
       eventCalendarUrl: club.eventCalendarUrl,

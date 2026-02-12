@@ -113,6 +113,7 @@ export function createClubService(
           // defaults
           tagLine: "",
           description: "",
+          howWeHang: null,
           websiteUrl: null,
           instagramHandle: null,
           eventCalendarUrl: null,

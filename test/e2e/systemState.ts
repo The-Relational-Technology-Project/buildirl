@@ -65,6 +65,7 @@ type ClubState = {
   name: string;
   tagLine: string;
   description: string;
+  howWeHang: Maybe<string>;
   location: string;
   rhythm: Maybe<Rhythm>;
   websiteUrl: Maybe<Url>;
@@ -276,6 +277,7 @@ export class SystemState {
       name: clubState.name,
       tagLine: clubState.tagLine,
       description: clubState.description,
+      howWeHang: clubState.howWeHang,
       location: clubState.location,
       rhythm: clubState.rhythm,
       websiteUrl: clubState.websiteUrl,
@@ -346,6 +348,7 @@ export class SystemState {
       // defaults
       tagLine: "",
       description: "",
+      howWeHang: null,
       rhythm: null,
       websiteUrl: null,
       instagramHandle: null,
