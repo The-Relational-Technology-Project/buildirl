@@ -164,6 +164,13 @@ function HowWeHangSection() {
           Great clubs meet regularly. How does yours get together?
         </Text>
       </Stack>
+      <Textarea
+        placeholder="Share what your hangouts look like"
+        {...register("howWeHang")}
+        rows={4}
+        error={errors.howWeHang?.message}
+        styles={errors.howWeHang ? errorStyles : inputStyles}
+      />
       <RhythmSection />
       <Stack gap={4} mt={6}>
         <Title order={6}>
@@ -510,6 +517,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       name: club.name,
       tagLine: club.tagLine,
       description: club.description,
+      howWeHang: club.howWeHang ?? "",
       rhythm: club.rhythm ?? {
         startDate: null,
         startTime: null,
@@ -530,6 +538,7 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
       faqs: club.faqs
     },
     resolver: (data, context, options) => {
+      const normalizedHowWeHang = data.howWeHang?.trim();
       return zodResolver(UpdateClubInputSchema)(
         {
           ...data,
@@ -537,7 +546,8 @@ function UpdateClubForm({ club }: UpdateClubFormProps) {
           instagramHandle:
             data.instagramHandle === "" ? null : data.instagramHandle,
           eventCalendarUrl:
-            data.eventCalendarUrl === "" ? null : data.eventCalendarUrl
+            data.eventCalendarUrl === "" ? null : data.eventCalendarUrl,
+          howWeHang: !normalizedHowWeHang ? null : normalizedHowWeHang
         },
         context,
         options
