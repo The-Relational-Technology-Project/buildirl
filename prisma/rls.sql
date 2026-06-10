@@ -1,9 +1,8 @@
 /*
    RLS policies must be defined and updated in version control here and applied manually
-   Test DB: https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies
-   Test Bucket: https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies
-   Prod DB: https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies
-   Prod Bucket: https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies
+   in each environment via the Supabase dashboard:
+   - Database policies: Authentication -> Policies
+   - Storage policies: Storage -> Policies
 
    Follow the guide here for performance optimizations: https://supabase.com/docs/guides/auth/row-level-security
 */
