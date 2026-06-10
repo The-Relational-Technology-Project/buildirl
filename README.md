@@ -1,16 +1,22 @@
 # BuildIRL
-This is the tech platform for [BuildIRL](https://www.clubs.buildirl.com/) (est., 2025)! We will supercharge the next generation
-of local community builders!
 
-## Project
-- [Slack](https://www.buildirl.slack.com)
-- [GitLab](https://gitlab.com/smallworld/buildirl)
-- [Vercel](https://vercel.com/asmallworld/buildirl)
-- [Supabase](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce)
-- [Stripe](https://dashboard.stripe.com/dashboard)
-- [GCP](https://console.cloud.google.com/home/dashboard?invt=AbuU6A&project=buildirl-456321) (for SSO)
-- [Posthog](https://us.posthog.com/project/210175)
-- [Postmark](https://postmarkapp.com/)
+BuildIRL is a club management platform for local community builders — people starting and running in-person social clubs. It handles public club pages, membership tiers and recurring dues (via Stripe Connect), member onboarding, events, email templates and blasts, and club discovery. The original hosted instance lives at [clubs.buildirl.com](https://www.clubs.buildirl.com/).
+
+BuildIRL was created in San Francisco (est. 2025) to supercharge the next generation of local community builders. It is open source under the MIT license, stewarded and maintained by the [Relational Tech Project](https://www.relationaltechproject.org).
+
+## Credits
+
+BuildIRL was created by the BuildIRL team:
+
+- **Saumya Gupta** and **Colton Heward-Mills** — founders, product vision, and lead design
+- **Michael Li** — lead software developer
+- **Kiran Prasad** and **Erin Beachkofski** — software development
+
+In 2026, the BuildIRL team transferred ownership of the code to the [Relational Tech Project](https://www.relationaltechproject.org), which serves as steward and maintainer.
+
+## License
+
+The code is licensed under the [MIT License](LICENSE). The BuildIRL name and logo, and the photographs in `public/images/`, are not covered by the MIT license — please don't use them in ways that suggest your deployment is BuildIRL or is endorsed by its creators.
 
 ## Technologies
 
@@ -37,7 +43,7 @@ First time users can use the commands in the [justfile](justfile) in order to ru
    ```
    This step ensures the correct Supabase image is available for the local database.
 3. `just setup` for first time set-up of local database and dependencies
-4. `just db-start` to bring up db and generate a `.env` from `.env_example`. 
+4. `just db-start` to bring up db and generate a `.env` from `.env.example`. 
     - Terminal Output -->   .env file
     - `DB URL` -->          `POSTGRES_URL`
     - `DB URL` -->          `POSTGRES_NON_POOLING`
@@ -78,12 +84,11 @@ coverage on:
 
 ## Authorization
 The source of truth for RBAC/ABAC authorization rules is in CASL abilities applied at trpc layer for API access and Postgres RLS rules
-for storage objects. The RLS policies are listed in `prisma.rls.sql`.
+for storage objects. The RLS policies are listed in `prisma/rls.sql`.
 
 ### API
 1. When a table is added via prisma migration, it is by default not secured via RLS. This means supabase UI clients can access them freely.
-**It is important to immediately enable RLS to it as close to possible as the migration is applied in version control** in the following areas:`prisma.rls.sql`, locally (via supabase studio @ `localhost:54323`),
-[test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and [prod](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce/auth/policies).
+**It is important to immediately enable RLS to it as close to possible as the migration is applied in version control** in the following areas: `prisma/rls.sql`, locally (via supabase studio @ `localhost:54323`), and in each deployed environment (Supabase dashboard → Authentication → Policies).
 2. RBAC/ABAC authorization on protected entities are defined via CASL abilities and applied as checks in the trpc layer. Every addition
 or change to an API should be audited to see if there are any necessary RBAC/ABAC authorization needed. By default our endpoints are open
 to all authenticated users (secured procedures), the public (public procedures), unless explicitly secured.
@@ -91,26 +96,23 @@ to all authenticated users (secured procedures), the public (public procedures),
 ### Storage
 Supabase RLS is the source-of-truth for storage authorization. **When new folder or bucket is created, it is important to add to storage
 RLS rules version controlled in (`prisma/rls.sql`) and apply the changes manually via the supabase management console locally 
-(via supabase studio @ `localhost:54323`), [test](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/auth/policies), and
-[prod](https://supabase.com/dashboard/project/raoharfnfnkuyabregez/storage/policies).**
+(via supabase studio @ `localhost:54323`) and in each deployed environment (Supabase dashboard → Storage → Policies).**
 NOTE: For first-time setup, you should create the 'images' bucket, set to Public and add the policies mentioned above. 
 
 ## Integration
 
 We use [trunk-based development](https://www.atlassian.com/continuous-delivery/continuous-integration/trunk-based-development) as our integration strategy. In conjunction with
 TDD and smaller commits, this allows for increased iteration speed. We emphasize taking smaller faster steps and reducing
-the time your code is diverging from the trunk (testing). For larger commits, a PR should be created and reviewed by others. For small commits, it's okay to get merge into testing. Commits are tracked in the `dev` slack channel.
+the time your code is diverging from the trunk (testing). For larger commits, a PR should be created and reviewed by others. For small commits, it's okay to get merge into testing.
 
 ### CI Workflow
 1. Run PBT in `system.test.ts` on any backend changes locally before deployment. Use `yarn run test` to run tests.
-2. Merge and push code into `testing` branch which is deployed automatically to the [testing environment](https://clubs-test.buildirl.com/)
-3. To deploy prod, create a PR from `origin/testing` into `origin/main`. Updates to the `main` branch is automatically 
-deployed to the [production environment](https://clubs.buildirl.com/).
+2. Merge and push code into the `testing` branch, which deploys automatically to a testing environment (if configured in your Vercel project)
+3. To deploy to production, create a PR from `testing` into `main`. Updates to the `main` branch deploy automatically to the production environment.
 
 ### DB Migrations
 1. Apply migrations first locally using `just db-migrate`. This creates migration files (in `prisma/migrations/`) from `schema.prisma` changes
-2. Vercel deployments into testing and production environment automatically applies the generated migration files to the [testing](https://supabase.com/dashboard/project/raoharfnfnkuyabregez) 
-and [production](https://supabase.com/dashboard/project/zepmgttkkbjigvvvbbce) databases respectively
+2. Vercel deployments into the testing and production environments automatically apply the generated migration files to the corresponding Supabase databases
 3. Newly created tables need to be secured in all environments by turning on RLS (see Authorization section). It is ideal to do this
 as closely to when the table creation migration is applied.
 4. Then use `just generate-prisma`. See [Prisma Generation](https://www.prisma.io/docs/orm/reference/prisma-cli-reference#generate)
@@ -150,7 +152,7 @@ Not doing so adds to technical and knowledge debt which will be a risk in the lo
 - The `CLAUDE.md`  contains AI-facing documentation for Claude Code agentic mode.
 - The `.cursor/rules/` directory contains AI-facing documentation for Cursor copilot.
 - `docs/ai-reference/software_principles.md` - Software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
-- `docs/ai-reference/team-software_principles.md` - Team specific software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
+- `docs/ai-reference/team_software_principles.md` - Team specific software engineering principles reference for AI-assisted development. This can be passed into the AI for additional context.
 
 The [docs/ai-reference/team_software_principles.md](docs/ai-reference/team_software_principles.md) also serves as a documentation for team best practices. It is encouraged you read
 this document prior to development to understand some team coding principles.
@@ -165,5 +167,4 @@ To get faster feedback, we often need to have experimental development practices
 This approach emphasizes rapid hypothesis testing — prioritizing quick speed doing what ever is fastest and easiest to test a specific hypothesis - 
 over long-term maintainability. 
 
-When adding prototype code to the main application, mark it with `!! PROTOTYPE` to ensure proper cleanup or refactoring post-test. This [document](https://docs.google.com/document/d/1I8Dq7xzS3dNXgUY9VJZ-Rjt7r8fMBvrMpGmv3VNEUFw/)
-provides context on the decision between prototype or production.
+When adding prototype code to the main application, mark it with `!! PROTOTYPE` to ensure proper cleanup or refactoring post-test.
